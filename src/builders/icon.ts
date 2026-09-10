@@ -1,8 +1,9 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
-import type { AppState, IconSize, Resolvable } from '../core/types.js';
+import type { TextValue } from '../core/builder.js';
+import type { AppState, IconSize } from '../core/types.js';
 
 /**
  * 飾り（アイコン）ビルダー
@@ -15,11 +16,11 @@ import type { AppState, IconSize, Resolvable } from '../core/types.js';
  */
 export class IconBuilder<S extends object = AppState> extends Builder<S> {
 
-	private iconName: Resolvable<string, Context<S>>;
+	private iconName: TextValue<S>;
 	private iconSize: IconSize = 'md';
-	private altText: Resolvable<string, Context<S>> | undefined;
+	private altText: TextValue<S> | undefined;
 
-	constructor (name: Resolvable<string, Context<S>>) {
+	constructor (name: TextValue<S>) {
 
 		super();
 		this.iconName = name;
@@ -61,7 +62,7 @@ export class IconBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	alt (text: Resolvable<string, Context<S>>): this {
+	alt (text: TextValue<S>): this {
 
 		this.altText = text;
 		return this;
@@ -71,9 +72,9 @@ export class IconBuilder<S extends object = AppState> extends Builder<S> {
 	protected override template (ctx: Context<S>): TemplateResult {
 
 		return html`<jb-icon
-			.name=${String(resolve(this.iconName, ctx) ?? '')}
+			.name=${text(this.iconName, ctx)}
 			.size=${this.iconSize}
-			.alt=${resolve(this.altText, ctx) ?? ''}
+			.alt=${text(this.altText, ctx)}
 		></jb-icon>`;
 
 	}

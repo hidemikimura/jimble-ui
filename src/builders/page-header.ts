@@ -1,7 +1,7 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, renderNode, resolve } from '../core/builder.js';
-import type { Node } from '../core/builder.js';
+import { Builder, renderNode, text } from '../core/builder.js';
+import type { Node, TextValue } from '../core/builder.js';
 import type { Context } from '../core/context.js';
 import type { AppState, BreadcrumbItem, Resolvable } from '../core/types.js';
 import { BreadcrumbBuilder } from './breadcrumb.js';
@@ -19,13 +19,13 @@ import { BreadcrumbBuilder } from './breadcrumb.js';
  */
 export class PageHeaderBuilder<S extends object = AppState> extends Builder<S> {
 
-	private headingText: Resolvable<string, Context<S>>;
-	private descriptionText: Resolvable<string, Context<S>> | undefined;
+	private headingText: TextValue<S>;
+	private descriptionText: TextValue<S> | undefined;
 	private crumbs: Resolvable<BreadcrumbItem[], Context<S>> | undefined;
 	private actionNodes: Node<S>[] = [];
 	private belowNodes: Node<S>[] = [];
 
-	constructor (heading: Resolvable<string, Context<S>>) {
+	constructor (heading: TextValue<S>) {
 
 		super();
 		this.headingText = heading;
@@ -38,7 +38,7 @@ export class PageHeaderBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	description (text: Resolvable<string, Context<S>>): this {
+	description (text: TextValue<S>): this {
 
 		this.descriptionText = text;
 		return this;
@@ -87,8 +87,8 @@ export class PageHeaderBuilder<S extends object = AppState> extends Builder<S> {
 	protected override template (ctx: Context<S>): TemplateResult {
 
 		return html`<jb-page-header
-			.heading=${String(resolve(this.headingText, ctx) ?? '')}
-			.description=${resolve(this.descriptionText, ctx) ?? ''}
+			.heading=${text(this.headingText, ctx)}
+			.description=${text(this.descriptionText, ctx)}
 		>
 			${this.crumbs === undefined
 				? ''

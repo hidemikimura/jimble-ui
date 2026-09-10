@@ -1,7 +1,7 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, renderNode, resolve } from '../core/builder.js';
-import type { Node } from '../core/builder.js';
+import { Builder, renderNode, resolve, text } from '../core/builder.js';
+import type { Node, TextValue } from '../core/builder.js';
 import type { Context } from '../core/context.js';
 import type { AppState, DialogSize, Resolvable } from '../core/types.js';
 
@@ -21,7 +21,7 @@ import type { AppState, DialogSize, Resolvable } from '../core/types.js';
  */
 export class DialogBuilder<S extends object = AppState> extends Builder<S> {
 
-	private titleText: Resolvable<string, Context<S>> | undefined;
+	private titleText: TextValue<S> | undefined;
 	private openValue: Resolvable<boolean, Context<S>> | undefined;
 	private sizeValue: Resolvable<DialogSize, Context<S>> | undefined;
 	private closableValue: Resolvable<boolean, Context<S>> | undefined;
@@ -41,7 +41,7 @@ export class DialogBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	title (text: Resolvable<string, Context<S>>): this {
+	title (text: TextValue<S>): this {
 
 		this.titleText = text;
 		return this;
@@ -117,7 +117,7 @@ export class DialogBuilder<S extends object = AppState> extends Builder<S> {
 
 		return html`<jb-dialog
 			.open=${resolve(this.openValue, ctx) === true}
-			.title=${resolve(this.titleText, ctx) ?? ''}
+			.title=${text(this.titleText, ctx)}
 			.size=${resolve(this.sizeValue, ctx) ?? 'md'}
 			.closable=${resolve(this.closableValue, ctx) !== false}
 			@jb-close=${() => this.closeHandler?.(ctx)}

@@ -1,6 +1,6 @@
 {
 	"name": "jimble-ui",
-	"version": "0.8.0",
+	"version": "0.8.1",
 	"description": "HTML と CSS を隔離し、TypeScript のビルダーだけで SPA を組み立てるフロントフレームワーク",
 	"type": "module",
 	"main": "dist/index.js",

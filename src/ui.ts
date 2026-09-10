@@ -24,7 +24,7 @@ import { MenuBuilder } from './builders/menu.js';
 import { SidebarBuilder } from './builders/sidebar.js';
 import { PageHeaderBuilder } from './builders/page-header.js';
 import { guard } from './core/dev.js';
-import type { Node } from './core/builder.js';
+import type { Node, TextValue } from './core/builder.js';
 import type { Context } from './core/context.js';
 import type { AppState, BreadcrumbItem, ChartPoint, Resolvable, TabItem } from './core/types.js';
 
@@ -259,7 +259,7 @@ export const UI = {
 	 * @param label 文言
 	 * @return ビルダー
 	 */
-	button<S extends object = AppState> (label: Resolvable<string, Context<S>>): ButtonBuilder<S> {
+	button<S extends object = AppState> (label: TextValue<S>): ButtonBuilder<S> {
 
 		return guard(new ButtonBuilder<S>(label));
 
@@ -358,8 +358,8 @@ export const UI = {
 	 * @return ビルダー
 	 */
 	stat<S extends object = AppState> (
-		label: Resolvable<string, Context<S>>,
-		value: Resolvable<string | number, Context<S>>
+		label: TextValue<S>,
+		value: TextValue<S>
 	): StatBuilder<S> {
 
 		return guard(new StatBuilder<S>(label, value));
@@ -407,7 +407,7 @@ export const UI = {
 	 * @param heading 見出し
 	 * @return ビルダー
 	 */
-	empty<S extends object = AppState> (heading: Resolvable<string, Context<S>>): EmptyBuilder<S> {
+	empty<S extends object = AppState> (heading: TextValue<S>): EmptyBuilder<S> {
 
 		return guard(new EmptyBuilder<S>(heading));
 
@@ -419,7 +419,7 @@ export const UI = {
 	 * @param name 名前（plus / edit / trash / user など）
 	 * @return ビルダー
 	 */
-	icon<S extends object = AppState> (name: Resolvable<string, Context<S>>): IconBuilder<S> {
+	icon<S extends object = AppState> (name: TextValue<S>): IconBuilder<S> {
 
 		return guard(new IconBuilder<S>(name));
 
@@ -455,7 +455,7 @@ export const UI = {
 	 * @param heading 題名
 	 * @return ビルダー
 	 */
-	pageHeader<S extends object = AppState> (heading: Resolvable<string, Context<S>>): PageHeaderBuilder<S> {
+	pageHeader<S extends object = AppState> (heading: TextValue<S>): PageHeaderBuilder<S> {
 
 		return guard(new PageHeaderBuilder<S>(heading));
 

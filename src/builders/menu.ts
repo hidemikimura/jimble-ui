@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import { report } from '../core/dev.js';
 import type { AppState, MenuItem, Resolvable } from '../core/types.js';
 
@@ -32,7 +33,7 @@ interface Entry<S extends object> {
 export class MenuBuilder<S extends object = AppState> extends Builder<S> {
 
 	private entries: Entry<S>[] = [];
-	private triggerLabel: Resolvable<string, Context<S>> | undefined;
+	private triggerLabel: TextValue<S> | undefined;
 	private triggerIcon = 'more';
 	private alignValue: 'start' | 'end' = 'end';
 	private disabledValue: Resolvable<boolean, Context<S>> | undefined;
@@ -102,7 +103,7 @@ export class MenuBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param label 文言
 	 * @return ビルダー
 	 */
-	trigger (label: Resolvable<string, Context<S>>): this {
+	trigger (label: TextValue<S>): this {
 
 		this.triggerLabel = label;
 		return this;
@@ -151,7 +152,7 @@ export class MenuBuilder<S extends object = AppState> extends Builder<S> {
 
 		return html`<jb-menu
 			.items=${this.entries.map((entry) => entry.item)}
-			.label=${resolve(this.triggerLabel, ctx) ?? ''}
+			.label=${text(this.triggerLabel, ctx)}
 			.icon=${this.triggerIcon}
 			.align=${this.alignValue}
 			.disabled=${resolve(this.disabledValue, ctx) === true}

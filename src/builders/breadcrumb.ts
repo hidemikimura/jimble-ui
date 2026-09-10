@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { AppState, BreadcrumbItem, Resolvable } from '../core/types.js';
 
 /**
@@ -20,7 +21,7 @@ import type { AppState, BreadcrumbItem, Resolvable } from '../core/types.js';
 export class BreadcrumbBuilder<S extends object = AppState> extends Builder<S> {
 
 	private items: Resolvable<BreadcrumbItem[], Context<S>>;
-	private separatorText: Resolvable<string, Context<S>> | undefined;
+	private separatorText: TextValue<S> | undefined;
 	private selectHandler: ((path: string, ctx: Context<S>) => unknown) | null = null;
 
 	constructor (items: Resolvable<BreadcrumbItem[], Context<S>>) {
@@ -36,7 +37,7 @@ export class BreadcrumbBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 区切り
 	 * @return ビルダー
 	 */
-	separator (text: Resolvable<string, Context<S>>): this {
+	separator (text: TextValue<S>): this {
 
 		this.separatorText = text;
 		return this;
@@ -60,7 +61,7 @@ export class BreadcrumbBuilder<S extends object = AppState> extends Builder<S> {
 
 		return html`<jb-breadcrumb
 			.items=${resolve(this.items, ctx) ?? []}
-			.separator=${resolve(this.separatorText, ctx) ?? '/'}
+			.separator=${text(this.separatorText, ctx) || '/'}
 			@jb-select=${(event: CustomEvent<{ path: string }>) => {
 				if (this.selectHandler == null) {
 					ctx.go(event.detail.path);

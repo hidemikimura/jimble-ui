@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import { report } from '../core/dev.js';
 import type { AppState, ButtonVariant, Resolvable } from '../core/types.js';
 
@@ -17,15 +18,15 @@ import type { AppState, ButtonVariant, Resolvable } from '../core/types.js';
  */
 export class ButtonBuilder<S extends object = AppState> extends Builder<S> {
 
-	private label: Resolvable<string, Context<S>>;
+	private label: TextValue<S>;
 	private base: 'default' | 'primary' | 'danger' = 'default';
 	private isQuiet = false;
-	private iconName: Resolvable<string, Context<S>> | undefined;
+	private iconName: TextValue<S> | undefined;
 	private disabledValue: Resolvable<boolean, Context<S>> | undefined;
 	private loadingValue: Resolvable<boolean, Context<S>> | undefined;
 	private clickHandler: ((ctx: Context<S>) => unknown) | null = null;
 
-	constructor (label: Resolvable<string, Context<S>>) {
+	constructor (label: TextValue<S>) {
 
 		super();
 		this.label = label;
@@ -68,7 +69,7 @@ export class ButtonBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param name jb-icon の名前
 	 * @return ビルダー
 	 */
-	icon (name: Resolvable<string, Context<S>>): this {
+	icon (name: TextValue<S>): this {
 
 		this.iconName = name;
 		return this;
@@ -142,9 +143,9 @@ export class ButtonBuilder<S extends object = AppState> extends Builder<S> {
 	protected override template (ctx: Context<S>): TemplateResult {
 
 		return html`<jb-button
-			.label=${String(resolve(this.label, ctx) ?? '')}
+			.label=${text(this.label, ctx)}
 			.variant=${this.variantOf()}
-			.icon=${resolve(this.iconName, ctx) ?? ''}
+			.icon=${text(this.iconName, ctx)}
 			.disabled=${resolve(this.disabledValue, ctx) === true}
 			.loading=${resolve(this.loadingValue, ctx) === true}
 			@jb-click=${() => this.click(ctx)}

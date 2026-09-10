@@ -302,6 +302,17 @@ UI.text('name').bind('form.name').onInput(revalidate);
 ほぼすべての引数は、値そのものでも `ctx` を受け取る関数でも書ける。
 **状態から計算する値は必ず関数で書く**（値で書くと初回の値で固定される）。
 
+**画面に出す文言は `null` / `undefined` を渡してよい**（「文言なし」になる）。
+`?? ''` を付ける必要はない。
+
+```ts
+UI.dialog(...).title((c) => c.get('target')?.name)   // string | undefined でよい ⭕
+UI.pageHeader((c) => c.get('staff')?.name ?? '')     // 付けても構わないが不要
+```
+
+ただし**文言以外**（`.go(path)` / `.bind(path)` / `.value()` / `.sort(key)` / `.width()` など）は
+文字列そのものを渡すこと。
+
 ```ts
 UI.button('削除')
 	.danger()

@@ -29,6 +29,34 @@ export function resolve<V, S extends object> (value: Resolvable<V, Context<S>> |
 }
 
 /**
+ * 画面に出す文言
+ *
+ * <p>
+ * {@code null} と {@code undefined} は「文言なし」として扱う。
+ * 「選ばれている行の名前」のように、<b>無いことがある値をそのまま渡せる</b>ようにするため。
+ * </p>
+ *
+ * <pre>
+ * UI.dialog(...).title((ctx) =&gt; ctx.get('target')?.name)   // string | undefined でよい
+ * </pre>
+ */
+export type TextValue<S extends object = AppState> = Resolvable<string | number | null | undefined, Context<S>>;
+
+/**
+ * 文言を解決する
+ *
+ * @param value 文言または関数
+ * @param ctx コンテキスト
+ * @return 文字列（無ければ空文字）
+ */
+export function text<S extends object> (value: TextValue<S> | undefined, ctx: Context<S>): string {
+
+	const resolved = resolve(value, ctx);
+	return resolved == null ? '' : String(resolved);
+
+}
+
+/**
  * ビルダー基底
  *
  * <p>

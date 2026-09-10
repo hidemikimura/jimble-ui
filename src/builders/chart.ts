@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { AppState, ChartPoint, ChartType, Resolvable } from '../core/types.js';
 
 /**
@@ -18,8 +19,8 @@ export class ChartBuilder<S extends object = AppState> extends Builder<S> {
 	private points: Resolvable<ChartPoint[], Context<S>>;
 	private chartType: ChartType = 'bar';
 	private heightValue: Resolvable<number, Context<S>> | undefined;
-	private titleText: Resolvable<string, Context<S>> | undefined;
-	private emptyText: Resolvable<string, Context<S>> | undefined;
+	private titleText: TextValue<S> | undefined;
+	private emptyText: TextValue<S> | undefined;
 
 	constructor (points: Resolvable<ChartPoint[], Context<S>>) {
 
@@ -63,7 +64,7 @@ export class ChartBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	title (text: Resolvable<string, Context<S>>): this {
+	title (text: TextValue<S>): this {
 
 		this.titleText = text;
 		return this;
@@ -76,7 +77,7 @@ export class ChartBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	empty (text: Resolvable<string, Context<S>>): this {
+	empty (text: TextValue<S>): this {
 
 		this.emptyText = text;
 		return this;
@@ -89,7 +90,7 @@ export class ChartBuilder<S extends object = AppState> extends Builder<S> {
 			.points=${resolve(this.points, ctx) ?? []}
 			.type=${this.chartType}
 			.height=${resolve(this.heightValue, ctx) ?? 160}
-			.title=${resolve(this.titleText, ctx) ?? ''}
+			.title=${text(this.titleText, ctx)}
 			.empty=${resolve(this.emptyText, ctx) ?? 'データがありません'}
 		></jb-chart>`;
 

@@ -1,7 +1,7 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, renderNode, resolve } from '../core/builder.js';
-import type { Node } from '../core/builder.js';
+import { Builder, renderNode, resolve, text } from '../core/builder.js';
+import type { Node, TextValue } from '../core/builder.js';
 import type { Context } from '../core/context.js';
 import type { AppState, NavItem, Resolvable } from '../core/types.js';
 
@@ -38,7 +38,7 @@ export class SidebarBuilder<S extends object = AppState> extends Builder<S> {
 
 	private navItems: NavItem[] = [];
 	private groupName: string | undefined;
-	private headingText: Resolvable<string, Context<S>> | undefined;
+	private headingText: TextValue<S> | undefined;
 	private currentValue: Resolvable<string, Context<S>> | undefined;
 	private footerNodes: Node<S>[] = [];
 	private selectHandler: ((value: string, ctx: Context<S>) => unknown) | null = null;
@@ -51,7 +51,7 @@ export class SidebarBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	heading (text: Resolvable<string, Context<S>>): this {
+	heading (text: TextValue<S>): this {
 
 		this.headingText = text;
 		return this;
@@ -168,7 +168,7 @@ export class SidebarBuilder<S extends object = AppState> extends Builder<S> {
 		return html`<jb-nav
 			style=${'width:' + width + ';flex:0 0 auto' + (this.fullHeightValue ? ';min-height:100vh' : '')}
 			.items=${this.navItems}
-			.heading=${resolve(this.headingText, ctx) ?? ''}
+			.heading=${text(this.headingText, ctx)}
 			.current=${current}
 			@jb-select=${(event: CustomEvent<{ value: string }>) => this.select(event.detail.value, ctx)}
 		>${this.footerNodes.length === 0

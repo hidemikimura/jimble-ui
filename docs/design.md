@@ -1,6 +1,6 @@
 # jimble-ui 設計書
 
-版: 0.8.0 / 2026-09-10
+版: 0.8.1 / 2026-09-10
 
 ## 0. ビルドと実行
 
@@ -398,6 +398,25 @@ cp jimble-ui/docs/SKILL.md .claude/skills/jimble-ui/SKILL.md
 「`ctx` を使わない画面関数の引数を `_ctx` にする」を守れなかったもので、
 規約が後ろの節にしか書いていなかったのが原因だった。
 冒頭に移したら通るようになった — **これが本来の使い方**である。
+
+**CI での初回（0.8.1）も 2 / 3 で、今度は文書ではなく API の側が原因だった。**
+
+```
+error TS2345: Argument of type '() =&gt; string | null' is not assignable to
+  parameter of type 'Resolvable&lt;string, Context&lt;JimbleAppState&gt;&gt;'
+```
+
+確認ダイアログの文言を「選ばれている行」から作ると、素直に書けば `string | null` になる。
+文言を受け取る側が `string` しか許していなかったので、`?? ''` を付けないと通らなかった。
+
+これは<b>文書で注意を促すより、API で吸収するほうが正しい</b>と判断した。
+`TextValue`（`string | number | null | undefined`）を作り、
+<b>画面に出す文言はすべて</b>これで受け取るようにした（`null` は「文言なし」）。
+一方で<b>文言以外</b> — `.go(path)` / `.bind()` / `.value()` / `.sort(key)` / `.width()` — は
+文字列のままにしてある。ここに `null` が来るのは、たいてい書き間違いだからである。
+
+**評価が指すのは「文書の穴」だけではない。** 素直に書いて通らないなら、
+それは API の側が素直でない、という報せでもある。
 
 ### 検証のしかた
 

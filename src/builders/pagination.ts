@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { AppState, Resolvable } from '../core/types.js';
 
 /**
@@ -20,7 +21,7 @@ export class PaginationBuilder<S extends object = AppState> extends Builder<S> {
 	private pageValue: Resolvable<number, Context<S>> = 1;
 	private pagesValue: Resolvable<number, Context<S>> = 1;
 	private totalValue: Resolvable<number, Context<S>> | undefined;
-	private summaryText: Resolvable<string, Context<S>> | undefined;
+	private summaryText: TextValue<S> | undefined;
 	private changeHandler: ((page: number, ctx: Context<S>) => unknown) | null = null;
 
 	/**
@@ -68,7 +69,7 @@ export class PaginationBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	summary (text: Resolvable<string, Context<S>>): this {
+	summary (text: TextValue<S>): this {
 
 		this.summaryText = text;
 		return this;
@@ -94,7 +95,7 @@ export class PaginationBuilder<S extends object = AppState> extends Builder<S> {
 			.page=${resolve(this.pageValue, ctx) ?? 1}
 			.pages=${resolve(this.pagesValue, ctx) ?? 1}
 			.total=${resolve(this.totalValue, ctx) ?? 0}
-			.summary=${resolve(this.summaryText, ctx) ?? ''}
+			.summary=${text(this.summaryText, ctx)}
 			@jb-change=${(event: CustomEvent<{ page: number }>) => this.changeHandler?.(event.detail.page, ctx)}
 		></jb-pagination>`;
 

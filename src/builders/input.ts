@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { InputEventDetail } from '../components/jb-input.js';
 import type { AppState, InputType, Path, PathValue, Resolvable } from '../core/types.js';
 
@@ -23,9 +24,9 @@ export class InputBuilder<S extends object = AppState> extends Builder<S> {
 	private path: string | null = null;
 	private fixedValue: Resolvable<unknown, Context<S>> | undefined = undefined;
 
-	private labelText: Resolvable<string, Context<S>> | undefined;
-	private placeholderText: Resolvable<string, Context<S>> | undefined;
-	private hintText: Resolvable<string, Context<S>> | undefined;
+	private labelText: TextValue<S> | undefined;
+	private placeholderText: TextValue<S> | undefined;
+	private hintText: TextValue<S> | undefined;
 	private errorText: Resolvable<string | undefined, Context<S>> | undefined;
 	private requiredValue: Resolvable<boolean, Context<S>> | undefined;
 	private disabledValue: Resolvable<boolean, Context<S>> | undefined;
@@ -48,7 +49,7 @@ export class InputBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	label (text: Resolvable<string, Context<S>>): this {
+	label (text: TextValue<S>): this {
 
 		this.labelText = text;
 		return this;
@@ -61,7 +62,7 @@ export class InputBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	placeholder (text: Resolvable<string, Context<S>>): this {
+	placeholder (text: TextValue<S>): this {
 
 		this.placeholderText = text;
 		return this;
@@ -74,7 +75,7 @@ export class InputBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	hint (text: Resolvable<string, Context<S>>): this {
+	hint (text: TextValue<S>): this {
 
 		this.hintText = text;
 		return this;
@@ -194,9 +195,9 @@ export class InputBuilder<S extends object = AppState> extends Builder<S> {
 		return html`<jb-input
 			.name=${this.name}
 			.type=${this.type}
-			.label=${resolve(this.labelText, ctx) ?? ''}
-			.placeholder=${resolve(this.placeholderText, ctx) ?? ''}
-			.hint=${resolve(this.hintText, ctx) ?? ''}
+			.label=${text(this.labelText, ctx)}
+			.placeholder=${text(this.placeholderText, ctx)}
+			.hint=${text(this.hintText, ctx)}
 			.error=${resolve(this.errorText, ctx) ?? ''}
 			.value=${current == null ? '' : String(current)}
 			.required=${resolve(this.requiredValue, ctx) === true}

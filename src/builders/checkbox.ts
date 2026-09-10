@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { AppState, Path, PathValue, Resolvable } from '../core/types.js';
 
 /**
@@ -18,8 +19,8 @@ export class CheckboxBuilder<S extends object = AppState> extends Builder<S> {
 	private tag: 'jb-checkbox' | 'jb-switch';
 	private path: string | null = null;
 	private checkedValue: Resolvable<boolean, Context<S>> | undefined;
-	private labelText: Resolvable<string, Context<S>> | undefined;
-	private hintText: Resolvable<string, Context<S>> | undefined;
+	private labelText: TextValue<S> | undefined;
+	private hintText: TextValue<S> | undefined;
 	private errorText: Resolvable<string | undefined, Context<S>> | undefined;
 	private disabledValue: Resolvable<boolean, Context<S>> | undefined;
 	private changeHandler: ((checked: boolean, ctx: Context<S>) => unknown) | null = null;
@@ -38,7 +39,7 @@ export class CheckboxBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	label (text: Resolvable<string, Context<S>>): this {
+	label (text: TextValue<S>): this {
 
 		this.labelText = text;
 		return this;
@@ -51,7 +52,7 @@ export class CheckboxBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	hint (text: Resolvable<string, Context<S>>): this {
+	hint (text: TextValue<S>): this {
 
 		this.hintText = text;
 		return this;
@@ -131,8 +132,8 @@ export class CheckboxBuilder<S extends object = AppState> extends Builder<S> {
 
 		const attributes = {
 			name: this.name,
-			label: resolve(this.labelText, ctx) ?? '',
-			hint: resolve(this.hintText, ctx) ?? '',
+			label: text(this.labelText, ctx),
+			hint: text(this.hintText, ctx),
 			error: resolve(this.errorText, ctx) ?? '',
 			checked: current,
 			disabled: resolve(this.disabledValue, ctx) === true

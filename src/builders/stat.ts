@@ -1,7 +1,8 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, resolve } from '../core/builder.js';
+import { Builder, resolve, text } from '../core/builder.js';
 import type { Context } from '../core/context.js';
+import type { TextValue } from '../core/builder.js';
 import type { AppState, Resolvable, Trend } from '../core/types.js';
 
 /**
@@ -15,14 +16,14 @@ import type { AppState, Resolvable, Trend } from '../core/types.js';
  */
 export class StatBuilder<S extends object = AppState> extends Builder<S> {
 
-	private labelText: Resolvable<string, Context<S>>;
-	private valueText: Resolvable<string | number, Context<S>>;
-	private unitText: Resolvable<string, Context<S>> | undefined;
-	private deltaText: Resolvable<string, Context<S>> | undefined;
+	private labelText: TextValue<S>;
+	private valueText: TextValue<S>;
+	private unitText: TextValue<S> | undefined;
+	private deltaText: TextValue<S> | undefined;
 	private trendValue: Resolvable<Trend, Context<S>> = 'flat';
-	private hintText: Resolvable<string, Context<S>> | undefined;
+	private hintText: TextValue<S> | undefined;
 
-	constructor (label: Resolvable<string, Context<S>>, value: Resolvable<string | number, Context<S>>) {
+	constructor (label: TextValue<S>, value: TextValue<S>) {
 
 		super();
 		this.labelText = label;
@@ -36,7 +37,7 @@ export class StatBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 単位
 	 * @return ビルダー
 	 */
-	unit (text: Resolvable<string, Context<S>>): this {
+	unit (text: TextValue<S>): this {
 
 		this.unitText = text;
 		return this;
@@ -50,7 +51,7 @@ export class StatBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param trend 向き
 	 * @return ビルダー
 	 */
-	delta (text: Resolvable<string, Context<S>>, trend: Resolvable<Trend, Context<S>> = 'flat'): this {
+	delta (text: TextValue<S>, trend: Resolvable<Trend, Context<S>> = 'flat'): this {
 
 		this.deltaText = text;
 		this.trendValue = trend;
@@ -64,7 +65,7 @@ export class StatBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	hint (text: Resolvable<string, Context<S>>): this {
+	hint (text: TextValue<S>): this {
 
 		this.hintText = text;
 		return this;
@@ -74,12 +75,12 @@ export class StatBuilder<S extends object = AppState> extends Builder<S> {
 	protected override template (ctx: Context<S>): TemplateResult {
 
 		return html`<jb-stat
-			.label=${resolve(this.labelText, ctx) ?? ''}
-			.value=${String(resolve(this.valueText, ctx) ?? '')}
-			.unit=${resolve(this.unitText, ctx) ?? ''}
-			.delta=${resolve(this.deltaText, ctx) ?? ''}
+			.label=${text(this.labelText, ctx)}
+			.value=${text(this.valueText, ctx)}
+			.unit=${text(this.unitText, ctx)}
+			.delta=${text(this.deltaText, ctx)}
 			.trend=${resolve(this.trendValue, ctx) ?? 'flat'}
-			.hint=${resolve(this.hintText, ctx) ?? ''}
+			.hint=${text(this.hintText, ctx)}
 		></jb-stat>`;
 
 	}

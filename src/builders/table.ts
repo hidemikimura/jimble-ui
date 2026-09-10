@@ -1,7 +1,7 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, renderNode, resolve } from '../core/builder.js';
-import type { Node } from '../core/builder.js';
+import { Builder, renderNode, resolve, text } from '../core/builder.js';
+import type { Node, TextValue } from '../core/builder.js';
 import type { Context } from '../core/context.js';
 import type { AppState, ReorderPosition, Resolvable, SortOrder, TableColumn, TableRow } from '../core/types.js';
 import { reorderIndex } from '../core/reorder.js';
@@ -43,7 +43,7 @@ export class TableBuilder<T, S extends object = AppState> extends Builder<S> {
 	private keyOf: ((row: T, index: number) => string) | null = null;
 	private sortKeyValue: Resolvable<string, Context<S>> | undefined;
 	private sortOrderValue: Resolvable<SortOrder, Context<S>> | undefined;
-	private emptyText: Resolvable<string, Context<S>> | undefined;
+	private emptyText: TextValue<S> | undefined;
 	private loadingValue: Resolvable<boolean, Context<S>> | undefined;
 	private sortHandler: ((key: string, order: SortOrder, ctx: Context<S>) => unknown) | null = null;
 	private rowClickHandler: ((row: T, ctx: Context<S>) => unknown) | null = null;
@@ -104,7 +104,7 @@ export class TableBuilder<T, S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	empty (text: Resolvable<string, Context<S>>): this {
+	empty (text: TextValue<S>): this {
 
 		this.emptyText = text;
 		return this;
@@ -215,7 +215,7 @@ export class TableBuilder<T, S extends object = AppState> extends Builder<S> {
 			.rows=${rows}
 			.sortKey=${resolve(this.sortKeyValue, ctx) ?? ''}
 			.sortOrder=${resolve(this.sortOrderValue, ctx) ?? 'asc'}
-			.empty=${resolve(this.emptyText, ctx) ?? '該当するデータがありません'}
+			.empty=${text(this.emptyText, ctx) || '該当するデータがありません'}
 			.loading=${resolve(this.loadingValue, ctx) === true}
 			.clickable=${this.rowClickHandler != null}
 			.reorderable=${this.reorderHandler != null && resolve(this.reorderValue, ctx) !== false}

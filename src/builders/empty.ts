@@ -1,9 +1,9 @@
 import { html } from '../../vendor/lit.js';
 import type { TemplateResult } from '../../vendor/lit.js';
-import { Builder, renderNode, resolve } from '../core/builder.js';
-import type { Node } from '../core/builder.js';
+import { Builder, renderNode, text } from '../core/builder.js';
+import type { Node, TextValue } from '../core/builder.js';
 import type { Context } from '../core/context.js';
-import type { AppState, Resolvable } from '../core/types.js';
+import type { AppState } from '../core/types.js';
 
 /**
  * 空状態ビルダー
@@ -17,12 +17,12 @@ import type { AppState, Resolvable } from '../core/types.js';
  */
 export class EmptyBuilder<S extends object = AppState> extends Builder<S> {
 
-	private headingText: Resolvable<string, Context<S>>;
-	private descriptionText: Resolvable<string, Context<S>> | undefined;
-	private iconText: Resolvable<string, Context<S>> | undefined;
+	private headingText: TextValue<S>;
+	private descriptionText: TextValue<S> | undefined;
+	private iconText: TextValue<S> | undefined;
 	private actionNodes: Node<S>[] = [];
 
-	constructor (heading: Resolvable<string, Context<S>>) {
+	constructor (heading: TextValue<S>) {
 
 		super();
 		this.headingText = heading;
@@ -35,7 +35,7 @@ export class EmptyBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文言
 	 * @return ビルダー
 	 */
-	description (text: Resolvable<string, Context<S>>): this {
+	description (text: TextValue<S>): this {
 
 		this.descriptionText = text;
 		return this;
@@ -48,7 +48,7 @@ export class EmptyBuilder<S extends object = AppState> extends Builder<S> {
 	 * @param text 文字
 	 * @return ビルダー
 	 */
-	icon (text: Resolvable<string, Context<S>>): this {
+	icon (text: TextValue<S>): this {
 
 		this.iconText = text;
 		return this;
@@ -71,9 +71,9 @@ export class EmptyBuilder<S extends object = AppState> extends Builder<S> {
 	protected override template (ctx: Context<S>): TemplateResult {
 
 		return html`<jb-empty
-			.heading=${resolve(this.headingText, ctx) ?? ''}
-			.description=${resolve(this.descriptionText, ctx) ?? ''}
-			.icon=${resolve(this.iconText, ctx) ?? ''}
+			.heading=${text(this.headingText, ctx)}
+			.description=${text(this.descriptionText, ctx)}
+			.icon=${text(this.iconText, ctx)}
 		>${this.actionNodes.map((node) => renderNode(node, ctx))}</jb-empty>`;
 
 	}
