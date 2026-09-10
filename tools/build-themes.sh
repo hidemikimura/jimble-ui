@@ -4,14 +4,21 @@
 #
 #   sh tools/build-themes.sh
 #
-# tailwind-dark テーマのクラスを増やしたときと、Bootstrap を上げたときに実行する。
+# Tailwind 系テーマのクラスを増やしたときと、Bootstrap を上げたときに実行する。
+#
+# Tailwind 系は<b>テーマごとに別の CSS を作る</b>。
+# 1 つにまとめると、選ばなかったテーマのクラスまで配ることになるため。
 #
 set -e
 cd "$(dirname "$0")/.."
 
-echo "--- tailwind-dark"
-npx --yes tailwindcss@3 -c tools/tailwind.config.cjs -i tools/tailwind.css -o /tmp/jb-tailwind.css --minify
-node tools/css-to-module.mjs /tmp/jb-tailwind.css vendor/tailwind-dark.css.js "Tailwind CSS（tailwind-dark テーマが使うクラスだけを抽出したもの）"
+for theme in tailwind-dark tailui; do
+	echo "--- $theme"
+	JIMBLE_THEME_SRC="./src/themes/$theme.ts" \
+		npx --yes tailwindcss@3 -c tools/tailwind.config.cjs -i tools/tailwind.css -o "/tmp/jb-$theme.css" --minify
+	node tools/css-to-module.mjs "/tmp/jb-$theme.css" "vendor/$theme.css.js" \
+		"Tailwind CSS（$theme テーマが使うクラスだけを抽出したもの）"
+done
 
 echo "--- bootstrap5"
 npm pack bootstrap@5 --pack-destination /tmp >/dev/null

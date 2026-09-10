@@ -1,6 +1,6 @@
 # jimble-ui 設計書
 
-版: 0.8.1 / 2026-09-10
+版: 0.9.0 / 2026-09-10
 
 ## 0. ビルドと実行
 
@@ -37,7 +37,8 @@ Java 側で `SQLBuilder` が「SQL 文字列を書かずに、型と補完の効
 │   jb-stack / jb-input / jb-button / jb-text   │     マークアップも CSS も持たない
 ├─────────────────────────────────────────────┤
 │ テーマ層  src/themes/                         │  ← HTML と CSS が存在する唯一の場所
-│   original / bootstrap5 / tailwind-dark       │     差し替え可能。Shadow DOM 内に適用される
+│   original / bootstrap5 / tailwind-dark /    │     差し替え可能。Shadow DOM 内に適用される
+│   tailui                                    │
 ├─────────────────────────────────────────────┤
 │ lit（同梱 vendor/lit.js）                     │
 └─────────────────────────────────────────────┘
@@ -61,7 +62,7 @@ Java 側で `SQLBuilder` が「SQL 文字列を書かずに、型と補完の効
 | `params()` | `Store` | 値の置き場所 |
 | `Table` / `Column` 定義 | `jb-*` コンポーネント | 組み立ての語彙 |
 | `Dsl.now()` などの関数群 | `UI.text()` などの生成関数 | 語彙への入口 |
-| `Dialects`（MySQL / PostgreSQL） | `Theme`（original / bootstrap5 / tailwind-dark） | 最終的な出力の方言 |
+| `Dialects`（MySQL / PostgreSQL） | `Theme`（original / bootstrap5 / tailwind-dark / tailui） | 最終的な出力の方言 |
 | `DB.query(builder)` | `App.mount()` | 組み立て結果を実行する |
 
 「ビルダーは状態を持たず、出力時に環境を受け取る」という性質が同じなので、
@@ -144,6 +145,7 @@ UI.text('name').bind('form.nmae');  // コンパイルエラー
 | `original` | `<button><span>登録する</span></button>` ＋ `:host` に当てた独自 CSS |
 | `bootstrap5` | `<button type="button" class="btn btn-primary">登録する</button>` |
 | `tailwind-dark` | `<button type="button" class="inline-flex h-9 ... bg-indigo-500 text-white">登録する</button>` |
+| `tailui` | `<button type="button" class="inline-flex ... rounded-lg bg-indigo-600 px-5 py-2.5 ... active:scale-95">登録する</button>` |
 
 ### 6.1 テーマ定義
 
@@ -224,10 +226,39 @@ Theme.extend('original', {
 | `original` | テーマファイル内に直接書く | 数 KB |
 | `ecx`（`original` を継承） | 差分だけ書く | 1KB 未満 |
 | `bootstrap5` | npm の `bootstrap.min.css` をそのまま文字列モジュール化 | 227KB |
-| `tailwind-dark` | tailwindcss CLI にテーマファイルを走査させ、**使っているクラスだけ**抽出 | 10KB |
+| `tailwind-dark` | tailwindcss CLI にテーマファイルを走査させ、**使っているクラスだけ**抽出 | 15KB |
+| `tailui` | 同上（テーマごとに別の CSS を作る。選ばなかったテーマのぶんを配らないため） | 20KB |
 
 生成は `sh tools/build-themes.sh` で再実行できる。
 Tailwind は「クラス名を文字列そのままで書く」のが条件（`'bg-' + color` のような組み立ては検出されない）。
+
+### 6.5 HTML だけを配る素材サイトの取り込み方（tailui）
+
+[tailui](https://tailui.in/) は **JS も CSS も配っていない**。配っているのは
+Tailwind のクラスだけで書かれた HTML である。これは jimble-ui にとって
+<b>いちばん相性のよい素材</b>だった。テーマが持ちたいものが、まさにそれだけだからである。
+
+やったことは 3 つしかない。
+
+1. 実物のマークアップを読み、**書き方の決まりを拾う**
+   （面は白＋`ring-1 ring-gray-900/5`、入力は枠線を持たず `ring-inset`、
+   主色 indigo-600、角は `rounded-lg`/`rounded-xl`、押せるものは `active:scale-95`）
+2. その決まりで **26 コンポーネントのテンプレートを書く**
+3. `tools/build-themes.sh` に 1 行足して、**このテーマのぶんの CSS を別に抽出する**
+
+<b>アプリのコードは 1 行も変えていない。</b>`.theme('tailui')` と書くか、
+実行中に `useTheme('tailui')` を呼ぶだけで、既存の 8 つの examples がそのまま新しい見た目になる。
+これがテーマ機構の狙いどおりの動き方である。
+
+**tailui 本体は Tailwind v4 前提**だが、ここで使ったのは v3 でも通るクラスだけにした。
+v4 用の抽出（`@import "tailwindcss"` の CSS-first 設定）を足すと仕掛けが 2 系統になるうえ、
+v4 の生成物は `@property` を含み、Shadow DOM へ流し込んだときの扱いが環境で分かれるためである。
+v4 固有の書き方（`size-4` / `bg-linear-to-r` / `shadow-xs` / `outline-hidden` など）は使っていない。
+
+素材サイトから写すときに<b>写してはいけないもの</b>もある。tailui の HTML には
+`<details>`/`<summary>` で開閉を作っている部品があるが、開閉の状態は
+jimble-ui では<b>コンポーネントが持つ</b>（`jb-accordion` の `isOpen()`、`jb-menu` の `open`）。
+テーマは状態を持たない、という境界はここでも崩さない。
 
 ## 7. 主要 API
 
@@ -237,7 +268,7 @@ Tailwind は「クラス名を文字列そのままで書く」のが条件（`'
 | --- | --- |
 | `App.of()` | アプリを作る |
 | `.state(obj)` | 初期状態 |
-| `.theme('bootstrap5')` | テーマ（original / bootstrap5 / tailwind-dark） |
+| `.theme('bootstrap5')` | テーマ（original / bootstrap5 / tailwind-dark / tailui） |
 | `.useTheme(name)` | 実行中のテーマ切替（Promise） |
 | `.mode('production')` | 本番モード（誤りで画面を落とさない） |
 | `Theme.extend(親, 差分)` | テーマを継承して登録する |
@@ -502,6 +533,7 @@ jimble-ui/
 			original.ts       素の Shadow DOM 実装
 			bootstrap5.ts     Bootstrap 5 のクラスで組む
 			tailwind-dark.ts  Tailwind のクラスで組む（ダーク）
+			tailui.ts         tailui.in の書き方に寄せた明るいテーマ
 			icons.ts          アイコンの図形（3 テーマ共通）
 			position.ts       ドロップダウンの位置決め（3 テーマ共通）
 			（継承テーマの例は examples/ecx-theme.js）
@@ -528,6 +560,7 @@ jimble-ui/
 		lit.js            同梱した lit（ビルド不要にするため）
 		bootstrap5.css.js Bootstrap 5（bootstrap5 テーマ用・遅延読み込み）
 		tailwind-dark.css.js Tailwind 抽出済み（tailwind-dark テーマ用・遅延読み込み）
+		tailui.css.js     Tailwind 抽出済み（tailui テーマ用・遅延読み込み）
 	docs/design.md        この文書
 ```
 
@@ -542,7 +575,8 @@ jimble-ui/
    **属性名には `jb-` を付ける**（`align` や `width` は HTML の既定スタイルが解釈してしまうため）。
 2. `src/components/index.ts` に追加する。
 3. **各テーマ**の `components` に `'jb-select': component<JbSelect>({ styles, template })` を足す
-   （`original` / `bootstrap5` / `tailwind-dark`）。ここが唯一 HTML と CSS を書く場所。
+   （`original` / `bootstrap5` / `tailwind-dark` / `tailui`）。ここが唯一 HTML と CSS を書く場所。
+   **入れ忘れは `npm run check:skill` が落として教える。**
 4. `src/builders/select.ts` に `SelectBuilder extends Builder` を作り、`template(ctx)` で
    `html\`<jb-select .options=${...} @jb-change=${...}></jb-select>\`` を返す。
 5. `src/ui.ts` に `select (name) { return guard(new SelectBuilder(name)); }` を足し、`src/index.ts` から公開する。
@@ -591,5 +625,5 @@ Tailwind 系のテーマに手を入れたら `sh tools/build-themes.sh` で CSS
 4. **繰り返しの最適化**：`.key(fn)` と lit の `repeat` による差分の安定化
 6. **型**：`.d.ts` を生成し、`UI.` の補完を SQLBuilder 並みにする
 7. **サーバー駆動 UI**：`Builder#json()` と Java 側 `UIBuilder`
-8. **テーマ**：ライト版 Tailwind、Bootstrap のダーク（`data-bs-theme`）、印刷用テーマ。
+8. **テーマ**：~~ライト版 Tailwind~~（0.9.0 で tailui として実装）、Bootstrap のダーク（`data-bs-theme`）、印刷用テーマ。
    テーマごとのスクリーンショット比較（見た目の回帰検知）

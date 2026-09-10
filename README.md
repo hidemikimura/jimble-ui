@@ -109,7 +109,8 @@ await ctx.app.useTheme('tailwind-dark');  // 実行中に切り替え（状態�
 | --- | --- | --- |
 | `original` | 素の Shadow DOM ＋ デザイントークン（`--jb-*`） | テーマ内に直接記述 |
 | `bootstrap5` | Bootstrap 5 のクラスで組んだマークアップ | `vendor/bootstrap5.css.js`（227KB・遅延読み込み） |
-| `tailwind-dark` | Tailwind のクラスで組んだダークテーマ | `vendor/tailwind-dark.css.js`（10KB・使用クラスのみ抽出） |
+| `tailwind-dark` | Tailwind のクラスで組んだダークテーマ | `vendor/tailwind-dark.css.js`（15KB・使用クラスのみ抽出） |
+| `tailui` | [tailui](https://tailui.in/) の書き方に寄せた明るいテーマ | `vendor/tailui.css.js`（20KB・使用クラスのみ抽出） |
 | `ecx`（例） | `original` を継承し、差分だけ書いた社内デザイン | 親のCSS ＋ 差分 |
 
 テーマは継承できる。書いた差分だけが上書きされ、残りは親のまま。

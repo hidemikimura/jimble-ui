@@ -28,7 +28,7 @@ export {
 
 export { setMode, mode, isDev, fail, warn, report, guard, JimbleError } from './core/dev.js';
 
-export { original, bootstrap5, tailwindDark, DEFAULT_THEME } from './themes/index.js';
+export { original, bootstrap5, tailwindDark, tailui, DEFAULT_THEME } from './themes/index.js';
 export { TOKENS as DEFAULT_TOKENS } from './themes/original.js';
 
 export { notify } from './core/notify.js';

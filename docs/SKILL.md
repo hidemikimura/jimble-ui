@@ -10,7 +10,7 @@ Lit + Shadow DOM の上に作られたフロントフレームワーク。場所
 - **アプリのコードに HTML と CSS は出てこない。** タグ名も CSS クラス名も書かない
 - 画面は「コンテキストを受け取ってビルダーを返す関数」。
   **`ctx` を使わない画面は `(_ctx: Context)` と書く**（`noUnusedParameters` で落ちる）
-- HTML と CSS があるのは `src/themes/` のテーマだけ（original / bootstrap5 / tailwind-dark / 継承テーマ）
+- HTML と CSS があるのは `src/themes/` のテーマだけ（original / bootstrap5 / tailwind-dark / tailui / 継承テーマ）
 
 ## 絶対規約
 
@@ -110,7 +110,7 @@ ctx.params.id / ctx.query.page             // ルートの :id と ?page=
 | --- | --- |
 | `App.of()` | 作る |
 | `.state(initial)` | 初期状態（必須） |
-| `.theme(name, tokens?)` | `'original'` / `'bootstrap5'` / `'tailwind-dark'` / 継承テーマ名 |
+| `.theme(name, tokens?)` | `'original'` / `'bootstrap5'` / `'tailwind-dark'` / `'tailui'` / 継承テーマ名 |
 | `.mode('production')` | 誤りで画面を落とさない（既定は development） |
 | `.routing('history')` | pushState 方式（既定はハッシュ） |
 | `.api(Api.of('/api'))` | `ctx.api` から使える REST クライアント |
@@ -506,7 +506,7 @@ await ctx.api!.post('/staff', ctx.get('form'));
    マークアップも CSS も書かない。値が変わったら `jb-change` を `bubbles: true, composed: true` で投げる。
    **属性名は必ず `jb-` を付ける**（`align` や `width` は HTML の既定スタイルが解釈してしまう）
 2. `src/components/index.ts` に足す
-3. `src/themes/{original,bootstrap5,tailwind-dark}.ts` の `components` に
+3. `src/themes/{original,bootstrap5,tailwind-dark,tailui}.ts` の `components` に
    `'jb-xxx': component<JbXxx>({ styles, template })` を足す ← HTML と CSS を書くのはここだけ
    テンプレートの引数は `(el, html, svg)`。**SVG の中身は `svg` で作る**
    （`html` で作ると HTML 要素として解釈され、描画されない）
@@ -514,7 +514,7 @@ await ctx.api!.post('/staff', ctx.get('form'));
    `` html`<jb-xxx .prop=${...} @jb-change=${...}></jb-xxx>` `` を返す
 5. `src/ui.ts` に `xxx (name) { return guard(new XxxBuilder(name)); }` を足し、`src/index.ts` から公開する
 
-tailwind-dark に手を入れたら `sh tools/build-themes.sh` で CSS を作り直す。
+tailwind-dark と tailui に手を入れたら `sh tools/build-themes.sh` で CSS を作り直す。
 **Tailwind のクラス名は文字列そのままで書く**（`'bg-' + color` のような組み立ては抽出されない）。
 
 ## テーマを継承する

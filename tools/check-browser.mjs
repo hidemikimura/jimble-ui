@@ -51,7 +51,7 @@ const server = createServer((request, response) => {
 await new Promise((done) => server.listen(port, done));
 
 const url = 'http://localhost:' + String(port) + '/examples/parts/index.html';
-const themes = ['original', 'bootstrap5', 'tailwind-dark', 'ecx'];
+const themes = ['original', 'bootstrap5', 'tailwind-dark', 'tailui', 'ecx'];
 
 /*
  * CI では npx playwright install が入れたものが既定で見つかる。

@@ -179,7 +179,7 @@ for (const file of readdirSync(join(root, 'src/components'))) {
 	}
 }
 
-const themes = ['original', 'bootstrap5', 'tailwind-dark'];
+const themes = ['original', 'bootstrap5', 'tailwind-dark', 'tailui'];
 const holes = [];
 for (const theme of themes) {
 	const source = readFileSync(join(root, 'src/themes/' + theme + '.ts'), 'utf8');

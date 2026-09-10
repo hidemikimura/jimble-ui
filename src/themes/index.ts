@@ -9,8 +9,9 @@
 import original from './original.js';
 import bootstrap5 from './bootstrap5.js';
 import tailwindDark from './tailwind-dark.js';
+import tailui from './tailui.js';
 
-export { original, bootstrap5, tailwindDark };
+export { original, bootstrap5, tailwindDark, tailui };
 
 /** 既定テーマ名 */
 export const DEFAULT_THEME = 'original';
