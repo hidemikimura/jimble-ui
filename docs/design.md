@@ -369,6 +369,10 @@ cp jimble-ui/docs/SKILL.md .claude/skills/jimble-ui/SKILL.md
 公開メソッドの一覧は `dist/**/*.d.ts` から取る。**手で並べた一覧と突き合わせない。**
 手で書いた一覧は、更新を忘れた日から何も見なくなる。
 
+手元では `claude` コマンド（Claude Code）をそのまま使い、CI では `ANTHROPIC_API_KEY` を使う。
+**モデル名は埋め込んでいない。** 指定が無ければ API に一覧を聞いて一番新しい sonnet を選ぶ
+（名前を書き込むと、それが古くなった日に「鍵はあるのに毎回失敗する」状態になる）。
+
 `eval` は、SKILL.md 全文と課題（`tools/eval/tasks/*.md`）だけを渡し、
 **1 往復で** app.ts を書かせて型検査する。
 コンパイラを見ながら直させると、文書が足りなくても最後には通ってしまい、

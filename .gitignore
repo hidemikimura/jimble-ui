@@ -7,3 +7,4 @@ examples/**/*.js.map
 tools/eval/run/
 
 .DS_Store
+.idea/

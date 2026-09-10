@@ -23,7 +23,13 @@
  * 動かすのに必要なもの（どちらか）
  *
  *   claude コマンド（Claude Code）… そのまま使える
- *   ANTHROPIC_API_KEY             … CI ではこちら。モデルは JIMBLE_EVAL_MODEL で変えられる
+ *   ANTHROPIC_API_KEY             … CI ではこちら
+ *
+ * <p>
+ * モデルは JIMBLE_EVAL_MODEL で指定する。<b>指定が無ければ API に一覧を聞き、
+ * 一番新しい sonnet を選ぶ。</b>モデル名を書き込んでおくと、その名前が古くなった日に
+ * 「鍵はあるのに毎回失敗する」状態になり、原因が分かりにくいためである。
+ * </p>
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -195,7 +201,7 @@ function hasClaudeCommand () {
  */
 function callApi (prompt) {
 
-	const model = process.env.JIMBLE_EVAL_MODEL ?? 'claude-sonnet-4-5';
+	const model = resolveModel();
 	const response = execFileSync('curl', [
 		'-sS', '-X', 'POST', (process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com') + '/v1/messages',
 		'-H', 'content-type: application/json',
@@ -214,6 +220,54 @@ function callApi (prompt) {
 		throw new Error(parsed.error.message ?? JSON.stringify(parsed.error));
 	}
 	return (parsed.content ?? []).map((part) => part.text ?? '').join('');
+
+}
+
+/* 一度決めたら使い回す */
+let MODEL = null;
+
+/**
+ * 使うモデルを決める
+ *
+ * <p>
+ * 指定が無ければ API に一覧を聞き、一番新しい sonnet を選ぶ。
+ * 名前を埋め込まないのは、古くなった日に黙って失敗し続けるのを避けるため。
+ * </p>
+ *
+ * @return {string} モデル名
+ */
+function resolveModel () {
+
+	if (MODEL != null) {
+		return MODEL;
+	}
+
+	const named = (process.env.JIMBLE_EVAL_MODEL ?? '').trim();
+	if (named !== '') {
+		MODEL = named;
+		return MODEL;
+	}
+
+	const listed = JSON.parse(execFileSync('curl', [
+		'-sS', (process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com') + '/v1/models?limit=100',
+		'-H', 'anthropic-version: 2023-06-01',
+		'-H', 'x-api-key: ' + process.env.ANTHROPIC_API_KEY
+	], { encoding: 'utf8', timeout: 60 * 1000 }));
+
+	if (listed.error != null) {
+		throw new Error('モデル一覧を取れませんでした: ' + (listed.error.message ?? ''));
+	}
+
+	const models = (listed.data ?? []).filter((entry) => String(entry.id).includes('sonnet'));
+	if (models.length === 0) {
+		throw new Error('sonnet のモデルが見つかりません。JIMBLE_EVAL_MODEL で指定してください');
+	}
+
+	/* created_at の新しい順。無ければ id の降順 */
+	models.sort((a, b) => String(b.created_at ?? b.id).localeCompare(String(a.created_at ?? a.id)));
+	MODEL = models[0].id;
+	console.log('[eval] モデル: ' + MODEL + '（JIMBLE_EVAL_MODEL で変えられます）');
+	return MODEL;
 
 }
 
