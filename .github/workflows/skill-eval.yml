@@ -70,9 +70,12 @@ jobs:
           JIMBLE_EVAL_MODEL: ${{ vars.JIMBLE_EVAL_MODEL }}
         run: npm run eval
 
-      # 表を Actions の画面に出す。ここを見るだけで傾向が分かる
+      # 表を Actions の画面に出す。ここを見るだけで傾向が分かる。
+      #
+      # <b>always() を付ける。</b>評価が落ちたとき（＝1 件も書かせられなかったとき）こそ
+      # 中身を読みたいのに、付けないとこの手順ごと飛ばされて何も出なくなる。
       - name: 結果を要約に出す
-        if: steps.key.outputs.has_key == 'yes'
+        if: always() && steps.key.outputs.has_key == 'yes'
         run: cat tools/eval/run/report.md >> "$GITHUB_STEP_SUMMARY"
 
       # AI が書いたコードそのもの。どこで詰まったかは、これを読むのが早い

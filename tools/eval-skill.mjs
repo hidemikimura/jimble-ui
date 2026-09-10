@@ -38,6 +38,15 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const runDirectory = join(root, 'tools/eval/run');
+
+/*
+ * 一度決めたモデルを使い回す入れ物。
+ *
+ * <b>ここで宣言する。</b>下の関数の近くに let で置くと、
+ * 課題を回すのはこの上（モジュールの途中）なので、
+ * 「Cannot access 'MODEL' before initialization」で落ちる。
+ */
+const CHOSEN = { model: null };
 const skill = readFileSync(join(root, 'docs/SKILL.md'), 'utf8');
 const filter = process.argv[2] ?? '';
 
@@ -69,6 +78,9 @@ if (tasks.length === 0) {
 	process.exit(2);
 }
 
+/* 1 件も書けなくても報告は残すので、先に作っておく */
+mkdirSync(runDirectory, { recursive: true });
+
 const results = [];
 
 for (const task of tasks) {
@@ -81,11 +93,11 @@ for (const task of tasks) {
 
 	let answer;
 	try {
-		answer = ask(INSTRUCTION + '\n\n--- 課題 ---\n' + body);
+		answer = await ask(INSTRUCTION + '\n\n--- 課題 ---\n' + body);
 	} catch (error) {
 		console.log('');
 		console.error('[eval] ' + name + ' の生成に失敗しました: ' + String(error.message).split('\n')[0]);
-		results.push({ name, ok: false, errors: ['生成に失敗'], code: '' });
+		results.push({ name, ok: false, generated: false, errors: ['生成に失敗: ' + String(error.message).split('\n')[0]], code: '' });
 		continue;
 	}
 
@@ -108,7 +120,7 @@ for (const task of tasks) {
 	process.stdout.write(' → 型検査');
 
 	const errors = typeCheck(directory);
-	results.push({ name, ok: errors.length === 0, errors, code });
+	results.push({ name, ok: errors.length === 0, generated: true, errors, code });
 
 	console.log(errors.length === 0 ? ' … 通りました' : ' … ' + errors.length + ' 件の誤り');
 	for (const error of errors) {
@@ -122,24 +134,41 @@ for (const task of tasks) {
  * ------------------------------------------------------------------ */
 
 const passed = results.filter((r) => r.ok).length;
+const generated = results.filter((r) => r.generated).length;
+
 const report = [
 	'# SKILL.md の評価',
 	'',
 	'SKILL.md だけを渡した AI に画面を書かせ、1 往復で型検査が通るかを見たもの。',
 	'落ちた項目は「SKILL.md で説明できていなかったところ」である。',
 	'',
-	'実行: ' + new Date().toISOString(),
-	'',
-	'| 課題 | 結果 | 誤り |',
-	'| --- | --- | --- |',
-	...results.map((r) => '| ' + r.name + ' | ' + (r.ok ? '通った' : '落ちた') + ' | ' + r.errors.length + ' |'),
-	'',
-	'**' + passed + ' / ' + results.length + ' 通過**',
+	'実行: ' + new Date().toISOString()
+		+ (CHOSEN.model == null ? '' : ' / モデル: ' + CHOSEN.model),
 	''
 ];
 
+if (generated === 0) {
+	report.push(
+		'## 測れませんでした',
+		'',
+		'**1 件も書かせられなかった。** これは SKILL.md の出来ではなく、仕掛けのほうの故障である。',
+		'（鍵・通信・モデル名のどれか。下の中身を読むこと）',
+		''
+	);
+}
+
+report.push(
+	'| 課題 | 結果 | 誤り |',
+	'| --- | --- | --- |',
+	...results.map((r) => '| ' + r.name + ' | '
+		+ (r.ok ? '通った' : (r.generated ? '落ちた' : '書かせられなかった')) + ' | ' + r.errors.length + ' |'),
+	'',
+	'**' + passed + ' / ' + results.length + ' 通過**',
+	''
+);
+
 for (const result of results.filter((r) => !r.ok)) {
-	report.push('## ' + result.name + ' の誤り', '');
+	report.push('## ' + result.name + (result.generated ? ' の誤り' : ' を書かせられなかった'), '');
 	report.push('```');
 	report.push(...result.errors);
 	report.push('```', '');
@@ -148,7 +177,18 @@ for (const result of results.filter((r) => !r.ok)) {
 writeFileSync(join(runDirectory, 'report.md'), report.join('\n'));
 console.log('\n[eval] ' + passed + ' / ' + results.length + ' 通過（tools/eval/run/report.md に書きました）');
 
-/* 落ちても終了コードは 0。これは関門ではなく物差しである */
+/*
+ * 落ちても終了コードは 0。これは関門ではなく物差しである。
+ *
+ * <b>ただし「1 件も書かせられなかった」は別。</b>
+ * それは物差しが壊れているということで、黙って緑にすると
+ * <b>測っていないことに誰も気付かない</b>。
+ */
+if (generated === 0) {
+	console.error('[eval] 1 件も書かせられませんでした。鍵・通信・モデル名を確かめてください');
+	process.exit(1);
+}
+
 process.exit(0);
 
 /* ------------------------------------------------------------------
@@ -159,9 +199,9 @@ process.exit(0);
  * AI に書かせる
  *
  * @param {string} prompt 指示
- * @return {string} 返事
+ * @return {Promise<string>} 返事
  */
-function ask (prompt) {
+async function ask (prompt) {
 
 	if (process.env.ANTHROPIC_API_KEY == null && hasClaudeCommand()) {
 		return execFileSync('claude', ['-p', '--output-format', 'text'], {
@@ -177,7 +217,7 @@ function ask (prompt) {
 		process.exit(2);
 	}
 
-	return callApi(prompt);
+	return await callApi(prompt);
 
 }
 
@@ -196,35 +236,71 @@ function hasClaudeCommand () {
 /**
  * API を直接叩く（CI 用）
  *
+ * <p>
+ * <b>curl は使わない。</b>鍵を引数に載せると、通信に失敗したときの
+ * 例外文（＝実行したコマンド）に鍵がそのまま出てしまい、CI のログに残る。
+ * </p>
+ *
  * @param {string} prompt 指示
- * @return {string} 返事
+ * @return {Promise<string>} 返事
  */
-function callApi (prompt) {
+async function callApi (prompt) {
 
-	const model = resolveModel();
-	const response = execFileSync('curl', [
-		'-sS', '-X', 'POST', (process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com') + '/v1/messages',
-		'-H', 'content-type: application/json',
-		'-H', 'anthropic-version: 2023-06-01',
-		'-H', 'x-api-key: ' + process.env.ANTHROPIC_API_KEY,
-		'--data-binary', '@-'
-	], {
-		input: JSON.stringify({ model, max_tokens: 8000, messages: [{ role: 'user', content: prompt }] }),
-		encoding: 'utf8',
-		maxBuffer: 32 * 1024 * 1024,
-		timeout: 10 * 60 * 1000
+	const model = await resolveModel();
+	const parsed = await callEndpoint('/v1/messages', {
+		method: 'POST',
+		body: JSON.stringify({ model, max_tokens: 8000, messages: [{ role: 'user', content: prompt }] })
 	});
 
-	const parsed = JSON.parse(response);
-	if (parsed.error != null) {
-		throw new Error(parsed.error.message ?? JSON.stringify(parsed.error));
-	}
 	return (parsed.content ?? []).map((part) => part.text ?? '').join('');
 
 }
 
-/* 一度決めたら使い回す */
-let MODEL = null;
+/**
+ * API を呼ぶ
+ *
+ * @param {string} path 経路
+ * @param {object} options fetch の設定
+ * @return {Promise<object>} 応答
+ */
+async function callEndpoint (path, options = {}) {
+
+	const base = process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com';
+
+	let response;
+	try {
+		response = await fetch(base + path, {
+			...options,
+			headers: {
+				'content-type': 'application/json',
+				'anthropic-version': '2023-06-01',
+				'x-api-key': process.env.ANTHROPIC_API_KEY ?? ''
+			},
+			signal: AbortSignal.timeout(10 * 60 * 1000)
+		});
+	} catch (error) {
+		throw new Error(base + ' に繋がりません: ' + String(error.message).split('\n')[0]);
+	}
+
+	const text = await response.text();
+
+	let parsed;
+	try {
+		parsed = JSON.parse(text);
+	} catch {
+		throw new Error('応答が JSON ではありません（HTTP ' + String(response.status) + '）: ' + text.slice(0, 200));
+	}
+
+	if (parsed.error != null) {
+		throw new Error('HTTP ' + String(response.status) + ' ' + (parsed.error.message ?? JSON.stringify(parsed.error)));
+	}
+	if (!response.ok) {
+		throw new Error('HTTP ' + String(response.status));
+	}
+
+	return parsed;
+
+}
 
 /**
  * 使うモデルを決める
@@ -234,28 +310,25 @@ let MODEL = null;
  * 名前を埋め込まないのは、古くなった日に黙って失敗し続けるのを避けるため。
  * </p>
  *
- * @return {string} モデル名
+ * @return {Promise<string>} モデル名
  */
-function resolveModel () {
+async function resolveModel () {
 
-	if (MODEL != null) {
-		return MODEL;
+	if (CHOSEN.model != null) {
+		return CHOSEN.model;
 	}
 
 	const named = (process.env.JIMBLE_EVAL_MODEL ?? '').trim();
 	if (named !== '') {
-		MODEL = named;
-		return MODEL;
+		CHOSEN.model = named;
+		return CHOSEN.model;
 	}
 
-	const listed = JSON.parse(execFileSync('curl', [
-		'-sS', (process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com') + '/v1/models?limit=100',
-		'-H', 'anthropic-version: 2023-06-01',
-		'-H', 'x-api-key: ' + process.env.ANTHROPIC_API_KEY
-	], { encoding: 'utf8', timeout: 60 * 1000 }));
-
-	if (listed.error != null) {
-		throw new Error('モデル一覧を取れませんでした: ' + (listed.error.message ?? ''));
+	let listed;
+	try {
+		listed = await callEndpoint('/v1/models?limit=100');
+	} catch (error) {
+		throw new Error('モデル一覧を取れませんでした（' + String(error.message) + '）');
 	}
 
 	const models = (listed.data ?? []).filter((entry) => String(entry.id).includes('sonnet'));
@@ -265,9 +338,9 @@ function resolveModel () {
 
 	/* created_at の新しい順。無ければ id の降順 */
 	models.sort((a, b) => String(b.created_at ?? b.id).localeCompare(String(a.created_at ?? a.id)));
-	MODEL = models[0].id;
-	console.log('[eval] モデル: ' + MODEL + '（JIMBLE_EVAL_MODEL で変えられます）');
-	return MODEL;
+	CHOSEN.model = models[0].id;
+	console.log('[eval] モデル: ' + CHOSEN.model + '（JIMBLE_EVAL_MODEL で変えられます）');
+	return CHOSEN.model;
 
 }
 
