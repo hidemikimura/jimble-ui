@@ -1,0 +1,121 @@
+# jimble-ui の CI
+#
+# 落ちたときに「どこが悪いか」が一目で分かるよう、3 つに分けてある。
+#
+#   build    型検査とビルド。ここが落ちたら、ブラウザを見るまでもない
+#   skill    docs/SKILL.md と実装のズレ。LLM も通信も使わない
+#   browser  実際にブラウザで動かす。テーマ 4 つぶん
+#
+# SKILL.md だけを渡した AI に画面を書かせる評価は、ここには入れない。
+# LLM は毎回同じ結果にならず、API キーが要る。
+# 必須の関門にすると「キーが切れた日に黙って何も見なくなる」ので、
+# skill-eval.yml に分け、手動と定期でだけ動かす。
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+
+  # 型検査とビルド。examples も含めて全部通す
+  build:
+    name: build（型検査）
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # examples は dist/ を見るので、先に本体を作る
+      - name: ビルド
+        run: npm run build:all
+
+      - name: 型検査
+        run: npm run check
+
+      # <b>作った dist/ を後のジョブへ渡す。</b>
+      # 各ジョブで作り直すと、同じコミットから違う dist/ が出ていないことを確かめられない
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist
+            examples/**/*.js
+          retention-days: 1
+
+  # docs/SKILL.md と実装のズレ
+  #
+  # jimble-ui は「AI に画面を書かせる」ための道具なので、
+  # <b>実装に足したものが SKILL.md に無ければ、その機能は無いのと同じ</b>である。
+  # ここは通信も API キーも要らないので、毎回動く。
+  skill:
+    name: skill（文書と実装のズレ）
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      # 公開メソッドの一覧は dist/**/*.d.ts から取るので、dist が要る
+      - name: SKILL.md の検査
+        run: npm run check:skill
+
+  # 実際にブラウザで動かす
+  #
+  # 型検査では「テーマにテンプレートが無い」「イベントが繋がっていない」は見つからない。
+  # <b>見た目では落とさない</b>（色や余白で赤くすると、赤が信用されなくなる）。
+  browser:
+    name: browser（4 テーマで動作）
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: ブラウザで確認
+        run: npm run check:browser

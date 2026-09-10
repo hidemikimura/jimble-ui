@@ -1,0 +1,9 @@
+node_modules/
+
+# tsc の出力。dist/ は npm run build で作る
+dist/
+examples/**/*.js
+examples/**/*.js.map
+tools/eval/run/
+
+.DS_Store

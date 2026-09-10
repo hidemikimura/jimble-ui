@@ -1,0 +1,81 @@
+# SKILL.md だけを渡した AI が、正しい画面を書けるかを測る
+#
+# <b>これは物差しであって、関門ではない。</b>
+#
+# LLM を使うので、同じコミットでも結果が揺れる。PR の必須条件にすると、
+# 直していないのに赤くなる日ができ、赤が信用されなくなる。
+# だから CI 本体（ci.yml）とは分け、ここでは<b>落ちても赤にしない</b>。
+# 見るのは Actions の要約に出る表と、成果物に残る report.md である。
+#
+# 落ちた項目は「AI の出来が悪い」ではなく
+# <b>「SKILL.md で説明できていなかったところ」</b>として読む。直すのは docs/SKILL.md。
+#
+# 動かすには ANTHROPIC_API_KEY を Secrets に入れておくこと。
+# 入っていなければ、落とさずに「鍵が無い」とだけ言って終わる
+# （黙って通ると、測っていないことに気付けないため要約に必ず出す）。
+
+name: skill-eval
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 毎週月曜の朝（UTC 22:00 日曜 = JST 07:00 月曜）
+    - cron: '0 22 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+
+  eval:
+    name: eval（AI に画面を書かせる）
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: ビルド
+        run: npm run build
+
+      - name: 鍵があるか
+        id: key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "has_key=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=no" >> "$GITHUB_OUTPUT"
+            echo '### skill-eval は動きませんでした' >> "$GITHUB_STEP_SUMMARY"
+            echo 'ANTHROPIC_API_KEY が Secrets にありません。' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: 評価
+        if: steps.key.outputs.has_key == 'yes'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JIMBLE_EVAL_MODEL: ${{ vars.JIMBLE_EVAL_MODEL }}
+        run: npm run eval
+
+      # 表を Actions の画面に出す。ここを見るだけで傾向が分かる
+      - name: 結果を要約に出す
+        if: steps.key.outputs.has_key == 'yes'
+        run: cat tools/eval/run/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      # AI が書いたコードそのもの。どこで詰まったかは、これを読むのが早い
+      - name: 書かせたコードを残す
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-run
+          path: tools/eval/run
+          retention-days: 30
+          if-no-files-found: ignore
