@@ -45,8 +45,15 @@ function ng (title, lines) {
  * 下ごしらえ：SKILL.md からコード例だけを抜く
  * ------------------------------------------------------------------ */
 
-/* ```ts / ```js のブロックだけ（``` だけの囲みは図なので除く） */
-const samples = [...skill.matchAll(/```(?:ts|js|typescript)\n([\s\S]*?)```/g)].map((m) => m[1]).join('\n');
+/*
+ * ```ts / ```js のブロックだけ（``` だけの囲みは図なので除く）
+ *
+ * 言語のうしろに external と書いたブロックは、外部ライブラリの呼び出しが混じる例なので
+ * 「実装に無いメソッド」の検査からは外す。数だけは出して、黙って穴が開かないようにする。
+ */
+const blocks = [...skill.matchAll(/```(ts|js|typescript)( external)?\n([\s\S]*?)```/g)];
+const samples = blocks.filter((m) => m[2] == null).map((m) => m[3]).join('\n');
+const externalBlocks = blocks.filter((m) => m[2] != null).length;
 
 /* 表や本文も含めた「SKILL.md 全体」。載っているかどうかの判定はこちらで見る */
 const documented = skill;
@@ -152,6 +159,9 @@ const BUILTIN = new Set([
 ]);
 
 const called = new Set([...samples.matchAll(/\.([a-zA-Z][\w]*)\s*\(/g)].map((m) => m[1]));
+if (externalBlocks > 0) {
+	console.log('[skill] 外部ライブラリの例 ' + String(externalBlocks) + ' ブロックはメソッド検査の対象外');
+}
 const ghosts = [...called].filter((name) => !known.has(name) && !BUILTIN.has(name));
 if (ghosts.length > 0) {
 	ng('SKILL.md のコード例が呼んでいるが、実装に無いメソッド', ghosts.map((n) => '.' + n + '()'));

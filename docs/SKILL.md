@@ -154,7 +154,10 @@ UI.form(...).gap('lg')                             // ❌ FormBuilder に gap �
 `width` = `sm｜md｜lg｜full`、または `'220px'` のような CSS の長さ（max-width として当たる）
 
 `.bind()` を使わず値だけ渡したいときは `.value()`（`UI.text` / `UI.select` / `UI.radio` / `UI.tabs`）。
-複数選択（`UI.checkboxes`）だけは配列なので `.values()`。
+複数選択（`UI.checkboxes` / `UI.multiselect`）だけは配列なので `.values()`。
+
+`.searchable()` は「検索して絞りたい」という**望みを伝えるだけ**で、叶えるかはテーマ次第
+（外部ライブラリを載せたテーマなら検索できる／素のテーマでは普通の選択欄のまま）。
 
 ### 入力
 
@@ -163,7 +166,8 @@ UI.form(...).gap('lg')                             // ❌ FormBuilder に gap �
 | `UI.text(name)` `UI.number(name)` `UI.password(name)` `UI.date(name)` `UI.textarea(name)` | `.label()` `.placeholder()` `.hint()` `.error()` `.required()` `.disabled()` `.multiline()` `.bind(path)` `.value()` `.onInput(fn)` `.onChange(fn)` |
 | `UI.select(name)` | `.options([{value,label,disabled?}])` `.label()` `.placeholder()` `.hint()` `.error()` `.required()` `.disabled()` `.bind(path)` `.value()` `.onChange(fn)` |
 | `UI.checkbox(name)` `UI.toggle(name)`（スイッチ） | `.label()` `.hint()` `.error()` `.disabled()` `.checked()` `.bind(path)` `.onChange(fn)` |
-| `UI.checkboxes(name)`（複数選択） | `.options([{value,label,disabled?}])` `.label()` `.hint()` `.error()` `.required()` `.disabled()` `.inline()` `.bind(path)` `.values()` `.onChange(fn)` … `bind` の先は **`string[]`** |
+| `UI.checkboxes(name)`（複数選択・チェックの並び） | `.options([{value,label,disabled?}])` `.label()` `.hint()` `.error()` `.required()` `.disabled()` `.inline()` `.bind(path)` `.values()` `.onChange(fn)` … `bind` の先は **`string[]`** |
+| `UI.multiselect(name)`（複数選択・選択欄） | `.options()` `.label()` `.placeholder()` `.hint()` `.error()` `.required()` `.disabled()` `.searchable()` `.bind(path)` `.values()` `.onChange(fn)` … 選択肢が多いときはこちら |
 | `UI.radio(name)` | `.options([...])` `.label()` `.inline()` `.hint()` `.error()` `.required()` `.disabled()` `.bind(path)` `.value()` `.onChange(fn)` |
 | `UI.button(label)` | `.primary()` `.danger()` `.quiet()` `.icon(name)` `.disabled()` `.loading()` `.onClick(fn)` `.go(path)` |
 | `UI.form(...子)` | `.onSubmit(fn)` … 子は何個でも渡せる。中の入力欄で **Enter が押されたら `.onSubmit` が走る**（複数行入力の中とボタン上では走らない）。Enter で走るのは `.onSubmit` だけで、中の他のボタンは反応しない |
@@ -271,7 +275,7 @@ UI.empty('まだ資料がありません')
 | 入力の `.onInput(fn)` `.onChange(fn)` | `(value: unknown, ctx)` |
 | select / radio / tabs の `.onChange(fn)` | `(value: string, ctx)` |
 | checkbox / toggle の `.onChange(fn)` | `(checked: boolean, ctx)` |
-| checkboxes の `.onChange(fn)` | `(values: string[], ctx)` |
+| checkboxes / multiselect の `.onChange(fn)` | `(values: string[], ctx)` |
 | pagination の `.onChange(fn)` | `(page: number, ctx)` |
 | table の `.onSort(fn)` | `(key: string, order: 'asc'｜'desc', ctx)` |
 | table の `.onRowClick(fn)` | `(row, ctx)` |
@@ -537,6 +541,57 @@ Theme.extend('original', {
 
 `tokens` は親に重ねる / `styles` は親の CSS の**後ろに**足す（後勝ち）/ `replaceStyles` は置き換え /
 `template` は指定すれば差し替え、省略すれば親のまま。実例は `examples/staff/ecx-theme.ts`。
+
+## テーマに外部ライブラリを載せる
+
+外部ライブラリ（Tom Select など）は **テーマの持ち物**。アプリのコードに `import TomSelect` を書かない。
+アプリは `.searchable()` のように**望みを伝えるだけ**で、叶えるかどうかはテーマが決める。
+jimble-ui 同梱の 4 テーマは外部ライブラリを使わない（`jb-multiselect` は素の `<select multiple>`）ので、
+載せるのは継承テーマの仕事になる。
+
+```ts external
+Theme.extend('original', {
+	name: 'aqsell',
+	/* 名前 → 実体。関数で書くと、その部品を最初に描くときに読み込まれる */
+	libraries: { tomSelect: () => import('../vendor/tom-select.js').then((m) => m.default) },
+	components: {
+		'jb-multiselect': component<JbMultiselect>({
+			styles: TOM_SELECT_CSS,
+			uses: ['tomSelect'],
+			/* template は書かない。親が出す <select> を器として掴むため */
+			mount: (el, root, libraries) => {
+				const TomSelect = libraries.tomSelect as ...;
+				const library = new TomSelect(root.querySelector('select'), {
+					plugins: ['remove_button'],
+					/* ライブラリ側の変更は必ずコンポーネントへ返す */
+					onChange: (v) => el.handleExternal(Array.isArray(v) ? v : (v === '' ? [] : [v]))
+				});
+				return { library, options: signature(el) };
+			},
+			update: (el, _root, handle) => {
+				/* 選択肢は後から届く。変わったときだけ器を読み直させる */
+				if (signature(el) !== handle.options) { handle.options = signature(el); handle.library.sync(); }
+				/* 第 2 引数の silent を必ず付ける。付けないと onChange が鳴って輪になる */
+				handle.library.setValue(el.values, true);
+			},
+			unmount: (_el, _root, handle) => handle.library.destroy()
+		})
+	}
+});
+```
+
+決まりごと。
+
+| すること | 理由 |
+| --- | --- |
+| `template` は差し替えず、親が出す器に**乗せる** | 掴む相手が消える。ライブラリが落ちても素の選択欄として使える |
+| `root`（Shadow Root）の外に DOM を出さない | 影の外に出たものは誰も片付けない |
+| 値の持ち主は**コンポーネント**。ライブラリは表示係 | 双方向にすると輪になる |
+| `update` では「今の値」と「器の中身が変わったこと」の**両方**を教える | ライブラリは mount 時点の DOM しか知らない |
+| `mount` に失敗した部品は、二度と取り付けられない | 2 回目の「もう初期化済み」で最初の原因が隠れるのを防ぐ |
+
+`document.querySelector` / `document.body` を直に見に行くライブラリは影の中では動かない。
+（例：Tom Select の `dropdownParent` に ShadowRoot は渡せない。既定のまま＝影の内側に出るので指定しない）
 
 ## やりがちな間違い
 

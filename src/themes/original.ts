@@ -6,6 +6,7 @@ import type { JbInput } from '../components/jb-input.js';
 import type { JbSelect } from '../components/jb-select.js';
 import type { JbCheckbox } from '../components/jb-checkbox.js';
 import type { JbCheckboxes } from '../components/jb-checkboxes.js';
+import type { JbMultiselect } from '../components/jb-multiselect.js';
 import type { JbRadio } from '../components/jb-radio.js';
 import type { JbTabs } from '../components/jb-tabs.js';
 import type { JbTable } from '../components/jb-table.js';
@@ -688,6 +689,38 @@ const CHECKBOXES_STYLES = `
 	.message.error { color: var(--jb-color-danger, #d92d20); }
 `;
 
+/* jb-multiselect */
+const MULTISELECT_STYLES = `
+	:host { display: block; font-family: var(--jb-font, system-ui); }
+	.label {
+		display: block;
+		margin-bottom: var(--jb-space-xs, 4px);
+		font-size: var(--jb-font-size-caption, 12px);
+		font-weight: 600;
+		color: var(--jb-color-muted, #6b7280);
+	}
+	.required { color: var(--jb-color-danger, #d92d20); margin-left: 2px; }
+	select {
+		width: 100%;
+		padding: var(--jb-space-sm, 8px);
+		border: 1px solid var(--jb-color-border, #d8dde3);
+		border-radius: var(--jb-radius, 8px);
+		background: var(--jb-color-surface, #fff);
+		color: var(--jb-color-text, #1b1f24);
+		font-family: inherit;
+		font-size: var(--jb-font-size-body, 14px);
+	}
+	select:focus {
+		outline: none;
+		border-color: var(--jb-color-primary, #2563eb);
+		box-shadow: 0 0 0 3px var(--jb-color-focus, #bfd3ff);
+	}
+	select:disabled { opacity: .6; cursor: not-allowed; }
+	:host([jb-error]:not([jb-error=""])) select { border-color: var(--jb-color-danger, #d92d20); }
+	.message { display: block; margin-top: var(--jb-space-xs, 4px); font-size: var(--jb-font-size-caption, 12px); color: var(--jb-color-muted, #6b7280); }
+	.message.error { color: var(--jb-color-danger, #d92d20); }
+`;
+
 /* jb-icon */
 const ICON_STYLES = `
 	:host { display: inline-flex; align-items: center; justify-content: center; color: inherit; vertical-align: middle; }
@@ -935,6 +968,27 @@ export default registerTheme({
 						</label>
 					`)}
 				</div>
+				${el.error
+					? html`<span class="message error">${el.error}</span>`
+					: el.hint ? html`<span class="message">${el.hint}</span>` : ''}
+			`
+		}),
+
+		'jb-multiselect': component<JbMultiselect>({
+			styles: MULTISELECT_STYLES,
+			template: (el, html) => html`
+				${el.label
+					? html`<span class="label">${el.label}${el.required ? html`<span class="required">*</span>` : ''}</span>`
+					: ''}
+				<select
+					multiple
+					size="6"
+					?disabled=${el.disabled}
+					@change=${(e: Event) => el.handleChange(e)}>
+					${el.options.map((option) => html`
+						<option value=${option.value} ?disabled=${option.disabled === true} ?selected=${el.isSelected(option.value)}>${option.label}</option>
+					`)}
+				</select>
 				${el.error
 					? html`<span class="message error">${el.error}</span>`
 					: el.hint ? html`<span class="message">${el.hint}</span>` : ''}

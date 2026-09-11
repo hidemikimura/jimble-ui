@@ -6,6 +6,7 @@ import { EachBuilder } from './builders/each.js';
 import { SelectBuilder } from './builders/select.js';
 import { CheckboxBuilder } from './builders/checkbox.js';
 import { CheckboxesBuilder } from './builders/checkboxes.js';
+import { MultiselectBuilder } from './builders/multiselect.js';
 import { RadioBuilder } from './builders/radio.js';
 import { TabsBuilder } from './builders/tabs.js';
 import { TableBuilder } from './builders/table.js';
@@ -239,6 +240,18 @@ export const UI = {
 	checkboxes<S extends object = AppState> (name: string): CheckboxesBuilder<S> {
 
 		return guard(new CheckboxesBuilder<S>(name));
+
+	},
+
+	/**
+	 * 複数選択（選択欄の形。選択肢が多いとき）
+	 *
+	 * @param name 項目名
+	 * @return ビルダー
+	 */
+	multiselect<S extends object = AppState> (name: string): MultiselectBuilder<S> {
+
+		return guard(new MultiselectBuilder<S>(name));
 
 	},
 

@@ -16,11 +16,28 @@ interface Maker {
 	published: boolean;
 }
 
+/** 取扱地域の選択肢 */
+const AREAS = [
+	{ value: 'east', label: '東日本' },
+	{ value: 'west', label: '西日本' },
+	{ value: 'overseas', label: '海外' }
+];
+
+/** タグの選択肢 */
+const TAGS = [
+	{ value: 'new', label: '新規' },
+	{ value: 'oem', label: 'OEM' },
+	{ value: 'direct', label: '直取引' },
+	{ value: 'stop', label: '取引停止' }
+];
+
 declare global {
 	interface JimbleAppState {
 		makers: Maker[];
 		keyword: string;
 		removing: Maker | null;
+		tags: string[];
+		areas: string[];
 	}
 }
 
@@ -129,7 +146,23 @@ const MakerEditPage = () => UI.column(
 
 	UI.card(
 		UI.text('name').label('名前').value('サンプル電機'),
-		UI.text('slug').label('識別子').value('sample')
+		UI.text('slug').label('識別子').value('sample'),
+
+		/* まとめて選ぶ：少ない選択肢は全部並べる */
+		UI.checkboxes('areas')
+			.label('取扱地域')
+			.options(AREAS)
+			.bind('areas')
+			.hint('当てはまるものをすべて選びます。'),
+
+		/* まとめて選ぶ：多い選択肢は探せる形にしたいと伝えておく */
+		UI.multiselect('tags')
+			.label('タグ')
+			.options(TAGS)
+			.bind('tags')
+			.placeholder('タグを選ぶ')
+			.searchable()
+			.hint('テーマが対応していれば、探しながら選べる形になります。')
 	)
 
 ).gap('lg');
@@ -169,7 +202,9 @@ App.of()
 			{ id: 4, name: '緑川産業', slug: 'midorikawa', published: true }
 		],
 		keyword: '',
-		removing: null
+		removing: null,
+		areas: ['east'],
+		tags: ['new', 'direct']
 	})
 
 	.theme('original')

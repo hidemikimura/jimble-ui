@@ -1,7 +1,7 @@
 import { LitElement, html, svg, nothing } from '../../vendor/lit.js';
-import type { TemplateResult } from '../../vendor/lit.js';
+import type { PropertyValues, TemplateResult } from '../../vendor/lit.js';
 import { currentTheme, subscribeTheme } from '../core/theme.js';
-import { isDev, report, JimbleError } from '../core/dev.js';
+import { isDev, report, fail, JimbleError } from '../core/dev.js';
 
 /**
  * コンポーネント基底
@@ -19,6 +19,21 @@ export abstract class JbElement extends LitElement {
 	/* テーマ購読の解除関数 */
 	#unsubscribe: (() => void) | null = null;
 
+	/* 外部ライブラリを取り付けているときの持ち手 */
+	#handle: unknown = null;
+
+	/* 取り付けに使った定義（テーマが変わったか見るため） */
+	#attached: object | null = null;
+
+	/* 取り付けたときの器（作り直されていないか見るため） */
+	#anchor: Element | null = null;
+
+	/* 取り付けの最中か（描画が続けて来ても二重に取り付けない） */
+	#attaching = false;
+
+	/* 取り付けに失敗した定義（同じものを何度も試さない） */
+	#failed: object | null = null;
+
 	override createRenderRoot (): HTMLElement | DocumentFragment {
 
 		const root = super.createRenderRoot();
@@ -31,6 +46,9 @@ export abstract class JbElement extends LitElement {
 
 		super.connectedCallback();
 		this.#unsubscribe = subscribeTheme(() => {
+			/* テーマが変わったら、載せていたライブラリは<b>必ず捨てて</b>から作り直す */
+			this.#detach();
+			this.#failed = null;
 			this.#applyStyles(this.renderRoot);
 			this.requestUpdate();
 		});
@@ -41,7 +59,109 @@ export abstract class JbElement extends LitElement {
 
 		this.#unsubscribe?.();
 		this.#unsubscribe = null;
+		this.#detach();
 		super.disconnectedCallback();
+
+	}
+
+	override updated (changed: PropertyValues): void {
+
+		super.updated(changed);
+		void this.#syncExternal();
+
+	}
+
+	/**
+	 * 外部ライブラリの取り付け・更新をする
+	 *
+	 * <p>
+	 * テーマが {@code mount} を持つ部品だけが対象。持たないテーマに切り替わったら外す。
+	 * </p>
+	 */
+	async #syncExternal (): Promise<void> {
+
+		if (this.#attaching) {
+			return;
+		}
+
+		const tag = (this.constructor as typeof JbElement).tag;
+		const external = currentTheme().external(tag);
+
+		if (external == null) {
+			this.#detach();
+			return;
+		}
+
+		/*
+		 * 一度失敗した取り付けは<b>もう試さない</b>。
+		 * 描画のたびに試すと、ライブラリによっては 2 回目以降が
+		 * 「もう初期化済み」のような<b>別の誤り</b>になり、最初の原因が埋もれる。
+		 */
+		if (this.#failed === external) {
+			return;
+		}
+
+		/* 同じ定義で取り付け済みなら、値を伝えるだけ */
+		if (this.#attached === external) {
+
+			if (this.#anchor != null && this.#anchor !== this.renderRoot.firstElementChild) {
+				fail(
+					tag + ' の器が作り直されました（外部ライブラリが載せた中身は失われています）',
+					'テーマのテンプレートで、mount が掴む要素を条件分岐の外に出してください'
+				);
+				this.#detach();
+				return;
+			}
+
+			try {
+				external.update?.(this, this.renderRoot, this.#handle);
+			} catch (error) {
+				report(error, tag + ' の update');
+			}
+			return;
+
+		}
+
+		this.#detach();
+		this.#attaching = true;
+
+		try {
+			const libraries = await currentTheme().libraries(external.uses);
+			/* 待っている間に画面から消えていることがある */
+			if (!this.isConnected) {
+				return;
+			}
+			this.#handle = external.mount(this, this.renderRoot, libraries);
+			this.#attached = external;
+			this.#anchor = this.renderRoot.firstElementChild;
+		} catch (error) {
+			this.#failed = external;
+			report(error, tag + ' の mount（この部品の取り付けは諦めます）');
+		} finally {
+			this.#attaching = false;
+		}
+
+	}
+
+	/**
+	 * 取り付けていたものを外す
+	 */
+	#detach (): void {
+
+		if (this.#attached == null) {
+			return;
+		}
+
+		const external = this.#attached as { unmount?: (el: unknown, root: ParentNode, handle: unknown) => void };
+		try {
+			external.unmount?.(this, this.renderRoot, this.#handle);
+		} catch (error) {
+			report(error, (this.constructor as typeof JbElement).tag + ' の unmount');
+		}
+
+		this.#handle = null;
+		this.#attached = null;
+		this.#anchor = null;
 
 	}
 

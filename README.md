@@ -78,6 +78,7 @@ UI.text('name').bind('form.nmae');  // コンパイルエラー
 | レイアウト | `UI.column()` `UI.row()` `UI.card()` |
 | 表示 | `UI.title()` `UI.heading()` `UI.label()` `UI.caption()` `UI.icon()` |
 | 入力 | `UI.text()` `UI.number()` `UI.password()` `UI.date()` `UI.textarea()` `UI.select()` `UI.checkbox()` `UI.toggle()` `UI.radio()` `UI.button()` |
+| まとめて選ぶ | `UI.checkboxes()`（少ない選択肢）`UI.multiselect()`（多い選択肢・`.searchable()`） |
 | フォーム | `UI.form()`（中の入力で Enter を押すと `.onSubmit()`） |
 | 一覧 | `UI.table()`（並べ替え・つかんで並べ替え・0 件表示・読み込み中）`UI.pagination()` `UI.tabs()` `UI.each()` `UI.menu()`（行の「…」） |
 | 画面の骨組み | `UI.sidebar()` `UI.pageHeader()` |
@@ -130,6 +131,30 @@ Theme.extend('original', {
 
 CSS は選んだテーマの分だけ読み込まれ、`adoptedStyleSheets` で各 Shadow Root に流し込まれる。
 `vendor/` の CSS を作り直すには `sh tools/build-themes.sh`。
+
+### 外部ライブラリ
+
+Tom Select のように自分で DOM を作るライブラリも、載せるのは **テーマ**である。
+アプリは `.searchable()` のように望みを伝えるだけで、`import TomSelect` は書かない。
+
+```js
+Theme.extend('original', {
+	name: 'aqsell',
+	libraries: { tomSelect: () => import('./vendor/tom-select.js').then((m) => m.default) },
+	components: {
+		'jb-multiselect': component({
+			uses: ['tomSelect'],
+			mount:   (el, root, libraries) => { /* 親が出す <select> に載せる */ },
+			update:  (el, root, handle) => { /* 今の値と、選択肢の入れ替わりを教える */ },
+			unmount: (el, root, handle) => { /* 後始末 */ }
+		})
+	}
+});
+```
+
+同梱の 4 テーマは外部ライブラリを使わない（`jb-multiselect` は素の `<select multiple>`）。
+フレームワークが第三者の実行時依存を抱えないためで、ライブラリの実体を渡すのはアプリ側になる。
+詳しくは `docs/design.md` 6.6。
 
 ## AI に書かせる
 

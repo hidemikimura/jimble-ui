@@ -19,6 +19,31 @@ export interface ComponentTheme<E = any> {
 	styles?: string;
 	/** 親の CSS を捨てて置き換える */
 	replaceStyles?: string;
+
+	/**
+	 * 外部ライブラリでこの部品を描くときの取り付け
+	 *
+	 * <p>
+	 * テンプレートが出した<b>器</b>にライブラリを載せる。戻り値は
+	 * {@link ComponentTheme#update} と {@link ComponentTheme#unmount} にそのまま渡る。
+	 * </p>
+	 *
+	 * <p>
+	 * <b>器はテンプレートの中で静的であること。</b>条件分岐で出し入れすると、
+	 * lit が作り直したときにライブラリが載せた DOM ごと消える
+	 * （作り直しは検出して例外にする）。
+	 * </p>
+	 */
+	mount?: (el: E, root: ParentNode, libraries: Record<string, unknown>) => unknown;
+
+	/** 値や選択肢が変わったときにライブラリへ伝える */
+	update?: (el: E, root: ParentNode, handle: unknown) => void;
+
+	/** 取り外す（画面から消えたとき・テーマを切り替えたとき） */
+	unmount?: (el: E, root: ParentNode, handle: unknown) => void;
+
+	/** {@link ComponentTheme#mount} が要るライブラリの名前 */
+	uses?: string[];
 }
 
 /**
@@ -51,6 +76,16 @@ export interface ThemeDefinition {
 	base?: string | null;
 	/** 全コンポーネント共通の CSS。関数を渡すと遅延読み込みする */
 	shared?: (string | (() => Promise<string | { default: string }>))[];
+	/**
+	 * このテーマが使う外部ライブラリ
+	 *
+	 * <p>
+	 * <b>実体はアプリが渡す。</b>jimble-ui 本体のテーマは外部ライブラリを使わない
+	 * （フレームワークが第三者の実行時依存を抱えないため）。
+	 * 関数を渡すと、その部品を最初に描くときに読み込む。
+	 * </p>
+	 */
+	libraries?: Record<string, unknown | (() => Promise<unknown>)>;
 	/** コンポーネントごとの定義 */
 	components?: Record<string, ComponentTheme>;
 }
@@ -60,6 +95,16 @@ interface ResolvedComponent {
 	template: ComponentTemplate | null;
 	styles: string[];
 	replaced: boolean;
+	/* 取り付け・更新・取り外しは 3 つで 1 組として扱う */
+	external: ExternalHooks | null;
+}
+
+/* 外部ライブラリの取り付け一式 */
+interface ExternalHooks {
+	mount: (el: any, root: ParentNode, libraries: Record<string, unknown>) => unknown;
+	update: ((el: any, root: ParentNode, handle: unknown) => void) | null;
+	unmount: ((el: any, root: ParentNode, handle: unknown) => void) | null;
+	uses: string[];
 }
 
 interface ResolvedDefinition {
@@ -68,6 +113,7 @@ interface ResolvedDefinition {
 	tokens: Record<string, string>;
 	base: string | null;
 	shared: (string | (() => Promise<string | { default: string }>))[];
+	libraries: Record<string, unknown | (() => Promise<unknown>)>;
 	components: Record<string, ResolvedComponent>;
 }
 
@@ -154,6 +200,9 @@ export class Theme {
 	/* コンポーネント別スタイルシート */
 	#componentSheets = new Map<string, CSSStyleSheet[]>();
 
+	/* 読み込んだライブラリ */
+	#libraryCache = new Map<string, unknown>();
+
 	constructor (definition: ThemeDefinition) {
 
 		this.#source = definition;
@@ -191,6 +240,59 @@ export class Theme {
 	template (tag: string): ComponentTemplate | null {
 
 		return this.#definition.components[tag]?.template ?? null;
+
+	}
+
+	/**
+	 * 外部ライブラリの取り付け一式を取得する
+	 *
+	 * @param tag タグ名
+	 * @return 取り付け一式（無ければ null）
+	 */
+	external (tag: string): ExternalHooks | null {
+
+		return this.#definition.components[tag]?.external ?? null;
+
+	}
+
+	/**
+	 * 取り付けに要るライブラリを読み込む
+	 *
+	 * <p>無いものを求められたら、黙って諦めずに大きな音で壊す。</p>
+	 *
+	 * @param names 名前
+	 * @return 名前 → ライブラリ
+	 */
+	async libraries (names: readonly string[]): Promise<Record<string, unknown>> {
+
+		const loaded: Record<string, unknown> = {};
+
+		for (const name of names) {
+
+			if (this.#libraryCache.has(name)) {
+				loaded[name] = this.#libraryCache.get(name);
+				continue;
+			}
+
+			const source = this.#definition.libraries[name];
+			if (source == null) {
+				fail(
+					'テーマ "' + this.name + '" にライブラリ "' + name + '" がありません',
+					'テーマ定義の libraries に足してください（実体はアプリが渡します）'
+				);
+				continue;
+			}
+
+			const value = typeof source === 'function'
+				? await (source as () => Promise<unknown>)()
+				: source;
+
+			this.#libraryCache.set(name, value);
+			loaded[name] = value;
+
+		}
+
+		return loaded;
 
 	}
 
@@ -314,6 +416,7 @@ function resolveDefinition (definition: ThemeDefinition, chain: string[] = []): 
 		tokens: definition.tokens ?? {},
 		base: definition.base ?? null,
 		shared: definition.shared ?? [],
+		libraries: definition.libraries ?? {},
 		components: normalizeComponents(definition.components)
 	};
 
@@ -336,6 +439,7 @@ function resolveDefinition (definition: ThemeDefinition, chain: string[] = []): 
 		tokens: { ...parent.tokens, ...own.tokens },
 		base: own.base ?? parent.base,
 		shared: [...parent.shared, ...own.shared],
+		libraries: { ...parent.libraries, ...own.libraries },
 		components: mergeComponents(parent.components, own.components)
 	};
 
@@ -356,7 +460,13 @@ function normalizeComponents (components: Record<string, ComponentTheme> | undef
 		result[tag] = {
 			template: entry.template ?? null,
 			styles: styles == null ? [] : [styles],
-			replaced: entry.replaceStyles != null
+			replaced: entry.replaceStyles != null,
+			external: entry.mount == null ? null : {
+				mount: entry.mount,
+				update: entry.update ?? null,
+				unmount: entry.unmount ?? null,
+				uses: entry.uses ?? []
+			}
 		};
 	}
 
@@ -380,7 +490,7 @@ function mergeComponents (
 
 	for (const tag of new Set([...Object.keys(parent), ...Object.keys(child)])) {
 
-		const base = parent[tag] ?? { template: null, styles: [], replaced: false };
+		const base = parent[tag] ?? { template: null, styles: [], replaced: false, external: null };
 		const over = child[tag];
 
 		if (over == null) {
@@ -388,10 +498,18 @@ function mergeComponents (
 			continue;
 		}
 
+		/*
+		 * 取り付けは<b>テンプレートと 1 組</b>で考える。
+		 * 子がテンプレートを差し替えたのに親の取り付けだけ残ると、
+		 * <b>もう無い器を掴みに行く</b>ことになるので、そのときは捨てる。
+		 */
+		const external = over.external ?? (over.template == null ? base.external : null);
+
 		result[tag] = {
 			template: over.template ?? base.template,
 			styles: over.replaced ? over.styles : [...base.styles, ...over.styles],
-			replaced: false
+			replaced: false,
+			external
 		};
 
 	}

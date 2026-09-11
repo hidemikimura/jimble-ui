@@ -198,6 +198,36 @@ for (const theme of themes) {
 	});
 	check(theme + ' 危険操作の文字ボタン', variant === 'quiet-danger', variant);
 
+	/* まとめて選ぶ部品：どのテーマでも「選べる形」と「今の値」が出ていること */
+	const many = await page.evaluate(() => {
+		const boxes = window.deepOne('jb-checkboxes');
+		const multi = window.deepOne('jb-multiselect');
+		return {
+			boxes: boxes?.shadowRoot.querySelectorAll('input[type="checkbox"]').length ?? 0,
+			checked: boxes?.shadowRoot.querySelectorAll('input[type="checkbox"]:checked').length ?? 0,
+			multi: multi == null ? 0 : 1,
+			values: multi?.values.length ?? -1
+		};
+	});
+	check(theme + ' まとめて選ぶ（枠）', many.boxes === 3 && many.checked === 1, JSON.stringify(many));
+	check(theme + ' まとめて選ぶ（一覧）', many.multi === 1 && many.values === 2, JSON.stringify(many));
+
+	/* 押したら値が変わり、知らせが飛ぶこと */
+	const toggled = await page.evaluate(async () => {
+		const boxes = window.deepOne('jb-checkboxes');
+		let heard = null;
+		boxes.addEventListener('jb-change', (event) => { heard = event.detail.values.slice(); });
+		const input = boxes.shadowRoot.querySelectorAll('input[type="checkbox"]')[1];
+		input.click();
+		await new Promise((resolve) => setTimeout(resolve, 60));
+		return { heard, values: boxes.values.slice() };
+	});
+	check(
+		theme + ' まとめて選ぶ（押すと増える）',
+		toggled.heard != null && toggled.heard.length === 2 && toggled.values.length === 2,
+		JSON.stringify(toggled)
+	);
+
 }
 
 /* 知らない飾りの名前は、黙って消えずに知らせが出る */

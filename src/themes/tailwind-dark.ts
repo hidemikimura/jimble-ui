@@ -6,6 +6,7 @@ import type { JbInput } from '../components/jb-input.js';
 import type { JbSelect } from '../components/jb-select.js';
 import type { JbCheckbox } from '../components/jb-checkbox.js';
 import type { JbCheckboxes } from '../components/jb-checkboxes.js';
+import type { JbMultiselect } from '../components/jb-multiselect.js';
 import type { JbRadio } from '../components/jb-radio.js';
 import type { JbTabs } from '../components/jb-tabs.js';
 import type { JbTable } from '../components/jb-table.js';
@@ -392,6 +393,30 @@ export default registerTheme({
 							</label>
 						`)}
 					</div>
+					${el.error
+						? html`<p class=${ERROR_CLASS}>${el.error}</p>`
+						: el.hint ? html`<p class=${HINT_CLASS}>${el.hint}</p>` : ''}
+				</div>
+			`
+		}),
+
+		'jb-multiselect': component<JbMultiselect>({
+			styles: HOST_STYLES,
+			template: (el, html) => html`
+				<div>
+					${el.label
+						? html`<label class=${LABEL_CLASS}>${el.label}${el.required ? html`<span class="ml-1 text-rose-400">*</span>` : ''}</label>`
+						: ''}
+					<select
+						class=${classes(FIELD_BASE, 'min-h-32 py-2', el.error ? FIELD_ERROR : FIELD_NORMAL)}
+						multiple
+						size="6"
+						?disabled=${el.disabled}
+						@change=${(e: Event) => el.handleChange(e)}>
+						${el.options.map((option) => html`
+							<option value=${option.value} ?disabled=${option.disabled === true} ?selected=${el.isSelected(option.value)}>${option.label}</option>
+						`)}
+					</select>
 					${el.error
 						? html`<p class=${ERROR_CLASS}>${el.error}</p>`
 						: el.hint ? html`<p class=${HINT_CLASS}>${el.hint}</p>` : ''}
