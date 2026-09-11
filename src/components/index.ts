@@ -12,6 +12,7 @@ export { JbInput } from './jb-input.js';
 export { JbStack } from './jb-stack.js';
 export { JbSelect } from './jb-select.js';
 export { JbCheckbox, JbSwitch } from './jb-checkbox.js';
+export { JbCheckboxes } from './jb-checkboxes.js';
 export { JbRadio } from './jb-radio.js';
 export { JbTabs } from './jb-tabs.js';
 export { JbTable } from './jb-table.js';

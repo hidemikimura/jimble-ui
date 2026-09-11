@@ -46,6 +46,7 @@ export { ButtonBuilder } from './builders/button.js';
 export { EachBuilder } from './builders/each.js';
 export { SelectBuilder } from './builders/select.js';
 export { CheckboxBuilder } from './builders/checkbox.js';
+export { CheckboxesBuilder } from './builders/checkboxes.js';
 export { RadioBuilder } from './builders/radio.js';
 export { TabsBuilder } from './builders/tabs.js';
 export { TableBuilder } from './builders/table.js';

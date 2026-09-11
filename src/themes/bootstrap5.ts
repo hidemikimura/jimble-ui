@@ -5,6 +5,7 @@ import type { JbButton } from '../components/jb-button.js';
 import type { JbInput } from '../components/jb-input.js';
 import type { JbSelect } from '../components/jb-select.js';
 import type { JbCheckbox } from '../components/jb-checkbox.js';
+import type { JbCheckboxes } from '../components/jb-checkboxes.js';
 import type { JbRadio } from '../components/jb-radio.js';
 import type { JbTabs } from '../components/jb-tabs.js';
 import type { JbTable } from '../components/jb-table.js';
@@ -334,6 +335,33 @@ export default registerTheme({
 						@change=${(e: Event) => el.handleChange(e)}>
 					<label class="form-check-label">${el.label}</label>
 					${el.hint ? html`<div class="form-text">${el.hint}</div>` : ''}
+				</div>
+			`
+		}),
+
+		'jb-checkboxes': component<JbCheckboxes>({
+			styles: HOST_STYLES,
+			template: (el, html) => html`
+				<div>
+					${el.label
+						? html`<label class="form-label mb-1">${el.label}${el.required ? html`<span class="text-danger ms-1">*</span>` : ''}</label>`
+						: ''}
+					<div class=${el.inline ? 'd-flex flex-wrap gap-3' : 'd-flex flex-column gap-2'}>
+						${el.options.map((option) => html`
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="checkbox"
+									.checked=${el.isChecked(option.value)}
+									?disabled=${el.disabled || option.disabled === true}
+									@change=${(e: Event) => el.handleToggle(option, e)}>
+								<label class="form-check-label">${option.label}</label>
+							</div>
+						`)}
+					</div>
+					${el.error
+						? html`<div class="invalid-feedback d-block">${el.error}</div>`
+						: el.hint ? html`<div class="form-text">${el.hint}</div>` : ''}
 				</div>
 			`
 		}),

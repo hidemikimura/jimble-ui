@@ -1,6 +1,6 @@
 # jimble-ui 設計書
 
-版: 0.9.0 / 2026-09-10
+版: 0.10.0 / 2026-09-10
 
 ## 0. ビルドと実行
 
@@ -291,6 +291,7 @@ jimble-ui では<b>コンポーネントが持つ</b>（`jb-accordion` の `isOp
 | `UI.icon(name)` | 飾り。`.sm() .lg() .size() .alt()`。図形はテーマ層（`src/themes/icons.ts`）が持つ |
 | `UI.select(name)` | 選択。`.options() .bind() .label() .placeholder() .required() .error() .onChange()` |
 | `UI.checkbox(name)` / `UI.toggle(name)` | チェックボックス / スイッチ。`.label() .bind() .onChange()` |
+| `UI.checkboxes(name)` | 複数選択。`.options() .inline() .bind()`（先は `string[]`）`.values() .onChange()` |
 | `UI.radio(name)` | ラジオ。`.options() .inline() .bind() .onChange()` |
 | `UI.form(...)` | フォーム。中の入力で Enter が押されたら `.onSubmit()` が走る |
 | `UI.tabs(items)` | タブ。`.bind() .onChange()`。`badge` で件数を出せる |
@@ -304,13 +305,13 @@ jimble-ui では<b>コンポーネントが持つ</b>（`jb-accordion` の `isOp
 | `notify.success(msg)` | 知らせ（トースト）。`info / success / warning / error`、`{ duration }` |
 | 共通 | `.when(cond)` / `.unless(cond)` / `.add(...children)` |
 
-コンポーネントは 26 種。すべて 3 テーマに実装がある。
+コンポーネントは 27 種。すべて 4 テーマに実装がある。
 
 | 分類 | コンポーネント |
 | --- | --- |
 | レイアウト | `jb-stack`（縦・横・カード）、`jb-grid`（カード並べ）、`jb-form` |
 | 表示 | `jb-text`（大見出し / 見出し / 本文 / 注釈 / 警告）、`jb-breadcrumb`、`jb-empty` |
-| 入力 | `jb-input`（文字・数値・パスワード・日付・複数行）、`jb-select`、`jb-checkbox`、`jb-switch`、`jb-radio`、`jb-button`、`jb-file`（放り込み対応）、`jb-daterange` |
+| 入力 | `jb-input`（文字・数値・パスワード・日付・複数行）、`jb-select`、`jb-checkbox`、`jb-checkboxes`（複数選択）、`jb-switch`、`jb-radio`、`jb-button`、`jb-file`（放り込み対応）、`jb-daterange` |
 | 一覧 | `jb-table`（並べ替え・読み込み中・0 件表示）、`jb-pagination`、`jb-tabs`、`jb-accordion` |
 | 数字・グラフ | `jb-stat`（統計タイル）、`jb-chart`（棒・折れ線） |
 | 一覧の操作 | `jb-menu`（ドロップダウン。行の「…」） |
@@ -527,7 +528,7 @@ jimble-ui/
 			api.ts        REST クライアント
 			dev.ts        診断（即例外・画面表示・候補提示・Proxy 見張り）
 			types.ts      共有する型（状態パスの型を含む）
-		components/       コンポーネント 26 種（状態と振る舞いだけ）
+		components/       コンポーネント 27 種（状態と振る舞いだけ）
 		core/reorder.ts   並べ替えの内容（ReorderDetail）と reorder() ヘルパー
 		themes/           テーマ（HTML と CSS の唯一の置き場）
 			original.ts       素の Shadow DOM 実装

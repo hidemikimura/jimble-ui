@@ -154,6 +154,7 @@ UI.form(...).gap('lg')                             // ❌ FormBuilder に gap �
 `width` = `sm｜md｜lg｜full`、または `'220px'` のような CSS の長さ（max-width として当たる）
 
 `.bind()` を使わず値だけ渡したいときは `.value()`（`UI.text` / `UI.select` / `UI.radio` / `UI.tabs`）。
+複数選択（`UI.checkboxes`）だけは配列なので `.values()`。
 
 ### 入力
 
@@ -162,6 +163,7 @@ UI.form(...).gap('lg')                             // ❌ FormBuilder に gap �
 | `UI.text(name)` `UI.number(name)` `UI.password(name)` `UI.date(name)` `UI.textarea(name)` | `.label()` `.placeholder()` `.hint()` `.error()` `.required()` `.disabled()` `.multiline()` `.bind(path)` `.value()` `.onInput(fn)` `.onChange(fn)` |
 | `UI.select(name)` | `.options([{value,label,disabled?}])` `.label()` `.placeholder()` `.hint()` `.error()` `.required()` `.disabled()` `.bind(path)` `.value()` `.onChange(fn)` |
 | `UI.checkbox(name)` `UI.toggle(name)`（スイッチ） | `.label()` `.hint()` `.error()` `.disabled()` `.checked()` `.bind(path)` `.onChange(fn)` |
+| `UI.checkboxes(name)`（複数選択） | `.options([{value,label,disabled?}])` `.label()` `.hint()` `.error()` `.required()` `.disabled()` `.inline()` `.bind(path)` `.values()` `.onChange(fn)` … `bind` の先は **`string[]`** |
 | `UI.radio(name)` | `.options([...])` `.label()` `.inline()` `.hint()` `.error()` `.required()` `.disabled()` `.bind(path)` `.value()` `.onChange(fn)` |
 | `UI.button(label)` | `.primary()` `.danger()` `.quiet()` `.icon(name)` `.disabled()` `.loading()` `.onClick(fn)` `.go(path)` |
 | `UI.form(...子)` | `.onSubmit(fn)` … 子は何個でも渡せる。中の入力欄で **Enter が押されたら `.onSubmit` が走る**（複数行入力の中とボタン上では走らない）。Enter で走るのは `.onSubmit` だけで、中の他のボタンは反応しない |
@@ -269,6 +271,7 @@ UI.empty('まだ資料がありません')
 | 入力の `.onInput(fn)` `.onChange(fn)` | `(value: unknown, ctx)` |
 | select / radio / tabs の `.onChange(fn)` | `(value: string, ctx)` |
 | checkbox / toggle の `.onChange(fn)` | `(checked: boolean, ctx)` |
+| checkboxes の `.onChange(fn)` | `(values: string[], ctx)` |
 | pagination の `.onChange(fn)` | `(page: number, ctx)` |
 | table の `.onSort(fn)` | `(key: string, order: 'asc'｜'desc', ctx)` |
 | table の `.onRowClick(fn)` | `(row, ctx)` |
@@ -555,6 +558,8 @@ Theme.extend('original', {
 | テーマで SVG の中身を `` html`<rect .../>` `` で作る | `` svg`<rect .../>` ``（テンプレートの第 3 引数） |
 | `UI.stat('売上', 12480000)` | 表示は整形して渡す。`UI.stat('売上', (c) => yen(c.get('sales')))` |
 | 行に「編集」「複製」「削除」を 3 つ並べる | `UI.menu()` にまとめる（`.danger()` で削除だけ赤くする） |
+| 複数選択を `UI.each` ＋ `UI.checkbox` で自作する | `UI.checkboxes(name).options(...).bind(配列のパス)` |
+| `.bind('form.' + key)` のように**パスを文字列連結で作る** | 型が合わない。`` `form.${key}` `` と<b>テンプレート文字列＋ `as const`</b> で書く |
 | `.reorderable()` だけ書いて並びが戻る | 並べ替えるのは画面側。`.onReorder()` で `reorder(list, detail)` を状態に書き戻す |
 | サイドバーを `UI.column(UI.button(...)...)` で自作する | `UI.sidebar()`。今いる場所の判定も遷移も入っている |
 | 題名とボタンを `UI.row(...).justify('between')` で毎回組む | `UI.pageHeader(題名).actions(...)` |

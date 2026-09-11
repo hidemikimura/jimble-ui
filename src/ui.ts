@@ -5,6 +5,7 @@ import { ButtonBuilder } from './builders/button.js';
 import { EachBuilder } from './builders/each.js';
 import { SelectBuilder } from './builders/select.js';
 import { CheckboxBuilder } from './builders/checkbox.js';
+import { CheckboxesBuilder } from './builders/checkboxes.js';
 import { RadioBuilder } from './builders/radio.js';
 import { TabsBuilder } from './builders/tabs.js';
 import { TableBuilder } from './builders/table.js';
@@ -226,6 +227,18 @@ export const UI = {
 	checkbox<S extends object = AppState> (name: string): CheckboxBuilder<S> {
 
 		return guard(new CheckboxBuilder<S>(name, 'jb-checkbox'));
+
+	},
+
+	/**
+	 * 複数選択（チェックボックスの群れ）
+	 *
+	 * @param name 項目名
+	 * @return ビルダー
+	 */
+	checkboxes<S extends object = AppState> (name: string): CheckboxesBuilder<S> {
+
+		return guard(new CheckboxesBuilder<S>(name));
 
 	},
 

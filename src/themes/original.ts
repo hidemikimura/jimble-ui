@@ -5,6 +5,7 @@ import type { JbButton } from '../components/jb-button.js';
 import type { JbInput } from '../components/jb-input.js';
 import type { JbSelect } from '../components/jb-select.js';
 import type { JbCheckbox } from '../components/jb-checkbox.js';
+import type { JbCheckboxes } from '../components/jb-checkboxes.js';
 import type { JbRadio } from '../components/jb-radio.js';
 import type { JbTabs } from '../components/jb-tabs.js';
 import type { JbTable } from '../components/jb-table.js';
@@ -661,6 +662,32 @@ const EMPTY_STYLES = `
 	.action { margin-top: var(--jb-space-sm, 8px); }
 `;
 
+/* jb-checkboxes */
+const CHECKBOXES_STYLES = `
+	:host { display: block; font-family: var(--jb-font, system-ui); }
+	.label {
+		display: block;
+		margin-bottom: var(--jb-space-xs, 4px);
+		font-size: var(--jb-font-size-caption, 12px);
+		font-weight: 600;
+		color: var(--jb-color-muted, #6b7280);
+	}
+	.required { color: var(--jb-color-danger, #d92d20); margin-left: 2px; }
+	.items { display: flex; flex-direction: column; gap: var(--jb-space-sm, 8px); }
+	.items.inline { flex-direction: row; flex-wrap: wrap; gap: var(--jb-space-lg, 20px); }
+	.item {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--jb-space-sm, 8px);
+		font-size: var(--jb-font-size-body, 14px);
+		color: var(--jb-color-text, #1b1f24);
+		cursor: pointer;
+	}
+	input { width: 16px; height: 16px; accent-color: var(--jb-color-primary, #2563eb); }
+	.message { display: block; margin-top: var(--jb-space-xs, 4px); font-size: var(--jb-font-size-caption, 12px); color: var(--jb-color-muted, #6b7280); }
+	.message.error { color: var(--jb-color-danger, #d92d20); }
+`;
+
 /* jb-icon */
 const ICON_STYLES = `
 	:host { display: inline-flex; align-items: center; justify-content: center; color: inherit; vertical-align: middle; }
@@ -884,6 +911,30 @@ export default registerTheme({
 					<span class="track"><span class="thumb"></span></span>
 					<span class="text">${el.label}</span>
 				</label>
+				${el.error
+					? html`<span class="message error">${el.error}</span>`
+					: el.hint ? html`<span class="message">${el.hint}</span>` : ''}
+			`
+		}),
+
+		'jb-checkboxes': component<JbCheckboxes>({
+			styles: CHECKBOXES_STYLES,
+			template: (el, html) => html`
+				${el.label
+					? html`<span class="label">${el.label}${el.required ? html`<span class="required">*</span>` : ''}</span>`
+					: ''}
+				<div class=${el.inline ? 'items inline' : 'items'}>
+					${el.options.map((option) => html`
+						<label class="item">
+							<input
+								type="checkbox"
+								.checked=${el.isChecked(option.value)}
+								?disabled=${el.disabled || option.disabled === true}
+								@change=${(e: Event) => el.handleToggle(option, e)}>
+							<span>${option.label}</span>
+						</label>
+					`)}
+				</div>
 				${el.error
 					? html`<span class="message error">${el.error}</span>`
 					: el.hint ? html`<span class="message">${el.hint}</span>` : ''}

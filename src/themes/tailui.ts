@@ -5,6 +5,7 @@ import type { JbButton } from '../components/jb-button.js';
 import type { JbInput } from '../components/jb-input.js';
 import type { JbSelect } from '../components/jb-select.js';
 import type { JbCheckbox } from '../components/jb-checkbox.js';
+import type { JbCheckboxes } from '../components/jb-checkboxes.js';
 import type { JbRadio } from '../components/jb-radio.js';
 import type { JbTabs } from '../components/jb-tabs.js';
 import type { JbTable } from '../components/jb-table.js';
@@ -403,6 +404,33 @@ export default registerTheme({
 						<span class="text-sm font-medium text-gray-900">${el.label}</span>
 					</label>
 					${el.hint ? html`<p class=${HINT_CLASS}>${el.hint}</p>` : ''}
+				</div>
+			`
+		}),
+
+		'jb-checkboxes': component<JbCheckboxes>({
+			styles: HOST_STYLES,
+			template: (el, html) => html`
+				<div>
+					${el.label
+						? html`<label class=${LABEL_CLASS}>${el.label}${el.required ? html`<span class="ml-0.5 text-red-500">*</span>` : ''}</label>`
+						: ''}
+					<div class=${classes('flex', el.inline ? 'flex-row flex-wrap gap-x-6 gap-y-3' : 'flex-col gap-3')}>
+						${el.options.map((option) => html`
+							<label class="group flex cursor-pointer items-center gap-3">
+								<input
+									type="checkbox"
+									class="h-4 w-4 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-600"
+									.checked=${el.isChecked(option.value)}
+									?disabled=${el.disabled || option.disabled === true}
+									@change=${(e: Event) => el.handleToggle(option, e)}>
+								<span class="text-sm font-medium text-gray-900 transition-colors group-hover:text-indigo-600">${option.label}</span>
+							</label>
+						`)}
+					</div>
+					${el.error
+						? html`<p class=${ERROR_CLASS}>${el.error}</p>`
+						: el.hint ? html`<p class=${HINT_CLASS}>${el.hint}</p>` : ''}
 				</div>
 			`
 		}),
