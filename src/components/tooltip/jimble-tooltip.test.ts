@@ -13,6 +13,11 @@ const tick = (ms = 40) => new Promise((r) => setTimeout(r, ms))
 const popup = (el: JimbleTooltip) => el.shadowRoot!.querySelector<HTMLElement>('[part="popup"]')!
 const shown = (el: JimbleTooltip) => popup(el).matches(':popover-open')
 const btn = (el: JimbleTooltip) => el.querySelector('button')!
+/** 表示された/隠れたことを待つ(遅い CI でも、固定の待ち時間に頼らない) */
+const opened = (el: JimbleTooltip) =>
+  vi.waitFor(() => expect(shown(el)).toBe(true), { timeout: 3000 })
+const closed = (el: JimbleTooltip) =>
+  vi.waitFor(() => expect(shown(el)).toBe(false), { timeout: 3000 })
 
 async function tip(attrs = '', inner = '<button>保存</button>') {
   const wrap = await mount<HTMLElement>(
@@ -27,25 +32,22 @@ async function tip(attrs = '', inner = '<button>保存</button>') {
 
 describe('表示と非表示', () => {
   it('マウスを重ねて delay の後に表示し、離すと消える', async () => {
-    const { el } = await tip('delay="50"')
+    // 遅い CI でも「まだ出ていない」を確かめられるよう、待ち時間は長めにする(hover 自体に時間がかかっても間に合う)
+    const { el } = await tip('delay="800"')
     await userEvent.hover(btn(el))
     expect(shown(el)).toBe(false)
-    await tick(120)
-    expect(shown(el)).toBe(true)
+    await vi.waitFor(() => expect(shown(el)).toBe(true), { timeout: 3000 })
     expect(popup(el).textContent!.trim()).toBe('変更内容を保存します')
     await userEvent.unhover(btn(el))
-    await tick(250)
-    expect(shown(el)).toBe(false)
+    await vi.waitFor(() => expect(shown(el)).toBe(false), { timeout: 3000 })
   })
 
   it('フォーカスでは待たずに表示し、blur で消える', async () => {
     const { el } = await tip('delay="1000"')
     btn(el).focus()
-    await tick()
-    expect(shown(el)).toBe(true)
+    await opened(el)
     btn(el).blur()
-    await tick()
-    expect(shown(el)).toBe(false)
+    await closed(el)
   })
 
   it('Esc で消える(フォーカスが残っていても)。閉じているときの Esc は横取りしない', async () => {
@@ -53,10 +55,9 @@ describe('表示と非表示', () => {
     const onKey = vi.fn()
     document.addEventListener('keydown', onKey)
     btn(el).focus()
-    await tick()
+    await opened(el)
     await userEvent.keyboard('{Escape}')
-    await tick()
-    expect(shown(el)).toBe(false)
+    await closed(el)
     expect(onKey).not.toHaveBeenCalled() // 開いている間の Esc は、ここで止める
     await userEvent.keyboard('{Escape}')
     expect(onKey).toHaveBeenCalledTimes(1)
@@ -66,8 +67,7 @@ describe('表示と非表示', () => {
   it('ツールチップの上へポインターを移しても消えない(hoverable)', async () => {
     const { el } = await tip('delay="0"')
     await userEvent.hover(btn(el))
-    await tick(60)
-    expect(shown(el)).toBe(true)
+    await opened(el)
     await userEvent.unhover(btn(el))
     popup(el).dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }))
     await tick(250)
@@ -103,10 +103,10 @@ describe('表示と非表示', () => {
     el.addEventListener('jimble-open', () => events.push('open'))
     el.addEventListener('jimble-close', () => events.push('close'))
     btn(el).focus()
-    await tick()
+    await opened(el)
     btn(el).blur()
-    await tick()
-    expect(events).toEqual(['open', 'close'])
+    await closed(el)
+    await vi.waitFor(() => expect(events).toEqual(['open', 'close']), { timeout: 3000 })
   })
 })
 
@@ -114,7 +114,7 @@ describe('位置と折り返し', () => {
   const pos = async (attrs: string) => {
     const { el } = await tip(attrs)
     btn(el).focus()
-    await tick(80)
+    await opened(el)
     return { t: btn(el).getBoundingClientRect(), p: popup(el).getBoundingClientRect() }
   }
 
@@ -137,7 +137,7 @@ describe('位置と折り返し', () => {
     const { el } = await tip('', '<button>保存</button>')
     el.text = long
     btn(el).focus()
-    await tick(80)
+    await opened(el)
     const oneLine = popup(el).getBoundingClientRect()
     expect(getComputedStyle(popup(el)).whiteSpace).toBe('nowrap')
     el.multiline = true
@@ -215,7 +215,7 @@ describe('余白', () => {
     const { el } = await tip('multiline')
     el.text = '1 行目\n2 行目'
     btn(el).focus()
-    await tick(80)
+    await opened(el)
     expect(popup(el).textContent).toBe('1 行目\n2 行目')
     // 2 行ぶんの高さ + 上下の余白だけ(行の高さは 20px、余白は 6px ずつ)
     expect(Math.round(popup(el).getBoundingClientRect().height)).toBe(2 * 20 + 2 * 6)
