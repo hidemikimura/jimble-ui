@@ -115,11 +115,23 @@ describe('位置と大きさ', () => {
     return { r: panel(el).getBoundingClientRect(), el }
   }
 
+  // 「画面」は position: fixed の基準の大きさ。太いスクロールバーの環境では、背面のスクロールを止めたあとも
+  // scrollbar-gutter: stable で幅が残り、documentElement.clientWidth とは食い違う
+  const screen = () => {
+    const probe = document.createElement('div')
+    probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none'
+    document.body.append(probe)
+    const box = probe.getBoundingClientRect()
+    probe.remove()
+    return box
+  }
+
   it('既定（end）は右端に、画面の高さいっぱいで出る', async () => {
     const { r } = await rect('')
-    expect(Math.round(r.right)).toBe(document.documentElement.clientWidth)
+    const s = screen()
+    expect(Math.round(r.right)).toBe(Math.round(s.right))
     expect(Math.round(r.top)).toBe(0)
-    expect(Math.round(r.height)).toBe(window.innerHeight)
+    expect(Math.round(r.height)).toBe(Math.round(s.height))
     expect(r.width).toBeGreaterThan(200)
   })
 
@@ -134,10 +146,10 @@ describe('位置と大きさ', () => {
   it('top / bottom は画面の幅いっぱいで、上端 / 下端に付く', async () => {
     const top = await rect('placement="top"')
     expect(Math.round(top.r.top)).toBe(0)
-    expect(Math.round(top.r.width)).toBe(document.documentElement.clientWidth)
+    expect(Math.round(top.r.width)).toBe(Math.round(screen().width))
     cleanup()
     const bottom = await rect('placement="bottom"')
-    expect(Math.round(bottom.r.bottom)).toBe(window.innerHeight)
+    expect(Math.round(bottom.r.bottom)).toBe(Math.round(screen().height))
   })
 })
 

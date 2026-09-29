@@ -493,13 +493,21 @@ test.describe('ドロワー(実操作)', () => {
     await page.keyboard.press('Enter')
     const drawer = example.locator('jimble-drawer')
     await expect(drawer.locator('dialog')).toBeVisible()
-    const vw = await page.evaluate(() => document.documentElement.clientWidth)
+    // 画面の右端 = position: fixed の基準の右端(太いスクロールバーの環境では clientWidth より狭いことがある)
+    const vw = await page.evaluate(() => {
+      const probe = document.createElement('div')
+      probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none'
+      document.body.append(probe)
+      const right = probe.getBoundingClientRect().right
+      probe.remove()
+      return right
+    })
     await expect
       .poll(async () => {
         const b = (await drawer.locator('[part="panel"]').boundingBox())!
         return Math.round(b.x + b.width)
       })
-      .toBeGreaterThanOrEqual(vw - 1)
+      .toBeGreaterThanOrEqual(Math.round(vw) - 1)
     await page.keyboard.press('Escape')
     await expect(drawer.locator('dialog')).toBeHidden()
     await expect(opener).toBeFocused()
