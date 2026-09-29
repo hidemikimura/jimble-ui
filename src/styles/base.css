@@ -1,0 +1,11 @@
+/* 全コンポーネント共通の :host。要素固有の指定は :host(jimble-xxx) で hosts に書く */
+@layer base {
+  :host {
+    font-family: var(--jimble-font-sans, system-ui, sans-serif);
+    color: var(--jimble-color-text, #111827);
+    -webkit-text-size-adjust: 100%;
+  }
+  :host([hidden]) {
+    display: none !important;
+  }
+}

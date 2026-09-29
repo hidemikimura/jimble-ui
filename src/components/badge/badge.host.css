@@ -1,0 +1,6 @@
+@layer components {
+  :host(jimble-badge) {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}

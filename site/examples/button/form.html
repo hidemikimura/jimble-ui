@@ -1,0 +1,15 @@
+<!-- title: フォームの送信とリセット -->
+<form
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').value = '送信しました'
+  "
+  class="stack"
+>
+  <label>名前 <input name="name" value="山田" /></label>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+    <output aria-live="polite"></output>
+  </div>
+</form>

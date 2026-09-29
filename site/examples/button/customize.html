@@ -1,0 +1,15 @@
+<!-- title: カスタマイズ（CSS 変数 と ::part） -->
+<style>
+  .pill {
+    --jimble-button-radius: 9999px;
+    --jimble-button-bg: #0f766e;
+    --jimble-button-bg-hover: #115e59;
+  }
+  .wide::part(base) {
+    letter-spacing: 0.15em;
+  }
+</style>
+<div class="row">
+  <jimble-button class="pill" variant="primary">丸いボタン</jimble-button>
+  <jimble-button class="wide">字間を広げる</jimble-button>
+</div>

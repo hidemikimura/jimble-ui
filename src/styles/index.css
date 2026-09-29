@@ -1,0 +1,12 @@
+/* 共有スタイルシートのエントリ（設計書 §2）。Tailwind の必要な層だけを取り込む。 */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import './theme.generated.css';
+@import './base.css';
+@import './hosts.css';
+
+/* クラス名のスキャン対象。テンプレート内のクラスは完全な文字列リテラルで書くこと */
+@source '../components';
+@source '../base';

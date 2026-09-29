@@ -8,3 +8,18 @@ tools/eval/run/
 
 .DS_Store
 .idea/
+
+.vite/
+*.log
+coverage/
+
+.vitest/
+
+# ドキュメントサイトの生成物（scripts/../site/plugins/pages.ts が作る）
+site/index.html
+site/guide/
+site/components/
+site/dist/
+custom-elements.json
+test-results/
+playwright-report/

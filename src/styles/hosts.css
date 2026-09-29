@@ -1,0 +1,5 @@
+/* Tailwind のクラスで書けない CSS（:host / ::slotted / :state / forced-colors）を束ねる */
+@import '../components/alert/alert.host.css';
+@import '../components/badge/badge.host.css';
+@import '../components/button/button.host.css';
+@import '../components/card/card.host.css';

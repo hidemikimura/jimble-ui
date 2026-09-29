@@ -1,0 +1,12 @@
+@layer components {
+  :host(jimble-button) {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  :host(jimble-button[block]) {
+    display: block;
+  }
+  :host(jimble-button[block]) [part='base'] {
+    width: 100%;
+  }
+}
