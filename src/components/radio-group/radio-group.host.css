@@ -6,4 +6,26 @@
     display: flex;
     outline: none;
   }
+  /* 強制色モードでは、背景色が消える。オフ = 枠だけの丸、オン = 選択色(Highlight)の枠と点 */
+  @media (forced-colors: active) {
+    :host(jimble-radio) [part='indicator'] {
+      forced-color-adjust: none;
+      background-color: Canvas !important;
+      outline: 2px solid CanvasText !important;
+      outline-offset: -2px !important;
+      box-shadow: none !important;
+    }
+    :host(jimble-radio) [part='indicator'] > span {
+      background-color: CanvasText !important;
+    }
+    :host(jimble-radio:state(checked)) [part='indicator'] {
+      outline-color: Highlight !important;
+    }
+    :host(jimble-radio:state(checked)) [part='indicator'] > span {
+      background-color: Highlight !important;
+    }
+    :host(jimble-radio:state(disabled)) [part='indicator'] {
+      outline-color: GrayText !important;
+    }
+  }
 }

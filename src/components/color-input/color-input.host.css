@@ -124,4 +124,10 @@
       outline-offset: 2px;
     }
   }
+  /* 強制色モードでは、スライダーの色(グラデーションのトラック、つまみ)が消えるので、そのまま出す */
+  @media (forced-colors: active) {
+    :host(jimble-color-input) .jimble-slider {
+      forced-color-adjust: none;
+    }
+  }
 }

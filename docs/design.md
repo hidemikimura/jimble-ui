@@ -1581,6 +1581,16 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 
 - ルーターの追加で 82.8 KB gz になり、予算（84 KB）にほぼ達したため、90 KB に上げた。部品の追加で増え続けるので、さらに増えるなら、CDN を「本体」と「アイコン」（約 11 KB）に分ける案を検討する（アイコンは npm では使う分だけ入る）。
 
+**追補: 強制色モードの修正（2026-09-29）**
+
+- 利用者が Chromium のエミュレーション（`forced-colors: active`）で確認して、3 つの見落としが見つかった。強制色モードは、背景色・影を消し、`color` や枠の色をシステムカラーに置き換える。**背景色や影だけで状態を表している部品**が、見えなくなる。
+  - **スイッチ**: 白いつまみ（背景色）と、オンの主色のトラックが消え、オンとオフの区別がつかなかった → トラック・つまみに `forced-color-adjust: none` を付け、オフ = `Canvas` のトラック + `CanvasText` の枠とつまみ、オン = `Highlight` のトラック + `HighlightText` のつまみ。
+  - **ラジオ**: 丸の主色の背景と白い点が消えた → 丸は枠（`outline`）、点は `CanvasText`、選択中は `Highlight`。
+  - **タブ**: 選択中の下線・文字色が消え、全部同じに見えた → 選択中は `Highlight` の背景と `HighlightText`。
+  - **カラーピッカーのスライダー**: グラデーションのトラックが消えた → `forced-color-adjust: none`。
+- Tailwind のクラス（`utilities` レイヤー）が `components` レイヤーのホスト CSS より優先されるため、強制色モードでの上書きには `!important` を付けた（強制色モードのときだけ効く）。
+- Windows がなくても、開発者ツールの「Emulate CSS media feature forced-colors」で確認できる（`docs/manual-checks.md`）。システムカラーの実際の値は、OS・ブラウザーごとに違う（Chromium の暗い強制色では、`Highlight` は水色、`GrayText` は緑）。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

@@ -3,4 +3,34 @@
     display: inline-flex;
     vertical-align: middle;
   }
+  /*
+   * 強制色モードでは、背景色・影が消えて、つまみ(白)や、オンのトラック(主色)が見えなくなる。
+   * オフ = 枠だけのトラック + 文字色のつまみ、オン = 選択色(Highlight)のトラック + その上の文字色(HighlightText)のつまみ。
+   */
+  @media (forced-colors: active) {
+    :host(jimble-switch) [part='track'] {
+      forced-color-adjust: none;
+      background-color: Canvas !important;
+      outline: 2px solid CanvasText !important;
+      outline-offset: -2px !important;
+    }
+    :host(jimble-switch) [part='thumb'] {
+      forced-color-adjust: none;
+      background-color: CanvasText !important;
+      box-shadow: none !important;
+    }
+    :host(jimble-switch) [part='control']:checked ~ [part='track'] {
+      background-color: Highlight !important;
+    }
+    :host(jimble-switch) [part='control']:checked ~ [part='thumb'] {
+      background-color: HighlightText !important;
+    }
+    :host(jimble-switch) [part='control']:focus-visible ~ [part='track'] {
+      outline: 2px solid Highlight !important;
+      outline-offset: 2px !important;
+    }
+    :host(jimble-switch) [part='control']:disabled ~ [part='track'] {
+      outline-color: GrayText !important;
+    }
+  }
 }

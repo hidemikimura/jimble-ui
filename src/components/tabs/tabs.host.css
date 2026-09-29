@@ -17,4 +17,12 @@
     outline: 2px solid var(--_c-ring-focus);
     outline-offset: 2px;
   }
+  /* 強制色モードでは、選択中のタブの色(下線・文字色)が消えるので、選択色(Highlight)で塗る */
+  @media (forced-colors: active) {
+    :host(jimble-tab:state(selected)) [part='base'] {
+      forced-color-adjust: none;
+      background-color: Highlight !important;
+      color: HighlightText !important;
+    }
+  }
 }
