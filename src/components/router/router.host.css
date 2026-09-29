@@ -1,0 +1,10 @@
+@layer components {
+  :host(jimble-router) {
+    display: block;
+  }
+  /* ページの入れ物。フォーカスは、遷移のあとにスクリーンリーダーの読み上げ位置を移すためだけに使う(枠は出さない) */
+  :host(jimble-router) ::slotted([data-jimble-outlet]) {
+    display: block;
+    outline: none;
+  }
+}

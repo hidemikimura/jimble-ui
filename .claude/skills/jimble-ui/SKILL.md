@@ -94,6 +94,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `value=値`
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/tabs/
+- **`jimble-router`** — シングルページアプリのルーター（Navigation API を使う）。
+  - 属性: `scroll-container=値`, `no-chunk-reload`, `busy`, `announcement=値`
+  - スロット: (既定)
+  - イベント: `jimble-route-loading`, `jimble-route-change`, `jimble-route-error`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/router/
 
 ### 表示
 
@@ -316,6 +321,33 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - 現在のページの項目に `current` を付ける（`jimble-nav-item`、`jimble-breadcrumb-item`）。判定はアプリの仕事。
 - 1 ページに `nav` の部品（パンくず・サイドバー・ページネーション）を複数置くときは、`label` で名前を変える。
 - `jimble-tabs` の `jimble-tab` と `jimble-tab-panel` は `value` で対応させる。`slot` 属性は不要。
+
+### 5b. ルーター（SPA）
+
+`<jimble-router>` に `routes` を渡す（JS のプロパティ。1 ドキュメントに 1 つ）。ページ用の基底クラスは要らない。
+
+```js
+router.routes = [
+  { path: '/', render: () => html`<page-home></page-home>` },
+  {
+    path: '/users/:id',
+    name: 'user',
+    title: ({ params }) => `ユーザー ${params.id}`,
+    load: ({ params, signal }) => fetchUser(params.id, signal), // 任意。終わるまで画面は切り替わらない
+    render: ({ data, query }, user) => html`<page-user .user=${user}></page-user>`,
+  },
+]
+router.fallback = { render: () => html`<page-not-found></page-not-found>` } // 404
+router.navigate('/users/1', { data: { flash: '保存しました' }, state: { tab: 'a' } })
+router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再描画しない。既定は履歴を増やさない replace)
+```
+
+- ページの部品を動的 `import()` するのは、**`load` の中**(`await import('./pages/page-user.js')`)。終わるまで画面が切り替わらないので、`render` の時点で要素は定義済み。デプロイで古くなった画面で取得に失敗したときは、自動で通常のページ遷移に切り替えて復旧する(`no-chunk-reload` で止められる)。
+- `html` は、npm なら `@hidemikimura/jimble-ui/router`、CDN なら `JimbleUI.html`。
+- リンクの `<a href>` は、そのまま SPA の遷移になる(除外は `data-router-ignore`)。
+- `data` は遷移先に **1 回だけ**渡る値(戻る・進む・リロードでは `undefined`)。`state` は履歴に保存され、戻る・進むで復元される。
+- スクロール位置は、戻る・進む・リロードで復元される。内側の要素がスクロールするレイアウトは `scroll-container="#main"`。
+- **`title` を必ず付ける**(遷移のたびに読み上げる)。サーバーは、どのパスでも同じ HTML を返す必要がある。離脱前の確認・ルートのネストは未対応。
 
 ### 6. 見た目のカスタマイズ（この順で）
 

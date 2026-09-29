@@ -39,6 +39,7 @@ const PAGES = [
   '/components/page-header/',
   '/components/tabs/',
   '/components/breadcrumb/',
+  '/components/router/',
   '/components/pagination/',
   '/components/table/',
   '/components/description-list/',
@@ -660,6 +661,75 @@ test.describe('フィールドの独自の検証(実操作)', () => {
     await expect(user.locator('[part="error"]')).toBeHidden()
     await example.getByRole('button', { name: '登録' }).click()
     await expect(example.locator('output')).toContainText('taro@example.com')
+  })
+})
+
+test.describe('ルーター(実操作)', () => {
+  const BASE = '/frames/router/basic'
+
+  test('リンクで遷移し(ページの再読み込みなし)、data が 1 回だけ渡り、戻るとスクロール位置が復元される', async ({
+    page,
+  }) => {
+    await page.goto(`${BASE}/`)
+    await page.evaluate(() => ((window as unknown as { __mark: number }).__mark = 1))
+    await page.getByRole('link', { name: 'ユーザー一覧' }).click()
+    await expect(page.getByRole('heading', { name: 'ユーザー一覧（1 ページ目）' })).toBeVisible()
+    expect(new URL(page.url()).pathname).toBe(`${BASE}/users`)
+    // ページが読み込み直されていない(マークが残る)
+    expect(await page.evaluate(() => (window as unknown as { __mark?: number }).__mark)).toBe(1)
+    await expect(page).toHaveTitle('ユーザー一覧')
+    await page.evaluate(() => window.scrollTo(0, 300))
+    const y = await page.evaluate(() => window.scrollY)
+    expect(y).toBeGreaterThan(100)
+    await page.getByRole('link', { name: 'ユーザー 15' }).click()
+    await expect(page.getByRole('heading', { name: 'ユーザー 15' })).toBeVisible()
+    await expect(page.getByText('一覧から開きました。')).toBeVisible() // data
+    await expect(page).toHaveTitle('ユーザー 15')
+    await page.goBack()
+    await expect(page.getByRole('heading', { name: 'ユーザー一覧（1 ページ目）' })).toBeVisible()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(y - 5)
+    await page.goForward()
+    await expect(page.getByRole('heading', { name: 'ユーザー 15' })).toBeVisible()
+    await expect(page.getByText('一覧から開きました。')).toHaveCount(0) // 戻る・進むでは data は渡らない
+  })
+
+  test('setQuery は、ページを再描画せずに URL だけを変える。フォーカスはページの先頭へ移る', async ({
+    page,
+  }) => {
+    // 深いパスを直接開くには、サーバーがそのパスでもアプリを返す必要がある(静的な例では、ルートから入る)
+    await page.goto(`${BASE}/`)
+    await page.getByRole('link', { name: 'ユーザー一覧' }).click()
+    await expect(page.getByRole('heading', { name: 'ユーザー一覧（1 ページ目）' })).toBeVisible()
+    await page.evaluate(() => {
+      ;(window as unknown as { __page: Element }).__page = document.querySelector(
+        'jimble-router [data-jimble-outlet] ul',
+      )!
+    })
+    await page.getByRole('button', { name: '次へ（履歴に残す）' }).click()
+    await expect(page).toHaveURL(new RegExp(`${BASE}/users\\?page=2$`))
+    // 再描画されないので、一覧の要素は同じ(見出しは、ページ側の再描画がないので、そのまま)
+    expect(
+      await page.evaluate(
+        () =>
+          (window as unknown as { __page: Element }).__page ===
+          document.querySelector('jimble-router [data-jimble-outlet] ul'),
+      ),
+    ).toBe(true)
+    await page.goBack()
+    await expect(page).toHaveURL(new RegExp(`${BASE}/users$`))
+  })
+
+  test('存在しないパスは、fallback のページになる', async ({ page }) => {
+    await page.goto(`${BASE}/`)
+    await page.evaluate(
+      (b) =>
+        (
+          document.querySelector('jimble-router') as unknown as { navigate(u: string): void }
+        ).navigate(`${b}/nope`),
+      BASE,
+    )
+    await expect(page.getByRole('heading', { name: 'ページが見つかりません' })).toBeVisible()
+    await expect(page).toHaveTitle('見つかりません')
   })
 })
 

@@ -1563,6 +1563,20 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **`jimble-validator`（囲む案）は作らない**（2026-09-29 に決定）。1 つの field の中の複数項目は `field.validate` + `context` で足りる。別々の field にまたがる検証は、必要になった時に別途検討する。
 - **依頼の書き方との違い**: 依頼の例では `change` で自分の状態に値を保存してから検証する形だったが、関数に値を渡すので、アプリは値を持たなくても検証できる（保存したいときだけ `@change` を使う）。
 
+**追補: ルーター `jimble-router`（Navigation API、2026-09-29）**
+
+- **由来**: 利用者の自作ルーター（History API 版から Navigation API 版へ移行済み）を参考にした。**捨てたもの**: ページ用の基底クラス（`RouterPage`）、ダイアログの状態の復元（`createState` の永続化）、`click` の横取り（Navigation API の `navigate` イベントが同じオリジンのリンクを受ける）、URLPattern の polyfill（対象ブラウザは、すべてネイティブで対応。テスト用の 3 ブラウザで、`navigation`・`URLPattern`・`intercept` を確認）。**残したもの**: 名前つきルート、遷移時の値の受け渡し、スクロールの復元、URL だけの差し替え。**入れなかったもの**（今は不要）: 離脱ガード、ルートのネスト。
+- **構造**: `<jimble-router>` は、light DOM に入れ物（`div[data-jimble-outlet]`）を 1 つ作り、その中へ Lit の `render()` でページを描く（ページが、アプリの CSS の影響を受けるように、Shadow の外に置く）。Shadow 内は `<slot>` と、読み上げ用の `role=status` だけ。遷移のたびに `keyed` で要素を作り直す。1 ドキュメントに 1 つ（静的な `#active`）。
+- **遷移**: `navigate` イベントを `intercept`。**リダイレクト**は、`cancelable` なら遷移の前に `preventDefault` して、`replace` で作り直す（URL のちらつきを防ぐ）。**中止**は、`e.signal` が abort されたら、こちらの `AbortController` も abort して、`load` の `signal` に渡す。あとの遷移が先に終わっても、古い結果が上書きしない。
+- **値の受け渡し**: `data` は `navigate()` の `info`（履歴に残らない・1 回だけ・戻る、進む、リロードでは `undefined`）、`state` は `navigate()` の `state`（履歴エントリに保存され、`navigation.currentEntry.getState()` で読む）。`info` は、このルーターの値と区別できるよう、`{ jimble: { data, queryOnly } }` の名前空間に入れる。
+- **`setQuery`**: `info.jimble.queryOnly` つきの `navigate()` を、`scroll: 'manual'`・`focusReset: 'manual'` で `intercept` して、何も描かずに終える（`current.url` の更新と `jimble-route-change`（`queryOnly`）だけ）。既定は `replace`。
+- **スクロール**: window は、`intercept({ scroll: 'after-transition' })` でブラウザに任せる（戻る・進む・リロードで、ページの中身が入ったあとに復元される。そのために `load` の完了を待つ）。内側の要素（`scroll-container`）は、ブラウザが復元しないので、離れるとき（`navigate` イベント・`pagehide`）に `scrollTop` を `sessionStorage`（キーは履歴エントリの `key`）へ保存して、描画のあとに、戻る・進む・リロードなら復元、新しい遷移なら先頭にする。存在しなくなったエントリの値は、`navigatesuccess` で捨てる。App Shell は本文が window でスクロールするので、指定は要らない。
+- **a11y**: SPA ではブラウザがページの切り替わりを伝えないので、遷移（最初の表示と `setQuery` を除く）のたびに、`document.title` を `role=status` で読み上げ、フォーカスを入れ物（`tabindex=-1`）か、中の `autofocus` へ移す（`focusReset: 'manual'` にして自前で行う）。
+- **Navigation API がないブラウザ**: 最初の表示だけ行い、リンクは通常のページ遷移（サーバーが、どのパスでもアプリを返す前提）。polyfill は入れない。
+- **見つかった型の問題**: `setState` は `JimbleElement` の CSS 状態用メソッドと衝突するので、`setEntryState` にした。`RouteConfig` は、`load` の戻り値の型がルートごとに違うため、型引数の既定を `any` にした。
+- **動的 import と復旧**: ページの部品の `import()` は `load` で行う（`render` は同期。`load` の完了まで画面を切り替えないので、`render` 時に要素が定義済みで、スクロールの復元も内容の確定後になる）。利用者の自作ルーターが `enter` で行っていた「動的 import の失敗 → 通常のページ遷移で復旧」を組み込んだ。文言がブラウザごとに違う（Chromium・Firefox・Safari）ので、正規表現で見分ける。**無限の読み込み直しを避ける**ため、同じ URL で 10 秒以内に続けて失敗したときは、復旧せずに通常のエラーにする（`sessionStorage` に URL と時刻）。`jimble-route-error` は cancelable にして、`preventDefault()` で止められる。切り替えは `static hardNavigate` を経由する（テストで差し替えるため）。
+- **CDN の `JimbleUI.html`**: `render` でテンプレートを書けるよう、Lit の `html` を `JimbleUI` に足した。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

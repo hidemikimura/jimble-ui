@@ -1,0 +1,102 @@
+<!-- title: 基本（遷移・data と state・setQuery・スクロールの復元。ページの中のリンクが、ページの再読み込みなしに遷移します） -->
+<!-- frame: 460 -->
+<nav style="display: flex; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #d1d5db">
+  <a id="nav-home" href="./">ホーム</a>
+  <a id="nav-users" href="./users">ユーザー一覧</a>
+</nav>
+<div style="padding: 1rem"><jimble-router id="app"></jimble-router></div>
+<script type="module">
+  const { html, render } = JimbleUI
+  // このページの URL を、ルートの基準にする（実際のアプリでは、'/app' のように固定でよい）
+  const base = location.pathname.replace(/\/$/, '')
+  const app = document.getElementById('app')
+
+  const users = Array.from({ length: 80 }, (_, i) => ({ id: i + 1, name: `ユーザー ${i + 1}` }))
+  const PER_PAGE = 40
+
+  app.routes = [
+    {
+      path: `${base}/`,
+      name: 'home',
+      title: 'ホーム',
+      render: () => html`
+        <h2>ホーム</h2>
+        <p>ユーザー一覧へ進むと、遷移に <code>data</code> と <code>state</code> を渡せます。</p>
+        <jimble-button
+          variant="primary"
+          @click=${() => app.navigateTo('users', {}, { query: { page: 1 } })}
+          >一覧へ</jimble-button
+        >
+      `,
+    },
+    {
+      path: `${base}/users`,
+      name: 'users',
+      title: 'ユーザー一覧',
+      // ページを表示する前に、データを取得する(ここでは、通信の代わりに待つだけ)
+      load: async ({ signal }) => {
+        await new Promise((resolve) => setTimeout(resolve, 150))
+        if (signal.aborted) return []
+        return users
+      },
+      render: (_ctx, all) => {
+        // 検索文字列だけが変わったとき(setQuery)は、ページは再描画されない。ページの側で、必要な部分を描き直す
+        const root = document.createElement('div')
+        const draw = () => {
+          const page = Number(app.current.url.searchParams.get('page') ?? 1)
+          const rows = all.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+          render(
+            html`
+              <h2>ユーザー一覧（${page} ページ目）</h2>
+              <p>
+                <jimble-button
+                  size="sm"
+                  @click=${() => app.setQuery({ page: Math.max(page - 1, 1) })}
+                  >前へ</jimble-button
+                >
+                <jimble-button
+                  size="sm"
+                  @click=${() => app.setQuery({ page: page + 1 }, { history: 'push' })}
+                  >次へ（履歴に残す）</jimble-button
+                >
+              </p>
+              <ul>
+                ${rows.map((u) => html`<li><a href="${base}/users/${u.id}">${u.name}</a></li>`)}
+              </ul>
+            `,
+            root,
+          )
+        }
+        const onChange = (e) => {
+          if (!root.isConnected) app.removeEventListener('jimble-route-change', onChange)
+          else if (e.detail.queryOnly) draw()
+        }
+        app.addEventListener('jimble-route-change', onChange)
+        draw()
+        return root
+      },
+    },
+    {
+      path: `${base}/users/:id`,
+      name: 'user',
+      title: ({ params }) => `ユーザー ${params.id}`,
+      render: ({ params, data }) => html`
+        <h2>ユーザー ${params.id}</h2>
+        ${data?.flash ? html`<jimble-alert variant="info">${data.flash}</jimble-alert>` : ''}
+        <jimble-button @click=${() => app.back(`${base}/users`)}>一覧へ戻る</jimble-button>
+      `,
+    },
+  ]
+  app.fallback = { title: '見つかりません', render: () => html`<h2>ページが見つかりません</h2>` }
+
+  // リンクのクリックは、そのまま SPA の遷移になる。data を渡したいときは navigate を使う
+  document.addEventListener('click', (e) => {
+    const link = e
+      .composedPath()
+      .find((n) => n.tagName === 'A' && /\/users\/\d+$/.test(n.getAttribute('href') ?? ''))
+    if (link) {
+      e.preventDefault()
+      app.navigate(link.getAttribute('href'), { data: { flash: '一覧から開きました。' } })
+    }
+  })
+</script>

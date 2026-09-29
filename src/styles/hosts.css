@@ -21,6 +21,7 @@
 @import '../components/page-header/page-header.host.css';
 @import '../components/pagination/pagination.host.css';
 @import '../components/radio-group/radio-group.host.css';
+@import '../components/router/router.host.css';
 @import '../components/select/select.host.css';
 @import '../components/sidebar-nav/sidebar-nav.host.css';
 @import '../components/spinner/spinner.host.css';

@@ -27,6 +27,7 @@ const GROUPS: [string, string[]][] = [
       'tabs',
       'tab',
       'tab-panel',
+      'router',
     ],
   ],
   [
