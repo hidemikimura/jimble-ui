@@ -1,0 +1,6 @@
+@layer components {
+  :host(jimble-switch) {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+}

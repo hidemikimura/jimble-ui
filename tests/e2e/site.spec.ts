@@ -6,10 +6,17 @@ const PAGES = [
   '/guide/getting-started/',
   '/guide/theming/',
   '/guide/i18n/',
+  '/guide/forms/',
   '/components/button/',
   '/components/badge/',
   '/components/card/',
   '/components/alert/',
+  '/components/input/',
+  '/components/textarea/',
+  '/components/checkbox/',
+  '/components/switch/',
+  '/components/radio-group/',
+  '/components/field/',
 ]
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 
@@ -90,4 +97,88 @@ test('モバイル幅(375px)で横スクロールが出ない', async ({ page })
     )
     expect(overflow, path).toBeLessThanOrEqual(0)
   }
+})
+
+// ---- R2: jimble-field のラベル・ヒント・エラーが、ブラウザの計算する名前・説明になっているか ----
+test.describe('jimble-field のアクセシブルネームと説明（R2）', () => {
+  test('ラベルが名前、ヒントが説明になる', async ({ page }) => {
+    await page.goto('/components/field/')
+    const input = page.getByRole('textbox', { name: 'メールアドレス', exact: true }).first()
+    await expect(input).toHaveAccessibleName('メールアドレス')
+    await expect(input).toHaveAccessibleDescription('社用アドレスを入力してください')
+  })
+
+  test('error 属性は説明に含まれ、invalid になる', async ({ page }) => {
+    await page.goto('/components/field/')
+    const input = page.getByRole('textbox', { name: 'ユーザー名' })
+    await expect(input).toHaveAccessibleDescription('このユーザー名はすでに使われています')
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  test('送信して検証に失敗すると、エラーが説明に加わる', async ({ page }) => {
+    await page.goto('/components/field/')
+    const example = page.locator('docs-example', { hasText: '必須とエラー' })
+    const name = example.getByRole('textbox', { name: 'お名前' })
+    await expect(name).toHaveAccessibleDescription('')
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(name).toHaveAccessibleDescription('この項目は必須です')
+    await expect(name).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  // ラジオの role は ElementInternals で付けている。Playwright の getByRole は internals を見ないので、
+  // Chromium の実際のアクセシビリティツリー(CDP)で確認する
+  test('ラジオグループの role・名前・checked が実際のアクセシビリティツリーに出る（Chromium）', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'CDP は Chromium のみ')
+    await page.goto('/components/radio-group/')
+    const cdp = await page.context().newCDPSession(page)
+    const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+    const live = nodes.filter((n) => !n.ignored)
+    const group = live.find((n) => n.role?.value === 'radiogroup' && n.name?.value === 'プラン')
+    expect(group, 'radiogroup "プラン" がある').toBeTruthy()
+    const radios = live.filter((n) => n.role?.value === 'radio')
+    const state = Object.fromEntries(
+      radios.map((n) => [
+        n.name?.value,
+        n.properties?.find((p) => p.name === 'checked')?.value.value,
+      ]),
+    )
+    expect(state).toMatchObject({ 無料: 'false', Pro: 'true', Enterprise: 'false' })
+  })
+
+  test('チェックボックス・スイッチのロールと名前', async ({ page }) => {
+    await page.goto('/components/checkbox/')
+    await expect(page.getByRole('checkbox', { name: '利用規約に同意する' })).not.toBeChecked()
+    await expect(page.getByRole('checkbox', { name: 'お知らせを受け取る' })).toBeChecked()
+    await page.goto('/components/switch/')
+    await expect(page.getByRole('switch', { name: '通知を受け取る' })).toBeChecked()
+  })
+})
+
+test('ラジオグループ: 矢印キーで移動と選択ができる（実キー入力）', async ({ page }) => {
+  await page.goto('/components/radio-group/')
+  const example = page.locator('docs-example').first()
+  const group = example.locator('jimble-radio-group')
+  const value = () => group.evaluate((el: HTMLElement & { value: string }) => el.value)
+  await example.locator('jimble-radio[value="m"]').focus()
+  await page.keyboard.press('ArrowDown')
+  expect(await value()).toBe('l')
+  await page.keyboard.press('ArrowDown') // XL は無効なのでスキップして S へ循環
+  expect(await value()).toBe('s')
+  await page.keyboard.press('ArrowUp') // S の前は循環して L
+  expect(await value()).toBe('l')
+})
+
+test('フォームの例: Enter で送信され、結果が出る', async ({ page }) => {
+  await page.goto('/components/input/')
+  const form = page.locator('docs-example', { hasText: 'フォームの送信' })
+  // input/basic には form が無いので、ガイドの例を使う
+  await page.goto('/guide/forms/')
+  const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
+  await example.getByRole('textbox', { name: 'メモ' }).fill('テスト')
+  await page.keyboard.press('Enter')
+  await expect(example.locator('output')).toContainText('"memo":"テスト"')
+  void form
 })

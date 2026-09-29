@@ -1,0 +1,10 @@
+<!-- title: 必須とエラー（送信すると検証メッセージが出る） -->
+<form onsubmit="event.preventDefault()" class="stack">
+  <jimble-field label="お名前" required>
+    <jimble-input name="name" autocomplete="name"></jimble-input>
+  </jimble-field>
+  <jimble-field label="メールアドレス" required hint="例: taro@example.com">
+    <jimble-input type="email" name="email" autocomplete="email"></jimble-input>
+  </jimble-field>
+  <div><jimble-button type="submit" variant="primary">送信</jimble-button></div>
+</form>

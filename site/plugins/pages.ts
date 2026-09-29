@@ -76,7 +76,7 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
     out.push(
       '<h3 id="api-attributes">属性 / プロパティ</h3>',
       table(
-        '属性の表',
+        `${tag} の属性の表`,
         ['属性', '型', '既定値', '説明'],
         attrs.map((a) => {
           const field = (decl.members ?? []).find((m: any) => m.name === a.fieldName)
@@ -98,7 +98,7 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
     out.push(
       '<h3 id="api-slots">スロット</h3>',
       table(
-        'スロットの表',
+        `${tag} のスロットの表`,
         ['名前', '説明'],
         slots.map((s) => [code(s.name || '(既定)'), esc(s.description ?? '')]),
       ),
@@ -108,7 +108,7 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
     out.push(
       '<h3 id="api-events">イベント</h3>',
       table(
-        'イベントの表',
+        `${tag} のイベントの表`,
         ['名前', '説明'],
         events.map((e) => [code(e.name), esc(e.description ?? '')]),
       ),
@@ -119,13 +119,14 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
       !m.static &&
       !m.name.startsWith('#') &&
       m.privacy !== 'private' &&
+      m.privacy !== 'protected' &&
       !/Callback$/.test(m.name),
   )
   if (methods.length)
     out.push(
       '<h3 id="api-methods">メソッド</h3>',
       table(
-        'メソッドの表',
+        `${tag} のメソッドの表`,
         ['名前', '説明'],
         methods.map((m) => [code(`${m.name}()`), esc(m.description ?? '')]),
       ),
@@ -135,7 +136,7 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
     out.push(
       '<h3 id="api-parts">CSS パーツ（::part）</h3>',
       table(
-        'CSS パーツの表',
+        `${tag} のCSS パーツの表`,
         ['名前', '説明'],
         parts.map((p) => [code(p.name), esc(p.description ?? '')]),
       ),
@@ -145,7 +146,7 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
     out.push(
       '<h3 id="api-cssprops">CSS 変数</h3>',
       table(
-        'CSS 変数の表',
+        `${tag} のCSS 変数の表`,
         ['名前', '既定値', '説明'],
         props.map((p) => [
           code(p.name),

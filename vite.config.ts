@@ -42,6 +42,8 @@ export default defineConfig(({ mode }) =>
           extends: true,
           test: {
             name: 'browser',
+            // キーボード操作のテストは、同じブラウザで並列に走るとフォーカスの奪い合いで不安定になる（特に Firefox）
+            fileParallelism: false,
             include: ['src/**/*.test.ts', 'tests/browser/**/*.test.ts'],
             browser: {
               enabled: true,

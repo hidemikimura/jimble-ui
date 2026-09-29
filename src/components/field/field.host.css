@@ -1,0 +1,5 @@
+@layer components {
+  :host(jimble-field) {
+    display: block;
+  }
+}

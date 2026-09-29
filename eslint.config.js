@@ -9,6 +9,12 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    rules: {
+      // 使わない引数は `_` で始めれば許す
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
     files: ['src/**/*.ts'],
     ...lit.configs['flat/recommended'],
   },

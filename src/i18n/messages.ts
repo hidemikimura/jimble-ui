@@ -7,6 +7,20 @@ const ja = {
   'alert.success': '成功',
   'alert.warning': '警告',
   'alert.danger': 'エラー',
+  'field.required': '必須',
+  'validation.valueMissing': 'この項目は必須です',
+  'validation.valueMissing.check': 'チェックしてください',
+  'validation.valueMissing.choice': 'いずれかを選択してください',
+  'validation.typeMismatch': '入力の形式が正しくありません',
+  'validation.typeMismatch.email': 'メールアドレスの形式で入力してください',
+  'validation.typeMismatch.url': 'URL の形式で入力してください',
+  'validation.patternMismatch': '指定の形式で入力してください',
+  'validation.tooShort': '{minLength} 文字以上で入力してください',
+  'validation.tooLong': '{maxLength} 文字以内で入力してください',
+  'validation.rangeUnderflow': '{min} 以上の値を入力してください',
+  'validation.rangeOverflow': '{max} 以下の値を入力してください',
+  'validation.stepMismatch': '有効な値を入力してください',
+  'validation.badInput': '有効な値を入力してください',
 } as const
 
 export type MessageKey = Exclude<keyof typeof ja, '$locale'>

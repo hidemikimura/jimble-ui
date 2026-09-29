@@ -1,0 +1,6 @@
+@layer components {
+  :host(jimble-input) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+}

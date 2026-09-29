@@ -1,0 +1,6 @@
+@layer components {
+  :host(jimble-checkbox) {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+}

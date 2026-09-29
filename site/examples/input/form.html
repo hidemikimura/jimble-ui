@@ -1,0 +1,18 @@
+<!-- title: フォームの送信とリセット（Enter でも送信できる） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(
+      Object.fromEntries(new FormData(this)),
+    )
+  "
+>
+  <jimble-field label="お名前"><jimble-input name="name" value="山田"></jimble-input></jimble-field>
+  <jimble-field label="メモ"><jimble-input name="memo"></jimble-input></jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

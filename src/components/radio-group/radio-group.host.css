@@ -1,0 +1,9 @@
+@layer components {
+  :host(jimble-radio-group) {
+    display: block;
+  }
+  :host(jimble-radio) {
+    display: flex;
+    outline: none;
+  }
+}

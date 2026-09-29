@@ -1369,7 +1369,23 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
   - ドキュメントの例ブロックのタブは、`jimble-tabs`（M4）ができるまでは docs 専用の実装（同じ ARIA tabs パターン）。M4 で置き換える。
   - `frame`（iframe 隔離）は未実装。`app-shell` / `dialog` の例が必要になる M3〜M4 で追加する。
   - Safari は既定でタブキーがリンクにフォーカスしないため、E2E のスキップリンク検証は `focus()` してから行う。
-| **M2** | フォーム: FACE 基底、`input` / `textarea` / `checkbox` / `radio-group` / `switch` / `field`、**R2 スパイク**、IME | フォーム送信・reset・fieldset disabled・IME のテストが緑 |
+| **M2** ✅ | フォーム: FACE 基底、`input` / `textarea` / `checkbox` / `radio-group` / `switch` / `field`、**R2 スパイク**、IME | フォーム送信・reset・fieldset disabled・IME のテストが緑 |
+
+**M2 実施結果（2026-09-29）**
+
+- 実装: `JimbleFormElement`（値・検証・reset・disabled・状態復元・field 連携）、`ImeController`、`FieldControlController`（`@lit/context`）、`input` / `textarea` / `checkbox` / `switch` / `radio-group`（+ `radio`）/ `field`、検証メッセージの辞書（日本語・英語）。ドキュメントに「フォームとの連携」ガイドと 6 コンポーネントのページ。
+- **R2 は解決**: field のラベルが名前、ヒントとエラーが説明になる（文字列を渡して部品の Shadow 内に写す方式）。Playwright の `toHaveAccessibleName` / `toHaveAccessibleDescription` で Chromium / Firefox / WebKit の実計算を確認。ラジオのロールは Chromium の実アクセシビリティツリー（CDP）で確認。NVDA / VoiceOver での読み上げは [manual-checks.md](manual-checks.md) の手動項目。
+- IME: 変換中の Enter は送信しない。`isComposing` / `keyCode 229` / `compositionend` 直後の 3 つで判定し、合成イベントでテスト（Safari 型を含む）。実機は手動チェックリスト。
+- テスト: ブラウザ 3 エンジン × 単体・コンポーネント・全例の axe で 527 件、E2E 77 件（4 件は Chromium のみ）。
+- 実測: CDN バンドル 24.4 KB gz（Lit・`@lit/context`・11 部品・i18n）、最大の共有チャンク 7.1 KB gz。
+- 設計からの変更:
+  - フォーム基底は mixin（`FormAssociated(Base)`）ではなく **通常の継承**（`JimbleFormElement`、その下に `JimbleTextControl` / `JimbleToggleControl`）にした。mixin が返すクラス式は `#private` を持てず（TS4094）、型定義の出力が壊れるため。
+  - Enter による送信は、ネイティブと同じく**既定動作として、イベント配信の後**に行う（祖先の `keydown` の `preventDefault()` で止められる）。`jimble-button` の submit/reset も同じ方針（M1 で対応済み）。
+  - checkbox / radio / switch のフォーカスは、ring ではなく **`outline`（offset 2px）**で描く。チェック時の背景（primary-600）とフォーカスリングの色が同じになり、リングが見えなくなるため。強制色モードでも有効。
+  - `spellcheck` / `autofocus` 属性は M2 では未対応（ネイティブの `autofocus` は host に対して動かない場合がある）。
+  - checkbox / switch / radio の色の CSS 変数（`--jimble-checkbox-*` など）は M2 では公開していない。トークン（`--jimble-color-primary-*`、`--jimble-color-ring-control`）で変える。
+  - ラジオの選択状態は `ElementInternals` の `ariaChecked` で持つ（host の属性は汚さない）。Playwright の `getByRole` は internals を見ないので、E2E は CDP で確認する。
+- テスト基盤の教訓: ブラウザテストのファイルを同じブラウザで並列に走らせると、Firefox でキー入力が不安定になった（キー入力はフォーカスのあるページにしか届かない）。ブラウザプロジェクトは `fileParallelism: false` にした。
 | **M3** | オーバーレイ: `dialog` / `dropdown-menu` / `select` / `toast`、**R3 / R4 / R6 / R7 スパイク**、`PositionController` | 入れ子（ダイアログ内メニュー、メニューから toast）の E2E が緑 |
 | **M4** | レイアウトとデータ: `app-shell` / `sidebar-nav` / `page-header` / `tabs` / `breadcrumb` / `pagination` / `table`（**R5**）/ `description-list` | 管理画面のサンプルページが組める |
 | **M5** | 仕上げ: 手動 a11y/IME チェック、ドキュメントの穴埋め、サイズ予算、**0.1.0 公開** | チェックリスト完了、npm 公開 |
