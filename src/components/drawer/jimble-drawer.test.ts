@@ -15,6 +15,18 @@ afterEach(() => {
 const native = (el: JimbleDrawer) => el.shadowRoot!.querySelector('dialog')!
 const panel = (el: JimbleDrawer) => el.shadowRoot!.querySelector<HTMLElement>('[part="panel"]')!
 const tick = (ms = 400) => new Promise((r) => setTimeout(r, ms))
+/** スライドの動きが終わるまで待つ(位置が続けて同じになったら止まったとみなす。遅い CI でも固定の待ち時間に頼らない) */
+async function settled(el: JimbleDrawer) {
+  let last = ''
+  let same = 0
+  for (let i = 0; i < 100 && same < 4; i++) {
+    await new Promise((r) => setTimeout(r, 50))
+    const r = panel(el).getBoundingClientRect()
+    const now = `${r.left},${r.top},${r.width},${r.height}`
+    same = now === last ? same + 1 : 0
+    last = now
+  }
+}
 
 async function drawer(
   attrs = '',
@@ -93,7 +105,7 @@ describe('位置と大きさ', () => {
     const { el } = await drawer(attrs)
     el.show()
     await el.updateComplete
-    await tick()
+    await settled(el)
     return { r: panel(el).getBoundingClientRect(), el }
   }
 
