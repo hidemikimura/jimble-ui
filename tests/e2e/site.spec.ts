@@ -7,6 +7,7 @@ const PAGES = [
   '/guide/theming/',
   '/guide/i18n/',
   '/guide/forms/',
+  '/guide/overlays/',
   '/components/button/',
   '/components/badge/',
   '/components/card/',
@@ -17,6 +18,10 @@ const PAGES = [
   '/components/switch/',
   '/components/radio-group/',
   '/components/field/',
+  '/components/dialog/',
+  '/components/dropdown-menu/',
+  '/components/select/',
+  '/components/toast/',
 ]
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 
@@ -181,4 +186,176 @@ test('フォームの例: Enter で送信され、結果が出る', async ({ pag
   await page.keyboard.press('Enter')
   await expect(example.locator('output')).toContainText('"memo":"テスト"')
   void form
+})
+
+// ---- M3: オーバーレイ ---------------------------------------------------------------------
+test.describe('ダイアログ(実操作)', () => {
+  test('ボタンで開き、Esc で閉じてフォーカスが戻る。背面には Tab で出ない', async ({ page }) => {
+    await page.goto('/components/dialog/')
+    const example = page.locator('docs-example').first()
+    const opener = example.getByRole('button', { name: 'ダイアログを開く' })
+    await opener.focus()
+    await page.keyboard.press('Enter')
+    const dialog = page.getByRole('dialog', { name: '設定を保存しますか？' })
+    await expect(dialog).toBeVisible()
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press('Tab')
+      const outside = await page.evaluate(() => {
+        const a = document.activeElement
+        return !!a?.closest('nav, header, .layout') && !a.closest('jimble-dialog')
+      })
+      expect(outside, `Tab ${i + 1} 回目`).toBe(false)
+    }
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(opener).toBeFocused()
+  })
+
+  test('背景を実際にクリックすると閉じる。パネルの中のクリックでは閉じない', async ({ page }) => {
+    await page.goto('/components/dialog/')
+    const example = page.locator('docs-example').first()
+    await example.getByRole('button', { name: 'ダイアログを開く' }).click()
+    const dialog = page.getByRole('dialog', { name: '設定を保存しますか？' })
+    await expect(dialog).toBeVisible()
+    await page.locator('#dlg-basic').getByText('変更内容は').click()
+    await expect(dialog).toBeVisible()
+    await page.mouse.click(4, 4)
+    await expect(dialog).toBeHidden()
+  })
+
+  test('alertdialog は背景クリックで閉じず、autofocus の「キャンセル」にフォーカスがある', async ({
+    page,
+  }) => {
+    await page.goto('/components/dialog/')
+    const example = page.locator('docs-example', { hasText: '確認ダイアログ' })
+    await example.getByRole('button', { name: '削除する' }).first().click()
+    const dialog = page.getByRole('alertdialog', { name: 'この注文を削除しますか？' })
+    await expect(dialog).toBeVisible()
+    await expect(
+      page.locator('#dlg-alert').getByRole('button', { name: 'キャンセル' }),
+    ).toBeFocused()
+    await page.mouse.click(4, 4)
+    await expect(dialog).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+  })
+
+  test('フォーム入りダイアログ: autofocus の入力欄にフォーカスし、Enter で送信されて通知が出る', async ({
+    page,
+  }) => {
+    await page.goto('/components/dialog/')
+    const example = page.locator('docs-example', { hasText: 'フォーム入りのダイアログ' })
+    await example.getByRole('button', { name: 'メンバーを招待' }).click()
+    const dialog = page.getByRole('dialog', { name: 'メンバーを招待' })
+    const input = page.locator('#dlg-form').getByRole('textbox', { name: 'メールアドレス' })
+    await expect(input).toBeFocused()
+    await input.fill('a@example.com')
+    await page.keyboard.press('Enter')
+    await expect(dialog).toBeHidden()
+    await expect(page.locator('jimble-toast', { hasText: '招待を送りました' })).toBeVisible()
+  })
+})
+
+test.describe('ドロップダウンメニュー(実操作)', () => {
+  test('キーボードで開いて項目を選ぶと通知が出て、閉じてトリガーにフォーカスが戻る', async ({
+    page,
+  }) => {
+    await page.goto('/components/dropdown-menu/')
+    const example = page.locator('docs-example').first()
+    const trigger = example.getByRole('button', { name: '操作' })
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    const items = example.locator('jimble-menu-item')
+    await expect(items.first()).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await expect(page.locator('jimble-toast', { hasText: '選ばれた項目: copy' })).toBeVisible()
+    await expect(trigger).toBeFocused()
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  test('メニューはトリガーの直下に出る(Anchor Positioning)。外側クリックで閉じる', async ({
+    page,
+  }) => {
+    await page.goto('/components/dropdown-menu/')
+    const example = page.locator('docs-example').first()
+    const trigger = example.getByRole('button', { name: '操作' })
+    await trigger.click()
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    const t = await trigger.boundingBox()
+    const m = await example.locator('jimble-menu-item').first().boundingBox()
+    expect(m!.y).toBeGreaterThan(t!.y + t!.height - 1)
+    expect(m!.y - (t!.y + t!.height)).toBeLessThan(40)
+    await page.mouse.click(4, 300)
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+})
+
+test.describe('セレクト(実操作)', () => {
+  test('キーボードで開いて選ぶと、フォームの値が変わる', async ({ page }) => {
+    await page.goto('/components/select/')
+    const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
+    const select = example.locator('jimble-select')
+    const button = select.getByRole('button')
+    await button.focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(select.locator('jimble-option').first()).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await expect(button).toBeFocused()
+    await expect(button).toContainText('編集者')
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText('"role":"editor"')
+    await example.getByRole('button', { name: 'リセット' }).click()
+    await expect(button).toContainText('選択してください')
+  })
+})
+
+test.describe('通知(実操作)', () => {
+  test('ボタンで通知が出て、閉じるボタンで消える', async ({ page }) => {
+    await page.goto('/components/toast/')
+    const example = page.locator('docs-example').first()
+    await example.getByRole('button', { name: 'success' }).click()
+    const toast = page.locator('jimble-toast', { hasText: '保存しました' })
+    await expect(toast).toBeVisible()
+    await toast.getByRole('button', { name: '通知を閉じる' }).click()
+    await expect(toast).toHaveCount(0)
+  })
+
+  test('操作付きの通知: 押すと実行されて消える', async ({ page }) => {
+    await page.goto('/components/toast/')
+    const example = page.locator('docs-example', { hasText: '見出し・操作・表示時間' })
+    await example.getByRole('button', { name: '元に戻せる通知' }).click()
+    const toast = page.locator('jimble-toast', { hasText: '削除しました' })
+    await toast.getByRole('button', { name: '元に戻す' }).click()
+    await expect(page.locator('jimble-toast', { hasText: '元に戻しました' })).toBeVisible()
+    await expect(toast).toHaveCount(0)
+  })
+
+  test('モーダルの中でも通知が見えて押せる(R4)。実際のアクセシビリティツリーにも出る(Chromium)', async ({
+    page,
+    browserName,
+  }) => {
+    await page.goto('/components/toast/')
+    const example = page.locator('docs-example', { hasText: 'ダイアログの中でも' })
+    await example.getByRole('button', { name: 'ダイアログを開く' }).click()
+    const dialog = page.getByRole('dialog', { name: '通知のテスト' })
+    await expect(dialog).toBeVisible()
+    await page.locator('#dlg-toast').getByRole('button', { name: '通知を出す' }).click()
+    const toast = page.locator('jimble-toast', { hasText: 'ダイアログの中から出した通知' })
+    await expect(toast).toBeVisible()
+    if (browserName === 'chromium') {
+      const cdp = await page.context().newCDPSession(page)
+      const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+      const found = nodes.filter(
+        (n) => !n.ignored && String(n.name?.value ?? '').includes('ダイアログの中から出した通知'),
+      )
+      expect(found.length, 'モーダルの中の通知がアクセシビリティツリーにある').toBeGreaterThan(0)
+    }
+    // 実際のマウスで閉じるボタンを押せる（inert なら押せない）
+    await toast.getByRole('button', { name: '通知を閉じる' }).click()
+    await expect(toast).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+  })
 })

@@ -1,0 +1,49 @@
+@layer components {
+  :host(jimble-dropdown-menu) {
+    display: inline-block;
+  }
+  :host(jimble-menu-item) {
+    display: block;
+    outline: none;
+  }
+  :host(jimble-menu-separator) {
+    display: block;
+  }
+
+  /* 位置は CSS Anchor Positioning。anchor は同じ Shadow ツリー内のラッパー(part=anchor)。
+     light DOM のトリガー自体を anchor にはできない(anchor 名はツリー単位。設計書 R3 のスパイクで確認) */
+  :host(jimble-dropdown-menu) [part='anchor'] {
+    anchor-name: --jimble-anchor;
+    display: inline-flex;
+  }
+  :host(jimble-dropdown-menu) [part='menu'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.25rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+  :host(jimble-dropdown-menu[placement='bottom-end']) [part='menu'] {
+    position-area: bottom span-left;
+  }
+  :host(jimble-dropdown-menu[placement='top-start']) [part='menu'] {
+    position-area: top span-right;
+  }
+  :host(jimble-dropdown-menu[placement='top-end']) [part='menu'] {
+    position-area: top span-left;
+  }
+
+  @media (forced-colors: active) {
+    :host(jimble-menu-item:focus) [part~='base'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-dropdown-menu) [part='menu'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

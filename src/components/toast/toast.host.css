@@ -1,0 +1,61 @@
+@layer components {
+  :host(jimble-toast-region) {
+    display: contents;
+  }
+  :host(jimble-toast) {
+    display: block;
+    width: 100%;
+  }
+
+  /* 領域はトップレイヤーの popover(manual)。UA の既定(中央寄せ・枠・背景)を消して隅に置く */
+  :host(jimble-toast-region) [part='base'] {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 1rem;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    width: min(26rem, 100%);
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  :host(jimble-toast-region) [part='base']:not(:popover-open) {
+    display: none;
+  }
+  :host(jimble-toast-region[placement='bottom-end']) [part='base'],
+  :host(jimble-toast-region:not([placement])) [part='base'] {
+    right: 0;
+    bottom: 0;
+  }
+  :host(jimble-toast-region[placement='bottom-start']) [part='base'] {
+    left: 0;
+    bottom: 0;
+  }
+  :host(jimble-toast-region[placement='bottom']) [part='base'] {
+    left: 50%;
+    bottom: 0;
+    translate: -50% 0;
+  }
+  :host(jimble-toast-region[placement='top-end']) [part='base'] {
+    right: 0;
+    top: 0;
+  }
+  :host(jimble-toast-region[placement='top-start']) [part='base'] {
+    left: 0;
+    top: 0;
+  }
+  :host(jimble-toast-region[placement='top']) [part='base'] {
+    left: 50%;
+    top: 0;
+    translate: -50% 0;
+  }
+
+  @media (forced-colors: active) {
+    :host(jimble-toast) [part='base'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

@@ -45,10 +45,10 @@ Lit 3 / Tailwind CSS v4 / TypeScript / Vite（ライブラリモード）、`jim
 
 | 章 | 項目 |
 |----|------|
-| §6.6 | **位置計算: `@floating-ui/dom` を採用（8.2 KB gz, MIT）**。ネイティブ anchor positioning との比較あり |
+| §6.6 | 位置計算: ~~`@floating-ui/dom`~~ → **M3 のスパイクの結果、ネイティブ CSS Anchor Positioning を採用（依存を増やさない）** |
 | §9 | **アイコン: Heroicons v2 から必要分を vendor（同梱は内部用のみ、汎用セットは非同梱）** |
 | §4.6 | **入力欄の枠色を tailui より濃くする（WCAG 1.4.11 のため）** |
-| §1.5 | ランタイム依存: `lit`、`@lit/context`、`@floating-ui/dom`（**なるべくこの 3 つに留める**。厳密な上限ではない） |
+| §1.5 | ランタイム依存: `lit`、`@lit/context`（**なるべくこの 2 つに留める**。Floating UI は M3 のスパイクで不要と判明したため採用しない） |
 | §10 | 例の「コピー」は ARIA の tab ではなくボタンにする |
 | §2.3 | 宣言的フィールド（`static properties`）でデコレーターを使わない |
 | §12.2, §12.3 | Conventional Commits + release-please、ESLint + Prettier |
@@ -190,7 +190,7 @@ custom-elements.json            … リポジトリ直下（package.json の "cu
 |-----------|------|---------------|-----------|------|
 | `lit` 3.3.3 | 基盤 | 約 6.0 KB | BSD-3-Clause | 2026-05 |
 | `@lit/context` 1.1.6 | field ↔ 入力欄の連携（§5.5） | 約 1〜2 KB（未計測） | BSD-3-Clause | 2025-07 |
-| `@floating-ui/dom` 1.8.0 | 位置計算（§6.6、**承認待ち**） | 約 8.2 KB | MIT | 2026-07 |
+| ~~`@floating-ui/dom` 1.8.0~~ | 位置計算 → **採用しない**（§6.6 の M3 結果） | — | — | — |
 
 > **決定** `@lit/context` を使う。
 > **理由** Lit 公式で、実体は「Community Context Protocol」の CustomEvent。自作しても同じものになり、互換性が取れる利点だけ失う。
@@ -301,7 +301,7 @@ M1 で実測して確定する。CI で超過を検知する（`scripts/check-di
 |------|-------------------|
 | 共有シート | 30 KB 以下 |
 | コンポーネント 1 つ（基底・シート除く） | 3 KB 以下 |
-| CDN バンドル全体（P1 全部、Lit・Floating UI を含む） | 100 KB 以下 |
+| CDN バンドル全体（P1 全部、Lit・`@lit/context` を含む） | 100 KB 以下 |
 
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、を検査する。
 
@@ -693,7 +693,11 @@ Shadow 内のネイティブ入力は外側の `<form>` に属さないので、
 > **理由** 8 KB で、Shadow DOM・スクロール・反転を確実に扱える。ネイティブ方式は魅力的だが、トリガーがスロット経由の light DOM で、ポップアップが Shadow 内にあるという構造で anchor 名が解決できるかが不確実（同一 root 内に anchor 用ラッパーを描画すれば回避できる可能性はある）。確実性を優先する。
 > **代替** ネイティブ方式へ寄せる場合は、M3 の冒頭で「shadow 内のラッパー要素を anchor にする」スパイクを行い、成功すれば Floating UI を外して依存を 1 つ減らす。`PositionController` の API（`anchor`, `floating`, `placement`, `offset`, `flip`, `matchWidth`）は両方式で共通なので、コンポーネント側は無変更で済む。
 > **不採用** Popper — 保守が止まっている。
-> **要承認**（§0.5）。
+> **M3 の結果（2026-09-29）** スパイクでネイティブ方式が 3 エンジン（Chromium / Firefox / WebKit）で動いたため、**Floating UI は採用しない**（依存は `lit` と `@lit/context` のまま）。
+> - **同じ Shadow ツリー内のラッパー要素を anchor にする**方式は、位置指定・画面端での反転（`position-try-fallbacks`）とも動いた。
+> - **light DOM のトリガーを、Shadow 内の popover から anchor 参照する方式は 3 エンジンとも動かない**（anchor 名はツリー単位）。そのため `dropdown-menu` は `<slot name="trigger">` を Shadow 内の `<span part="anchor">` で包んで anchor にし、`select` は内部のボタン自体を anchor にしている。
+> - `PositionController` の抽象は作らなかった（CSS だけで済み、JavaScript の位置計算が無いため）。位置は各コンポーネントの `*.host.css` の `position-area` / `position-try-fallbacks` で決まる。
+> - 制約: サブピクセルの調整や「ずらして収める（shift）」「最大サイズを計算する（size）」は行わない。`max-height` とスクロールで収める。Firefox 147 未満などの未対応ブラウザは対象外。
 
 ---
 
@@ -1314,7 +1318,7 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 | Q3 | 入力欄の枠を濃くする（§4.6） | AA 準拠を優先。tailui より締まって見える。見た目を優先する場合は利用者側の上書きに任せる |
 | Q4 | `jimble-select` は自前リストボックス（§5.6） | 自前。品質不足ならネイティブ `<select>` 描画への逃げ道（`native` 属性）を用意する |
 | Q5 | `jimble-button` の既定 `type` | **`button`**（ネイティブは `submit`）。誤送信を避けるため。素の HTML 利用者に周知する |
-| Q6 | 位置計算に Floating UI を採用（§6.6） | 採用。ネイティブ anchor positioning はスパイクで確認してから切り替え可 |
+| Q6 | 位置計算に Floating UI を採用（§6.6） | 採用（承認済み）→ **ただし M3 のスパイクでネイティブ方式が 3 エンジンで動いたため、承認の条件どおり Floating UI は外した** |
 | Q7 | アイコンを Heroicons から vendor（§9.3） | 採用 |
 | Q8 | 0.x の間のバージョニング | 0.x は **minor が破壊的変更を含み得る**。API が固まった段階（P1 完了＋フィードバック後）で 1.0.0 |
 
@@ -1328,11 +1332,11 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 |---|--------|---------|-------------|
 | R1 | 共有シートで `shadow-sm ring-1` が効かない（F1） | 補正プラグインの出力を 3 エンジンでテスト | ring/shadow を `box-shadow` の生値で書く |
 | R2 | FACE のラベル/エラー連携（F6） | field ↔ input のミラー方式で NVDA / VoiceOver の読み上げ確認 | `ariaLabelledByElements` の機能検出採用、あるいは各コントロールが label を持つ |
-| R3 | ネイティブ anchor positioning が shadow 越しに使えるか（F5） | 同一 root 内ラッパー要素を anchor にする構造で検証 | Floating UI を維持（既定） |
-| R4 | モーダル dialog の中で toast が読み上げられない | toast 領域を dialog 内へ移動する方式の検証 | dialog 内専用の toast API（`dialog.toast()`）を追加 |
+| R3 | ネイティブ anchor positioning が shadow 越しに使えるか（F5） | 同一 root 内ラッパー要素を anchor にする構造で検証 | Floating UI を維持（既定） ｜ **解決（M3）**: 同一 Shadow ツリー内のラッパーを anchor にする方式が 3 エンジンで動く。light DOM の anchor は不可 |
+| R4 | モーダル dialog の中で toast が読み上げられない | toast 領域を dialog 内へ移動する方式の検証 | dialog 内専用の toast API（`dialog.toast()`）を追加 ｜ **解決（M3）**: 領域を開いているモーダルの中へ移動する方式で、3 エンジンとも操作でき、Chromium の実アクセシビリティツリーにも出る |
 | R5 | **table の構造を Shadow DOM で成立させる** | カスタム要素に `role=table/row/cell` と `display: table*` を与える方式で、sticky ヘッダー・横スクロール・並べ替えが動くか | データ駆動（`columns`/`rows` プロパティ）で Shadow 内に `<table>` を描画（宣言的な HTML 記述を犠牲にする） |
-| R6 | IME 変換中の Esc がダイアログを閉じる | close watcher を止められるか | 変換中は `cancel` を受けても再度 `showModal` するなどの回避 |
-| R7 | 自前 select の品質（Q4） | APG の select-only combobox の全キー操作と読み上げ | ネイティブ `<select>` 描画（`native`） |
+| R6 | IME 変換中の Esc がダイアログを閉じる | close watcher を止められるか | 変換中は `cancel` を受けても再度 `showModal` するなどの回避 ｜ **対策済み（M3）**: Chromium で変換中の Esc がダイアログを閉じることを確認。`cancel` を変換中だけ `preventDefault()` して防止 |
+| R7 | 自前 select の品質（Q4） | APG の select-only combobox の全キー操作と読み上げ | ネイティブ `<select>` 描画（`native`） ｜ **解決（M3）**: 自前のリストボックスで APG のキー操作を実装。ネイティブ描画への逃げ道（`native`）は今のところ不要 |
 | R8 | Tailwind / Vite の大型更新（Vite 8 は Rolldown 化、Tailwind は 4.x で出力が変わりうる） | 依存更新の PR で R1 のテストが落ちれば検知 | 固定バージョン運用 |
 
 **table の補足（R5）**: `<table>` を Shadow DOM の外側（light DOM）に置くと、セル要素へ外部から Shadow の CSS が届かない。そのため P1 では `jimble-table`（`role="table"`）・`jimble-table-row`（`role="row"`）・`jimble-table-cell`（`role="cell"`）・`jimble-table-head-cell`（`role="columnheader"`、`sort` 属性 ↔ `aria-sort`）などのカスタム要素を、`:host { display: table-cell }` 等で表レイアウトにする方式を第一案とする（Spectrum Web Components の表と同じ発想）。ネイティブ `<table>` より支援技術での堅牢性は下がるため、R5 の検証で決める。`description-list` も同様に `role="term"` / `role="definition"` を使うカスタム要素で構成する。
@@ -1386,7 +1390,29 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
   - checkbox / switch / radio の色の CSS 変数（`--jimble-checkbox-*` など）は M2 では公開していない。トークン（`--jimble-color-primary-*`、`--jimble-color-ring-control`）で変える。
   - ラジオの選択状態は `ElementInternals` の `ariaChecked` で持つ（host の属性は汚さない）。Playwright の `getByRole` は internals を見ないので、E2E は CDP で確認する。
 - テスト基盤の教訓: ブラウザテストのファイルを同じブラウザで並列に走らせると、Firefox でキー入力が不安定になった（キー入力はフォーカスのあるページにしか届かない）。ブラウザプロジェクトは `fileParallelism: false` にした。
-| **M3** | オーバーレイ: `dialog` / `dropdown-menu` / `select` / `toast`、**R3 / R4 / R6 / R7 スパイク**、`PositionController` | 入れ子（ダイアログ内メニュー、メニューから toast）の E2E が緑 |
+| **M3** ✅ | オーバーレイ: `dialog` / `dropdown-menu` / `select` / `toast`、**R3 / R4 / R6 / R7 スパイク**、`PositionController` | 入れ子（ダイアログ内メニュー、メニューから toast）の E2E が緑 |
+
+**M3 実施結果（2026-09-29）**
+
+- 実装: `dialog`（ネイティブ `<dialog>` の `showModal()`）、`dropdown-menu`（+ `menu-item` / `menu-separator`）、`select`（+ `option`）、`toast`（`toast()` 関数 + `jimble-toast` + `jimble-toast-region`）。共通部品として `modal-stack`（開いているモーダルの重なり）、`scroll-lock`（参照カウント式）、`typeahead`、`focus`（深いアクティブ要素・フォーカスの復帰）。素の HTML 向けに、CDN バンドルが `globalThis.JimbleUI`（`toast`、`setLocale` ほか）を置く。
+- **スパイクの結果（実装前に 3 エンジンで検証）**: (R3) ネイティブ anchor positioning は同一ツリー内の anchor なら動き、light DOM の anchor は動かない。(R4) モーダルの外にある toast の領域は inert（操作 0 回）、`<dialog>` の中へ移すと操作できる。(R6) Chromium で IME の変換中に Esc を押すと `cancel` が発火してダイアログが閉じる → `cancel` を `preventDefault()` すれば防げる。
+- テスト: 単体 + 3 エンジンのブラウザテストで 800 件（例・全部品の axe を含む）、E2E 122 件（4 件は Chromium のみ）。実操作: ダイアログ（Esc・背景クリック・フォーカス復帰・alertdialog・フォーム入り）、メニュー（キーボード・位置）、セレクト（キーボード・フォーム値）、通知（モーダル内で押せる・Chromium の実アクセシビリティツリー）。
+- 実測: CDN バンドル 31.3 KB gz（Lit・`@lit/context`・16 部品・i18n・`toast()` を含む）、最大の共有チャンク 8.1 KB gz。
+- **テストが見つけた不具合（修正済み）**:
+  1. `toast()` がリージョンを `document.querySelector` で探していたため、リージョンがモーダルの中（Shadow DOM の内側）へ移ると見つからず、**2 つ目が作られていた** → 参照を共通に保持。
+  2. モーダルを開いたあとの**最初の**通知で、リージョンが `<body>` に作られたまま（モーダルの中へ移動しない）だった → 接続時にも移動する。
+  3. リージョンを移動するとポップオーバーの表示状態が失われ、通知が見えなくなった → 接続のたびに再表示する。
+  4. メニューを Tab で閉じるとき、まだ表示中の項目（roving の `tabindex=0`）へ Firefox の Tab が移り、フォーカスが失われた → 閉じる処理でポップオーバーを同期的に隠す。開閉の通知は 1 回だけにする。
+  5. 単発の先頭文字検索が「現在の項目自身」に当たっていた → 現在の次から探す（ネイティブの `<select>` と同じ）。
+  6. `select` の `role=button` に `aria-required` を付けていた（axe の critical）→ 外し、必須は読み上げ用のラベルに含める。
+  7. `data-dialog-close` が `jimble-button` の内側のクリックを拾えなかった → `event.target` を使う。
+- 設計からの変更:
+  - **Floating UI を採用しない**（§6.6）。`PositionController` は作らない。
+  - `select` の一覧は **フォーカスを選択肢へ移す**方式（APG の collapsible dropdown listbox）。`aria-activedescendant` は、選択肢が light DOM にあり ID が Shadow 境界をまたげないため使えない。ボタンの名前は `aria-labelledby`（同じ root の「ラベル」と「現在の値」）で組み立てる。
+  - トリガーがポップアップを開くことは、`jimble-button` の `haspopup` / `expanded` プロパティで内部のボタンへ渡す（host に `aria-expanded` を付けると axe が指摘するため）。それ以外の要素には属性を付ける。
+  - ダイアログの名前は `heading` 属性 / `title` スロット（同じ root の `h2` を `aria-labelledby` で参照）/ `aria-label`。宣言的に閉じるため `data-dialog-close` を用意した。
+  - Toast の通知領域は `role="status"` と `role="alert"` のライブリージョンを、通知が来る前から表示状態で持つ（空でも常に表示）。danger と操作付きの通知は自動では消えない。
+- テスト基盤の教訓: macOS の Firefox / Safari は、既定ではボタンやリンクに Tab で止まらない（Tab の移動先は必ずテキスト入力にする）。`page.viewport()` は Firefox / WebKit で安定しないので、ビューポートに依存しない期待値にする。Playwright の `getByRole` は ElementInternals のロールと、Shadow 内の `<dialog>` 配下にスロットされた内容を見ないので、ホストから探すか CDP を使う。
 | **M4** | レイアウトとデータ: `app-shell` / `sidebar-nav` / `page-header` / `tabs` / `breadcrumb` / `pagination` / `table`（**R5**）/ `description-list` | 管理画面のサンプルページが組める |
 | **M5** | 仕上げ: 手動 a11y/IME チェック、ドキュメントの穴埋め、サイズ予算、**0.1.0 公開** | チェックリスト完了、npm 公開 |
 

@@ -1,0 +1,17 @@
+<!-- title: 確認ダイアログ（alert）— 破壊的な操作は「キャンセル」に autofocus -->
+<jimble-button variant="danger" onclick="document.getElementById('dlg-alert').show()">
+  削除する
+</jimble-button>
+
+<jimble-dialog id="dlg-alert" alert size="sm" heading="この注文を削除しますか？">
+  削除すると元に戻せません。
+  <jimble-button slot="footer" autofocus data-dialog-close>キャンセル</jimble-button>
+  <jimble-button
+    slot="footer"
+    variant="danger"
+    data-dialog-close
+    onclick="JimbleUI.toast({ message: '注文を削除しました', variant: 'success' })"
+  >
+    削除する
+  </jimble-button>
+</jimble-dialog>

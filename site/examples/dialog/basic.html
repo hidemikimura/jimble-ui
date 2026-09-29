@@ -1,0 +1,10 @@
+<!-- title: 基本（Esc・背景クリック・閉じるボタンで閉じる） -->
+<jimble-button variant="primary" onclick="document.getElementById('dlg-basic').show()">
+  ダイアログを開く
+</jimble-button>
+
+<jimble-dialog id="dlg-basic" heading="設定を保存しますか？">
+  変更内容は、同じワークスペースのメンバーにも反映されます。
+  <jimble-button slot="footer" data-dialog-close>キャンセル</jimble-button>
+  <jimble-button slot="footer" variant="primary" data-dialog-close>保存</jimble-button>
+</jimble-dialog>

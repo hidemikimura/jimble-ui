@@ -1,0 +1,11 @@
+<!-- title: ダイアログの中でも操作・読み上げできる -->
+<jimble-button onclick="document.getElementById('dlg-toast').show()"
+  >ダイアログを開く</jimble-button
+>
+
+<jimble-dialog id="dlg-toast" heading="通知のテスト" size="sm">
+  <jimble-button onclick="JimbleUI.toast.success('ダイアログの中から出した通知')"
+    >通知を出す</jimble-button
+  >
+  <jimble-button slot="footer" data-dialog-close>閉じる</jimble-button>
+</jimble-dialog>

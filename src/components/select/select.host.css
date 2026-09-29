@@ -1,0 +1,34 @@
+@layer components {
+  :host(jimble-select) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  :host(jimble-option) {
+    display: block;
+    outline: none;
+  }
+  :host(jimble-select) [part='button'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-select) [part='listbox'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.25rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+    min-width: anchor-size(width);
+  }
+  @media (forced-colors: active) {
+    :host(jimble-option:focus) [part='base'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-select) [part='listbox'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

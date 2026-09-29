@@ -101,6 +101,8 @@ export class JimbleButton extends JimbleElement {
     iconOnly: { type: Boolean, reflect: true, attribute: 'icon-only' },
     block: { type: Boolean, reflect: true },
     accessibleLabel: { attribute: 'aria-label' },
+    haspopup: { attribute: false },
+    expanded: { attribute: false },
   }
   static override shadowRootOptions: ShadowRootInit = { mode: 'open', delegatesFocus: true }
 
@@ -125,6 +127,10 @@ export class JimbleButton extends JimbleElement {
   declare block: boolean
   /** ホストの aria-label を内部の要素へ渡す */
   declare accessibleLabel: string | null
+  /** ポップアップを開くボタンのとき、その種類(menu / listbox など)。dropdown-menu が設定する */
+  declare haspopup: string | undefined
+  /** ポップアップを開くボタンのとき、開いているか。dropdown-menu が設定する */
+  declare expanded: boolean | undefined
 
   #slots = new SlotController(this)
   #fieldsetDisabled = false
@@ -236,6 +242,8 @@ export class JimbleButton extends JimbleElement {
         aria-disabled=${ifDefined(disabled || this.loading ? 'true' : undefined)}
         aria-busy=${ifDefined(busy)}
         aria-label=${ifDefined(label)}
+        aria-haspopup=${ifDefined(this.haspopup)}
+        aria-expanded=${ifDefined(this.expanded === undefined ? undefined : String(this.expanded))}
         @click=${this.#onInnerClick}
         >${content}</a
       >`
@@ -248,6 +256,8 @@ export class JimbleButton extends JimbleElement {
       aria-disabled=${ifDefined(this.loading && !disabled ? 'true' : undefined)}
       aria-busy=${ifDefined(busy)}
       aria-label=${ifDefined(label)}
+      aria-haspopup=${ifDefined(this.haspopup)}
+      aria-expanded=${ifDefined(this.expanded === undefined ? undefined : String(this.expanded))}
       @click=${this.#onInnerClick}
     >
       ${content}

@@ -1,0 +1,21 @@
+<!-- title: フォーム入りのダイアログ（最初の入力欄に autofocus） -->
+<jimble-button onclick="document.getElementById('dlg-form').show()">メンバーを招待</jimble-button>
+
+<jimble-dialog id="dlg-form" heading="メンバーを招待">
+  <form
+    id="invite-form"
+    onsubmit="
+      event.preventDefault()
+      document.getElementById('dlg-form').hide()
+      JimbleUI.toast({ message: '招待を送りました', variant: 'success' })
+    "
+  >
+    <jimble-field label="メールアドレス" required>
+      <jimble-input type="email" name="email" autocomplete="email" autofocus></jimble-input>
+    </jimble-field>
+  </form>
+  <jimble-button slot="footer" data-dialog-close>キャンセル</jimble-button>
+  <jimble-button slot="footer" type="submit" form="invite-form" variant="primary"
+    >送信</jimble-button
+  >
+</jimble-dialog>

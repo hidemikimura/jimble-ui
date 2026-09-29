@@ -1,0 +1,19 @@
+<!-- title: 基本（field と組み合わせる） -->
+<div class="stack">
+  <jimble-field label="プラン" hint="あとから変更できます">
+    <jimble-select name="plan" placeholder="プランを選択">
+      <jimble-option value="free">無料</jimble-option>
+      <jimble-option value="pro">Pro</jimble-option>
+      <jimble-option value="biz" disabled>Business（準備中）</jimble-option>
+      <jimble-option value="ent">Enterprise</jimble-option>
+    </jimble-select>
+  </jimble-field>
+  <jimble-field label="都道府県" required>
+    <jimble-select name="pref" value="tokyo">
+      <jimble-option value="hokkaido">北海道</jimble-option>
+      <jimble-option value="tokyo">東京都</jimble-option>
+      <jimble-option value="osaka">大阪府</jimble-option>
+      <jimble-option value="fukuoka">福岡県</jimble-option>
+    </jimble-select>
+  </jimble-field>
+</div>

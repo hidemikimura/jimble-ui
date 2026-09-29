@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) =>
       sourcemap: true,
       minify: true,
       lib: {
-        entry: { 'jimble-ui': resolve('src/index.ts'), 'locales/en': resolve('src/locales/en.ts') },
+        entry: { 'jimble-ui': resolve('src/cdn.ts'), 'locales/en': resolve('src/locales/en.ts') },
         formats: ['es'],
         fileName: (_format: string, name: string) => `${name}.js`,
       },

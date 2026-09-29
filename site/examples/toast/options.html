@@ -1,0 +1,21 @@
+<!-- title: 見出し・操作・表示時間 -->
+<div class="row">
+  <jimble-button
+    onclick="
+      JimbleUI.toast({
+        heading: '削除しました',
+        message: '注文 #1024',
+        variant: 'success',
+        action: { label: '元に戻す', onClick: () => JimbleUI.toast('元に戻しました') },
+      })
+    "
+  >
+    元に戻せる通知
+  </jimble-button>
+  <jimble-button onclick="JimbleUI.toast({ message: '2 秒で消えます', duration: 2000 })">
+    2 秒で消える
+  </jimble-button>
+  <jimble-button onclick="JimbleUI.toast({ message: '自分で閉じるまで残ります', duration: 0 })">
+    消えない通知
+  </jimble-button>
+</div>

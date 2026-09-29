@@ -154,7 +154,14 @@ export abstract class JimbleFormElement extends JimbleElement {
   /** 値・検証を internals に反映する。値が変わったら呼ぶ（updated でも呼ばれる） */
   protected commit(): void {
     this.internals.setFormValue(this.isDisabled ? null : this.formValue, this.formState)
-    const { flags, message, anchor } = this.computeValidity()
+    const result = this.computeValidity()
+    const { anchor } = result
+    let { flags, message } = result
+    // ネイティブのコントロールを持たない部品(radio-group / select)では、setCustomValidity をここで反映する
+    if (!this.nativeControl && this.#customMessage) {
+      flags = { ...flags, customError: true }
+      message = this.#customMessage
+    }
     if (Object.values(flags).some(Boolean)) {
       this.internals.setValidity(flags, message || ' ', anchor ?? this.nativeControl ?? undefined)
     } else {

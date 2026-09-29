@@ -1,0 +1,11 @@
+@layer components {
+  :host(jimble-dialog) {
+    display: contents;
+  }
+  /* 強制色モードでは影が消えるので、面の輪郭を outline で出す */
+  @media (forced-colors: active) {
+    :host(jimble-dialog) [part='panel'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

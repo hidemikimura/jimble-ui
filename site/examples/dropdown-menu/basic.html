@@ -1,0 +1,30 @@
+<!-- title: 基本 -->
+<jimble-dropdown-menu id="menu-basic">
+  <jimble-button slot="trigger">
+    操作
+    <svg
+      slot="suffix"
+      width="16"
+      height="16"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </jimble-button>
+  <jimble-menu-item value="edit">編集</jimble-menu-item>
+  <jimble-menu-item value="copy">複製</jimble-menu-item>
+  <jimble-menu-item value="archive" disabled>アーカイブ（無効）</jimble-menu-item>
+  <jimble-menu-separator></jimble-menu-separator>
+  <jimble-menu-item value="delete" variant="danger">削除</jimble-menu-item>
+</jimble-dropdown-menu>
+<script>
+  document.getElementById('menu-basic').addEventListener('jimble-select', (e) => {
+    JimbleUI.toast('選ばれた項目: ' + e.detail.value)
+  })
+</script>
