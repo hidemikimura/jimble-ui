@@ -552,3 +552,110 @@ describe('入力欄のクリックと手入力不可（picker-only）', () => {
     expect(isOpen(r.el)).toBe(false)
   })
 })
+
+describe('月・年の選択（ヘッダー）', () => {
+  const monthSel = (el: JimbleDateInput) =>
+    el.shadowRoot!.querySelector<HTMLSelectElement>('[part="month-select"]')!
+  const yearIn = (el: JimbleDateInput) =>
+    el.shadowRoot!.querySelector<HTMLInputElement>('[part="year-input"]')!
+  const title = (el: JimbleDateInput) =>
+    el.shadowRoot!.querySelector('[part="title"]')!.textContent!.trim()
+
+  it('いまの月・年が入っていて、月を選ぶと、その月のカレンダーに変わる', async () => {
+    const { el } = await make('value="2026-09-29"')
+    btn(el).click()
+    await tick()
+    expect(monthSel(el).value).toBe('9')
+    expect(yearIn(el).value).toBe('2026')
+    expect(title(el)).toBe('2026年9月') // 読み上げ用の見出し
+    monthSel(el).value = '2'
+    monthSel(el).dispatchEvent(new Event('change', { bubbles: true }))
+    await tick()
+    expect(day(el, '2026-02-28')).not.toBeNull()
+    expect(day(el, '2026-09-29')).toBeNull()
+    expect(title(el)).toBe('2026年2月')
+    // フォーカスの行き先(Tab で入る日)も、表示中の月の中にある
+    const focusable = [...el.shadowRoot!.querySelectorAll<HTMLElement>('[data-date][tabindex="0"]')]
+    expect(focusable.length).toBe(1)
+    expect(focusable[0]!.dataset.date!.startsWith('2026-02')).toBe(true)
+  })
+
+  it('年を入力すると、その年に変わる。範囲外の値は無視され、入力欄は表示中の年に戻る', async () => {
+    const { el } = await make('value="2026-09-29"')
+    btn(el).click()
+    await tick()
+    yearIn(el).value = '2030'
+    yearIn(el).dispatchEvent(new Event('change', { bubbles: true }))
+    await tick()
+    expect(day(el, '2030-09-15')).not.toBeNull()
+    yearIn(el).value = '12'
+    yearIn(el).dispatchEvent(new Event('change', { bubbles: true }))
+    await tick()
+    expect(yearIn(el).value).toBe('2030')
+    expect(day(el, '2030-09-15')).not.toBeNull()
+  })
+
+  it('min / max の外の月は選べず、年も範囲に収まる', async () => {
+    const { el } = await make('value="2026-09-15" min="2026-07-10" max="2026-11-20"')
+    btn(el).click()
+    await tick()
+    const disabled = [...monthSel(el).options].filter((o) => o.disabled).map((o) => o.value)
+    expect(disabled).toEqual(['1', '2', '3', '4', '5', '6', '12'])
+    expect(yearIn(el).min).toBe('2026')
+    expect(yearIn(el).max).toBe('2026')
+    yearIn(el).value = '2030'
+    yearIn(el).dispatchEvent(new Event('change', { bubbles: true }))
+    await tick()
+    expect(yearIn(el).value).toBe('2026') // 範囲の外の年には移らない(範囲の端の月に収まる)
+  })
+
+  it('en では 月 → 年 の順、ja では 年 → 月 の順で、月の名前が言語に従う', async () => {
+    const ja = await make('value="2026-09-29"')
+    btn(ja.el).click()
+    await tick()
+    const order = (el: JimbleDateInput) =>
+      [...el.shadowRoot!.querySelectorAll('[part="month-select"], [part="year-input"]')].map((e) =>
+        e.getAttribute('part'),
+      )
+    expect(order(ja.el)).toEqual(['year-input', 'month-select'])
+    expect(monthSel(ja.el).selectedOptions[0]!.textContent!.trim()).toBe('9月')
+    setLocale(en)
+    const e = await make('value="2026-09-29"')
+    btn(e.el).click()
+    await tick()
+    expect(order(e.el)).toEqual(['month-select', 'year-input'])
+    expect(monthSel(e.el).selectedOptions[0]!.textContent!.trim()).toBe('September')
+    expect(monthSel(e.el).getAttribute('aria-label')).toBe('Month')
+  })
+
+  it('前の月・次の月のボタンで動かすと、選択・入力欄にも反映される。ラベルがあり、axe 違反がない', async () => {
+    const f = await mount<HTMLElement>(
+      html`<jimble-field label="日付"
+        ><jimble-date-input name="d" value="2026-09-29"></jimble-date-input
+      ></jimble-field>`,
+    )
+    const el = f.querySelector('jimble-date-input') as JimbleDateInput
+    await el.updateComplete
+    btn(el).click()
+    await tick()
+    el.shadowRoot!.querySelector<HTMLButtonElement>('[aria-label="次の月"]')!.click()
+    await tick()
+    expect(monthSel(el).value).toBe('10')
+    expect(monthSel(el).getAttribute('aria-label')).toBe('月')
+    expect(yearIn(el).getAttribute('aria-label')).toBe('年')
+    await expectNoA11yViolations(f)
+  })
+
+  it('months=2 でも、最初の月にだけ選択があり、2 か月目は文字の見出し', async () => {
+    const { el } = await make('months="2" value="2026-09-29"')
+    btn(el).click()
+    await tick()
+    expect(el.shadowRoot!.querySelectorAll('[part="month-select"]').length).toBe(1)
+    expect(el.shadowRoot!.querySelectorAll('[part="title"]').length).toBe(2)
+    monthSel(el).value = '12'
+    monthSel(el).dispatchEvent(new Event('change', { bubbles: true }))
+    await tick()
+    expect(day(el, '2026-12-05')).not.toBeNull()
+    expect(day(el, '2027-01-05')).not.toBeNull() // 2 か月目
+  })
+})

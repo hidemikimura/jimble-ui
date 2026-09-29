@@ -46,6 +46,10 @@ const TEXT_BTN =
   'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-primary-700 cursor-pointer ' +
   'hover:bg-primary-50 disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
+const TITLE_CONTROL =
+  'h-8 rounded-md bg-surface px-1.5 text-sm font-semibold text-fg ring-1 ring-inset ring-line-control ' +
+  'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 ' +
+  'focus-visible:outline-focus cursor-pointer'
 const TIME_INPUT =
   'h-8 w-14 rounded-md bg-surface px-2 text-center text-sm text-fg ring-1 ring-inset ring-line-control ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 ' +
@@ -618,6 +622,82 @@ export class JimbleDateInput extends JimbleFormElement {
     this.#moveFocus(next)
   }
 
+  /** 月・年を直接選ぶ(ヘッダーの月の選択、年の入力)。表示する最初の月を動かす */
+  #gotoMonth(y: number, m: number) {
+    const min = this.#minDT?.date ?? null
+    const max = this.#maxDT?.date ?? null
+    if (!Number.isInteger(y) || y < 1000 || y > 9999) return
+    let first: YMD = { y, m, d: 1 }
+    // 範囲の外の月には移らない(範囲の端の月に収める)
+    if (min && first.y * 12 + first.m < min.y * 12 + min.m) first = { y: min.y, m: min.m, d: 1 }
+    if (max && first.y * 12 + first.m > max.y * 12 + max.m) first = { y: max.y, m: max.m, d: 1 }
+    this.view = first
+    const idx = this.focusDay.y * 12 + this.focusDay.m - (first.y * 12 + first.m)
+    if (idx < 0 || idx >= this.#monthCount) {
+      this.focusDay = clamp({ y: first.y, m: first.m, d: Math.min(this.focusDay.d, 28) }, min, max)
+    }
+  }
+
+  /** 最初の月の見出し: 月の選択と年の入力(言語の並び・単位で並べる)。読み上げ用に、月の文字も隠して置く */
+  #renderTitleControls(first: YMD) {
+    const locale = getLocale()
+    const min = this.#minDT?.date ?? null
+    const max = this.#maxDT?.date ?? null
+    const monthName = (m: number) =>
+      new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' }).format(
+        new Date(Date.UTC(2024, m - 1, 1)),
+      )
+    const monthOutOfRange = (m: number) =>
+      (min !== null && first.y * 12 + m < min.y * 12 + min.m) ||
+      (max !== null && first.y * 12 + m > max.y * 12 + max.m)
+    const parts = new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'long',
+      timeZone: 'UTC',
+    }).formatToParts(new Date(Date.UTC(2024, 0, 1)))
+    const yearFirst =
+      parts.findIndex((p) => p.type === 'year') < parts.findIndex((p) => p.type === 'month')
+    // 年の直後の文字(日本語の「年」)
+    const yearIdx = parts.findIndex((p) => p.type === 'year')
+    const yearSuffix =
+      parts[yearIdx + 1]?.type === 'literal' ? parts[yearIdx + 1]!.value.trim() : ''
+    const month = html`<select
+      part="month-select"
+      class=${TITLE_CONTROL}
+      aria-label=${this.t('date.month')}
+      @change=${(e: Event) => this.#gotoMonth(first.y, Number((e.target as HTMLSelectElement).value))}
+    >
+      ${Array.from(
+        { length: 12 },
+        (_, n) =>
+          html`<option
+            value=${n + 1}
+            ?selected=${n + 1 === first.m}
+            ?disabled=${monthOutOfRange(n + 1)}
+          >
+            ${monthName(n + 1)}
+          </option>`,
+      )}
+    </select>`
+    const year = html`<input
+        part="year-input"
+        type="number"
+        class="${TITLE_CONTROL} w-20 text-center"
+        min=${ifDefined(min?.y)}
+        max=${ifDefined(max?.y)}
+        step="1"
+        inputmode="numeric"
+        aria-label=${this.t('date.year')}
+        .value=${live(String(first.y))}
+        @change=${(e: Event) => {
+          const input = e.target as HTMLInputElement
+          this.#gotoMonth(Number.parseInt(input.value, 10), first.m)
+          input.value = String(this.view.y)
+        }}
+      />${yearSuffix ? html`<span aria-hidden="true">${yearSuffix}</span>` : nothing}`
+    return yearFirst ? html`${year}${month}` : html`${month}${year}`
+  }
+
   #shiftMonth(n: number) {
     this.view = addMonths({ ...this.view, d: 1 }, n)
     const idx = this.focusDay.y * 12 + this.focusDay.m - (this.view.y * 12 + this.view.m)
@@ -785,14 +865,16 @@ export class JimbleDateInput extends JimbleFormElement {
               </button>`
             : spacer
         }
-        <div
-          part="title"
-          id=${titleId}
-          aria-live=${i === 0 ? 'polite' : 'off'}
-          class="text-sm font-semibold"
-        >
-          ${title}
-        </div>
+        ${
+          i === 0
+            ? html`<div class="flex items-center gap-1 text-sm font-semibold">
+                <span part="title" id=${titleId} aria-live="polite" class="sr-only">${title}</span>
+                ${this.#renderTitleControls(first)}
+              </div>`
+            : html`<div part="title" id=${titleId} aria-live="off" class="text-sm font-semibold">
+                ${title}
+              </div>`
+        }
         ${
           i === count - 1
             ? html`<button

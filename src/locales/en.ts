@@ -18,6 +18,8 @@ const en: Locale = {
   'date.nextMonth': 'Next month',
   'date.today': 'Today',
   'date.clear': 'Clear',
+  'date.month': 'Month',
+  'date.year': 'Year',
   'date.time': 'Time',
   'date.hour': 'Hour',
   'date.minute': 'Minute',

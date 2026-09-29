@@ -1591,6 +1591,13 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - Tailwind のクラス（`utilities` レイヤー）が `components` レイヤーのホスト CSS より優先されるため、強制色モードでの上書きには `!important` を付けた（強制色モードのときだけ効く）。
 - Windows がなくても、開発者ツールの「Emulate CSS media feature forced-colors」で確認できる（`docs/manual-checks.md`）。システムカラーの実際の値は、OS・ブラウザーごとに違う（Chromium の暗い強制色では、`Highlight` は水色、`GrayText` は緑）。
 
+**追補: 日付入力の年・月の選択（2026-09-29）**
+
+- カレンダーの見出し（最初の月）に、月の `<select>` と年の `<input type=number>` を置いた（前後ボタンは残す）。ネイティブの部品にしたのは、キーボード・スクリーンリーダー・タッチの操作を、追加の実装なしで満たすため（月・年のグリッドを開く方式は、グリッドの a11y の実装が増える）。
+- 月の名前と、年・月の並び（日本語は「年 → 月」、英語は「月 → 年」）と、年の直後の「年」は、`Intl.DateTimeFormat#formatToParts` から作る。
+- `grid` の名前と `aria-live` は、隠した見出し（`part=title`。「2026年9月」）が担う。選択欄・入力欄は、別にラベル（月・年）を持つ。
+- `min` / `max` の外の月は `option` を無効にし、範囲の外へは移らない（端の月に収める）。年は `change`（Enter・フォーカスを外す・矢印）で確定し、入力途中の値（`20` など）では動かさない。2 か月目以降は文字の見出しのまま。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

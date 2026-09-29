@@ -17,6 +17,8 @@ const ja = {
   'date.nextMonth': '次の月',
   'date.today': '今日',
   'date.clear': 'クリア',
+  'date.month': '月',
+  'date.year': '年',
   'date.time': '時刻',
   'date.hour': '時',
   'date.minute': '分',

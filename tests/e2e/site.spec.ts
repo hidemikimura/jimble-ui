@@ -349,7 +349,7 @@ test.describe('日付・色・コンボボックス(実操作)', () => {
     await page.goto('/components/date-input/')
     const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
     const el = example.locator('jimble-date-input')
-    const input = el.locator('input')
+    const input = el.locator('input[part="input"]')
     await expect(input).toHaveValue('1990/04/01')
     await input.focus()
     await page.keyboard.press('ArrowDown')
@@ -367,7 +367,7 @@ test.describe('日付・色・コンボボックス(実操作)', () => {
   test('日付入力: 全角・区切り違いの入力が正規の書式に整い、範囲外はエラー', async ({ page }) => {
     await page.goto('/components/date-input/')
     const example = page.locator('docs-example', { hasText: '範囲（min / max）' })
-    const input = example.locator('jimble-date-input input')
+    const input = example.locator('jimble-date-input input[part="input"]')
     await input.fill('2026年9月12日')
     await input.blur()
     await expect(input).toHaveValue('2026/09/12')
