@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.0](https://github.com/hidemikimura/jimble-ui/compare/v0.2.0...v0.3.0) (2026-09-29)
+
+
+### 追加
+
+* **date-input:** カレンダーの見出しで、月と年を直接選べるようにする ([c55ab56](https://github.com/hidemikimura/jimble-ui/commit/c55ab565f06088b8244f8ce631d866a414209083))
+* **field:** validate を外から実行する showErrors / hideErrors と、値の変更での自動再検証 ([a915185](https://github.com/hidemikimura/jimble-ui/commit/a9151852a1c696baa0d678ff0bab23556d89f054))
+* **router:** jimble-router を追加(Navigation API を使う SPA 用ルーター) ([e67e327](https://github.com/hidemikimura/jimble-ui/commit/e67e327fa15af6d7802dc6922a3cf5b76a391a8c))
+* 左右分割の選択 jimble-dual-listbox と、フィールド単位の検証 jimble-field の validate ([23950c2](https://github.com/hidemikimura/jimble-ui/commit/23950c238454ed9b6ea6374e7f74b30a7901cc7f))
+
+
+### 修正
+
+* **a11y:** 強制色モードで、スイッチ・ラジオ・タブの選択状態とスライダーが見えるようにする ([955429b](https://github.com/hidemikimura/jimble-ui/commit/955429bda58ed808f20004a1ae514a4e40ab5cd2))
+* **components:** ツールチップの余白、combobox の search-group、date-input の picker-only ([e93f269](https://github.com/hidemikimura/jimble-ui/commit/e93f2695e94a43fc8c6d882fc5891eef16ec633b))
+
+
+### ドキュメント
+
+* バージョンを固定する例を [@0](https://github.com/0).3 に更新 ([10ea5cd](https://github.com/hidemikimura/jimble-ui/commit/10ea5cd17d8f906cd93ad50337c366b52a6cee4a))
+
 ## [0.2.0](https://github.com/hidemikimura/jimble-ui/compare/v0.1.0...v0.2.0) (2026-09-29)
 
 
