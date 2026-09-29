@@ -42,7 +42,7 @@ jobs:
       - run: npm run build:site
         env:
           SITE_BASE: /jimble-ui/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site/dist
       - id: deployment
