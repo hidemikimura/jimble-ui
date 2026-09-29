@@ -171,13 +171,13 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/select/
 - **`jimble-option`** — セレクトの選択肢。
-  - 属性: `value=値`, `disabled`, `keywords=値`
+  - 属性: `value=値`, `disabled`, `keywords=値`, `group=値`
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/select/
 - **`jimble-combobox`** — 絞り込みできるセレクト(WAI-ARIA の combobox・list autocomplete パターン)。
-  - 属性: `value=値`, `placeholder=値`, `readonly`, `clearable`, `match=contains|starts-with`, `open`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `value=値`, `placeholder=値`, `readonly`, `clearable`, `multiple`, `creatable`, `match=contains|starts-with`, `open`, `load-delay=数値`, `load-min-length=数値`, `max-items=値`, `reorderable`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
-  - イベント: `input`, `change`, `jimble-search`, `jimble-open`, `jimble-close`, `input`, `change`
+  - イベント: `change`, `input`, `jimble-search`, `jimble-create`, `jimble-load-error`, `jimble-reorder`, `jimble-open`, `jimble-close`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/combobox/
 - **`jimble-date-input`** — 日付の入力。
   - 属性: `value=値`, `min=値`, `max=値`, `placeholder=値`, `readonly`, `first-day-of-week=数値`, `open`, `view=値`, `focusDay=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -271,7 +271,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **ダイアログ**: `heading` 属性（または `title` スロット / `aria-label`）が必要。開閉は `el.show()` / `el.hide()` / `open` 属性。中の要素に `data-dialog-close` を付けると、JavaScript なしで閉じる。確認など応答が必須のものは `alert`（背景クリックで閉じない）にして、安全な側のボタンに `autofocus`。閉じる前に `jimble-close-request`（`preventDefault()` で止められる）。
 - **メニュー**: トリガーは `slot="trigger"`。項目は `jimble-menu-item`（`value`）。選ばれたら `jimble-select`（`e.detail.value`）。
 - **セレクト**: 選択肢は `jimble-option`（`value`）。未選択はプレースホルダー（ネイティブと違い、最初の選択肢が自動で選ばれない）。
-- **コンボボックス**（`jimble-combobox`）: 選択肢が多く、探して選ぶときに使う。選択肢は `jimble-select` と同じ `jimble-option`（読みは `keywords="とうきょう tokyo"`）。**自由入力は値にならない**（選択肢に無い文字は元に戻る）。文字入力では `input` / `change` は出ず、`jimble-search`（`detail.query`）が出る。サーバー側で絞るときは `jimble-option` を差し替える。
+- **コンボボックス**（`jimble-combobox`）: 選択肢が多く、探して選ぶときに使う。選択肢は `jimble-select` と同じ `jimble-option`（読みは `keywords="とうきょう tokyo"`）。既定では**自由入力は値にならない**。文字入力では `input` / `change` は出ず、`jimble-search`（`detail.query`）が出る。
+  - `load`（JS プロパティ、`(query, signal) => 項目[] | Promise`）: 入力から候補を取得する（サーバーへの問い合わせも同じ。`fetch` に `signal` を渡す）。項目は `{ value, label }`。返した項目がそのまま表示される。`load-delay`・`load-min-length`。初期値の表示は `items` プロパティで補う。
+  - `multiple`: 複数選択（チップ表示、同じ `name` で複数送信、初期値は `value="a,b"`、現在値は `values` 配列）。
+  - `max-items`: 選べる数の上限。`reorderable`: チップの並べ替え（Alt+左右の矢印、ドラッグ。`jimble-reorder`）。`jimble-option` の `group="関東"`: 見出し付きでまとまる。
+  - `creatable`: 一覧にない文字を追加できる（`jimble-create`。`create` プロパティで作り方を決める）。
 - **日付入力**（`jimble-date-input`）: 値は `YYYY-MM-DD` の文字列（`Date` を渡さない）。範囲は `min` / `max`、週の始まりは `first-day-of-week`。`<input type="date">` の代わりに使う（`jimble-input` に `type="date"` はない）。時刻・期間は未対応。
 - **色選択**（`jimble-color-input`）: 値は小文字の `#rrggbb`。候補の色は `presets`。透明度は未対応。
 - **通知**: `JimbleUI.toast('...')` / `JimbleUI.toast.success('...')`（CDN）または `import { toast } from '@hidemikimura/jimble-ui/toast'`。`toast({ message, variant, heading, duration, action })`。danger と `action` 付きは自動で消えない。要素を自分で置かない。ダイアログの中で出しても操作・読み上げできる。重要な情報は通知だけに頼らず `jimble-alert` などで画面内にも出す。
@@ -539,7 +543,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## 対応ブラウザと既知の制約
 
-Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: Select / Combobox の複数選択、メニューのサブメニュー、表のセル結合、日付の範囲選択・時刻、色の透明度、ダークモード、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
+Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: Select の複数選択・絞り込み（Combobox を使う）、メニューのサブメニュー、表のセル結合、日付の範囲選択・時刻、色の透明度、ダークモード、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
 
 ## 動作の確かめ方
 

@@ -18,7 +18,26 @@
       flip-block flip-inline;
     min-width: anchor-size(width);
   }
+  :host(jimble-combobox) [part='chip'] {
+    outline: none;
+  }
+  :host(jimble-combobox) [part='chip']:focus-visible {
+    outline: 2px solid var(--_c-ring-focus);
+    outline-offset: 1px;
+  }
+  :host(jimble-combobox) [part='chip'][draggable='true'] {
+    cursor: grab;
+  }
+  :host(jimble-combobox) [part='chip'][data-drop='before'] {
+    box-shadow: -3px 0 0 var(--_c-ring-focus);
+  }
+  :host(jimble-combobox) [part='chip'][data-drop='after'] {
+    box-shadow: 3px 0 0 var(--_c-ring-focus);
+  }
   @media (forced-colors: active) {
+    :host(jimble-combobox) [part='chip'][data-drop] {
+      outline: 2px solid Highlight;
+    }
     :host(jimble-combobox) [part='popup'] {
       outline: 1px solid CanvasText;
     }

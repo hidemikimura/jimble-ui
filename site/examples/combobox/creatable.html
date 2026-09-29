@@ -1,0 +1,23 @@
+<!-- title: 一覧にない値の追加（creatable） -->
+<div class="stack">
+  <jimble-field label="タグ" hint="一覧にない語を入力すると「追加」が出ます">
+    <jimble-combobox name="tags" multiple creatable value="design" placeholder="タグを入力">
+      <jimble-option value="design">デザイン</jimble-option>
+      <jimble-option value="bug">バグ</jimble-option>
+      <jimble-option value="docs">ドキュメント</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+  <jimble-field label="取引先" hint="なければその場で登録（この例では待ち時間を模擬）">
+    <jimble-combobox id="cb-create" name="client" creatable>
+      <jimble-option value="c1">株式会社サンプル</jimble-option>
+      <jimble-option value="c2">有限会社テスト</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+</div>
+<script>
+  // create を指定すると、追加する項目の作り方を決められる（サーバーへの登録など）。null を返すと追加しない。
+  document.getElementById('cb-create').create = async (text) => {
+    await new Promise((resolve) => setTimeout(resolve, 300)) // 登録 API の代わり
+    return { value: `new-${text}`, label: text }
+  }
+</script>

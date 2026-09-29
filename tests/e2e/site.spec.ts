@@ -406,6 +406,37 @@ test.describe('日付・色・コンボボックス(実操作)', () => {
     await expect(input).toHaveValue('大阪府')
   })
 
+  test('コンボボックス: 取得(load)・複数選択・追加が動く', async ({ page }) => {
+    await page.goto('/components/combobox/')
+    const load = page.locator('docs-example', { hasText: '入力から候補を取得する' })
+    const lb = load.locator('jimble-combobox')
+    await lb.locator('input').focus()
+    await page.keyboard.type('さと')
+    await expect(lb.locator('[part="empty"]')).toContainText('読み込み中')
+    await expect(lb.getByRole('option')).toHaveCount(1)
+    await page.keyboard.press('Enter')
+    await expect(lb.locator('input')).toHaveValue('佐藤 花子')
+
+    const multi = page.locator('docs-example', { hasText: '複数選択（multiple）' })
+    const mb = multi.locator('jimble-combobox')
+    await expect(mb.locator('[part="chip"]')).toHaveCount(2)
+    await mb.locator('input').focus()
+    await page.keyboard.press('Backspace')
+    await expect(mb.locator('[part="chip"]')).toHaveCount(1)
+    await mb.locator('input').fill('京都府')
+    await page.keyboard.press('Enter')
+    await expect(mb.locator('[part="chip"]')).toHaveCount(2)
+    await multi.getByRole('button', { name: '送信' }).click()
+    await expect(multi.locator('output')).toContainText('["tokyo","kyoto"]')
+
+    const cre = page.locator('docs-example', { hasText: '一覧にない値の追加' })
+    const tags = cre.locator('jimble-combobox').first()
+    await tags.locator('input').fill('新タグ')
+    await expect(tags.getByRole('option')).toHaveText(['「新タグ」を追加'])
+    await page.keyboard.press('Enter')
+    await expect(tags.locator('[part="chip"]')).toHaveCount(2)
+  })
+
   test('コンボボックス: 実アクセシビリティツリーで combobox の状態と選択肢（Chromium）', async ({
     page,
     browserName,

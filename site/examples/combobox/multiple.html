@@ -1,0 +1,27 @@
+<!-- title: 複数選択（multiple） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(new FormData(this).getAll('pref'))
+  "
+>
+  <jimble-field
+    label="対応エリア"
+    hint="選ぶと × 付きで並びます。空の入力で Backspace を押すと最後の項目を外せます"
+    required
+  >
+    <jimble-combobox name="pref" multiple value="tokyo,osaka" placeholder="都道府県を選択">
+      <jimble-option value="hokkaido" keywords="ほっかいどう">北海道</jimble-option>
+      <jimble-option value="tokyo" keywords="とうきょう tokyo">東京都</jimble-option>
+      <jimble-option value="kyoto" keywords="きょうと kyoto">京都府</jimble-option>
+      <jimble-option value="osaka" keywords="おおさか osaka">大阪府</jimble-option>
+      <jimble-option value="fukuoka" keywords="ふくおか fukuoka">福岡県</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

@@ -1,0 +1,24 @@
+<!-- title: 入力から候補を取得する（load） -->
+<jimble-field label="担当者" hint="名前や読みの一部を入力してください（例: さ）">
+  <jimble-combobox id="cb-load" name="owner" placeholder="名前を検索" clearable></jimble-combobox>
+</jimble-field>
+<script>
+  // 実際のアプリでは、ここでサーバーに問い合わせる。signal を渡すと、古い検索は中止される。
+  //   const res = await fetch(`/api/users?q=${encodeURIComponent(query)}`, { signal })
+  //   return (await res.json()).map((u) => ({ value: String(u.id), label: u.name }))
+  const USERS = [
+    { value: '1', label: '佐藤 花子', yomi: 'さとう はなこ' },
+    { value: '2', label: '鈴木 一郎', yomi: 'すずき いちろう' },
+    { value: '3', label: '高橋 健', yomi: 'たかはし けん' },
+    { value: '4', label: '田中 美咲', yomi: 'たなか みさき' },
+    { value: '5', label: '佐々木 拓也', yomi: 'ささき たくや' },
+  ]
+  document.getElementById('cb-load').load = async (query, signal) => {
+    await new Promise((resolve) => setTimeout(resolve, 400)) // 通信の待ち時間の代わり
+    if (signal.aborted) return []
+    const q = query.trim()
+    return USERS.filter((u) => u.label.includes(q) || u.yomi.includes(q)).map(
+      ({ value, label }) => ({ value, label }),
+    )
+  }
+</script>

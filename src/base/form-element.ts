@@ -73,10 +73,11 @@ export abstract class JimbleFormElement extends JimbleElement {
   protected get nativeControl(): HTMLInputElement | HTMLTextAreaElement | null {
     return null
   }
-  /** フォームに送信する値（送信しないなら null） */
-  protected abstract get formValue(): string | null
+  /** フォームに送信する値（送信しないなら null）。同じ name で複数送るときは FormData */
+  protected abstract get formValue(): string | FormData | null
   /** 状態復元（bfcache・オートフィル）用の文字列 */
   protected get formState(): string | null {
+    if (typeof this.formValue !== 'string') return null
     return this.formValue
   }
   /** デフォルト値へ戻す（formResetCallback から呼ばれる） */

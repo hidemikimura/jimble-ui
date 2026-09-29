@@ -1,0 +1,21 @@
+<!-- title: 上限と並べ替え（max-items・reorderable） -->
+<div class="stack">
+  <jimble-field
+    label="担当者（優先順）"
+    hint="最大 3 名。チップにフォーカス（入力欄で ←）して Alt + ← → で並べ替え、Delete で削除。ドラッグでも並べ替えられます"
+  >
+    <jimble-combobox
+      name="owners"
+      multiple
+      reorderable
+      max-items="3"
+      value="sato,suzuki,takahashi"
+      placeholder="担当者を追加"
+    >
+      <jimble-option value="sato" keywords="さとう">佐藤 花子</jimble-option>
+      <jimble-option value="suzuki" keywords="すずき">鈴木 一郎</jimble-option>
+      <jimble-option value="takahashi" keywords="たかはし">高橋 健</jimble-option>
+      <jimble-option value="tanaka" keywords="たなか">田中 美咲</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+</div>

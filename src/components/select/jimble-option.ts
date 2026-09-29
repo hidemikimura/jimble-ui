@@ -22,6 +22,7 @@ export class JimbleOption extends JimbleElement {
     value: { reflect: true },
     disabled: { type: Boolean, reflect: true },
     keywords: {},
+    group: {},
     selected: { type: Boolean, attribute: false },
   }
 
@@ -30,6 +31,8 @@ export class JimbleOption extends JimbleElement {
   declare disabled: boolean
   /** 絞り込み(jimble-combobox)で一致させる、読みなどの追加の語。空白・カンマ区切り(例: `とうきょう tokyo`) */
   declare keywords: string
+  /** 候補のグループ名(jimble-combobox で、同じ名前の候補が見出し付きでまとまる。jimble-select では使われない) */
+  declare group: string
   /** 選ばれているか（親のセレクトが設定する） */
   declare selected: boolean
 
@@ -38,6 +41,7 @@ export class JimbleOption extends JimbleElement {
     this.value = undefined
     this.disabled = false
     this.keywords = ''
+    this.group = ''
     this.selected = false
   }
 

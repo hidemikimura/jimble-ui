@@ -300,8 +300,8 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | 対象 | 予算（gzip） | 実測 |
 |------|-------------|------|
 | 共有シート（CSS）+ 基底クラス + i18n を含むチャンク | 13 KB 以下 | 9.9 KB |
-| それ以外の JS（コンポーネント 1 つぶんなど） | 6 KB 以下（date-input を足す前は 4 KB） | 最大 5.1 KB（`date-input`。カレンダー・日付の計算を含む） |
-| CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 50 KB 以下 | 39.2 KB |
+| それ以外の JS（コンポーネント 1 つぶんなど） | 8 KB 以下（当初は 4 KB） | 最大 6.5 KB（`combobox`） |
+| CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 56 KB 以下 | 39.2 KB |
 
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
@@ -1470,6 +1470,23 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **共通の整理**: Enter での暗黙の送信を `src/base/implicit-submit.ts` に切り出し（`jimble-input` も使う）。`setCustomValidity` を `computeValidity` を上書きする部品でも効かせた（`commit()` で反映）。
 - **不具合の発見と対処**: (1) 新部品が `src/index.ts`（CDN・ドキュメントサイトの入口）から抜けていた → E2E の axe で発見。全部品の再エクスポートと `hosts.css` の読み込みを検査する単体テスト `tests/unit/entry.test.ts` を追加。(2) **`jimble-field` より先に登録された部品には、field の情報（ラベル・ヒント）が届かない**（コンテキストの提供側が後から現れるため）。アルファベット順の入口では、`checkbox` や `combobox` が `field` より前に来る。→ `base/form-element.ts` が `jimble-field` を先に import するようにした（個別 import でも順序に依存しない）。(3) 日付入力を ↓ で開いたときにカレンダーの表示月を初期化していなかった → 単体テストで開いたあとのフォーカスも確認するようにした。
 - **サイズ**: 部品チャンクの予算を 4 KB から 6 KB に上げた（`date-input` が 5.1 KB。カレンダーの描画と日付の計算を含む）。CDN バンドルは 48.3 KB gz（予算 50 KB）。次に部品を足すときは、予算の見直しか分割が要る。
+
+**追補: コンボボックスの拡張（tom-select 相当、2026-09-29）**
+
+- **範囲**: `load`（入力から関数で候補を取得。同期・非同期とも。サーバーへの問い合わせも同じ）、`multiple`（複数選択）、`creatable`（一覧にない値の追加）。tom-select 自体は使わず（依存を増やさない方針）、既存の `jimble-combobox` を拡張した。ドラッグ並べ替え・選択数の上限・グループは対象外。
+- **load**: `(query, signal) => 項目[] | Promise`。デバウンス（`load-delay` 250ms）、古い検索の破棄（要求 ID と `AbortController`）、取得中・失敗・最小文字数の表示、`jimble-load-error`。返した項目はそのまま表示（部品側では絞り込まない）。選択済みの表示は `items` で補う。内部は `jimble-option` の要素ではなく `ComboboxItem` を単位にして、DOM の選択肢・`items`・取得結果・追加した項目を同じ形で扱う。
+- **multiple**: チップ（`ul`/`li`、削除ボタンに名前）、Backspace で最後を外す、選択後も開いたまま。送信は `setFormValue(FormData)` で同じ `name` を複数送る（`formValue` の型を `string | FormData | null` に拡げた）。状態復元は JSON。読み上げは `role=status` に「選択しました / 解除しました」。
+- **creatable**: 同じ表示・値の項目が無いとき、末尾に追加用の行を出す。`create` 関数（非同期可、`null` で中止）と `jimble-create`。追加した項目は部品内に保持する。
+- **サイズ**: CDN バンドルが 50.6 KB gz になり、予算を 50 KB から 56 KB に上げた（部品チャンクは combobox 5.3 KB で 6 KB 内）。
+- **見つかった不具合**: ページの `<script>` が、部品の登録前に `el.load = fn` と代入すると、コンストラクターの初期化で消えていた（Lit はリアクティブプロパティしか、登録前に代入された値を引き継がない）。`load` / `filter` / `create` を `attribute: false` のリアクティブプロパティにして解決（E2E で発見）。
+- 見つかった設計上の注意: 候補の識別を要素の参照から文字列のキーに変えた（描画のたびに項目を作り直すため）。
+
+**追補: コンボボックスの上限・並べ替え・グループ（2026-09-29）**
+
+- **max-items**: 上限に達したら、未選択の候補と追加行を `aria-disabled` にして、矢印キーも飛ばす。選ぼうとしたら `role=status` で案内する。
+- **reorderable**: チップを `tabindex=-1` の `li` にして、入力が空のとき ← で移る（フォーカスは入力欄 ↔ チップを行き来する単純な形）。Alt+←/→/Home/End で入れ替え、Delete で削除。ドラッグは HTML5 の Drag and Drop（外部ライブラリなし）。挿入位置は `data-drop` と box-shadow で示す。入れ替えは `jimble-reorder` + `change`、読み上げは「n 件中 m 番目」。**ドラッグの代替（WCAG 2.5.7）**: タッチでのドラッグは非対応。代わりに、フォーカス中のチップだけに「前へ / 後ろへ」ボタン（`chip-move`、端では無効）を出す（`:not(:focus-within)` で非表示。タップでチップにフォーカスが移るので、ポインター 1 本で完結する）。
+- **group**: `jimble-option` の `group` 属性。新しい要素（`jimble-option-group`）は作らず、属性にした（入れ子の DOM を読む必要がなく、`load` の項目と同じ形で扱える）。同じ名前を最初の出現位置にまとめ、`role=group` + 見出しの `aria-labelledby`。表示順と矢印キーの移動順が一致するよう、行の並びを先にグループ化して作る。
+- **サイズ**: 部品チャンクの予算を 6 KB から 8 KB に上げた（`combobox` が 6.5 KB。取得・複数選択・追加・並べ替え・グループを持つ、最も大きい部品）。
 
 ---
 
