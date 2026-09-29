@@ -27,6 +27,7 @@ export * from './components/table/index.js'
 export * from './components/tabs/index.js'
 export * from './components/textarea/index.js'
 export * from './components/toast/index.js'
+export * from './components/tooltip/index.js'
 // すべてのアイコンを登録する(個別に読み込むときは @hidemikimura/jimble-ui/icons/<name>)
 import './icons/register/index.js'
 export { getLocale, setLocale, setMessages } from './i18n/index.js'

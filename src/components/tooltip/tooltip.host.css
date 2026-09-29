@@ -1,0 +1,60 @@
+@layer components {
+  :host(jimble-tooltip) {
+    display: inline-block;
+  }
+  :host(jimble-tooltip) [part='trigger'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-tooltip) [part='popup'] {
+    position: fixed;
+    inset: auto;
+    position-anchor: --jimble-anchor;
+    position-area: top;
+    position-try-fallbacks: flip-block;
+    margin-block: 0.5rem;
+    margin-inline: 0;
+    width: max-content;
+    max-width: min(var(--jimble-tooltip-max-width, 20rem), calc(100vw - 1rem));
+    overflow-wrap: anywhere;
+    /* 出入りの小さなフェード(視差効果を減らす設定では止める) */
+    opacity: 0;
+    transition:
+      opacity 120ms linear,
+      overlay 120ms allow-discrete,
+      display 120ms allow-discrete;
+  }
+  :host(jimble-tooltip[placement='bottom']) [part='popup'] {
+    position-area: bottom;
+    position-try-fallbacks: flip-block;
+  }
+  :host(jimble-tooltip[placement='left']) [part='popup'] {
+    position-area: left;
+    position-try-fallbacks: flip-inline;
+    margin-block: 0;
+    margin-inline: 0.5rem;
+  }
+  :host(jimble-tooltip[placement='right']) [part='popup'] {
+    position-area: right;
+    position-try-fallbacks: flip-inline;
+    margin-block: 0;
+    margin-inline: 0.5rem;
+  }
+  :host(jimble-tooltip) [part='popup']:popover-open {
+    opacity: 1;
+  }
+  @starting-style {
+    :host(jimble-tooltip) [part='popup']:popover-open {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :host(jimble-tooltip) [part='popup'] {
+      transition: none;
+    }
+  }
+  @media (forced-colors: active) {
+    :host(jimble-tooltip) [part='popup'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

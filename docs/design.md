@@ -1508,6 +1508,14 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **サイズ**: CDN バンドルは 53.4 KB → 64.8 KB gz（アイコン約 100 個で +11 KB）。予算を 56 KB から 70 KB に上げた。npm の個別 import では、使うアイコンだけが入る。
 - **独自アイコン**: `registerIcon(name, { viewBox, fill, body })`（`body` は Lit の `svg` テンプレート。文字列の SVG は XSS の恐れがあるので受け付けない）。
 
+**追補: ツールチップ `jimble-tooltip`（2026-09-29）**
+
+- **構造**: 既定スロットに入れた要素をアンカー（`[part=trigger]`）にし、Popover API（`manual`）+ CSS Anchor Positioning で表示する。位置は `placement`（top / bottom / left / right）で、`position-try-fallbacks` により画面の端では反対側に出る。折り返しは `multiline`（`white-space: pre-line` + 最大幅 20rem）。
+- **アクセシビリティ（WCAG 1.4.13）**: 表示はホバーとフォーカスの両方。Esc で消せる（開いている間だけ、document のキャプチャで受けて `preventDefault` する。ダイアログの Esc には渡さない）。ポインターを対象からツールチップへ移しても、少し待ってから消すので消えない。フォーカスまたはホバーが残る間は出続ける。
+- **説明の伝え方**: ARIA の参照は Shadow の境界をまたげない（ツールチップは Shadow 内、対象は light DOM）。そこで、ネイティブの対象には `hidden` の `span` を light DOM に置いて（名前のあるスロット指定で描画されないようにする）、対象の `aria-describedby` にトークンを足す。もとの値は残し、取り外すとトークンだけを消す。**`jimble-*` の対象は別**: 実際にフォーカスされるのは Shadow 内の要素で、host の `aria-describedby` は届かない（E2E の CDP で、button に description が付かないことで発見）。そこで host に `aria-description`（文字列）を付け、`jimble-button` が内側の要素へ渡す（`aria-label` と同じ方式）。他の部品は未対応で、ドキュメントに明記した。ポップアップ自体は `aria-hidden`（二重に読まれない）。
+- **タッチ**: ホバーの `pointerenter` は `pointerType=touch` を無視し、タップによるフォーカスで出す。
+- **制約**: 囲めるのは 1 つのフォーカスできる要素。文字だけの要素は開発ビルドで警告。ツールチップの中にリンク・ボタンは入れられない。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

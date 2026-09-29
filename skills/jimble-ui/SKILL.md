@@ -155,7 +155,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 入力
 
 - **`jimble-button`** — ボタン。
-  - 属性: `variant=primary|secondary|danger|ghost`, `size=sm|md|lg`, `type=button|submit|reset`, `disabled`, `loading`, `href=値`, `target=値`, `rel=値`, `download=値`, `icon-only`, `block`, `aria-label=値`
+  - 属性: `variant=primary|secondary|danger|ghost`, `size=sm|md|lg`, `type=button|submit|reset`, `disabled`, `loading`, `href=値`, `target=値`, `rel=値`, `download=値`, `icon-only`, `block`, `aria-label=値`, `aria-description=値`
   - スロット: (既定), `prefix`, `suffix`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/button/
 - **`jimble-field`** — ラベル・ヒント・エラーを付けるための入れ物。
@@ -245,6 +245,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `placement=top-start|top|top-end|bottom-start|bottom|bottom-end`
   - スロット: `polite`, `assertive`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/toast/
+- **`jimble-tooltip`** — 囲んだ要素にマウスを重ねる、またはフォーカスすると、短い補足説明を出すツールチップ。
+  - 属性: `text=値`, `placement=top|bottom|left|right`, `multiline`, `delay=数値`, `disabled`, `open`
+  - スロット: (既定)
+  - イベント: `jimble-open`, `jimble-close`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/tooltip/
 
 ## 必ず守ること（間違えやすい点）
 
@@ -282,6 +287,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **ダイアログ**: `heading` 属性（または `title` スロット / `aria-label`）が必要。開閉は `el.show()` / `el.hide()` / `open` 属性。中の要素に `data-dialog-close` を付けると、JavaScript なしで閉じる。確認など応答が必須のものは `alert`（背景クリックで閉じない）にして、安全な側のボタンに `autofocus`。閉じる前に `jimble-close-request`（`preventDefault()` で止められる）。
 - **ドロワー**（`jimble-drawer`。サイドモーダル・スライドパネル・ボトムシート）: 画面の端から出るモーダル。API と挙動は `jimble-dialog` と同じ（`heading`・`show()` / `hide()`・`data-dialog-close`・`jimble-close-request`）。位置は `placement`（`end` 右・既定 / `start` 左 / `top` / `bottom`）、幅は `size`。確認など短い操作は dialog、詳細・絞り込み・編集は drawer。開いている間は背面が操作できない（非モーダルは未対応）。
 - **スピナー**（`jimble-spinner`）: 読み込み中の表示。既定で `role="status"` と「読み込み中」を伝える。隣に同じ意味の文字があるときは `decorative`。ボタンの読み込み中は `jimble-button` の `loading`（スピナーを自分で置かない）。
+- **ツールチップ**（`jimble-tooltip`）: `<jimble-tooltip text="説明" placement="top|bottom|left|right" multiline>` で**フォーカスできる要素（ネイティブの `button`・`a`、または `jimble-button`）を 1 つ**囲む（入力欄などほかの `jimble-*` は不可）。ホバーとフォーカスで出て、Esc で消える。補足だけを入れる（重要な情報・操作は入れない）。アイコンだけのボタンの名前は `aria-label`（ツールチップではない）。入力欄の説明は `jimble-field` の `hint`。
 - **アイコン**（`jimble-icon`）: `<jimble-icon name="check">`。色は文字色に従う。`size`（`sm` `md` `lg` `xl`）。**意味を持つときだけ `label` を付ける**（`role="img"`）。隣に文字があるときは付けない。アイコンだけのボタンは、ボタンに `aria-label`。**`name` は次の一覧にあるものだけ**（推測しない）: `adjustments-horizontal`、`archive-box`、`arrow-down`、`arrow-down-tray`、`arrow-left`、`arrow-path`、`arrow-right`、`arrow-top-right-on-square`、`arrow-up`、`arrow-up-tray`、`banknotes`、`bars-3`、`bell`、`bolt`、`bookmark`、`building-office`、`calendar`、`calendar-days`、`chart-bar`、`chat-bubble-left`、`check`、`check-circle`、`chevron-down`、`chevron-left`、`chevron-right`、`chevron-up-down`、`clipboard`、`clipboard-document`、`clock`、`cloud`、`code-bracket`、`cog-6-tooth`、`command-line`、`computer-desktop`、`cpu-chip`、`credit-card`、`cube`、`currency-yen`、`device-phone-mobile`、`document`、`document-text`、`ellipsis-horizontal`、`ellipsis-vertical`、`envelope`、`exclamation-circle`、`exclamation-triangle`、`eye`、`eye-slash`、`face-smile`、`flag`、`folder`、`funnel`、`globe-alt`、`hand-thumb-down`、`hand-thumb-up`、`heart`、`home`、`identification`、`inbox`、`information-circle`、`key`、`language`、`link`、`list-bullet`、`lock-closed`、`lock-open`、`magnifying-glass`、`map-pin`、`minus`、`minus-circle`、`no-symbol`、`paper-clip`、`pencil`、`pencil-square`、`phone`、`photo`、`plus`、`plus-circle`、`power`、`printer`、`puzzle-piece`、`question-mark-circle`、`queue-list`、`rectangle-stack`、`server`、`share`、`shield-check`、`shopping-cart`、`spinner`、`squares-2x2`、`star`、`swatch`、`table-cells`、`tag`、`trash`、`truck`、`tv`、`user`、`user-circle`、`user-group`、`user-plus`、`users`、`wrench-screwdriver`、`x-circle`、`x-mark`。全部品を読み込む入口（CDN も）には全部入っている。個別 import は `@hidemikimura/jimble-ui/icon` + `@hidemikimura/jimble-ui/icons/<name>`。
 - **メニュー**: トリガーは `slot="trigger"`。項目は `jimble-menu-item`（`value`）。選ばれたら `jimble-select`（`e.detail.value`）。
 - **セレクト**: 選択肢は `jimble-option`（`value`）。未選択はプレースホルダー（ネイティブと違い、最初の選択肢が自動で選ばれない）。

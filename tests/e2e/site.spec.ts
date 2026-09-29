@@ -31,6 +31,7 @@ const PAGES = [
   '/components/date-input/',
   '/components/color-input/',
   '/components/toast/',
+  '/components/tooltip/',
   '/components/app-shell/',
   '/components/sidebar-nav/',
   '/components/page-header/',
@@ -493,6 +494,43 @@ test.describe('ドロワー(実操作)', () => {
       document.querySelector('#drw-form')!.contains(document.activeElement),
     )
     expect(inside).toBe(true)
+  })
+})
+
+test.describe('ツールチップ(実操作)', () => {
+  test('ホバーで出て、Esc で消え、フォーカスでも出る。位置は対象の上', async ({ page }) => {
+    await page.goto('/components/tooltip/')
+    const example = page.locator('docs-example', { hasText: '基本（マウスを重ねる' })
+    const tip = example.locator('jimble-tooltip').first()
+    const popup = tip.locator('[part="popup"]')
+    await tip.locator('jimble-button').hover()
+    await expect(popup).toBeVisible()
+    const t = (await tip.locator('jimble-button').boundingBox())!
+    const p = (await popup.boundingBox())!
+    expect(p.y + p.height).toBeLessThanOrEqual(t.y + 1)
+    await page.keyboard.press('Escape')
+    await expect(popup).toBeHidden()
+    await page.mouse.move(2, 2)
+    await tip.locator('jimble-button').focus()
+    await expect(popup).toBeVisible()
+    await expect(popup).toHaveText('変更内容を保存します')
+  })
+
+  test('aria-describedby が付いている(Chromium のアクセシビリティツリー)', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'CDP は Chromium のみ')
+    await page.goto('/components/tooltip/')
+    const example = page.locator('docs-example', { hasText: '基本（マウスを重ねる' })
+    await example.locator('jimble-tooltip').first().locator('jimble-button').focus()
+    const cdp = await page.context().newCDPSession(page)
+    const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+    const hit = nodes.find(
+      (n) =>
+        !n.ignored && n.role?.value === 'button' && n.description?.value === '変更内容を保存します',
+    )
+    expect(hit, 'button の description').toBeTruthy()
   })
 })
 

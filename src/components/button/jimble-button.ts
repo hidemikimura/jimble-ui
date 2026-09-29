@@ -101,6 +101,7 @@ export class JimbleButton extends JimbleElement {
     iconOnly: { type: Boolean, reflect: true, attribute: 'icon-only' },
     block: { type: Boolean, reflect: true },
     accessibleLabel: { attribute: 'aria-label' },
+    accessibleDescription: { attribute: 'aria-description' },
     haspopup: { attribute: false },
     expanded: { attribute: false },
   }
@@ -127,6 +128,8 @@ export class JimbleButton extends JimbleElement {
   declare block: boolean
   /** ホストの aria-label を内部の要素へ渡す */
   declare accessibleLabel: string | null
+  /** ホストの aria-description を内部の要素へ渡す(jimble-tooltip が使う。ARIA の参照は Shadow をまたげないため、文字列で渡す) */
+  declare accessibleDescription: string | null
   /** ポップアップを開くボタンのとき、その種類(menu / listbox など)。dropdown-menu が設定する */
   declare haspopup: string | undefined
   /** ポップアップを開くボタンのとき、開いているか。dropdown-menu が設定する */
@@ -145,6 +148,7 @@ export class JimbleButton extends JimbleElement {
     this.iconOnly = false
     this.block = false
     this.accessibleLabel = null
+    this.accessibleDescription = null
     this.addEventListener('click', this.#onHostClick)
   }
 
@@ -213,6 +217,7 @@ export class JimbleButton extends JimbleElement {
     const disabled = this.#isDisabled
     const busy = this.loading ? 'true' : undefined
     const label = this.accessibleLabel ?? undefined
+    const description = this.accessibleDescription ?? undefined
 
     const hasPrefix = this.#slots.hasSlot('prefix')
     const hasSuffix = this.#slots.hasSlot('suffix')
@@ -242,6 +247,7 @@ export class JimbleButton extends JimbleElement {
         aria-disabled=${ifDefined(disabled || this.loading ? 'true' : undefined)}
         aria-busy=${ifDefined(busy)}
         aria-label=${ifDefined(label)}
+        aria-description=${ifDefined(description)}
         aria-haspopup=${ifDefined(this.haspopup)}
         aria-expanded=${ifDefined(this.expanded === undefined ? undefined : String(this.expanded))}
         @click=${this.#onInnerClick}
@@ -256,6 +262,7 @@ export class JimbleButton extends JimbleElement {
       aria-disabled=${ifDefined(this.loading && !disabled ? 'true' : undefined)}
       aria-busy=${ifDefined(busy)}
       aria-label=${ifDefined(label)}
+      aria-description=${ifDefined(description)}
       aria-haspopup=${ifDefined(this.haspopup)}
       aria-expanded=${ifDefined(this.expanded === undefined ? undefined : String(this.expanded))}
       @click=${this.#onInnerClick}
