@@ -1,0 +1,19 @@
+<!-- title: フォームの送信とリセット -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(
+      Object.fromEntries(new FormData(this)),
+    )
+  "
+>
+  <jimble-field label="ブランドカラー" required>
+    <jimble-color-input name="brand" value="#0d9488"></jimble-color-input>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

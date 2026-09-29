@@ -300,7 +300,7 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | 対象 | 予算（gzip） | 実測 |
 |------|-------------|------|
 | 共有シート（CSS）+ 基底クラス + i18n を含むチャンク | 13 KB 以下 | 9.9 KB |
-| それ以外の JS（コンポーネント 1 つぶんなど） | 4 KB 以下 | 最大 2.9 KB（`select`） |
+| それ以外の JS（コンポーネント 1 つぶんなど） | 6 KB 以下（date-input を足す前は 4 KB） | 最大 5.1 KB（`date-input`。カレンダー・日付の計算を含む） |
 | CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 50 KB 以下 | 39.2 KB |
 
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
@@ -1450,6 +1450,26 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
   - 公開ジョブは `npm publish --ignore-scripts` とし、検査は明示的なステップとして先に行う（`prepublishOnly` の二重実行を避ける）。
   - `custom-elements.json` はリポジトリ直下の生成物のまま `files` に含める（`prebuild` で生成）。
 - **私が行っていないこと（利用者の操作が必要）**: 実際の `npm publish`、GitHub の Settings（Actions の権限・Pages の Source）、npm のトークンと Trusted Publisher の登録、`git push`、および [docs/manual-checks.md](manual-checks.md) の手動確認（スクリーンリーダー・IME の実機・強制色モード・ズーム）。手順は `docs/release.md` にある。
+
+**追補: 公開後の対応（2026-09-29）**
+
+- **公開**: 0.1.0 を npm に公開した（provenance 付き、release-please のリリース PR #6 をマージ）。以後は Trusted Publishing（OIDC）で公開する。
+- **リリース周りの不具合と対処**: (1) release-please は、リリースが無いと既定で 1.0.0 にする → `initial-version: 0.1.0` を設定。(2) 初回のトークンが 2FA を要求して `EOTP` で失敗 → 2FA を回避する Granular Token を作り直した。(3) 生成物の `CHANGELOG.md` が Prettier の検査で落ちた → 対象外にした。(4) Linux の Chromium で、E2E が画面の右端（スクロールバーの隙間）をクリックして失敗 → クリック位置を端から離した。
+- **警告について**: `warn()` は `__DEV__` が真のときだけ出力する。配布物は本番ビルドなので、**利用者には警告が出ない**（呼び出し自体は残るが何もしない）。ドキュメントの「開発時に警告します」を、そのとおりに直した。ラベルの付け忘れなどは、利用者が自分で確認する必要がある。
+- **AI 向けの資料**:
+  - `skills/jimble-ui/SKILL.md`（パッケージに同梱）と `.claude/skills/jimble-ui/SKILL.md`（リポジトリ用）: 利用者の AI 向けの使い方。手書きのテンプレート（`scripts/skill-template.md`）に、`custom-elements.json` から作る「コンポーネント早見」（全 41 要素の属性・候補値・スロット・イベント）と、axe 検査済みのドキュメントの例を埋め込む生成物（`npm run gen:skill`）。`tests/unit/skill.test.ts` が、skill 内のタグ・属性が実在することを保証する。CI は最新かどうかを検査する。
+  - `CLAUDE.md`: 開発する人・AI 向けの約束と、テストの落とし穴。
+  - ドキュメントに「AI から使う」を追加。利用者は `cp -r node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/` で skill を入れられる。
+
+**追補: 日付入力・色選択・コンボボックスの追加（2026-09-29）**
+
+- **範囲**: `jimble-date-input`、`jimble-color-input`、`jimble-combobox` の 3 部品（41 要素）。外部ライブラリは使っていない（付録 A.2 の「日付は ISO 文字列 + 自前の APG date picker」の方針どおり。dayjs / cally / Floating UI は不要だった）。
+- **日付入力**: 値は `YYYY-MM-DD` の文字列。年月日だけで計算し（`src/base/date.ts`）、`Date` のタイムゾーン問題を避ける。表示・入力は `Intl` の書式（日本語 `2026/09/29`）。入力は全角・`年月日`・8 桁も受け付け、blur / Enter で整える。カレンダーは APG の date picker dialog（グリッド、矢印・Home / End・PageUp / PageDown）。`popover="auto"`、位置は CSS Anchor Positioning。時刻・期間・和暦は対象外。
+- **色選択**: 値は小文字の `#rrggbb`（`src/base/color.ts`）。ポップアップは、HSL のスライダー（ネイティブの `<input type="range">`）と候補の色。色相は内部に持つので、彩度 0 にしても失われない。色は `style` 属性ではなく CSSOM（`style.setProperty`）で渡す（CSP で `style-src` を絞っていても動く）。透明度・他の色空間は対象外。
+- **コンボボックス**: APG の combobox（list autocomplete）。フォーカスは入力欄に残し、`aria-activedescendant` で候補を指す。ARIA の参照は Shadow 境界をまたげないため、`jimble-option` は「データ」として使い（`<slot hidden>`）、候補は同じ Shadow root 内に写して描画する。**自由入力は値にしない**（離れると選択中の表示に戻す）。絞り込みは `src/base/text-match.ts`（NFKC・大文字小文字・ひらがな/カタカナ・空白を無視、`keywords` で読みに対応）。`popover="manual"` + 入力欄の blur で閉じる。文字の入力では `input` / `change` を出さず、`jimble-search` を出す（値が変わっていないため）。
+- **共通の整理**: Enter での暗黙の送信を `src/base/implicit-submit.ts` に切り出し（`jimble-input` も使う）。`setCustomValidity` を `computeValidity` を上書きする部品でも効かせた（`commit()` で反映）。
+- **不具合の発見と対処**: (1) 新部品が `src/index.ts`（CDN・ドキュメントサイトの入口）から抜けていた → E2E の axe で発見。全部品の再エクスポートと `hosts.css` の読み込みを検査する単体テスト `tests/unit/entry.test.ts` を追加。(2) **`jimble-field` より先に登録された部品には、field の情報（ラベル・ヒント）が届かない**（コンテキストの提供側が後から現れるため）。アルファベット順の入口では、`checkbox` や `combobox` が `field` より前に来る。→ `base/form-element.ts` が `jimble-field` を先に import するようにした（個別 import でも順序に依存しない）。(3) 日付入力を ↓ で開いたときにカレンダーの表示月を初期化していなかった → 単体テストで開いたあとのフォーカスも確認するようにした。
+- **サイズ**: 部品チャンクの予算を 4 KB から 6 KB に上げた（`date-input` が 5.1 KB。カレンダーの描画と日付の計算を含む）。CDN バンドルは 48.3 KB gz（予算 50 KB）。次に部品を足すときは、予算の見直しか分割が要る。
 
 ---
 

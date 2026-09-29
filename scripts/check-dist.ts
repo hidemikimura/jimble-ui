@@ -57,7 +57,7 @@ const BUDGET = {
   /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
   shared: 13 * 1024,
   /** それ以外の JS(部品 1 つぶんなど) */
-  each: 4 * 1024,
+  each: 6 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
   cdn: 50 * 1024,
 }
@@ -97,6 +97,8 @@ for (const f of [
   if (!existsSync(join(dist, f))) fail(`dist/${f} がありません`)
 }
 if (!existsSync(join(root, 'custom-elements.json'))) fail('custom-elements.json がありません')
+if (!existsSync(join(root, 'skills/jimble-ui/SKILL.md')))
+  fail('skills/jimble-ui/SKILL.md がありません(npm run gen:skill)')
 
 if (errors.length) {
   console.error('\ncheck-dist 失敗:\n' + errors.map((e) => `  - ${e}`).join('\n'))

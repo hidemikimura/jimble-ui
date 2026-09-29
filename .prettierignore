@@ -4,3 +4,5 @@ package-lock.json
 *.generated.css
 docs
 CHANGELOG.md
+skills
+.claude/skills

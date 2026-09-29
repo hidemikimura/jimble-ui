@@ -19,7 +19,9 @@ Playwright は本物の IME を操作できない。自動テストは `composit
 | 1 | 「にほん」と入力し、**変換中に Enter** で確定する | 確定するだけ。フォームは送信されない | input |
 | 2 | 確定後（変換中でない）に Enter | フォームが送信される | input |
 | 3 | ダイアログ内の入力欄で、変換中に Esc | 変換が取り消されるだけ。**ダイアログが閉じない**（変換をやめて、もう一度 Esc で閉じる）。自動テストは Chromium の合成 IME と `cancel` イベントで確認済み | dialog + input |
-| 3b | メニュー・セレクトが開いている状態で、変換中の文字入力 | 先頭文字検索が動かない | dropdown-menu / select |
+| 3b | メニュー・セレクトが開いている状態で、変換中の文字入力 | 先頭文字検索が動かない | dropdown-menu / select / combobox / date-input / color-input |
+| 3c | コンボボックスで「とうきょう」を変換中に ↓ / Enter | 変換の操作だけが動く。候補は選ばれない。確定後は絞り込まれ、Enter で候補を選べる | combobox |
+| 3d | 日付入力・色選択のテキスト欄で、変換中に Enter | 確定するだけ。フォームは送信されない | date-input / color-input |
 | 4 | Safari: 変換確定の Enter（keyCode 229）の直後に、すぐもう一度 Enter | 1 回目は送信されない。2 回目は送信される | input |
 | 5 | 変換中に矢印キー | 変換候補の選択だけが動く。ラジオの選択などが動かない | input |
 | 6 | textarea で変換中に Enter | 確定するだけ。改行されない。確定後の Enter は改行 | textarea |
@@ -42,6 +44,9 @@ Playwright は本物の IME を操作できない。自動テストは `composit
 | 9 | alertdialog を開く | 見出しと本文（説明）が続けて読まれる | dialog（alert） |
 | 10 | メニューを開いて矢印で移動 | 「メニュー、項目、無効」などが読まれる。トリガーが「メニューあり、展開/折りたたみ」と読まれる | dropdown-menu |
 | 11 | セレクトを開いて選ぶ | ボタンが「ラベル、現在の値、リストボックスあり」と読まれる。選択肢は「選択済み」が読まれる | select |
+| 11b | コンボボックスに入力して候補を絞る | 「入力欄、コンボボックス、展開」と読まれ、↓ で候補が「n 件中 m 件目」などと読まれる。件数（または「一致する選択肢がありません」）が読まれる | combobox |
+| 11c | 日付入力でカレンダーを開き、矢印で日を移動 | 「ダイアログ」と月の見出し、各日が「2026年9月29日火曜日」のように読まれる。選択中の日が分かる | date-input |
+| 11d | 色選択でポップアップを開く | スライダーが「色相 / 彩度 / 明度」と値で読まれ、候補の色は 16 進数の名前と押下状態で読まれる | color-input |
 | 12 | 通知を出す（success と danger） | success は丁寧に、danger は即時に、種別名と本文が読まれる | toast |
 | 13 | **ダイアログを開いたまま**通知を出す | 通知が読まれ、Tab で閉じるボタンに届く | toast + dialog |
 | 14 | 表を読み上げる（上下左右の矢印） | 「表、n 行 m 列」、見出しと値が結びついて読まれる。並べ替えた見出しで「昇順/降順」が読まれる | table |
@@ -59,9 +64,9 @@ Playwright は本物の IME を操作できない。自動テストは `composit
 | 2 | Windows のコントラスト強制モード（ハイコントラスト）で、枠・フォーカス・チェック状態が見える | input / checkbox / radio / switch / button |
 | 3 | `prefers-reduced-motion: reduce` でスピナー・スイッチの動きが止まる | button / switch |
 | 4 | キーボードだけで、フォーカスリングが常に見える（スティッキーヘッダーに隠れない） | 全部 |
-| 5 | 強制色モードで、ダイアログ・メニュー・一覧・通知の輪郭が見える | dialog / dropdown-menu / select / toast |
-| 6 | 画面の右下・下端で、メニューと一覧が反転して画面内に収まる | dropdown-menu / select |
-| 7 | ページを縮小・拡大（ズーム）してもメニューの位置がトリガーに追従する | dropdown-menu / select |
+| 5 | 強制色モードで、ダイアログ・メニュー・一覧・通知・カレンダー・色選択・コンボボックスの輪郭と、選択中の日・色が見える | dialog / dropdown-menu / select / toast / date-input / color-input / combobox |
+| 6 | 画面の右下・下端で、メニューと一覧が反転して画面内に収まる | dropdown-menu / select / combobox / date-input / color-input |
+| 7 | ページを縮小・拡大（ズーム）してもメニューの位置がトリガーに追従する | dropdown-menu / select / combobox / date-input / color-input |
 | 8 | 200% ズームで app-shell の固定ヘッダーが本文を隠しすぎない（ヘッダーの高さが画面の大半を占めない） | app-shell |
 | 9 | 強制色モードで、app-shell のヘッダー/サイドバー、現在のタブ/ナビ項目/ページが見える | app-shell / tabs / sidebar-nav / pagination |
 | 10 | 表が画面より広いとき、キーボードで横スクロールでき、フォーカスが見える | table |

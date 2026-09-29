@@ -1,0 +1,30 @@
+@layer components {
+  :host(jimble-combobox) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  :host(jimble-combobox) [part='base'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-combobox) [part='popup'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.25rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+    min-width: anchor-size(width);
+  }
+  @media (forced-colors: active) {
+    :host(jimble-combobox) [part='popup'] {
+      outline: 1px solid CanvasText;
+    }
+    :host(jimble-combobox) [part='option'][data-active] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
+}

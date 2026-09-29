@@ -41,6 +41,7 @@ jobs:
       - run: npx playwright install --with-deps chromium firefox webkit
       # 公開前の検証(CI と同じ内容 + 配布物のスモークテスト)
       - run: npm run gen:tokens:check && npm run gen:icons:check
+      - run: npm run gen:manifest && npm run gen:skill:check
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test

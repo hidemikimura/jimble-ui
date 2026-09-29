@@ -1,0 +1,24 @@
+<!-- title: フォームの送信とリセット -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(
+      Object.fromEntries(new FormData(this)),
+    )
+  "
+>
+  <jimble-field label="国" required>
+    <jimble-combobox name="country" match="starts-with">
+      <jimble-option value="jp" keywords="にほん にっぽん japan">日本</jimble-option>
+      <jimble-option value="us" keywords="あめりか べいこく america">アメリカ</jimble-option>
+      <jimble-option value="fr" keywords="ふらんす france">フランス</jimble-option>
+      <jimble-option value="de" keywords="どいつ germany">ドイツ</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

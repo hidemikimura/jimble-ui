@@ -3,25 +3,10 @@ import { ifDefined } from 'lit/directives/if-defined.js'
 import { live } from 'lit/directives/live.js'
 import { nothing } from 'lit'
 import { AFFIX, JimbleTextControl, TEXT_INNER, textWrapClasses } from '../../base/text-control.js'
+import { handleImplicitSubmit } from '../../base/implicit-submit.js'
 import { SlotController } from '../../base/slot-controller.js'
 
 export type InputType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number'
-
-// Enter で暗黙の送信を止める入力欄の type（ネイティブの「送信をブロックするフィールド」）
-const IMPLICIT_SUBMIT_TYPES = new Set([
-  'text',
-  'search',
-  'url',
-  'tel',
-  'email',
-  'password',
-  'date',
-  'month',
-  'week',
-  'time',
-  'datetime-local',
-  'number',
-])
 
 /**
  * 1 行のテキスト入力。フォーム関連カスタム要素で、値の送信・検証・リセット・fieldset の disabled に対応する。
@@ -86,42 +71,11 @@ export class JimbleInput extends JimbleTextControl {
     return this.nativeControl?.valueAsNumber ?? NaN
   }
 
-  // Enter による暗黙の送信。Shadow 内の input は外側の form に属さないので自前で行う（設計書 §5.4）
-  #onKeydown = (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' || event.defaultPrevented || this.ime.isComposing(event)) return
-    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return
-    if (!this.form || this.isDisabled) return
-    // ネイティブでは送信は「既定動作」なので、祖先の keydown リスナーの preventDefault() で止められる。
-    // 同じにするため、イベント配信が終わってから defaultPrevented を見て送信する。
-    setTimeout(() => {
-      if (!event.defaultPrevented) this.#implicitSubmit()
-    })
-  }
+  /** Enter による暗黙の送信の対象になる部品(base/implicit-submit.ts) */
+  static implicitSubmitBlocker = true
 
-  #implicitSubmit() {
-    const form = this.form
-    if (!form) return
-    const button = form.querySelector<HTMLElement>(
-      'button:not([type="button"]):not([type="reset"]), input[type="submit"], input[type="image"], jimble-button[type="submit"]',
-    )
-    if (button) {
-      if (button.localName === 'jimble-button') {
-        const b = button as HTMLElement & { disabled: boolean; loading: boolean }
-        if (b.disabled || b.loading || button.matches(':state(disabled)')) return
-        form.requestSubmit()
-      } else if (!(button as HTMLButtonElement).disabled) {
-        form.requestSubmit(button as HTMLButtonElement)
-      }
-      return
-    }
-    // 送信ボタンが無いときは、送信をブロックするフィールドが 1 つだけの場合に限って送信する
-    const blockers = [...form.elements].filter(
-      (e) =>
-        (e instanceof HTMLInputElement && IMPLICIT_SUBMIT_TYPES.has(e.type)) ||
-        e instanceof JimbleInput,
-    )
-    if (blockers.length <= 1) form.requestSubmit()
-  }
+  #onKeydown = (event: KeyboardEvent) =>
+    handleImplicitSubmit(event, this.form, this.isDisabled, this.ime)
 
   protected override render() {
     const invalid = this.showInvalid

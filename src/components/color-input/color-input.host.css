@@ -1,0 +1,127 @@
+@layer components {
+  :host(jimble-color-input) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  :host(jimble-color-input) [part='base'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-color-input) [part='popup'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.25rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+    width: 16rem;
+    max-width: calc(100vw - 1rem);
+  }
+  /* 色見本。--_swatch は updated() が CSSOM で渡す */
+  :host(jimble-color-input) .jimble-swatch {
+    background-color: var(--_swatch, transparent);
+  }
+  :host(jimble-color-input) [part='swatch'][data-empty] {
+    background-image: repeating-conic-gradient(
+      var(--_c-surface-sunken) 0% 25%,
+      var(--_c-surface) 0% 50%
+    );
+    background-size: 8px 8px;
+  }
+  :host(jimble-color-input) .jimble-slider {
+    appearance: none;
+    height: 1.25rem;
+    background: transparent;
+    cursor: pointer;
+  }
+  :host(jimble-color-input) [data-slider='h']::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      hsl(0 100% 50%),
+      hsl(60 100% 50%),
+      hsl(120 100% 50%),
+      hsl(180 100% 50%),
+      hsl(240 100% 50%),
+      hsl(300 100% 50%),
+      hsl(360 100% 50%)
+    );
+  }
+  :host(jimble-color-input) [data-slider='h']::-moz-range-track {
+    background: linear-gradient(
+      to right,
+      hsl(0 100% 50%),
+      hsl(60 100% 50%),
+      hsl(120 100% 50%),
+      hsl(180 100% 50%),
+      hsl(240 100% 50%),
+      hsl(300 100% 50%),
+      hsl(360 100% 50%)
+    );
+  }
+  :host(jimble-color-input) [data-slider='s']::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      hsl(var(--_h) 0% var(--_l)),
+      hsl(var(--_h) 100% var(--_l))
+    );
+  }
+  :host(jimble-color-input) [data-slider='s']::-moz-range-track {
+    background: linear-gradient(
+      to right,
+      hsl(var(--_h) 0% var(--_l)),
+      hsl(var(--_h) 100% var(--_l))
+    );
+  }
+  :host(jimble-color-input) [data-slider='l']::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000, hsl(var(--_h) var(--_s) 50%), #fff);
+  }
+  :host(jimble-color-input) [data-slider='l']::-moz-range-track {
+    background: linear-gradient(to right, #000, hsl(var(--_h) var(--_s) 50%), #fff);
+  }
+  :host(jimble-color-input) .jimble-slider::-webkit-slider-runnable-track {
+    height: 0.75rem;
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 1px var(--_c-ring);
+  }
+  :host(jimble-color-input) .jimble-slider::-moz-range-track {
+    height: 0.75rem;
+    border-radius: 9999px;
+    box-shadow: inset 0 0 0 1px var(--_c-ring);
+  }
+  :host(jimble-color-input) .jimble-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: -0.25rem;
+    border-radius: 9999px;
+    background: var(--_c-surface);
+    border: 2px solid var(--_c-ring-focus);
+    box-shadow: 0 0 0 1px var(--_c-surface);
+  }
+  :host(jimble-color-input) .jimble-slider::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: var(--_c-surface);
+    border: 2px solid var(--_c-ring-focus);
+  }
+  :host(jimble-color-input) .jimble-slider:focus-visible {
+    outline: 2px solid var(--_c-ring-focus);
+    outline-offset: 2px;
+    border-radius: 9999px;
+  }
+  @media (forced-colors: active) {
+    :host(jimble-color-input) [part='popup'] {
+      outline: 1px solid CanvasText;
+    }
+    :host(jimble-color-input) .jimble-swatch {
+      forced-color-adjust: none;
+    }
+    :host(jimble-color-input) [part='preset'][aria-pressed='true'] {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+  }
+}

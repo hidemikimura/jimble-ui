@@ -2,7 +2,7 @@
 
 管理画面向けの UI コンポーネントライブラリです。**素の HTML に `<script>` を 1 行足すだけ**で使える Web Components（Lit 3 + Tailwind CSS v4）で、React などのラッパーは同梱していません。
 
-- 22 種類のコンポーネント: app-shell、sidebar-nav、page-header、card、button、badge、input、textarea、select、checkbox、radio-group、switch、field、table、description-list、dialog、toast、alert、dropdown-menu、tabs、breadcrumb、pagination
+- 25 種類のコンポーネント: app-shell、sidebar-nav、page-header、card、button、badge、input、textarea、select、combobox、date-input、color-input、checkbox、radio-group、switch、field、table、description-list、dialog、toast、alert、dropdown-menu、tabs、breadcrumb、pagination
 - **密度を詰めたデザイン**（既定のコントロールの高さは 36px）。インディゴのアクセント、`shadow-sm` + `ring` の縁取り
 - **アクセシビリティ**: WCAG 2.2 AA と WAI-ARIA Authoring Practices を目標に、キーボード操作・フォーカス管理・コントラストを自動テストで守っています
 - **日本語が既定**で、辞書を差し替えれば他の言語にできます。IME の変換中の Enter / Esc で誤動作しません
@@ -52,6 +52,17 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ```json
 { "html.customData": ["./node_modules/@hidemikimura/jimble-ui/dist/vscode.html-data.json"] }
 ```
+
+## AI（Claude Code など）から使う
+
+AI が jimble-ui を正しく使うための **skill** を同梱しています。プロジェクトの `.claude/skills/` に置くと、Claude Code が自動で使います。
+
+```sh
+mkdir -p .claude/skills
+cp -r node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/
+```
+
+全要素の属性・イベント、間違えやすい点、そのまま使える断片が入っています。詳しくは、ドキュメントの「AI から使う」を参照してください。
 
 ## カスタマイズ
 

@@ -1,0 +1,19 @@
+<!-- title: フォームの送信とリセット -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(
+      Object.fromEntries(new FormData(this)),
+    )
+  "
+>
+  <jimble-field label="生年月日" required>
+    <jimble-date-input name="birthday" value="1990-04-01"></jimble-date-input>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

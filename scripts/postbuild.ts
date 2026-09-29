@@ -2,22 +2,14 @@
 //   dist/tokens.css          … 既定トークンを :root に並べたもの（編集の出発点。読み込みは必須ではない）
 //   dist/cloak.css           … 未定義(まだ登録されていない)要素を隠して、ちらつきを防ぐ
 //   dist/vscode.html-data.json … VS Code の HTML 補完用データ（custom-elements.json から生成）
-import { copyFileSync, globSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { enumValues, loadElements } from './lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const dist = resolve(root, 'dist')
 
-type Decl = {
-  tagName?: string
-  description?: string
-  attributes?: { name: string; description?: string; type?: { text: string } }[]
-  slots?: { name: string; description?: string }[]
-}
-const manifest = JSON.parse(readFileSync(resolve(root, 'custom-elements.json'), 'utf8')) as {
-  modules: { declarations?: Decl[] }[]
-}
-const elements = manifest.modules.flatMap((m) => m.declarations ?? []).filter((d) => d.tagName)
+const elements = loadElements()
 
 // 1. tokens.css
 copyFileSync(resolve(root, 'tokens/tokens.generated.css'), resolve(dist, 'tokens.css'))
@@ -30,21 +22,8 @@ writeFileSync(
 )
 
 // 3. VS Code の HTML カスタムデータ
-// `export type ButtonVariant = 'primary' | 'secondary'` のような文字列リテラルの型別名を集める
-const aliases = new Map<string, string[]>()
-for (const file of globSync('src/**/*.ts', { cwd: root })) {
-  const text = readFileSync(resolve(root, file), 'utf8')
-  for (const m of text.matchAll(/export type (\w+)\s*=\s*((?:\s*\|?\s*'[^']+')+)\s*(?:\n|$)/g)) {
-    aliases.set(
-      m[1]!,
-      [...m[2]!.matchAll(/'([^']+)'/g)].map((x) => x[1]!),
-    )
-  }
-}
-const values = (type?: string): { name: string }[] | undefined => {
-  const literals = type?.match(/'([^']+)'/g)?.map((l) => l.slice(1, -1)) ?? aliases.get(type ?? '')
-  return literals ? literals.map((name) => ({ name })) : undefined
-}
+const values = (type?: string): { name: string }[] | undefined =>
+  enumValues(type)?.map((name) => ({ name }))
 const data = {
   version: 1.1,
   tags: elements.map((d) => ({

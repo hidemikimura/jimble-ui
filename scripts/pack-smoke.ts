@@ -208,6 +208,9 @@ void JimbleUI
     await browser.close()
   }
 
+  step('skill が同梱されている')
+  const skillPath = join(work, 'node_modules/@hidemikimura/jimble-ui/skills/jimble-ui/SKILL.md')
+  if (!existsSync(skillPath)) throw new Error('skills/jimble-ui/SKILL.md が配布物に入っていません')
   const files = readdirSync(join(work, 'node_modules/@hidemikimura/jimble-ui'))
   console.log('pack-smoke OK（配布物の直下:', files.join(', '), '）')
 }

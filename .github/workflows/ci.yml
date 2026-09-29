@@ -14,6 +14,7 @@ jobs:
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run gen:tokens:check
       - run: npm run gen:icons:check
+      - run: npm run gen:manifest && npm run gen:skill:check
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck

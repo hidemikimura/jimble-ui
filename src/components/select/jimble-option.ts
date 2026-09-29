@@ -21,12 +21,15 @@ export class JimbleOption extends JimbleElement {
   static override properties: PropertyDeclarations = {
     value: { reflect: true },
     disabled: { type: Boolean, reflect: true },
+    keywords: {},
     selected: { type: Boolean, attribute: false },
   }
 
   /** 送信される値。省略すると表示している文字が値になる */
   declare value: string | undefined
   declare disabled: boolean
+  /** 絞り込み(jimble-combobox)で一致させる、読みなどの追加の語。空白・カンマ区切り(例: `とうきょう tokyo`) */
+  declare keywords: string
   /** 選ばれているか（親のセレクトが設定する） */
   declare selected: boolean
 
@@ -34,6 +37,7 @@ export class JimbleOption extends JimbleElement {
     super()
     this.value = undefined
     this.disabled = false
+    this.keywords = ''
     this.selected = false
   }
 

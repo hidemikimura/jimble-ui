@@ -1,0 +1,36 @@
+@layer components {
+  :host(jimble-date-input) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  :host(jimble-date-input) [part='base'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-date-input) [part='popup'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.25rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+    width: max-content;
+  }
+  :host(jimble-date-input) [part='grid'] td {
+    padding: 0;
+  }
+  @media (forced-colors: active) {
+    :host(jimble-date-input) [part='popup'] {
+      outline: 1px solid CanvasText;
+    }
+    :host(jimble-date-input) [part='day'][aria-current='date'] {
+      outline: 2px solid Highlight;
+    }
+    :host(jimble-date-input) td[aria-selected='true'] [part='day'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
+}

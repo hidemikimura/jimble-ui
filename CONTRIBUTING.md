@@ -20,7 +20,7 @@ Node は 22 以上（`.nvmrc`）。
 | lint / 型 / 整形                           | `npm run lint` / `npm run typecheck` / `npm run format`                              |
 | ビルドと配布物の検査                       | `npm run build && npm run check-dist && npm run check-package && npm run pack-smoke` |
 
-トークン(`tokens/tokens.json`)とアイコン(`icons/svg/`)を変えたら、`npm run gen:tokens` / `npm run gen:icons` で生成物を更新します（CI は最新かどうかを検査します）。
+トークン(`tokens/tokens.json`)とアイコン(`icons/svg/`)を変えたら、`npm run gen:tokens` / `npm run gen:icons` で生成物を更新します。部品の API（属性・スロット・イベント）を変えたら JSDoc を直し、`npm run gen:manifest && npm run gen:skill` で AI 向けの skill も更新します（CI は、生成物が最新かどうかを検査します）。AI 向けの開発メモは [CLAUDE.md](CLAUDE.md) にあります。
 
 ## コミットと PR
 

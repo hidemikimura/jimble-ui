@@ -6,6 +6,9 @@
 @import '../components/button/button.host.css';
 @import '../components/card/card.host.css';
 @import '../components/checkbox/checkbox.host.css';
+@import '../components/color-input/color-input.host.css';
+@import '../components/combobox/combobox.host.css';
+@import '../components/date-input/date-input.host.css';
 @import '../components/description-list/description-list.host.css';
 @import '../components/dialog/dialog.host.css';
 @import '../components/dropdown-menu/dropdown-menu.host.css';

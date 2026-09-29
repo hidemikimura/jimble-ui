@@ -10,6 +10,7 @@ const PAGES = [
   '/guide/overlays/',
   '/guide/accessibility/',
   '/guide/limitations/',
+  '/guide/ai/',
   '/components/button/',
   '/components/badge/',
   '/components/card/',
@@ -23,6 +24,9 @@ const PAGES = [
   '/components/dialog/',
   '/components/dropdown-menu/',
   '/components/select/',
+  '/components/combobox/',
+  '/components/date-input/',
+  '/components/color-input/',
   '/components/toast/',
   '/components/app-shell/',
   '/components/sidebar-nav/',
@@ -328,6 +332,97 @@ test.describe('セレクト(実操作)', () => {
     await expect(example.locator('output')).toContainText('"role":"editor"')
     await example.getByRole('button', { name: 'リセット' }).click()
     await expect(button).toContainText('選択してください')
+  })
+})
+
+test.describe('日付・色・コンボボックス(実操作)', () => {
+  test('日付入力: カレンダーをキーボードで操作して日を選ぶと、フォームの値が変わる', async ({
+    page,
+  }) => {
+    await page.goto('/components/date-input/')
+    const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
+    const el = example.locator('jimble-date-input')
+    const input = el.locator('input')
+    await expect(input).toHaveValue('1990/04/01')
+    await input.focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(el.locator('[data-date="1990-04-01"]')).toBeFocused()
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('Enter')
+    await expect(input).toBeFocused()
+    await expect(input).toHaveValue('1990/04/02')
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText('"birthday":"1990-04-02"')
+    await example.getByRole('button', { name: 'リセット' }).click()
+    await expect(input).toHaveValue('1990/04/01')
+  })
+
+  test('日付入力: 全角・区切り違いの入力が正規の書式に整い、範囲外はエラー', async ({ page }) => {
+    await page.goto('/components/date-input/')
+    const example = page.locator('docs-example', { hasText: '範囲（min / max）' })
+    const input = example.locator('jimble-date-input input')
+    await input.fill('2026年9月12日')
+    await input.blur()
+    await expect(input).toHaveValue('2026/09/12')
+    await input.fill('2026/09/25')
+    await input.blur()
+    const valid = await example
+      .locator('jimble-date-input')
+      .evaluate((e) => (e as HTMLElement & { validity: ValidityState }).validity.rangeOverflow)
+    expect(valid).toBe(true)
+  })
+
+  test('色選択: スライダー・候補の色で値が変わり、Escape で入力欄に戻る', async ({ page }) => {
+    await page.goto('/components/color-input/')
+    const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
+    const el = example.locator('jimble-color-input')
+    const input = el.locator('input[type="text"]')
+    await expect(input).toHaveValue('#0d9488')
+    await el.getByRole('button', { name: '色を選ぶ' }).click()
+    await expect(el.getByRole('dialog')).toBeVisible()
+    await el.getByRole('button', { name: '#dc2626' }).click()
+    await expect(input).toHaveValue('#dc2626')
+    await page.keyboard.press('Escape')
+    await expect(el.getByRole('dialog')).toBeHidden()
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText('"brand":"#dc2626"')
+  })
+
+  test('コンボボックス: 読みで絞り込み、矢印と Enter で選ぶ', async ({ page }) => {
+    await page.goto('/components/combobox/')
+    const example = page.locator('docs-example', { hasText: '基本（field と組み合わせる）' })
+    const el = example.locator('jimble-combobox').first()
+    const input = el.locator('input')
+    await input.focus()
+    await page.keyboard.type('おおさか')
+    await expect(el.getByRole('option')).toHaveCount(1)
+    await expect(el.getByRole('option').first()).toContainText('大阪府')
+    await page.keyboard.press('Enter')
+    await expect(input).toHaveValue('大阪府')
+    await expect(el.getByRole('option')).toHaveCount(0)
+    await input.fill('zzz')
+    await expect(el.locator('[part="empty"]')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(input).toHaveValue('大阪府')
+  })
+
+  test('コンボボックス: 実アクセシビリティツリーで combobox の状態と選択肢（Chromium）', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'CDP は Chromium のみ')
+    await page.goto('/components/combobox/')
+    const example = page.locator('docs-example', { hasText: '基本（field と組み合わせる）' })
+    const input = example.locator('jimble-combobox').first().locator('input')
+    await input.focus()
+    await page.keyboard.press('ArrowDown')
+    const cdp = await page.context().newCDPSession(page)
+    const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+    const live = nodes.filter((n) => !n.ignored)
+    const box = live.find((n) => n.role?.value === 'combobox' && n.name?.value === '都道府県')
+    expect(box, 'combobox "都道府県"').toBeTruthy()
+    expect(box!.properties?.find((p) => p.name === 'expanded')?.value.value).toBe(true)
+    expect(live.some((n) => n.role?.value === 'option' && n.name?.value === '東京都')).toBe(true)
   })
 })
 

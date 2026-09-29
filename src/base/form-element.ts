@@ -1,5 +1,7 @@
 import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
 import type { MessageKey, MessageParams } from '../i18n/index.js'
+// jimble-field を先に登録しておく。後から登録すると、先に生まれたフォーム部品へ field の情報が届かない
+import '../components/field/jimble-field.js'
 import { FieldControlController } from './field-controller.js'
 import { ImeController } from './ime-controller.js'
 import { JimbleElement } from './jimble-element.js'
@@ -157,8 +159,8 @@ export abstract class JimbleFormElement extends JimbleElement {
     const result = this.computeValidity()
     const { anchor } = result
     let { flags, message } = result
-    // ネイティブのコントロールを持たない部品(radio-group / select)では、setCustomValidity をここで反映する
-    if (!this.nativeControl && this.#customMessage) {
+    // computeValidity を上書きする部品(radio-group / select / date-input など)では、setCustomValidity をここで反映する
+    if (this.#customMessage && !flags.customError) {
       flags = { ...flags, customError: true }
       message = this.#customMessage
     }

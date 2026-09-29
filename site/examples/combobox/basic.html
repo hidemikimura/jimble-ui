@@ -1,0 +1,20 @@
+<!-- title: 基本（field と組み合わせる） -->
+<div class="stack">
+  <jimble-field label="都道府県" hint="読み（ひらがな）でも絞り込めます">
+    <jimble-combobox name="pref" placeholder="入力して絞り込み" clearable>
+      <jimble-option value="hokkaido" keywords="ほっかいどう">北海道</jimble-option>
+      <jimble-option value="tokyo" keywords="とうきょう tokyo">東京都</jimble-option>
+      <jimble-option value="kyoto" keywords="きょうと kyoto">京都府</jimble-option>
+      <jimble-option value="osaka" keywords="おおさか osaka">大阪府</jimble-option>
+      <jimble-option value="fukuoka" keywords="ふくおか fukuoka">福岡県</jimble-option>
+      <jimble-option value="okinawa" keywords="おきなわ" disabled>沖縄県（準備中）</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+  <jimble-field label="担当者" required>
+    <jimble-combobox name="owner" value="suzuki">
+      <jimble-option value="sato" keywords="さとう">佐藤 花子</jimble-option>
+      <jimble-option value="suzuki" keywords="すずき">鈴木 一郎</jimble-option>
+      <jimble-option value="takahashi" keywords="たかはし">高橋 健</jimble-option>
+    </jimble-combobox>
+  </jimble-field>
+</div>
