@@ -28,11 +28,6 @@ async function make(
   await input?.updateComplete
   return { form, field, input }
 }
-const type = async (input: JimbleInput, text: string) => {
-  input.focus()
-  input.select()
-  await userEvent.keyboard(text || '{Backspace}')
-}
 
 describe('独自の検証（validate）', () => {
   const required: FieldValidator = (v) => (v ? null : '必須です。')
@@ -405,5 +400,44 @@ describe('外から実行する（フリガナの自動入力など）', () => {
     await userEvent.keyboard('ア')
     await tick(60)
     expect(calls).toEqual(['ア'])
+  })
+})
+
+describe('再描画（requestUpdate・テンプレートの再描画）との関係', () => {
+  it('値が変わらない再描画では検証しない。テンプレートの .value が変わって再描画されると、検証される', async () => {
+    const calls: string[] = []
+    const host = await mount<HTMLElement>(html`<div></div>`)
+    const { render } = await import('lit')
+    const draw = (v: string) =>
+      render(
+        html`<jimble-field
+          label="コメント"
+          .validate=${(x: unknown) => {
+            calls.push(String(x))
+            return x ? null : '必須です'
+          }}
+          ><jimble-input name="c" .value=${v}></jimble-input
+        ></jimble-field>`,
+        host,
+      )
+    draw('')
+    const input = host.querySelector('jimble-input') as JimbleInput
+    await input.updateComplete
+    await tick(60)
+    calls.length = 0
+    input.requestUpdate() // 値は同じ
+    await input.updateComplete
+    await tick(60)
+    expect(calls).toEqual([])
+    draw('こんにちは') // 再描画で value が変わる
+    await input.updateComplete
+    await tick(60)
+    expect(calls).toEqual(['こんにちは'])
+    expect(input.validity.valid).toBe(true)
+    draw('') // 空に戻る
+    await input.updateComplete
+    await tick(60)
+    expect(calls.at(-1)).toBe('')
+    expect(input.validity.valid).toBe(false)
   })
 })
