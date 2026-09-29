@@ -35,6 +35,7 @@ const GROUPS: [string, string[]][] = [
       'card',
       'badge',
       'alert',
+      'spinner',
       'table',
       'table-header',
       'table-body',

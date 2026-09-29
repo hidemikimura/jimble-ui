@@ -109,6 +109,9 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定), `title`, `icon`, `actions`
   - イベント: `jimble-dismiss`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/alert/
+- **`jimble-spinner`** — 読み込み中を示すスピナー。
+  - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
 - **`jimble-table`** — データテーブル。
   - 属性: `label=値`, `sticky-header`, `striped`, `loading`
   - スロット: (既定)
@@ -275,6 +278,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 - **ダイアログ**: `heading` 属性（または `title` スロット / `aria-label`）が必要。開閉は `el.show()` / `el.hide()` / `open` 属性。中の要素に `data-dialog-close` を付けると、JavaScript なしで閉じる。確認など応答が必須のものは `alert`（背景クリックで閉じない）にして、安全な側のボタンに `autofocus`。閉じる前に `jimble-close-request`（`preventDefault()` で止められる）。
 - **ドロワー**（`jimble-drawer`。サイドモーダル・スライドパネル・ボトムシート）: 画面の端から出るモーダル。API と挙動は `jimble-dialog` と同じ（`heading`・`show()` / `hide()`・`data-dialog-close`・`jimble-close-request`）。位置は `placement`（`end` 右・既定 / `start` 左 / `top` / `bottom`）、幅は `size`。確認など短い操作は dialog、詳細・絞り込み・編集は drawer。開いている間は背面が操作できない（非モーダルは未対応）。
+- **スピナー**（`jimble-spinner`）: 読み込み中の表示。既定で `role="status"` と「読み込み中」を伝える。隣に同じ意味の文字があるときは `decorative`。ボタンの読み込み中は `jimble-button` の `loading`（スピナーを自分で置かない）。
 - **メニュー**: トリガーは `slot="trigger"`。項目は `jimble-menu-item`（`value`）。選ばれたら `jimble-select`（`e.detail.value`）。
 - **セレクト**: 選択肢は `jimble-option`（`value`）。未選択はプレースホルダー（ネイティブと違い、最初の選択肢が自動で選ばれない）。
 - **コンボボックス**（`jimble-combobox`）: 選択肢が多く、探して選ぶときに使う。選択肢は `jimble-select` と同じ `jimble-option`（読みは `keywords="とうきょう tokyo"`）。既定では**自由入力は値にならない**。文字入力では `input` / `change` は出ず、`jimble-search`（`detail.query`）が出る。

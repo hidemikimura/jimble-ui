@@ -1495,6 +1495,10 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **動き**: `translate` と `::backdrop` の `opacity` を CSS の遷移で動かし、`overlay` / `display` の `allow-discrete` と `@starting-style` で出入りとも動く（未対応のブラウザでは動きなしで開閉する）。`prefers-reduced-motion` では遷移を止める。
 - **対象外**: 背面を操作できる非モーダルのパネル（フォーカスの閉じ込めをしない別の設計が要る）、RTL。
 
+**追補: スピナー（2026-09-29）**
+
+- `jimble-spinner`（43 要素）。既存の内部アイコン（`spinner`、ボタンの loading と同じ）を単独の部品にした。既定は `role=status` + 「読み込み中」（`common.loading`）を `sr-only` で持ち、隣に文字があるときは `decorative`（`role` なし・読み上げから外す）。色は `currentColor`、`variant="primary"` で主色。`motion-safe` で回転、`motion-reduce` では点滅（動きを止めても読み込み中と分かるように）。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

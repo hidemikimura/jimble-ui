@@ -15,6 +15,7 @@ const PAGES = [
   '/components/badge/',
   '/components/card/',
   '/components/alert/',
+  '/components/spinner/',
   '/components/input/',
   '/components/textarea/',
   '/components/checkbox/',
