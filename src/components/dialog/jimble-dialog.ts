@@ -108,6 +108,15 @@ export class JimbleDialog extends JimbleElement {
     })
   }
 
+  /** `<dialog>` 要素のクラス。`jimble-drawer` が置き換える */
+  protected dialogClasses(size: DialogSize): string {
+    return `${DIALOG} ${SIZE[size]}`
+  }
+  /** 面のクラス。`jimble-drawer` が置き換える */
+  protected panelClasses(): string {
+    return PANEL
+  }
+
   get #dialog(): HTMLDialogElement | null {
     return this.renderRoot?.querySelector('dialog') ?? null
   }
@@ -214,7 +223,7 @@ export class JimbleDialog extends JimbleElement {
     const pad = 'p-(--jimble-dialog-padding,calc(var(--spacing)*4))'
     return html`<dialog
       part="base"
-      class="${DIALOG} ${SIZE[size]}"
+      class=${this.dialogClasses(size)}
       role=${this.alert ? 'alertdialog' : nothing}
       aria-labelledby=${hasHeading ? this.#headingId : nothing}
       aria-label=${!hasHeading && this.accessibleLabel ? this.accessibleLabel : nothing}
@@ -224,7 +233,7 @@ export class JimbleDialog extends JimbleElement {
       @pointerdown=${this.#onPointerDown}
       @click=${this.#onClick}
     >
-      <div part="panel" class=${PANEL}>
+      <div part="panel" class=${this.panelClasses()}>
         <div
           part="header"
           class="flex items-start gap-3 ${pad} ${hasHeading || !this.hideCloseButton ? '' : 'hidden'}"

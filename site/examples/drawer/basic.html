@@ -1,0 +1,15 @@
+<!-- title: 基本（右から出るサイドモーダル） -->
+<jimble-button variant="primary" onclick="document.getElementById('drw-basic').show()">
+  詳細を開く
+</jimble-button>
+
+<jimble-drawer id="drw-basic" heading="注文 #1024">
+  <jimble-description-list>
+    <jimble-description-item label="顧客">株式会社サンプル</jimble-description-item>
+    <jimble-description-item label="金額">¥128,000</jimble-description-item>
+    <jimble-description-item label="状態"
+      ><jimble-badge variant="success">出荷済み</jimble-badge></jimble-description-item
+    >
+  </jimble-description-list>
+  <jimble-button slot="footer" data-dialog-close>閉じる</jimble-button>
+</jimble-drawer>

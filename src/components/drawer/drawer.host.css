@@ -1,0 +1,55 @@
+@layer components {
+  :host(jimble-drawer) {
+    display: contents;
+  }
+  /* 画面の端からスライドして出入りする。display / overlay も遷移させるので、閉じる動きも付く */
+  :host(jimble-drawer) dialog {
+    --_from: 100% 0;
+    translate: var(--_from);
+    transition:
+      translate 200ms var(--ease-standard, cubic-bezier(0.2, 0, 0, 1)),
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+  :host(jimble-drawer[placement='start']) dialog {
+    --_from: -100% 0;
+  }
+  :host(jimble-drawer[placement='top']) dialog {
+    --_from: 0 -100%;
+  }
+  :host(jimble-drawer[placement='bottom']) dialog {
+    --_from: 0 100%;
+  }
+  :host(jimble-drawer) dialog[open] {
+    translate: 0 0;
+  }
+  :host(jimble-drawer) dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity 200ms linear,
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+  :host(jimble-drawer) dialog[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    :host(jimble-drawer) dialog[open] {
+      translate: var(--_from);
+    }
+    :host(jimble-drawer) dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :host(jimble-drawer) dialog,
+    :host(jimble-drawer) dialog::backdrop {
+      transition: none;
+    }
+  }
+  @media (forced-colors: active) {
+    :host(jimble-drawer) [part='panel'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

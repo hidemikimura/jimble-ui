@@ -11,6 +11,7 @@
 @import '../components/date-input/date-input.host.css';
 @import '../components/description-list/description-list.host.css';
 @import '../components/dialog/dialog.host.css';
+@import '../components/drawer/drawer.host.css';
 @import '../components/dropdown-menu/dropdown-menu.host.css';
 @import '../components/field/field.host.css';
 @import '../components/input/input.host.css';

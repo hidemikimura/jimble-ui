@@ -1,0 +1,19 @@
+<!-- title: 出る位置（placement） -->
+<div class="row">
+  <jimble-button onclick="document.getElementById('drw-top').show()">上から</jimble-button>
+  <jimble-button onclick="document.getElementById('drw-bottom').show()"
+    >下から（ボトムシート）</jimble-button
+  >
+</div>
+
+<jimble-drawer id="drw-top" heading="お知らせ" placement="top">
+  メンテナンスのため、今夜 0:00〜2:00 は一部の機能をご利用いただけません。
+  <jimble-button slot="footer" data-dialog-close>閉じる</jimble-button>
+</jimble-drawer>
+
+<jimble-drawer id="drw-bottom" heading="共有" placement="bottom">
+  <div class="row">
+    <jimble-button data-dialog-close>リンクをコピー</jimble-button>
+    <jimble-button data-dialog-close>メールで送る</jimble-button>
+  </div>
+</jimble-drawer>

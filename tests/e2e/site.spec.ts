@@ -22,6 +22,7 @@ const PAGES = [
   '/components/radio-group/',
   '/components/field/',
   '/components/dialog/',
+  '/components/drawer/',
   '/components/dropdown-menu/',
   '/components/select/',
   '/components/combobox/',
@@ -454,6 +455,42 @@ test.describe('日付・色・コンボボックス(実操作)', () => {
     expect(box, 'combobox "都道府県"').toBeTruthy()
     expect(box!.properties?.find((p) => p.name === 'expanded')?.value.value).toBe(true)
     expect(live.some((n) => n.role?.value === 'option' && n.name?.value === '東京都')).toBe(true)
+  })
+})
+
+test.describe('ドロワー(実操作)', () => {
+  test('右から出て、Esc で閉じ、フォーカスが開いたボタンに戻る', async ({ page }) => {
+    await page.goto('/components/drawer/')
+    const example = page.locator('docs-example', { hasText: '基本（右から出るサイドモーダル）' })
+    const opener = example.getByRole('button', { name: '詳細を開く' })
+    await opener.focus()
+    await page.keyboard.press('Enter')
+    const drawer = example.locator('jimble-drawer')
+    await expect(drawer.locator('dialog')).toBeVisible()
+    const vw = await page.evaluate(() => document.documentElement.clientWidth)
+    await expect
+      .poll(async () => {
+        const b = (await drawer.locator('[part="panel"]').boundingBox())!
+        return Math.round(b.x + b.width)
+      })
+      .toBeGreaterThanOrEqual(vw - 1)
+    await page.keyboard.press('Escape')
+    await expect(drawer.locator('dialog')).toBeHidden()
+    await expect(opener).toBeFocused()
+  })
+
+  test('左から出るフォーム: 閉じるボタンの名前と、パネル内だけで Tab が回る', async ({ page }) => {
+    await page.goto('/components/drawer/')
+    const example = page.locator('docs-example', { hasText: '絞り込みフォーム' })
+    await example.getByRole('button', { name: '絞り込み', exact: true }).click()
+    const drawer = example.locator('jimble-drawer')
+    await expect(drawer.locator('[part="close-button"]')).toHaveAttribute('aria-label', '閉じる')
+    await drawer.locator('jimble-input input').focus()
+    for (let i = 0; i < 8; i++) await page.keyboard.press('Tab')
+    const inside = await page.evaluate(() =>
+      document.querySelector('#drw-form')!.contains(document.activeElement),
+    )
+    expect(inside).toBe(true)
   })
 })
 

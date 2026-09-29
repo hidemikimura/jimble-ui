@@ -1,0 +1,18 @@
+<!-- title: 絞り込みフォーム（左から出る・フッターに操作） -->
+<jimble-button onclick="document.getElementById('drw-form').show()">絞り込み</jimble-button>
+
+<jimble-drawer id="drw-form" heading="絞り込み" placement="start" size="sm">
+  <form id="drw-form-body" class="stack">
+    <jimble-field label="キーワード">
+      <jimble-input name="q" autocomplete="off"></jimble-input>
+    </jimble-field>
+    <jimble-field label="状態">
+      <jimble-select name="status" placeholder="すべて">
+        <jimble-option value="open">未対応</jimble-option>
+        <jimble-option value="done">完了</jimble-option>
+      </jimble-select>
+    </jimble-field>
+  </form>
+  <jimble-button slot="footer" data-dialog-close>キャンセル</jimble-button>
+  <jimble-button slot="footer" variant="primary" data-dialog-close>適用</jimble-button>
+</jimble-drawer>

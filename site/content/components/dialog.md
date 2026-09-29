@@ -6,6 +6,8 @@ description: モーダルダイアログ
 
 `<jimble-dialog>` はモーダルダイアログです。ネイティブの `<dialog>` の `showModal()` を使うので、背面の操作不可（inert）・フォーカスの閉じ込め・最前面への表示はブラウザが行います。詳しい仕組みは [オーバーレイ](../../guide/overlays/) を参照してください。
 
+**画面の端から出るパネル（サイドモーダル・ドロワー）は [Drawer](../drawer/) を使います。** 同じ API です。
+
 ## 使い方
 
 `show()` / `hide()` / `toggle()` で開閉します（`open` 属性でも同じです）。JavaScript を書かずに閉じるには、閉じる操作をする要素に `data-dialog-close` を付けます。

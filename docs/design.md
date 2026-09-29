@@ -1488,6 +1488,13 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **group**: `jimble-option` の `group` 属性。新しい要素（`jimble-option-group`）は作らず、属性にした（入れ子の DOM を読む必要がなく、`load` の項目と同じ形で扱える）。同じ名前を最初の出現位置にまとめ、`role=group` + 見出しの `aria-labelledby`。表示順と矢印キーの移動順が一致するよう、行の並びを先にグループ化して作る。
 - **サイズ**: 部品チャンクの予算を 6 KB から 8 KB に上げた（`combobox` が 6.5 KB。取得・複数選択・追加・並べ替え・グループを持つ、最も大きい部品）。
 
+**追補: ドロワー（サイドモーダル、2026-09-29）**
+
+- **範囲**: `jimble-drawer`（42 要素）。モーダルは既存の `jimble-dialog` で足りるため、新しい部品にしていない。
+- **実装**: `JimbleDrawer extends JimbleDialog`。開閉・`jimble-close-request`・`data-dialog-close`・IME・フォーカス復帰・スクロールロック・モーダルスタック（toast の移動）をそのまま継承し、`dialog` 側に足した 2 つのフック（`dialogClasses()` / `panelClasses()`）でクラスだけを置き換える。差分は `placement`（`end` / `start` / `top` / `bottom`）と、画面の端に付くレイアウト・角丸だけ。
+- **動き**: `translate` と `::backdrop` の `opacity` を CSS の遷移で動かし、`overlay` / `display` の `allow-discrete` と `@starting-style` で出入りとも動く（未対応のブラウザでは動きなしで開閉する）。`prefers-reduced-motion` では遷移を止める。
+- **対象外**: 背面を操作できる非モーダルのパネル（フォーカスの閉じ込めをしない別の設計が要る）、RTL。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

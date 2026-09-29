@@ -66,7 +66,7 @@ const GROUPS: [string, string[]][] = [
   ],
   [
     'オーバーレイ',
-    ['dialog', 'dropdown-menu', 'menu-item', 'menu-separator', 'toast', 'toast-region'],
+    ['dialog', 'drawer', 'dropdown-menu', 'menu-item', 'menu-separator', 'toast', 'toast-region'],
   ],
 ]
 // 子要素は、親のコンポーネントのページで説明している
