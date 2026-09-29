@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "@hidemikimura/jimble-ui",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "追加" },
+        { "type": "fix", "section": "修正" },
+        { "type": "perf", "section": "性能" },
+        { "type": "revert", "section": "取り消し" },
+        { "type": "docs", "section": "ドキュメント" },
+        { "type": "refactor", "section": "内部の整理", "hidden": true },
+        { "type": "test", "section": "テスト", "hidden": true },
+        { "type": "build", "section": "ビルド", "hidden": true },
+        { "type": "ci", "section": "CI", "hidden": true },
+        { "type": "chore", "section": "その他", "hidden": true }
+      ]
+    }
+  }
+}

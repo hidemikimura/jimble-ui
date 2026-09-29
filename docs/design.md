@@ -293,17 +293,17 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 > **理由** 依頼の決定事項。管理画面は多数のコンポーネントを同時に使うので、重複排除の利益が大きい。
 > **比較した案** コンポーネントごとにシートを分ける — 単体の import は軽くなるが、共通部分（preflight、トークン）が重複し、「1 つの共有シート」方針に反する。サイズが問題になったら「コアシート + 追加シート」の 2 段構成へ拡張する余地は残す。
 
-### 2.6 サイズ・品質の予算（暫定）
+### 2.6 サイズ・品質の予算（M5 で確定）
 
-M1 で実測して確定する。CI で超過を検知する（`scripts/check-dist.ts`）。
+`scripts/check-dist.ts` が CI とリリースで検査する。実測（2026-09-29、22 コンポーネント + i18n + `toast()`）にゆとりを持たせた値。
 
-| 対象 | 暫定予算（min+gz） |
-|------|-------------------|
-| 共有シート | 30 KB 以下 |
-| コンポーネント 1 つ（基底・シート除く） | 3 KB 以下 |
-| CDN バンドル全体（P1 全部、Lit・`@lit/context` を含む） | 100 KB 以下 |
+| 対象 | 予算（gzip） | 実測 |
+|------|-------------|------|
+| 共有シート（CSS）+ 基底クラス + i18n を含むチャンク | 13 KB 以下 | 9.9 KB |
+| それ以外の JS（コンポーネント 1 つぶんなど） | 4 KB 以下 | 最大 2.9 KB（`select`） |
+| CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 50 KB 以下 | 39.2 KB |
 
-`check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、を検査する。
+`check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
 ---
 
@@ -1435,7 +1435,21 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
   - `tabs` の `jimble-tab` は、`slot="tab"` を自分で付ける（利用者が書かなくてよい）。`tab` と `panel` は light DOM の兄弟なので、`aria-controls` / `aria-labelledby` は属性の IDREF で結ぶ。
   - 表の選択（`selected` の行）は見た目だけで、`aria-selected` は付けない（`table` のロールの行には使えないため）。意味づけは行頭のチェックボックスなどで行う。
 - 未対応（各ページに明記）: 表のセルの結合、`pagination` の「ページ番号を入力して移動」、`tabs` の追加/削除、`sidebar-nav` の矢印キー操作（Tab で順に移動）。
-| **M5** | 仕上げ: 手動 a11y/IME チェック、ドキュメントの穴埋め、サイズ予算、**0.1.0 公開** | チェックリスト完了、npm 公開 |
+| **M5** ✅（公開の操作以外） | 仕上げ: 手動 a11y/IME チェック、ドキュメントの穴埋め、サイズ予算、**0.1.0 公開** | チェックリスト完了、npm 公開 |
+
+**M5 実施結果（2026-09-29）**
+
+- **配布物**: `exports` を整理（`.`、個別 import、`i18n`、`locales/*`、`tokens.css`、`cloak.css`、`custom-elements.json`、`vscode.html-data.json`）。`private` を外し、`prepublishOnly`（lint・型・ビルド・検査）を付けた。`publint --strict` と `are-the-types-wrong`（esm-only）は問題なし（CSS の 2 エントリは JS/型ではないので attw の対象外）。
+- **配布用ファイルの生成**（`scripts/postbuild.ts`）: `dist/tokens.css`（既定トークン）、`dist/cloak.css`（未定義要素を隠してちらつきを防ぐ）、`dist/vscode.html-data.json`（VS Code の補完。`variant` などの候補値は、ソースの型別名から解決）。
+- **`scripts/pack-smoke.ts`**: `npm pack` したものを空のプロジェクトに入れ、(1) サブパスの import を Vite でバンドル、(2) `tsc` で型の解決と `@ts-expect-error`、(3) 実ブラウザでバンドル済みアプリの動作、(4) CDN バンドルを `<script type="module">` で動かして `JimbleUI` グローバルを確認、までを一度に行う。CI とリリースの必須ステップ。
+- **リリース自動化**: `release-please`（`release-please-config.json`、`.release-please-manifest.json`。0.x は `feat` で minor）、`.github/workflows/release.yml`（リリース PR → タグ → 検査 → `npm publish --provenance`）、`pages.yml`（ドキュメントサイトを GitHub Pages へ。`SITE_BASE=/jimble-ui/` でのビルドを確認）、`ci.yml` に配布物の検査を追加、`dependabot.yml`（Tailwind・Lit・Vite・Vitest は 1 つの PR にまとめて検証）、PR テンプレート。
+- **ドキュメント**: README を全面的に書き直し（CDN・npm・VS Code・カスタマイズ・言語・開発・英語の要約）。`CONTRIBUTING.md`、`docs/release.md`（初回の準備を含むリリース手順）を追加。ドキュメントサイトに、トップ（コンポーネント一覧・特長）、はじめに（CDN の固定・cloak・VS Code）、アクセシビリティ、既知の制約を追加。
+- テスト: 単体 + 3 エンジンのブラウザテストで 1046 件、E2E 197 件（10 件は Chromium のみ。サイト内リンクの切れ検査を含む）。
+- 設計からの変更:
+  - **npm の Trusted Publishing は、パッケージが存在しないと設定できない**。そのため公開の順序を「初回は Automation トークンで公開 → Trusted Publisher を設定 → トークンを削除」とした（§12.4 の手順を `docs/release.md` に反映）。
+  - 公開ジョブは `npm publish --ignore-scripts` とし、検査は明示的なステップとして先に行う（`prepublishOnly` の二重実行を避ける）。
+  - `custom-elements.json` はリポジトリ直下の生成物のまま `files` に含める（`prebuild` で生成）。
+- **私が行っていないこと（利用者の操作が必要）**: 実際の `npm publish`、GitHub の Settings（Actions の権限・Pages の Source）、npm のトークンと Trusted Publisher の登録、`git push`、および [docs/manual-checks.md](manual-checks.md) の手動確認（スクリーンリーダー・IME の実機・強制色モード・ズーム）。手順は `docs/release.md` にある。
 
 ---
 

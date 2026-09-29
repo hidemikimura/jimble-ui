@@ -50,23 +50,53 @@ for (const [key, val] of Object.entries(pkg.exports)) {
     if (!existsSync(join(root, t))) fail(`exports["${key}"] の ${t} がありません`)
 }
 
-// (c) サイズ予算（暫定・設計書 §2.6）。M1 で実測して見直す
+// (c) サイズ予算（設計書 §2.6。2026-09-29 の実測: 共有チャンク 10.0 KB / 最大の部品 2.9 KB / CDN 39.8 KB gz にゆとりを持たせた値）
 const kb = (n: number) => (n / 1024).toFixed(1)
 const gz = (f: string) => gzipSync(readFileSync(f)).length
-const budgets: [string, string, number][] = [['CDN バンドル', cdn, 100 * 1024]]
-for (const [label, file, max] of budgets) {
-  if (!existsSync(file)) {
-    fail(`${label}: ${file} がありません`)
-    continue
-  }
-  const size = gz(file)
-  console.log(`${label}: ${kb(size)} KB gz (予算 ${kb(max)} KB)`)
-  if (size > max) fail(`${label} が予算超過: ${kb(size)} KB > ${kb(max)} KB`)
+const BUDGET = {
+  /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
+  shared: 13 * 1024,
+  /** それ以外の JS(部品 1 つぶんなど) */
+  each: 4 * 1024,
+  /** CDN バンドル(全部品 + Lit + @lit/context) */
+  cdn: 50 * 1024,
 }
-const chunk = files
-  .filter((f) => /chunks\/.*\.js$/.test(f))
-  .sort((a, b) => statSync(b).size - statSync(a).size)[0]
-if (chunk) console.log(`最大の共有チャンク(共有シート+基底): ${kb(gz(chunk))} KB gz`)
+const sizes = js.map((f) => [f, gz(f)] as const)
+const sharedFile = cssHolder[0]?.[0]
+for (const [f, size] of sizes) {
+  const limit = f === sharedFile ? BUDGET.shared : BUDGET.each
+  if (size > limit)
+    fail(`${f.replace(dist + '/', '')} が予算超過: ${kb(size)} KB > ${kb(limit)} KB (gz)`)
+}
+if (!existsSync(cdn)) fail(`CDN バンドル: ${cdn} がありません`)
+else {
+  const size = gz(cdn)
+  console.log(`CDN バンドル: ${kb(size)} KB gz (予算 ${kb(BUDGET.cdn)} KB)`)
+  if (size > BUDGET.cdn) fail(`CDN バンドルが予算超過: ${kb(size)} KB > ${kb(BUDGET.cdn)} KB`)
+}
+const shared = sizes.find(([f]) => f === sharedFile)
+if (shared)
+  console.log(
+    `共有チャンク(共有シート + 基底): ${kb(shared[1])} KB gz (予算 ${kb(BUDGET.shared)} KB)`,
+  )
+const largest = [...sizes].filter(([f]) => f !== sharedFile).sort((a, b) => b[1] - a[1])[0]
+if (largest)
+  console.log(
+    `最大の部品チャンク: ${kb(largest[1])} KB gz (予算 ${kb(BUDGET.each)} KB) ${largest[0].replace(dist + '/', '')}`,
+  )
+
+// (d) 配布用ファイルが揃っている
+for (const f of [
+  'tokens.css',
+  'cloak.css',
+  'vscode.html-data.json',
+  'cdn/locales/en.js',
+  'i18n.js',
+  'locales/en.js',
+]) {
+  if (!existsSync(join(dist, f))) fail(`dist/${f} がありません`)
+}
+if (!existsSync(join(root, 'custom-elements.json'))) fail('custom-elements.json がありません')
 
 if (errors.length) {
   console.error('\ncheck-dist 失敗:\n' + errors.map((e) => `  - ${e}`).join('\n'))

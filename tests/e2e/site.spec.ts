@@ -8,6 +8,8 @@ const PAGES = [
   '/guide/i18n/',
   '/guide/forms/',
   '/guide/overlays/',
+  '/guide/accessibility/',
+  '/guide/limitations/',
   '/components/button/',
   '/components/badge/',
   '/components/card/',
@@ -638,4 +640,34 @@ test.describe('タブ・ページネーション・パンくず・ナビ・説�
     await page.goto('/components/description-list/')
     expect((await measure()).sameRow).toBe(false)
   })
+})
+
+test('サイト内のリンクが切れていない（全ページのリンク先が 200 で開ける）', async ({
+  page,
+  request,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== 'chromium',
+    'リンクの存在確認はエンジンに依らないので Chromium だけで行う',
+  )
+  const seen = new Set<string>()
+  const broken: string[] = []
+  for (const path of PAGES.filter((p) => !p.startsWith('/frames/'))) {
+    await page.goto(path)
+    const hrefs = await page.evaluate(() =>
+      [...document.querySelectorAll('a[href]')].map((a) => (a as HTMLAnchorElement).href),
+    )
+    for (const href of hrefs) {
+      const url = new URL(href)
+      if (url.origin !== new URL(page.url()).origin) continue // 外部リンクは対象外
+      url.hash = ''
+      if (seen.has(url.href)) continue
+      seen.add(url.href)
+      const res = await request.get(url.href)
+      if (res.status() !== 200) broken.push(`${path} → ${url.pathname} (${res.status()})`)
+    }
+  }
+  expect(broken).toEqual([])
+  expect(seen.size).toBeGreaterThan(20)
 })

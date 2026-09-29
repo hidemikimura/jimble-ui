@@ -17,7 +17,6 @@
     "access": "public",
     "provenance": true
   },
-  "private": true,
   "scripts": {
     "gen:tokens": "node scripts/gen-tokens.ts",
     "gen:tokens:check": "node scripts/gen-tokens.ts --check",
@@ -25,8 +24,9 @@
     "gen:icons:check": "node scripts/gen-icons.ts --check",
     "gen:manifest": "cem analyze --config custom-elements-manifest.config.mjs",
     "prebuild": "npm run gen:tokens && npm run gen:icons && npm run gen:manifest",
-    "build": "vite build && vite build --config vite.cdn.config.ts && tsc -p tsconfig.build.json",
+    "build": "vite build && vite build --config vite.cdn.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
     "check-dist": "node scripts/check-dist.ts",
+    "check-package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./tokens.css ./cloak.css",
     "dev:site": "npm run gen:manifest && vite --config site/vite.config.ts",
     "build:site": "npm run gen:manifest && vite build --config site/vite.config.ts",
     "typecheck": "tsc --noEmit",
@@ -36,13 +36,16 @@
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run build && npm run check-dist && npm run check-package",
+    "pack-smoke": "node scripts/pack-smoke.ts"
   },
   "dependencies": {
     "@lit/context": "^1.1.6",
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@axe-core/playwright": "^4.13.0",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
@@ -65,6 +68,7 @@
     "playwright": "^1.63.0",
     "postcss": "^8.5.28",
     "prettier": "^3.9.9",
+    "publint": "^0.3.24",
     "shiki": "^4.4.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
@@ -92,24 +96,26 @@
       "types": "./dist/types/locales/*.d.ts",
       "default": "./dist/locales/*.js"
     },
+    "./tokens.css": "./dist/tokens.css",
+    "./cloak.css": "./dist/cloak.css",
+    "./custom-elements.json": "./custom-elements.json",
+    "./vscode.html-data.json": "./dist/vscode.html-data.json",
+    "./package.json": "./package.json",
     "./*": {
       "types": "./dist/types/components/*/index.d.ts",
       "default": "./dist/components/*.js"
-    },
-    "./tokens.css": "./tokens/tokens.generated.css",
-    "./custom-elements.json": "./custom-elements.json",
-    "./package.json": "./package.json"
+    }
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
   "files": [
     "dist",
-    "tokens/tokens.generated.css",
     "custom-elements.json",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_LICENSES"
+    "THIRD_PARTY_LICENSES",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "web-components",
@@ -118,5 +124,8 @@
     "ui",
     "admin"
   ],
-  "customElements": "custom-elements.json"
+  "customElements": "custom-elements.json",
+  "bugs": {
+    "url": "https://github.com/hidemikimura/jimble-ui/issues"
+  }
 }

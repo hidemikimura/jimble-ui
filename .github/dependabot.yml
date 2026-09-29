@@ -1,0 +1,36 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      # Tailwind・Lit・Vite・Vitest の更新は、Shadow DOM 用の補正(build/postcss-shadow-fix.ts)のテストが
+      # 落ちないことを条件にする。関連するものは 1 つの PR にまとめて検証する。
+      build-tooling:
+        patterns:
+          [
+            'tailwindcss',
+            '@tailwindcss/*',
+            'vite',
+            'vitest',
+            '@vitest/*',
+            'lightningcss',
+            'postcss',
+          ]
+      lit:
+        patterns: ['lit', '@lit/*']
+      lint:
+        patterns:
+          ['eslint*', '@eslint/*', 'typescript-eslint', 'prettier', '@commitlint/*', 'lefthook']
+      test-tooling:
+        patterns: ['playwright', '@playwright/*', '@axe-core/*', 'axe-core']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: 'ci(deps)'
