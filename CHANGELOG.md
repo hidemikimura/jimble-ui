@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.2.0](https://github.com/hidemikimura/jimble-ui/compare/v0.1.0...v0.2.0) (2026-09-29)
+
+
+### 追加
+
+* **combobox:** 取得・複数選択・追加・上限・並べ替え・グループに対応 ([c59a0e1](https://github.com/hidemikimura/jimble-ui/commit/c59a0e1b876cdb473b6e29ff2be5e37d955df9d8))
+* **date-input:** 日時(time)・期間(range)・複数の月(months)に対応 ([ce272b4](https://github.com/hidemikimura/jimble-ui/commit/ce272b49f8c1ed02e568236ddb959d811893b7ad))
+* **drawer:** 画面の端から出るサイドモーダル jimble-drawer を追加 ([5b4b6f3](https://github.com/hidemikimura/jimble-ui/commit/5b4b6f37e25c99f1f5774943d296c525fd3c43af))
+* **file-input:** ドロップエリアつきのファイル添付 jimble-file-input を追加 ([4ee7f1f](https://github.com/hidemikimura/jimble-ui/commit/4ee7f1f2e18f3ae0e756d3c0a0f1dfcd307dc97c))
+* **icon:** 名前で選べる公開アイコン jimble-icon を追加 ([93267af](https://github.com/hidemikimura/jimble-ui/commit/93267af4a8f06a7832ebc7618516d681068f8e25))
+* **spinner:** 読み込み中を示す jimble-spinner を追加 ([4fb43f7](https://github.com/hidemikimura/jimble-ui/commit/4fb43f70f82c4a1d9642012e8db6e9c0e699cbff))
+* **tooltip:** ホバー・フォーカスで補足を出す jimble-tooltip を追加 ([eb9d4f3](https://github.com/hidemikimura/jimble-ui/commit/eb9d4f3e812556bccee44411cd487e5790d29606))
+* 日付入力・色選択・コンボボックスと AI 向け skill を追加 ([c9c0a88](https://github.com/hidemikimura/jimble-ui/commit/c9c0a8870e8b5dd2b36c5010fee39296d0eadeff))
+
+
+### 修正
+
+* **drawer:** 幅を dvw ではなく % で決め、位置の検査では動きを止める ([960918c](https://github.com/hidemikimura/jimble-ui/commit/960918c002c6abd4b0d2a8d10c52cd546ba9260c))
+* **scroll-lock:** scrollbar-gutter をやめ、消えたスクロールバーの幅を余白で補う ([bcc3e59](https://github.com/hidemikimura/jimble-ui/commit/bcc3e5941aa51d0460c32fd1f363f99b1cc5a381))
+* **styles:** 自動入力で入力欄の一部だけが青くなるのを直す ([15bb5ff](https://github.com/hidemikimura/jimble-ui/commit/15bb5ff7ee80bc300db6455ea79efbd9af458188))
+
+
+### ドキュメント
+
+* **field:** label・hint・error が Field の属性であることを各入力部品のページに明記 ([54d36e6](https://github.com/hidemikimura/jimble-ui/commit/54d36e6674d0dc409037b19e626d872d8dc161ee))
+* バージョンを固定する例を [@0](https://github.com/0).2 に更新 ([23c4005](https://github.com/hidemikimura/jimble-ui/commit/23c4005b8ac0cad245860a36a178742f96a05c7c))
+
 ## 0.1.0 (2026-09-29)
 
 
