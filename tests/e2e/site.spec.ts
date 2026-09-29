@@ -431,7 +431,9 @@ test.describe('app-shell(実際のビューポート)', () => {
     await shell.getByRole('button', { name: 'メニューを開く' }).click()
     const drawer = shell.getByRole('dialog')
     await expect(drawer).toBeVisible()
-    await page.mouse.click(370, 300) // ドロワーの幅(20rem)より右 = 背景
+    // ドロワーの幅(20rem=320px)より右 = 背景。右端(スクロールバーの隙間)を避け、背景の中ほどをクリックする。
+    // Linux の Chromium は幅のあるスクロールバーを出すため、端(x=370)だと背景に当たらないことがある
+    await page.mouse.click(345, 300)
     await expect(drawer).toBeHidden()
   })
 
