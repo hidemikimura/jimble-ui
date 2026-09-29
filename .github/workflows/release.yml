@@ -51,5 +51,5 @@ jobs:
       # Trusted Publishing を使う場合、トークンは不要。使えない場合は NPM_TOKEN(Automation トークン)を設定し、
       # 次の env のコメントを外す(docs/release.md を参照)。
       - run: npm publish --provenance --access public --ignore-scripts
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
