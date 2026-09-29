@@ -1516,6 +1516,15 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **タッチ**: ホバーの `pointerenter` は `pointerType=touch` を無視し、タップによるフォーカスで出す。
 - **制約**: 囲めるのは 1 つのフォーカスできる要素。文字だけの要素は開発ビルドで警告。ツールチップの中にリンク・ボタンは入れられない。
 
+**追補: ファイル添付 `jimble-file-input`（FilePond 相当、2026-09-29）**
+
+- FilePond 自体は使わず（依存を増やさない方針）、自作した。範囲: ドロップエリア、ボタンでの選択、一覧（サイズ・状態・サムネイル・削除）、`accept` / `max-size` / `max-files` の検査、`upload` 関数による自動アップロード（進捗・中止・再試行）。画像編集、プラグイン、フォルダー、チャンク分割、並べ替えは対象外。
+- **フォーム**: FACE。`upload` なしでは `File` を `FormData` に入れて `setFormValue`（同じ name で複数）。`upload` ありでは、サーバーが返した値（ID）を送り、ファイルは送らない（FilePond の server id と同じ考え方）。アップロード中・失敗は `customError` で検証を通さない。状態復元はしない（ファイルは復元できない）。
+- **アクセシビリティ**: キーボードの操作先は「ファイルを選択」ボタン（隠した `input[type=file]` を `click()`）。ドロップは追加の手段であって必須ではない。追加・削除・拒否・完了は `role=status` で通知。拒否したファイルは一覧に理由つきで出す（色だけに頼らず文字で）。進捗は `<progress>`（名前つき）。
+- **サイズ**: CDN バンドルが 70.2 KB gz になり、予算を 70 KB から 76 KB に上げた。
+- **見つかった不具合**: 選ぶボタン（`role=button`）に `aria-required` を付けると axe の `aria-allowed-attr` 違反 → 外した（必須はラベルと検証メッセージで伝える）。
+- **見つかった型の衝突**: `Element.remove()` と同名の `remove(file)` は定義できない → `removeFile()`。`nativeControl` の型を `HTMLButtonElement` まで拡げ、テキスト系（`JimbleTextControl`）は狭い型で上書きした。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

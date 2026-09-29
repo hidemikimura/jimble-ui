@@ -1,0 +1,14 @@
+@layer components {
+  :host(jimble-file-input) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  @media (forced-colors: active) {
+    :host(jimble-file-input) [part='dropzone'][class*='primary'] {
+      border-color: Highlight;
+    }
+    :host(jimble-file-input) [part='item'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

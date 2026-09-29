@@ -29,6 +29,7 @@ const PAGES = [
   '/components/select/',
   '/components/combobox/',
   '/components/date-input/',
+  '/components/file-input/',
   '/components/color-input/',
   '/components/toast/',
   '/components/tooltip/',
@@ -531,6 +532,43 @@ test.describe('ツールチップ(実操作)', () => {
         !n.ignored && n.role?.value === 'button' && n.description?.value === '変更内容を保存します',
     )
     expect(hit, 'button の description').toBeTruthy()
+  })
+})
+
+test.describe('ファイル添付(実操作)', () => {
+  test('ボタンから選ぶとアップロードが進み、完了するとフォームに ID が送られる', async ({
+    page,
+  }) => {
+    await page.goto('/components/file-input/')
+    const example = page.locator('docs-example', { hasText: 'サーバーへのアップロード' })
+    const fi = example.locator('jimble-file-input')
+    await fi.locator('input[type="file"]').setInputFiles([
+      { name: 'a.txt', mimeType: 'text/plain', buffer: Buffer.from('a') },
+      { name: 'b-error.txt', mimeType: 'text/plain', buffer: Buffer.from('b') },
+    ])
+    await expect(fi.locator('[part="item"]')).toHaveCount(2)
+    await expect(fi.locator('[part="item"]').first()).toHaveAttribute('data-status', 'uploading')
+    await expect(fi.locator('[part="item"]').first()).toHaveAttribute('data-status', 'done', {
+      timeout: 10_000,
+    })
+    await expect(fi.locator('[part="item"]').nth(1)).toHaveAttribute('data-status', 'error', {
+      timeout: 10_000,
+    })
+    await fi.locator('[part="item"]').nth(1).locator('[part="remove"]').click()
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText('["file-a.txt"]')
+  })
+
+  test('形式が合わないファイルは理由つきで出る。選ぶボタンはキーボードで届く', async ({ page }) => {
+    await page.goto('/components/file-input/')
+    const example = page.locator('docs-example', { hasText: '基本（複数・形式とサイズの制限）' })
+    const fi = example.locator('jimble-file-input')
+    await fi
+      .locator('input[type="file"]')
+      .setInputFiles([{ name: 'x.txt', mimeType: 'text/plain', buffer: Buffer.from('x') }])
+    await expect(fi.locator('[part="item"]')).toContainText('対応していないファイル形式です')
+    await fi.locator('[part="browse"]').focus()
+    await expect(fi.locator('[part="browse"]')).toBeFocused()
   })
 })
 

@@ -14,6 +14,7 @@
 @import '../components/drawer/drawer.host.css';
 @import '../components/dropdown-menu/dropdown-menu.host.css';
 @import '../components/field/field.host.css';
+@import '../components/file-input/file-input.host.css';
 @import '../components/icon/icon.host.css';
 @import '../components/input/input.host.css';
 @import '../components/page-header/page-header.host.css';

@@ -70,7 +70,7 @@ export abstract class JimbleFormElement extends JimbleElement {
 
   // ---- サブクラスが実装するもの ---------------------------------------------------------
   /** 検証・フォーカスの実体になるネイティブのコントロール（無ければ null） */
-  protected get nativeControl(): HTMLInputElement | HTMLTextAreaElement | null {
+  protected get nativeControl(): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | null {
     return null
   }
   /** フォームに送信する値（送信しないなら null）。同じ name で複数送るときは FormData */

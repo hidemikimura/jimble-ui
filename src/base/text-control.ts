@@ -81,6 +81,11 @@ export abstract class JimbleTextControl extends JimbleFormElement {
   #dirty = false
   #fromAttribute = false
 
+  /** テキスト系のコントロール(select() などを使うため、基底より狭い型にする) */
+  protected override get nativeControl(): HTMLInputElement | HTMLTextAreaElement | null {
+    return null
+  }
+
   get value(): string {
     return this.#value
   }

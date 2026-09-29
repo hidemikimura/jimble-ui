@@ -1,0 +1,37 @@
+<!-- title: サーバーへのアップロード（upload・進捗・再試行） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(new FormData(this).getAll('files'))
+  "
+>
+  <jimble-field label="資料" hint="名前に「error」を含むファイルは、失敗する例です" required>
+    <jimble-file-input id="fi-upload" name="files" multiple preview></jimble-file-input>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>
+<script>
+  // 実際のアプリでは、ここでサーバーに送る。signal を fetch に渡すと、削除したときに通信も止まる。
+  //   const body = new FormData(); body.append('file', file)
+  //   const res = await fetch('/api/upload', { method: 'POST', body, signal })
+  //   return (await res.json()).id   // フォームには、この ID が送られる
+  document.getElementById('fi-upload').upload = (file, { onProgress, signal }) =>
+    new Promise((resolve, reject) => {
+      let n = 0
+      const timer = setInterval(() => {
+        n += 0.2
+        onProgress(Math.min(n, 1))
+        if (n >= 1) {
+          clearInterval(timer)
+          if (file.name.includes('error')) reject(new Error('サーバーエラー'))
+          else resolve('file-' + file.name)
+        }
+      }, 250)
+      signal.addEventListener('abort', () => clearInterval(timer))
+    })
+</script>

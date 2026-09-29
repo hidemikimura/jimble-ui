@@ -12,6 +12,7 @@ description: 未対応のことと、仕組み上の制約
 | Date Input        | 時刻、期間（範囲選択）、和暦、祝日の表示                                                                |
 | Color Input       | 透明度（アルファ）、oklch など他の色空間                                                                |
 | Drawer            | 背面を操作できる非モーダルのパネル、右から左の言語(RTL)                                                 |
+| File Input        | フォルダーのドロップ、ドラッグでの並べ替え、画像の編集、チャンク分割アップロード                        |
 | Dropdown Menu     | サブメニュー、チェック付きの項目                                                                        |
 | Input             | 日付・色の `type`（`jimble-date-input` / `jimble-color-input` を使う）、`spellcheck` / `autofocus` 属性 |
 | Table             | セルの結合（`colspan` / `rowspan`）、行の選択（チェックボックス列）、仮想スクロール                     |
