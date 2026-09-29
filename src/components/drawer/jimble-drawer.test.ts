@@ -115,8 +115,7 @@ describe('位置と大きさ', () => {
     return { r: panel(el).getBoundingClientRect(), el }
   }
 
-  // 「画面」は position: fixed の基準の大きさ。太いスクロールバーの環境では、背面のスクロールを止めたあとも
-  // scrollbar-gutter: stable で幅が残り、documentElement.clientWidth とは食い違う
+  // 「画面」は position: fixed の基準の大きさ(スクロールを止めたあとの全幅)
   const screen = () => {
     const probe = document.createElement('div')
     probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none'

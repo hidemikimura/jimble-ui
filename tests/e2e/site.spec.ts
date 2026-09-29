@@ -493,7 +493,7 @@ test.describe('ドロワー(実操作)', () => {
     await page.keyboard.press('Enter')
     const drawer = example.locator('jimble-drawer')
     await expect(drawer.locator('dialog')).toBeVisible()
-    // 画面の右端 = position: fixed の基準の右端(太いスクロールバーの環境では clientWidth より狭いことがある)
+    // 画面の右端 = position: fixed の基準の右端(スクロールロックの余白補正のあとは全幅)
     const vw = await page.evaluate(() => {
       const probe = document.createElement('div')
       probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none'

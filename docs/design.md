@@ -667,7 +667,7 @@ Shadow 内のネイティブ入力は外側の `<form>` に属さないので、
 
 - **確認付きで閉じたくない場合**（未保存の変更など）は、`jimble-close-request` を `preventDefault()` すれば閉じない。`static-backdrop` 属性で背景クリックによる閉じを無効にできる。
 - **IME 変換中の Esc**: 変換のキャンセルでダイアログまで閉じないよう、`ImeController` が変換中を追跡し、変換中の `cancel` を抑止できるか検証する（ネイティブの close watcher を止められない場合の代替策は M3 のスパイクで決める）。
-- **スクロールロック**: `<dialog>` は背面のスクロールを止めないため、`ScrollLockController` が参照カウント式で `<html>` に `overflow: hidden` と `scrollbar-gutter: stable` を設定する。
+- **スクロールロック**: `<dialog>` は背面のスクロールを止めないため、`scroll-lock` が参照カウント式で `<html>` に `overflow: hidden` を設定し、スクロールバーが取っていた幅は `padding-right` で補う（当初の `scrollbar-gutter: stable` は、太いスクロールバーの環境で固定配置の基準が狭くなり、右端に付くドロワーの右に 15px の隙間が空くので、やめた。2026-09-29）。
 
 ### 6.5 状態の同期
 
