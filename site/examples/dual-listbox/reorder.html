@@ -1,0 +1,20 @@
+<!-- title: 並べ替え（reorderable） -->
+<jimble-field
+  label="表示する列と順番"
+  hint="右の一覧で、ドラッグ・Alt + ↑↓・「上へ」「下へ」ボタンで順番を変えられます"
+>
+  <jimble-dual-listbox
+    name="columns"
+    reorderable
+    available-label="使える列"
+    selected-label="表示する列（この順）"
+    value="name,email,status"
+  >
+    <jimble-option value="id">ID</jimble-option>
+    <jimble-option value="name">名前</jimble-option>
+    <jimble-option value="email">メールアドレス</jimble-option>
+    <jimble-option value="status">状態</jimble-option>
+    <jimble-option value="created">登録日</jimble-option>
+    <jimble-option value="plan">プラン</jimble-option>
+  </jimble-dual-listbox>
+</jimble-field>

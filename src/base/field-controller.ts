@@ -12,8 +12,10 @@ export interface FieldInfo {
   required: boolean
   /** コントロールが自分を登録する（ラベルのクリックで focus するため）。戻り値で解除 */
   register(control: HTMLElement): () => void
-  /** コントロールが検証メッセージ（touched 後のみ）を報告する */
-  report(message: string): void
+  /** 中に登録されているコントロールの数(複数あるときは、部品ごとの名前を組み合わせる) */
+  count: number
+  /** コントロールが検証メッセージ（touched 後のみ）を報告する。複数あるときは、無効な最初のものを表示する */
+  report(control: HTMLElement, message: string): void
 }
 
 export const fieldContext = createContext<FieldInfo>(Symbol.for('jimble-ui.field'))
@@ -29,7 +31,10 @@ export class FieldControlController implements ReactiveController {
   #unregister?: () => void
   #reported = ''
 
+  #host: Host
+
   constructor(host: Host) {
+    this.#host = host
     host.addController(this)
     new ContextConsumer(host, {
       context: fieldContext,
@@ -63,6 +68,10 @@ export class FieldControlController implements ReactiveController {
   get explicitError(): boolean {
     return this.#info?.explicitError ?? false
   }
+  /** 同じ field の中の部品の数 */
+  get count(): number {
+    return this.#info?.count ?? 0
+  }
   get required(): boolean {
     return this.#info?.required ?? false
   }
@@ -71,6 +80,6 @@ export class FieldControlController implements ReactiveController {
   report(message: string): void {
     if (message === this.#reported) return
     this.#reported = message
-    this.#info?.report(message)
+    this.#info?.report(this.#host, message)
   }
 }

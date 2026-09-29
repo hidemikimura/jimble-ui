@@ -1,0 +1,40 @@
+<!-- title: 独自の検証（validate・同期と非同期） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent =
+      '送信しました: ' + JSON.stringify(Object.fromEntries(new FormData(this)))
+  "
+>
+  <jimble-field
+    id="fld-email"
+    label="メールアドレス"
+    hint="社用アドレス（@example.com）を入力してください"
+  >
+    <jimble-input type="email" name="email" autocomplete="email"></jimble-input>
+  </jimble-field>
+  <jimble-field
+    id="fld-user"
+    label="アカウント名"
+    hint="名前が使われていないか、入力後にサーバーで確認します（「admin」は使用済みの例）"
+  >
+    <jimble-input name="user" autocomplete="off"></jimble-input>
+  </jimble-field>
+  <div><jimble-button type="submit" variant="primary">登録</jimble-button></div>
+  <output aria-live="polite"></output>
+</form>
+<script>
+  // 同期の検証: 値を受け取り、エラーメッセージ(文字列)を返す。問題なければ null
+  document.getElementById('fld-email').validate = (value) => {
+    if (!value) return '必須です。'
+    if (!value.endsWith('@example.com')) return '社用アドレス（@example.com）を入力してください。'
+    return null
+  }
+  // 非同期の検証: Promise を返す(サーバーへの問い合わせなど)。確定したとき(フォーカスが外れたとき)に呼ばれる
+  document.getElementById('fld-user').validate = async (value) => {
+    if (!value) return '必須です。'
+    await new Promise((resolve) => setTimeout(resolve, 400)) // 通信の代わり
+    return value === 'admin' ? 'このユーザー名は使われています。' : null
+  }
+</script>

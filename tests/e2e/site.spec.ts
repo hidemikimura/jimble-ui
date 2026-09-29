@@ -29,6 +29,7 @@ const PAGES = [
   '/components/select/',
   '/components/combobox/',
   '/components/date-input/',
+  '/components/dual-listbox/',
   '/components/file-input/',
   '/components/color-input/',
   '/components/toast/',
@@ -599,6 +600,66 @@ test.describe('ファイル添付(実操作)', () => {
     await expect(fi.locator('[part="item"]')).toContainText('対応していないファイル形式です')
     await fi.locator('[part="browse"]').focus()
     await expect(fi.locator('[part="browse"]')).toBeFocused()
+  })
+})
+
+test.describe('左右分割の選択(実操作)', () => {
+  test('選んで「追加」で右へ移り、フォームに複数の値が送られる。キーボードでも移せる', async ({
+    page,
+  }) => {
+    await page.goto('/components/dual-listbox/')
+    const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })
+    const dl = example.locator('jimble-dual-listbox')
+    await dl.locator('[data-side="available"] [role="option"]', { hasText: '管理者' }).click()
+    await dl.locator('[part="add"]').click()
+    await expect(dl.locator('[data-side="selected"] [role="option"]')).toHaveText([
+      /閲覧者/,
+      /管理者/,
+    ])
+    await dl.locator('[data-side="available"] [role="option"]', { hasText: '編集者' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(dl.locator('[data-side="selected"] [role="option"]')).toHaveCount(3)
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText('["viewer","admin","editor"]')
+    await example.getByRole('button', { name: 'リセット' }).click()
+    await expect(dl.locator('[data-side="selected"] [role="option"]')).toHaveCount(1)
+  })
+  test('並べ替え: 「下へ」ボタンで右の一覧の順番が変わり、フォームにその順で送られる', async ({
+    page,
+  }) => {
+    await page.goto('/components/dual-listbox/')
+    const example = page.locator('docs-example', { hasText: '並べ替え（reorderable）' })
+    const dl = example.locator('jimble-dual-listbox')
+    const selected = dl.locator('[data-side="selected"] [role="option"]')
+    await expect(selected.first()).toContainText('名前')
+    await selected.first().click()
+    await dl.locator('[part="move-down"]').click()
+    await expect(selected.nth(1)).toContainText('名前')
+    await expect(selected.nth(1)).toBeFocused()
+    await selected.nth(1).press('Alt+ArrowUp')
+    await expect(selected.first()).toContainText('名前')
+  })
+})
+
+test.describe('フィールドの独自の検証(実操作)', () => {
+  test('フォーカスが外れるとエラーが出て、同期・非同期の検証で送信が止まる', async ({ page }) => {
+    await page.goto('/components/field/')
+    const example = page.locator('docs-example', { hasText: '独自の検証' })
+    const email = example.locator('#fld-email')
+    const user = example.locator('#fld-user')
+    await email.locator('input').fill('taro@gmail.com')
+    await expect(email.locator('[part="error"]')).toBeHidden() // 触れる前(まだフォーカス中)
+    await email.locator('input').blur()
+    await expect(email.locator('[part="error"]')).toContainText('社用アドレス')
+    await user.locator('input').fill('admin')
+    await user.locator('input').blur()
+    await expect(user.locator('[part="error"]')).toContainText('使われています')
+    await email.locator('input').fill('taro@example.com')
+    await user.locator('input').fill('taro')
+    await user.locator('input').blur()
+    await expect(user.locator('[part="error"]')).toBeHidden()
+    await example.getByRole('button', { name: '登録' }).click()
+    await expect(example.locator('output')).toContainText('taro@example.com')
   })
 })
 

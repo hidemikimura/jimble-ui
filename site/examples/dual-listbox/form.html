@@ -1,0 +1,22 @@
+<!-- title: フォームの送信とリセット -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(new FormData(this).getAll('roles'))
+  "
+>
+  <jimble-field label="付与する権限" required>
+    <jimble-dual-listbox name="roles" value="viewer" style="--jimble-dual-listbox-height: 10rem">
+      <jimble-option value="admin">管理者</jimble-option>
+      <jimble-option value="editor">編集者</jimble-option>
+      <jimble-option value="viewer">閲覧者</jimble-option>
+      <jimble-option value="billing">請求担当</jimble-option>
+    </jimble-dual-listbox>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

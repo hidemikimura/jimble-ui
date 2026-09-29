@@ -1,0 +1,38 @@
+<!-- title: 1 つの field に複数の部品（姓と名・validate の context） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent =
+      '送信しました: ' + JSON.stringify(Object.fromEntries(new FormData(this)))
+  "
+>
+  <jimble-field id="fld-name" label="氏名" hint="姓と名を合わせて 10 文字以内で入力してください">
+    <div class="row">
+      <jimble-input
+        name="last_name"
+        aria-label="姓"
+        placeholder="山田"
+        autocomplete="family-name"
+      ></jimble-input>
+      <jimble-input
+        name="first_name"
+        aria-label="名"
+        placeholder="太郎"
+        autocomplete="given-name"
+      ></jimble-input>
+    </div>
+  </jimble-field>
+  <div><jimble-button type="submit" variant="primary">登録</jimble-button></div>
+  <output aria-live="polite"></output>
+</form>
+<script>
+  // 部品ごとに呼ばれる。3 つ目の引数 context.get(name) で、ほかの部品の値を引ける
+  document.getElementById('fld-name').validate = (value, control, context) => {
+    if (!value)
+      return control.name === 'last_name' ? '姓を入力してください。' : '名を入力してください。'
+    const total =
+      String(context.get('last_name') ?? '').length + String(context.get('first_name') ?? '').length
+    return total > 10 ? '氏名は合わせて 10 文字以内で入力してください。' : null
+  }
+</script>

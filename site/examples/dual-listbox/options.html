@@ -1,0 +1,16 @@
+<!-- title: 見出し・すべて移す・上限（available-label / selected-label / move-all / max-items） -->
+<jimble-field label="通知先" hint="最大 3 件まで選べます">
+  <jimble-dual-listbox
+    name="channels"
+    available-label="通知できる先"
+    selected-label="通知する先"
+    move-all
+    max-items="3"
+  >
+    <jimble-option value="mail">メール</jimble-option>
+    <jimble-option value="slack">Slack</jimble-option>
+    <jimble-option value="teams">Teams</jimble-option>
+    <jimble-option value="sms">SMS</jimble-option>
+    <jimble-option value="push">プッシュ通知</jimble-option>
+  </jimble-dual-listbox>
+</jimble-field>

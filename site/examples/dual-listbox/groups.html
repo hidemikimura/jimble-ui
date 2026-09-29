@@ -1,0 +1,14 @@
+<!-- title: グループ分け（group・search-group） -->
+<jimble-field
+  label="配信するタグ"
+  hint="「header」や「body」と入力すると、そのグループの項目が絞り込まれます"
+>
+  <jimble-dual-listbox name="grouped_tags" search-group value="body-1">
+    <jimble-option value="header-1" group="header 要素">GA タグ</jimble-option>
+    <jimble-option value="body-1" group="body 要素">test</jimble-option>
+    <jimble-option value="header-2" group="header 要素">検証タグ</jimble-option>
+    <jimble-option value="body-2" group="body 要素">all_lp</jimble-option>
+    <jimble-option value="body-3" group="body 要素">all_confirm</jimble-option>
+    <jimble-option value="other">共通タグ（グループなし）</jimble-option>
+  </jimble-dual-listbox>
+</jimble-field>

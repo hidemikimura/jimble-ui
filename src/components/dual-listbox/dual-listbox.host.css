@@ -1,0 +1,38 @@
+@layer components {
+  :host(jimble-dual-listbox) {
+    display: block;
+    width: var(--jimble-input-width, auto);
+  }
+  :host(jimble-dual-listbox) [part='option'][aria-selected='true'] {
+    box-shadow: inset 3px 0 0 var(--_c-ring-focus);
+  }
+  /* ドラッグの挿入位置(上 / 下に線) */
+  :host(jimble-dual-listbox) [part='option'][data-drop] {
+    background-image: linear-gradient(var(--_c-ring-focus), var(--_c-ring-focus));
+    background-repeat: no-repeat;
+    background-size: 100% 3px;
+  }
+  :host(jimble-dual-listbox) [part='option'][data-drop='before'] {
+    background-position: top;
+  }
+  :host(jimble-dual-listbox) [part='option'][data-drop='after'] {
+    background-position: bottom;
+  }
+  :host(jimble-dual-listbox) [part='option'][draggable='true'] {
+    cursor: grab;
+  }
+  @media (forced-colors: active) {
+    :host(jimble-dual-listbox) [part='option'][data-drop] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-dual-listbox) [part='option'][aria-selected='true'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-dual-listbox) [part='listbox'],
+    :host(jimble-dual-listbox) [part='empty'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

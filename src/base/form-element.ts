@@ -49,6 +49,7 @@ export abstract class JimbleFormElement extends JimbleElement {
   #fieldsetDisabled = false
   #touched = false
   #customMessage = ''
+  #validatorMessage = ''
   #hintId = this.uid('hint')
   #errorId = this.uid('error')
 
@@ -146,6 +147,16 @@ export abstract class JimbleFormElement extends JimbleElement {
   reportValidity(): boolean {
     return this.internals.reportValidity()
   }
+  /**
+   * `jimble-field` の `validate` が結果を渡すための口。空文字で解除する。
+   * `setCustomValidity` とは別に持つので、アプリが `setCustomValidity` で付けたエラー(サーバー側の検証など)を上書きしない。
+   * @internal
+   */
+  setValidatorMessage(message: string): void {
+    if (message === this.#validatorMessage) return
+    this.#validatorMessage = message
+    this.commit()
+  }
   /** サーバー側のエラーなど。空文字で解除する */
   setCustomValidity(message: string): void {
     this.#customMessage = message
@@ -161,9 +172,10 @@ export abstract class JimbleFormElement extends JimbleElement {
     const { anchor } = result
     let { flags, message } = result
     // computeValidity を上書きする部品(radio-group / select / date-input など)では、setCustomValidity をここで反映する
-    if (this.#customMessage && !flags.customError) {
+    const custom = this.#customMessage || this.#validatorMessage
+    if (custom && !flags.customError) {
       flags = { ...flags, customError: true }
-      message = this.#customMessage
+      message = custom
     }
     if (Object.values(flags).some(Boolean)) {
       this.internals.setValidity(flags, message || ' ', anchor ?? this.nativeControl ?? undefined)
@@ -202,7 +214,12 @@ export abstract class JimbleFormElement extends JimbleElement {
   // ---- 名前・説明（jimble-field / 外側の label との連携） ----------------------------------
   /** 内部コントロールに付けるアクセシブルネーム。field のラベル ＞ aria-label ＞ 外側の label */
   protected accessibleName(): string | undefined {
-    if (this.field.label) return this.field.label
+    if (this.field.label) {
+      // 1 つの field に部品が複数あるとき(姓と名など)は、部品ごとの名前を足して、区別できるようにする
+      return this.field.count > 1 && this.accessibleLabel
+        ? `${this.field.label} ${this.accessibleLabel}`
+        : this.field.label
+    }
     if (this.accessibleLabel) return this.accessibleLabel
     const text = [...this.labels]
       .map((l) => l.textContent?.trim() ?? '')
