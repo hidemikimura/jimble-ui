@@ -48,8 +48,9 @@ jobs:
       - run: npm run check-dist
       - run: npm run check-package
       - run: npm run pack-smoke
-      # Trusted Publishing を使う場合、トークンは不要。使えない場合は NPM_TOKEN(Automation トークン)を設定し、
-      # 次の env のコメントを外す(docs/release.md を参照)。
+      # npm の Trusted Publishing(OIDC)で認証するので、トークンは使わない。
+      # 0.1.0 の公開後に、npm 側で Trusted Publisher(release.yml)を設定済み。
+      # 使えなくなった場合だけ、NPM_TOKEN(Automation トークン)を設定して次の env のコメントを外す(docs/release.md を参照)。
       - run: npm publish --provenance --access public --ignore-scripts
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
