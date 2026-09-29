@@ -32,7 +32,7 @@ jobs:
       id-token: write # npm の Trusted Publishing(OIDC)と provenance に必要
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24 # npm 11.5.1 以上(Trusted Publishing)を含む
           registry-url: https://registry.npmjs.org
