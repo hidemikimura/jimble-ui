@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { userEvent } from 'vitest/browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import '../button/jimble-button.js'
 import '../input/jimble-input.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
@@ -12,6 +12,10 @@ afterEach(() => {
   document.documentElement.removeAttribute('style')
 })
 
+// 位置の検査では動きを止める(遅い CI や Linux の WebKit では、遷移が始まりの位置から進まないことがある)。
+// 遷移の指定があること自体は、別のテストで確かめる。
+const noMotion = document.createElement('style')
+noMotion.textContent = 'jimble-drawer::part(base) { transition: none !important; }'
 const native = (el: JimbleDrawer) => el.shadowRoot!.querySelector('dialog')!
 const panel = (el: JimbleDrawer) => el.shadowRoot!.querySelector<HTMLElement>('[part="panel"]')!
 const tick = (ms = 400) => new Promise((r) => setTimeout(r, ms))
@@ -101,6 +105,8 @@ describe('開閉（jimble-dialog と同じ）', () => {
 })
 
 describe('位置と大きさ', () => {
+  beforeAll(() => document.head.append(noMotion))
+  afterAll(() => noMotion.remove())
   const rect = async (attrs: string) => {
     const { el } = await drawer(attrs)
     el.show()

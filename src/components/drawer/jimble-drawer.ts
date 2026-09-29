@@ -9,13 +9,13 @@ const SIDE = 'm-0 h-dvh max-h-none'
 const PLACEMENT: Record<DrawerPlacement, string> = {
   end: `${SIDE} ms-auto`,
   start: `${SIDE} me-auto`,
-  top: 'm-0 mb-auto w-dvw max-h-none',
-  bottom: 'm-0 mt-auto w-dvw max-h-none',
+  top: 'm-0 mb-auto w-full max-h-none',
+  bottom: 'm-0 mt-auto w-full max-h-none',
 }
 const WIDTH: Record<DialogSize, string> = {
-  sm: 'w-[min(100dvw,20rem)]',
-  md: 'w-[min(100dvw,28rem)]',
-  lg: 'w-[min(100dvw,40rem)]',
+  sm: 'w-[min(100%,20rem)]',
+  md: 'w-[min(100%,28rem)]',
+  lg: 'w-[min(100%,40rem)]',
 }
 const PANEL_BASE =
   'flex flex-col bg-surface-overlay shadow-lg ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
