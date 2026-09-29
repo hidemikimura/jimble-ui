@@ -20,7 +20,8 @@ describe('ドキュメントの例', () => {
   for (const [path, raw] of Object.entries(examples)) {
     const name = path.replace('../../site/examples/', '').replace('.html', '')
     it(`${name}: 描画でき、axe 違反なし`, async () => {
-      container = document.createElement('main')
+      // app-shell の例は自分で main ランドマークを持つので、外側は main にしない
+      container = document.createElement(raw.includes('<jimble-app-shell') ? 'div' : 'main')
       container.innerHTML = raw.replace(/^<!--.*?-->\s*/, '')
       document.body.append(container)
       const jimble = [...container.querySelectorAll('*')].filter((e) =>
@@ -30,6 +31,8 @@ describe('ドキュメントの例', () => {
       await Promise.all(
         jimble.map((e) => (e as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete),
       )
+      // レイアウトが落ち着く(ResizeObserver で tabindex が付くなど)のを待つ
+      await new Promise((r) => setTimeout(r, 80))
       await expectNoA11yViolations(container)
     })
   }

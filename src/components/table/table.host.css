@@ -1,0 +1,68 @@
+@layer components {
+  :host(jimble-table) {
+    display: block;
+    /* 固定ヘッダーは、見出しセルが子孫として継承するこの変数で切り替える */
+    --jimble-table-head-position: static;
+  }
+  :host(jimble-table[sticky-header]) {
+    --jimble-table-head-position: sticky;
+  }
+  :host(jimble-table[striped]) {
+    --jimble-table-stripe: var(--_c-surface-muted);
+  }
+  :host(jimble-table-header) {
+    display: table-header-group;
+  }
+  :host(jimble-table-body) {
+    display: table-row-group;
+  }
+  :host(jimble-table-row) {
+    display: table-row;
+  }
+  :host(jimble-table-row:hover) {
+    background: var(--_c-surface-muted);
+  }
+  :host(jimble-table-row:nth-child(even)) {
+    background: var(--jimble-table-stripe, transparent);
+  }
+  :host(jimble-table-row[selected]) {
+    background: var(--_c-primary-50);
+  }
+
+  :host(jimble-table-cell),
+  :host(jimble-table-head-cell) {
+    display: table-cell;
+    padding: calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-y, 2))
+      calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-x, 3));
+    text-align: start;
+    vertical-align: middle;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--_c-text);
+    box-shadow: inset 0 -1px 0 var(--_c-ring);
+  }
+  :host(jimble-table-head-cell) {
+    position: var(--jimble-table-head-position, static);
+    top: 0;
+    z-index: 1;
+    background: var(--_c-surface-muted);
+    color: var(--_c-text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  :host(jimble-table-cell[header]) {
+    font-weight: 600;
+  }
+  :host(jimble-table-cell[align='center']),
+  :host(jimble-table-head-cell[align='center']) {
+    text-align: center;
+  }
+  :host(jimble-table-cell[align='end']),
+  :host(jimble-table-head-cell[align='end']) {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+  :host(jimble-table-head-cell[align='end']) [part='button'] {
+    flex-direction: row-reverse;
+  }
+}

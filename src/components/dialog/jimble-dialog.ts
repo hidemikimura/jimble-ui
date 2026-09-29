@@ -1,5 +1,5 @@
 import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
-import { getDeepActiveElement, restoreFocus } from '../../base/focus.js'
+import { getReturnFocusTarget, restoreFocus } from '../../base/focus.js'
 import { ImeController } from '../../base/ime-controller.js'
 import { JimbleElement } from '../../base/jimble-element.js'
 import { popModal, pushModal } from '../../base/modal-stack.js'
@@ -178,7 +178,7 @@ export class JimbleDialog extends JimbleElement {
     const dialog = this.#dialog
     if (!dialog || !changed.has('open')) return
     if (this.open && !dialog.open) {
-      this.#previousFocus = getDeepActiveElement()
+      this.#previousFocus = getReturnFocusTarget()
       dialog.showModal()
       this.#locked = true
       lockScroll()

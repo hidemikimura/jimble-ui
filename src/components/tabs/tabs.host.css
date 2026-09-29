@@ -1,0 +1,20 @@
+@layer components {
+  :host(jimble-tabs) {
+    display: block;
+  }
+  :host(jimble-tab) {
+    display: block;
+    outline: none;
+  }
+  :host(jimble-tab-panel) {
+    display: block;
+    outline: none;
+  }
+  :host(jimble-tab-panel[hidden]) {
+    display: none;
+  }
+  :host(jimble-tab-panel:focus-visible) {
+    outline: 2px solid var(--_c-ring-focus);
+    outline-offset: 2px;
+  }
+}

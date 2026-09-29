@@ -1,0 +1,12 @@
+@layer components {
+  :host(jimble-breadcrumb) {
+    display: block;
+  }
+  :host(jimble-breadcrumb-item) {
+    display: inline-block;
+  }
+  /* 最初の項目の前には区切りを出さない */
+  :host(jimble-breadcrumb-item:first-child) [part='separator'] {
+    display: none;
+  }
+}

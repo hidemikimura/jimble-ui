@@ -4,6 +4,7 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
 @import './theme.generated.css';
+@import './aliases.generated.css';
 @import './base.css';
 @import './hosts.css';
 

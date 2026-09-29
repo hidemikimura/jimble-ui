@@ -1,0 +1,47 @@
+<!-- title: 基本（見出しをクリックして並べ替え） -->
+<jimble-table id="tbl-basic" label="注文一覧">
+  <jimble-table-header>
+    <jimble-table-row>
+      <jimble-table-head-cell sortable>注文番号</jimble-table-head-cell>
+      <jimble-table-head-cell>顧客</jimble-table-head-cell>
+      <jimble-table-head-cell>状態</jimble-table-head-cell>
+      <jimble-table-head-cell sortable align="end">金額</jimble-table-head-cell>
+    </jimble-table-row>
+  </jimble-table-header>
+  <jimble-table-body>
+    <jimble-table-row>
+      <jimble-table-cell header>#1024</jimble-table-cell>
+      <jimble-table-cell>山田 太郎</jimble-table-cell>
+      <jimble-table-cell><jimble-badge variant="success">発送済み</jimble-badge></jimble-table-cell>
+      <jimble-table-cell align="end">¥12,800</jimble-table-cell>
+    </jimble-table-row>
+    <jimble-table-row>
+      <jimble-table-cell header>#1023</jimble-table-cell>
+      <jimble-table-cell>佐藤 花子</jimble-table-cell>
+      <jimble-table-cell><jimble-badge variant="warning">保留</jimble-badge></jimble-table-cell>
+      <jimble-table-cell align="end">¥3,400</jimble-table-cell>
+    </jimble-table-row>
+    <jimble-table-row>
+      <jimble-table-cell header>#1022</jimble-table-cell>
+      <jimble-table-cell>鈴木 一郎</jimble-table-cell>
+      <jimble-table-cell
+        ><jimble-badge variant="danger">キャンセル</jimble-badge></jimble-table-cell
+      >
+      <jimble-table-cell align="end">¥58,000</jimble-table-cell>
+    </jimble-table-row>
+  </jimble-table-body>
+</jimble-table>
+<script>
+  // 並べ替え自体はアプリの仕事。jimble-sort を受けて行を並べ替える
+  document.getElementById('tbl-basic').addEventListener('jimble-sort', (e) => {
+    const head = e.target.closest('jimble-table-head-cell')
+    const index = [...head.parentElement.children].indexOf(head)
+    const body = head.closest('jimble-table').querySelector('jimble-table-body')
+    const value = (row) =>
+      row.children[index].textContent.replace(/[^\d]/g, '') || row.children[index].textContent
+    const sign = e.detail.direction === 'ascending' ? 1 : -1
+    ;[...body.children]
+      .sort((a, b) => sign * value(a).localeCompare(value(b), 'ja', { numeric: true }))
+      .forEach((row) => body.append(row))
+  })
+</script>

@@ -1,0 +1,58 @@
+<!-- title: 一覧ページの組み立て例（ページ見出し・タブ・表・ページネーション） -->
+<!-- frame: 720 -->
+<jimble-app-shell>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar">
+    <jimble-nav-item href="#">ダッシュボード</jimble-nav-item>
+    <jimble-nav-item href="#" current>注文</jimble-nav-item>
+    <jimble-nav-item href="#">顧客</jimble-nav-item>
+  </jimble-sidebar-nav>
+
+  <jimble-page-header heading="注文" description="受け付けた注文の一覧です。">
+    <jimble-breadcrumb slot="breadcrumb">
+      <jimble-breadcrumb-item href="#">ホーム</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item>注文</jimble-breadcrumb-item>
+    </jimble-breadcrumb>
+    <jimble-button slot="actions" variant="primary">新規注文</jimble-button>
+  </jimble-page-header>
+
+  <jimble-tabs label="注文の絞り込み" style="margin-top: 1rem">
+    <jimble-tab value="all">すべて</jimble-tab>
+    <jimble-tab value="open">未処理</jimble-tab>
+    <jimble-tab-panel value="all">
+      <jimble-card>
+        <jimble-table label="注文一覧">
+          <jimble-table-header>
+            <jimble-table-row>
+              <jimble-table-head-cell>注文番号</jimble-table-head-cell>
+              <jimble-table-head-cell>顧客</jimble-table-head-cell>
+              <jimble-table-head-cell align="end">金額</jimble-table-head-cell>
+            </jimble-table-row>
+          </jimble-table-header>
+          <jimble-table-body>
+            <jimble-table-row
+              ><jimble-table-cell header>#1024</jimble-table-cell
+              ><jimble-table-cell>山田 太郎</jimble-table-cell
+              ><jimble-table-cell align="end">¥12,800</jimble-table-cell></jimble-table-row
+            >
+            <jimble-table-row
+              ><jimble-table-cell header>#1023</jimble-table-cell
+              ><jimble-table-cell>佐藤 花子</jimble-table-cell
+              ><jimble-table-cell align="end">¥3,400</jimble-table-cell></jimble-table-row
+            >
+            <jimble-table-row
+              ><jimble-table-cell header>#1022</jimble-table-cell
+              ><jimble-table-cell>鈴木 一郎</jimble-table-cell
+              ><jimble-table-cell align="end">¥58,000</jimble-table-cell></jimble-table-row
+            >
+          </jimble-table-body>
+        </jimble-table>
+        <div slot="footer">
+          <jimble-pagination page="1" total="243" page-size="20" size="sm"></jimble-pagination>
+        </div>
+      </jimble-card>
+    </jimble-tab-panel>
+    <jimble-tab-panel value="open">未処理の注文はありません。</jimble-tab-panel>
+  </jimble-tabs>
+</jimble-app-shell>

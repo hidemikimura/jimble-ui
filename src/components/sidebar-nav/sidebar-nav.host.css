@@ -1,0 +1,15 @@
+@layer components {
+  :host(jimble-sidebar-nav) {
+    display: block;
+  }
+  :host(jimble-nav-item),
+  :host(jimble-nav-group) {
+    display: block;
+  }
+  @media (forced-colors: active) {
+    :host(jimble-nav-item[current]) [part='link'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
+}

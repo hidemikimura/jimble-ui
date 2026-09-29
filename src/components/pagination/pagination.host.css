@@ -1,0 +1,10 @@
+@layer components {
+  :host(jimble-pagination) {
+    display: block;
+  }
+  @media (forced-colors: active) {
+    :host(jimble-pagination) [part~='current'] {
+      outline: 2px solid Highlight;
+    }
+  }
+}

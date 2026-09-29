@@ -1,15 +1,23 @@
 /* Tailwind のクラスで書けない CSS（:host / ::slotted / :state / forced-colors）を束ねる */
 @import '../components/alert/alert.host.css';
+@import '../components/app-shell/app-shell.host.css';
 @import '../components/badge/badge.host.css';
+@import '../components/breadcrumb/breadcrumb.host.css';
 @import '../components/button/button.host.css';
 @import '../components/card/card.host.css';
 @import '../components/checkbox/checkbox.host.css';
+@import '../components/description-list/description-list.host.css';
 @import '../components/dialog/dialog.host.css';
 @import '../components/dropdown-menu/dropdown-menu.host.css';
 @import '../components/field/field.host.css';
 @import '../components/input/input.host.css';
+@import '../components/page-header/page-header.host.css';
+@import '../components/pagination/pagination.host.css';
 @import '../components/radio-group/radio-group.host.css';
 @import '../components/select/select.host.css';
+@import '../components/sidebar-nav/sidebar-nav.host.css';
 @import '../components/switch/switch.host.css';
+@import '../components/table/table.host.css';
+@import '../components/tabs/tabs.host.css';
 @import '../components/textarea/textarea.host.css';
 @import '../components/toast/toast.host.css';

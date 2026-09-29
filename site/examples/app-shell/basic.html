@@ -1,0 +1,25 @@
+<!-- title: 管理画面の枠組み（幅を変えると、サイドバーがドロワーになります） -->
+<!-- frame: 520 -->
+<jimble-app-shell>
+  <strong slot="header">jimble 管理画面</strong>
+  <jimble-button slot="header" size="sm" variant="ghost" style="margin-inline-start: auto"
+    >ログアウト</jimble-button
+  >
+
+  <jimble-sidebar-nav slot="sidebar">
+    <jimble-nav-item href="#" current>ダッシュボード</jimble-nav-item>
+    <jimble-nav-item href="#">注文</jimble-nav-item>
+    <jimble-nav-item href="#">顧客</jimble-nav-item>
+    <jimble-nav-group label="設定">
+      <jimble-nav-item href="#">プロフィール</jimble-nav-item>
+      <jimble-nav-item href="#">チーム</jimble-nav-item>
+    </jimble-nav-group>
+  </jimble-sidebar-nav>
+
+  <jimble-page-header heading="ダッシュボード" description="今日の状況です。">
+    <jimble-button slot="actions" variant="primary">新規注文</jimble-button>
+  </jimble-page-header>
+  <jimble-card style="margin-top: 1rem">
+    <p style="margin: 0">ここに本文が入ります。</p>
+  </jimble-card>
+</jimble-app-shell>

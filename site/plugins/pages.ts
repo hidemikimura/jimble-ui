@@ -22,7 +22,7 @@ const repoRoot = resolve(siteRoot, '..')
 const LANGS = ['html', 'css', 'ts', 'bash', 'json']
 // コントラスト比が高いテーマ（WCAG AA を満たすため）
 const THEME = 'github-light-high-contrast'
-const GENERATED = ['index.html', 'guide', 'components']
+const GENERATED = ['index.html', 'guide', 'components', 'frames']
 
 interface Page {
   src: string
@@ -181,16 +181,38 @@ function tokensHtml(): string {
 }
 
 // ---- 例 ----------------------------------------------------------------------------------
-function exampleHtml(id: string): string {
+// ビューポート全体に依存する例(app-shell など)は、先頭付近に `<!-- frame: 高さ(px) -->` を書くと、
+// 単体のページ(frames/<id>/)として生成し、プレビューを iframe で表示する。
+const frames = new Map<string, string>() // frames/<id>/index.html → 内容
+
+function exampleHtml(id: string, fromDir: string): string {
   const file = resolve(siteRoot, 'examples', `${id}.html`)
   if (!existsSync(file)) throw new Error(`例が見つかりません: examples/${id}.html`)
-  const raw = readFileSync(file, 'utf8')
+  let raw = readFileSync(file, 'utf8')
   const m = /^<!--\s*title:\s*(.+?)\s*-->\s*\n/.exec(raw)
   const title = m?.[1] ?? id
-  const source = raw.slice(m?.[0].length ?? 0).trim()
+  raw = raw.slice(m?.[0].length ?? 0)
+  const f = /^<!--\s*frame:\s*(\d+)\s*-->\s*\n/.exec(raw)
+  const height = f ? Number(f[1]) : 0
+  if (f) raw = raw.slice(f[0].length)
+  const source = raw.trim()
+  let preview = `<div slot="preview">\n${source}\n</div>`
+  if (height) {
+    const out = `frames/${id}/index.html`
+    frames.set(
+      out,
+      `<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${esc(title)}</title>\n<script type="module" src="/src/frame.ts"></script>\n<style>body{margin:0;font-family:system-ui,sans-serif}</style>\n</head>\n<body>\n${source}\n</body>\n</html>\n`,
+    )
+    const src = relative(fromDir, dirname(out)).replace(/\\/g, '/') + '/'
+    preview =
+      `<div slot="preview">` +
+      `<iframe src="${src}" title="${esc(title)}のプレビュー" loading="lazy" style="width:100%;height:${height}px;border:1px solid #d1d5db;border-radius:0.375rem;background:#fff"></iframe>` +
+      `<p style="margin:0.5rem 0 0;font-size:0.8125rem"><a href="${src}" target="_blank" rel="noopener">別のタブで開く</a>（画面の幅を変えて確認できます）</p>` +
+      `</div>`
+  }
   return (
     `<docs-example heading="${esc(title)}" source="${esc(source)}">` +
-    `<div slot="preview">\n${source}\n</div>` +
+    preview +
     `<div slot="source">${highlight(source, 'html')}</div>` +
     `</docs-example>`
   )
@@ -235,7 +257,7 @@ function render(page: Page, pages: Page[], md: MarkdownIt, manifest: Manifest | 
       /<div data-directive="(example|api|tokens)" data-arg="([^"]*)"><\/div>/g,
       (_, kind: string, arg: string) =>
         kind === 'example'
-          ? exampleHtml(arg)
+          ? exampleHtml(arg, here)
           : kind === 'api'
             ? apiHtml(manifest, arg)
             : tokensHtml(),
@@ -286,10 +308,19 @@ export async function generatePages(): Promise<string[]> {
   const pages = loadPages()
   const manifest = loadManifest()
   for (const g of GENERATED) rmSync(resolve(siteRoot, g), { recursive: true, force: true })
-  return pages.map((p) => {
+  frames.clear()
+  const files = pages.map((p) => {
     const out = resolve(siteRoot, p.out)
     mkdirSync(dirname(out), { recursive: true })
     writeFileSync(out, render(p, pages, md, manifest))
     return out
   })
+  // iframe で表示する例の単体ページ(render の中で登録される)
+  for (const [rel, content] of frames) {
+    const out = resolve(siteRoot, rel)
+    mkdirSync(dirname(out), { recursive: true })
+    writeFileSync(out, content)
+    files.push(out)
+  }
+  return files
 }

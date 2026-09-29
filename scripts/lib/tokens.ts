@@ -17,6 +17,7 @@ type Source = {
   scales: Record<string, Scale>
   tokens: Token[]
   themeRaw?: string
+  aliases?: string[]
 }
 
 const src = JSON.parse(readFileSync(resolve(root, 'tokens/tokens.json'), 'utf8')) as Source
@@ -35,6 +36,7 @@ const tw = (name: string): string => {
 }
 
 export const themeRaw = src.themeRaw ?? ''
+export const aliases = src.aliases ?? []
 
 export const all: Token[] = []
 for (const [scale, { from, steps }] of Object.entries(src.scales)) {

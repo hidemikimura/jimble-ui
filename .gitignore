@@ -23,3 +23,4 @@ site/dist/
 custom-elements.json
 test-results/
 playwright-report/
+site/frames/

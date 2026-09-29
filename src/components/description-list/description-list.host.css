@@ -1,0 +1,33 @@
+@layer components {
+  :host(jimble-description-list) {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 40rem) {
+    :host(jimble-description-list:not([layout='vertical'])) {
+      grid-template-columns: minmax(8rem, var(--jimble-description-label-width, max-content)) 1fr;
+    }
+  }
+  /* 項目は自分の箱を持たず、項目名と値をそのまま親のグリッドに参加させる */
+  :host(jimble-description-item) {
+    display: contents;
+  }
+  :host(jimble-description-item) [part='label'],
+  :host(jimble-description-item) [part='value'] {
+    padding: calc(var(--jimble-spacing, 0.25rem) * 3) calc(var(--jimble-spacing, 0.25rem) * 4);
+    box-shadow: inset 0 -1px 0 var(--_c-ring);
+  }
+  @media (max-width: 39.999rem) {
+    :host(jimble-description-item) [part='label'] {
+      padding-bottom: 0;
+      box-shadow: none;
+    }
+  }
+  @media (min-width: 40rem) {
+    :host(jimble-description-list[layout='vertical'])
+      :host(jimble-description-item)
+      [part='label'] {
+      padding-bottom: 0;
+    }
+  }
+}

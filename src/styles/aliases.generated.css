@@ -1,0 +1,14 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/tokens.json から作る。直接編集しない。 */
+@layer base {
+  :host {
+    --_c-surface: var(--jimble-color-surface, #ffffff);
+    --_c-surface-muted: var(--jimble-color-surface-muted, var(--jimble-color-neutral-50, oklch(98.5% 0.002 247.839)));
+    --_c-surface-sunken: var(--jimble-color-surface-sunken, var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)));
+    --_c-text: var(--jimble-color-text, var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)));
+    --_c-text-muted: var(--jimble-color-text-muted, var(--jimble-color-neutral-500, oklch(55.1% 0.027 264.364)));
+    --_c-ring: var(--jimble-color-ring, var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338)));
+    --_c-ring-focus: var(--jimble-color-ring-focus, var(--jimble-color-primary-600, oklch(51.1% 0.262 276.966)));
+    --_c-primary-50: var(--jimble-color-primary-50, oklch(96.2% 0.018 272.314));
+    --_c-primary-700: var(--jimble-color-primary-700, oklch(45.7% 0.24 277.023));
+  }
+}

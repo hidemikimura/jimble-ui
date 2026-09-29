@@ -1334,7 +1334,7 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 | R2 | FACE のラベル/エラー連携（F6） | field ↔ input のミラー方式で NVDA / VoiceOver の読み上げ確認 | `ariaLabelledByElements` の機能検出採用、あるいは各コントロールが label を持つ |
 | R3 | ネイティブ anchor positioning が shadow 越しに使えるか（F5） | 同一 root 内ラッパー要素を anchor にする構造で検証 | Floating UI を維持（既定） ｜ **解決（M3）**: 同一 Shadow ツリー内のラッパーを anchor にする方式が 3 エンジンで動く。light DOM の anchor は不可 |
 | R4 | モーダル dialog の中で toast が読み上げられない | toast 領域を dialog 内へ移動する方式の検証 | dialog 内専用の toast API（`dialog.toast()`）を追加 ｜ **解決（M3）**: 領域を開いているモーダルの中へ移動する方式で、3 エンジンとも操作でき、Chromium の実アクセシビリティツリーにも出る |
-| R5 | **table の構造を Shadow DOM で成立させる** | カスタム要素に `role=table/row/cell` と `display: table*` を与える方式で、sticky ヘッダー・横スクロール・並べ替えが動くか | データ駆動（`columns`/`rows` プロパティ）で Shadow 内に `<table>` を描画（宣言的な HTML 記述を犠牲にする） |
+| R5 | **table の構造を Shadow DOM で成立させる** | カスタム要素に `role=table/row/cell` と `display: table*` を与える方式で、sticky ヘッダー・横スクロール・並べ替えが動くか | データ駆動（`columns`/`rows` プロパティ）で Shadow 内に `<table>` を描画（宣言的な HTML 記述を犠牲にする） ｜ **解決（M4）**: 第一案（カスタム要素 + `ElementInternals` のロール + `display: table*`）が 3 エンジンで動く。データ駆動へのフォールバックは不要 |
 | R6 | IME 変換中の Esc がダイアログを閉じる | close watcher を止められるか | 変換中は `cancel` を受けても再度 `showModal` するなどの回避 ｜ **対策済み（M3）**: Chromium で変換中の Esc がダイアログを閉じることを確認。`cancel` を変換中だけ `preventDefault()` して防止 |
 | R7 | 自前 select の品質（Q4） | APG の select-only combobox の全キー操作と読み上げ | ネイティブ `<select>` 描画（`native`） ｜ **解決（M3）**: 自前のリストボックスで APG のキー操作を実装。ネイティブ描画への逃げ道（`native`）は今のところ不要 |
 | R8 | Tailwind / Vite の大型更新（Vite 8 は Rolldown 化、Tailwind は 4.x で出力が変わりうる） | 依存更新の PR で R1 のテストが落ちれば検知 | 固定バージョン運用 |
@@ -1413,7 +1413,28 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
   - ダイアログの名前は `heading` 属性 / `title` スロット（同じ root の `h2` を `aria-labelledby` で参照）/ `aria-label`。宣言的に閉じるため `data-dialog-close` を用意した。
   - Toast の通知領域は `role="status"` と `role="alert"` のライブリージョンを、通知が来る前から表示状態で持つ（空でも常に表示）。danger と操作付きの通知は自動では消えない。
 - テスト基盤の教訓: macOS の Firefox / Safari は、既定ではボタンやリンクに Tab で止まらない（Tab の移動先は必ずテキスト入力にする）。`page.viewport()` は Firefox / WebKit で安定しないので、ビューポートに依存しない期待値にする。Playwright の `getByRole` は ElementInternals のロールと、Shadow 内の `<dialog>` 配下にスロットされた内容を見ないので、ホストから探すか CDP を使う。
-| **M4** | レイアウトとデータ: `app-shell` / `sidebar-nav` / `page-header` / `tabs` / `breadcrumb` / `pagination` / `table`（**R5**）/ `description-list` | 管理画面のサンプルページが組める |
+| **M4** ✅ | レイアウトとデータ: `app-shell` / `sidebar-nav` / `page-header` / `tabs` / `breadcrumb` / `pagination` / `table`（**R5**）/ `description-list` | 管理画面のサンプルページが組める |
+
+**M4 実施結果（2026-09-29）**
+
+- 実装: `app-shell`、`sidebar-nav`（+ `nav-item` / `nav-group`）、`page-header`、`tabs`（+ `tab` / `tab-panel`）、`breadcrumb`（+ `item`）、`pagination`、`table`（+ `header` / `body` / `row` / `head-cell` / `cell`）、`description-list`（+ `item`）。これで **P1 の 22 コンポーネントがそろった**。
+- **R5（表）は第一案で解決**（実装前に 3 エンジンでスパイク）: カスタム要素が `ElementInternals` で表のロールを持ち、`display: table*` でレイアウトする方式。列位置が行をまたいでそろう、縦横にスクロールできる、固定ヘッダー（`position: sticky`）がスクロールしても残る、Chromium の実アクセシビリティツリーに `table` / `rowgroup` / `row` / `columnheader` / `cell` / `rowheader` が出る、までを確認。制約: `colspan` / `rowspan` は使えない。
+- テスト: 単体 + 3 エンジンのブラウザテストで 1046 件、E2E 190 件（8 件は Chromium のみ）。実操作: 広い/狭い画面での app-shell（サイドバー/ドロワー・Esc・背景クリック・幅の切り替え・スキップリンク・固定ヘッダーにフォーカスが隠れない）、表の実アクセシビリティツリーと並べ替え、タブの矢印キー、ページネーション、パンくず、ナビ、説明リストの広い/狭い画面での配置。
+- 実測: CDN バンドル 39.2 KB gz（22 部品 + i18n + `toast()`）、最大の共有チャンク 9.9 KB gz。
+- **テストが見つけた不具合（修正済み）**:
+  1. スキップリンクの遷移先が Shadow 内にあり、axe（と実際のブラウザの遷移）に見つからない → `<a href="#main">` をやめ、クリックで `main` にフォーカスする `<button>` にした。
+  2. Safari 系はボタンをクリックしてもフォーカスしないため、ドロワー/ダイアログを閉じたあとに戻す先が無い → 直近にポインターで押した要素を戻し先の候補にする共通処理（`getReturnFocusTarget`）を追加。`dialog` にも適用。
+  3. ドロワー内のリンクのクリックで閉じる処理が、`jimble-nav-item` の Shadow の内側のリンクを拾えなかった → `event.target` ではなく `composedPath()` で探す。
+  4. `pagination` の例で同名の `nav` が並んでいた（axe）→ 例のラベルを分け、複数置くときは `label` を変えるよう明記。
+- 設計からの変更・追加:
+  - `app-shell` のサイドバーは、`<slot name="sidebar">` を 1 つだけ作り、広い画面では `aside` の位置、狭い画面ではドロワーの中へ**付け替えて**使い回す（同じスロットを 2 か所に置けないため）。ドロワーもモーダルスタックに登録するので、開くと通知の領域がドロワーの中へ移る。
+  - スキップリンクは `<button>`（上記）。固定ヘッダーの補正は `focusin` で行い、文書全体のスクロール位置を補正する。
+  - ホスト用 CSS（`*.host.css`）から使う色は、`tokens.json` の `aliases` から生成する `--_c-*`（`:host` に置く私的な別名）で参照する。既定値を CSS に二重に書かない。
+  - ブレークポイントを `@theme` に追加（`--breakpoint-sm/md/lg/xl`）。`app-shell` の切り替えは 48rem（Tailwind の `md:`）。
+  - ドキュメントの例に `<!-- frame: 高さ -->` を追加。指定した例は、単体ページ（`/frames/<id>/`）として生成して iframe に表示し、「別のタブで開く」で幅を変えて確認できる。ページ単位の axe は iframe を除外し、単体ページを別に検査する。
+  - `tabs` の `jimble-tab` は、`slot="tab"` を自分で付ける（利用者が書かなくてよい）。`tab` と `panel` は light DOM の兄弟なので、`aria-controls` / `aria-labelledby` は属性の IDREF で結ぶ。
+  - 表の選択（`selected` の行）は見た目だけで、`aria-selected` は付けない（`table` のロールの行には使えないため）。意味づけは行頭のチェックボックスなどで行う。
+- 未対応（各ページに明記）: 表のセルの結合、`pagination` の「ページ番号を入力して移動」、`tabs` の追加/削除、`sidebar-nav` の矢印キー操作（Tab で順に移動）。
 | **M5** | 仕上げ: 手動 a11y/IME チェック、ドキュメントの穴埋め、サイズ予算、**0.1.0 公開** | チェックリスト完了、npm 公開 |
 
 ---

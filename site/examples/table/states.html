@@ -1,0 +1,35 @@
+<!-- title: 選択中の行・読み込み中 -->
+<div class="stack">
+  <jimble-table label="選択中の行">
+    <jimble-table-header>
+      <jimble-table-row>
+        <jimble-table-head-cell>氏名</jimble-table-head-cell>
+        <jimble-table-head-cell>権限</jimble-table-head-cell>
+      </jimble-table-row>
+    </jimble-table-header>
+    <jimble-table-body>
+      <jimble-table-row>
+        <jimble-table-cell>山田 太郎</jimble-table-cell>
+        <jimble-table-cell>管理者</jimble-table-cell>
+      </jimble-table-row>
+      <jimble-table-row selected>
+        <jimble-table-cell>佐藤 花子（選択中）</jimble-table-cell>
+        <jimble-table-cell>編集者</jimble-table-cell>
+      </jimble-table-row>
+    </jimble-table-body>
+  </jimble-table>
+  <jimble-table label="読み込み中" loading>
+    <jimble-table-header>
+      <jimble-table-row>
+        <jimble-table-head-cell>氏名</jimble-table-head-cell>
+        <jimble-table-head-cell>権限</jimble-table-head-cell>
+      </jimble-table-row>
+    </jimble-table-header>
+    <jimble-table-body>
+      <jimble-table-row>
+        <jimble-table-cell>読み込み中…</jimble-table-cell>
+        <jimble-table-cell>—</jimble-table-cell>
+      </jimble-table-row>
+    </jimble-table-body>
+  </jimble-table>
+</div>
