@@ -19,7 +19,11 @@
 npm の Trusted Publishing（トークン不要の認証）は、**パッケージがすでに存在しないと設定できません**。そのため、次の順序で進めます。
 
 1. **初回だけトークンで公開する。**
-   1. npmjs.com で Granular Access Token（`@hidemikimura/jimble-ui` に Read and write、公開のみ、有効期限は短め）を作る。
+   1. npmjs.com の **Access Tokens → Generate New Token → Granular Access Token** で、トークンを作る。
+      - **Packages and scopes**: まだパッケージが存在しないので、パッケージは選べない。**スコープ `@hidemikimura` を選び、Read and write** にする（スコープ単位の権限があれば、未公開の新しいパッケージも公開できる）。
+      - **Expiration**: 短めにする（書き込みができるトークンの上限は 90 日）。
+      - CI から公開するトークンは、**2FA を要求しない設定**が必要になることがある（画面の表示に従う）。
+      - `@hidemikimura` は、自分のユーザー名のスコープであればそのまま使える。ユーザー名と違うスコープにする場合は、先に npm の Organization を作る。
    2. GitHub の **Settings → Secrets and variables → Actions** に `NPM_TOKEN` として登録する。
    3. `.github/workflows/release.yml` の `env: NODE_AUTH_TOKEN` のコメントを外す。
    4. 「通常のリリース」の手順で、最初のリリース（0.1.0）を公開する。
@@ -61,5 +65,5 @@ npm pack --dry-run      # 含まれるファイルの一覧
 ## 困ったとき
 
 - **リリース PR が作られない**: コミットが Conventional Commits か、`feat` / `fix` などを含むか確認する。`docs` / `chore` だけでは作られない。
-- **publish ジョブが 403 になる**: Trusted Publisher の Workflow filename が `release.yml` と一致しているか、または `NPM_TOKEN` の権限を確認する。
+- **publish ジョブが 403 になる**: 初回は、`NPM_TOKEN` にスコープ `@hidemikimura` の Read and write があるか、2FA の設定でトークンが弾かれていないかを確認する。Trusted Publishing に切り替えたあとは、Workflow filename が `release.yml` と一致しているかを確認する。
 - **公開を取り消したい**: 公開から 72 時間以内なら `npm unpublish @hidemikimura/jimble-ui@x.y.z` できる。それ以降は `npm deprecate` を使う。
