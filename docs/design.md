@@ -1577,6 +1577,10 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **動的 import と復旧**: ページの部品の `import()` は `load` で行う（`render` は同期。`load` の完了まで画面を切り替えないので、`render` 時に要素が定義済みで、スクロールの復元も内容の確定後になる）。利用者の自作ルーターが `enter` で行っていた「動的 import の失敗 → 通常のページ遷移で復旧」を組み込んだ。文言がブラウザごとに違う（Chromium・Firefox・Safari）ので、正規表現で見分ける。**無限の読み込み直しを避ける**ため、同じ URL で 10 秒以内に続けて失敗したときは、復旧せずに通常のエラーにする（`sessionStorage` に URL と時刻）。`jimble-route-error` は cancelable にして、`preventDefault()` で止められる。切り替えは `static hardNavigate` を経由する（テストで差し替えるため）。
 - **CDN の `JimbleUI.html`**: `render` でテンプレートを書けるよう、Lit の `html` を `JimbleUI` に足した。
 
+**追補: CDN バンドルの予算を 90 KB に（2026-09-29）**
+
+- ルーターの追加で 82.8 KB gz になり、予算（84 KB）にほぼ達したため、90 KB に上げた。部品の追加で増え続けるので、さらに増えるなら、CDN を「本体」と「アイコン」（約 11 KB）に分ける案を検討する（アイコンは npm では使う分だけ入る）。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
