@@ -209,3 +209,15 @@ describe('アクセシビリティ', () => {
     await expectNoA11yViolations(wrap)
   })
 })
+
+describe('余白', () => {
+  it('ポップアップの中に余分な空白や改行が入らない(multiline の pre-line で余白として出るため)', async () => {
+    const { el } = await tip('multiline')
+    el.text = '1 行目\n2 行目'
+    btn(el).focus()
+    await tick(80)
+    expect(popup(el).textContent).toBe('1 行目\n2 行目')
+    // 2 行ぶんの高さ + 上下の余白だけ(行の高さは 20px、余白は 6px ずつ)
+    expect(Math.round(popup(el).getBoundingClientRect().height)).toBe(2 * 20 + 2 * 6)
+  })
+})

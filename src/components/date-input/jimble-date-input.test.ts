@@ -480,3 +480,75 @@ describe('複数の月（months）', () => {
     await expectNoA11yViolations(f)
   })
 })
+
+describe('入力欄のクリックと手入力不可（picker-only）', () => {
+  it('通常の入力では、入力欄のクリックでカレンダーは開かない(ボタンと ↓ で開く)', async () => {
+    const { el } = await make('value="2026-09-29"')
+    input(el).focus()
+    input(el).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }))
+    input(el).click()
+    await tick()
+    expect(isOpen(el)).toBe(false)
+  })
+
+  it('picker-only: 入力欄のクリックでカレンダーが開き、フォーカスは入力欄に残る。もう一度クリックすると閉じたまま', async () => {
+    const { el } = await make('picker-only value="2026-09-29"')
+    input(el).focus()
+    input(el).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }))
+    input(el).click()
+    await tick()
+    expect(isOpen(el)).toBe(true)
+    expect(el.shadowRoot!.activeElement).toBe(input(el))
+    // 開いているときのクリックは、ライトディスミスで閉じたあとに開き直さない
+    input(el).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }))
+    popup(el).hidePopover()
+    input(el).click()
+    await tick()
+    expect(isOpen(el)).toBe(false)
+  })
+
+  it('開いたまま入力すると、解釈できた日に表示が移る', async () => {
+    const { el } = await make('value="2026-09-29"')
+    input(el).focus()
+    btn(el).click()
+    await tick()
+    input(el).focus()
+    input(el).value = '2027/03/05'
+    input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    await tick()
+    expect(day(el, '2027-03-05')).not.toBeNull()
+  })
+
+  it('picker-only: 入力欄は読み取り専用で、クリック・Space・↓ で開く。Backspace / Delete で消せる', async () => {
+    const { f, el } = await make('picker-only value="2026-09-29"')
+    expect(input(el).readOnly).toBe(true)
+    input(el).focus()
+    await userEvent.keyboard('abc')
+    expect(input(el).value).toBe('2026/09/29')
+    await userEvent.keyboard(' ')
+    await tick()
+    expect(isOpen(el)).toBe(true)
+    expect(el.shadowRoot!.activeElement).toBe(day(el, '2026-09-29'))
+    await userEvent.keyboard('{Escape}')
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    await userEvent.keyboard('{Backspace}')
+    await el.updateComplete
+    expect(data(f)).toEqual({})
+    expect(input(el).value).toBe('')
+  })
+
+  it('picker-only でもカレンダーで選べて、値が入る。disabled / readonly では開かない', async () => {
+    const { f, el } = await make('picker-only')
+    input(el).dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }))
+    input(el).click()
+    await tick()
+    day(el, '2026-09-15').click()
+    await tick()
+    expect(data(f)).toEqual({ d: '2026-09-15' })
+    const r = await make('readonly')
+    r.el.shadowRoot!.querySelector('input')!.click()
+    await tick()
+    expect(isOpen(r.el)).toBe(false)
+  })
+})

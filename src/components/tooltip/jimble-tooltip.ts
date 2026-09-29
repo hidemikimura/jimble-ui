@@ -1,4 +1,4 @@
-import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
+import { html, type PropertyDeclarations, type PropertyValues } from 'lit'
 import { JimbleElement } from '../../base/jimble-element.js'
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right'
@@ -232,6 +232,7 @@ export class JimbleTooltip extends JimbleElement {
     return html`<span part="trigger" class="inline-flex"
         ><slot @slotchange=${() => this.#syncDescription()}></slot
       ></span>
+      <!-- 文字は textContent で入れる。white-space: pre-line は、テンプレートの空白や改行をそのまま余白として出すため -->
       <div
         part="popup"
         popover="manual"
@@ -239,9 +240,8 @@ export class JimbleTooltip extends JimbleElement {
         class="${POPUP} ${this.multiline ? 'whitespace-pre-line' : 'whitespace-nowrap'}"
         @pointerenter=${this.#onPopupEnter}
         @pointerleave=${this.#onPopupLeave}
-      >
-        ${this.text || nothing}
-      </div>`
+        .textContent=${this.text}
+      ></div>`
   }
 }
 

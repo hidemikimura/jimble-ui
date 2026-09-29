@@ -83,7 +83,7 @@ const CREATE_KEY = '\u0000create'
  *   入力が止まってから呼ばれ(`load-delay`)、古い検索は `signal` で中止される。取得中・失敗も表示される。
  * - `multiple` で複数選択(選択中はチップで表示。同じ `name` で複数の値を送信する)。
  * - `max-items` で選べる数の上限、`reorderable` でチップの並べ替え(Alt+左右の矢印キー、またはドラッグ)。
- * - `jimble-option` の `group` 属性(または項目の `group`)で、候補を見出し付きにまとめる。
+ * - `jimble-option` の `group` 属性(または項目の `group`)で、候補を見出し付きにまとめる。`search-group` を付けると、グループ名でも絞り込める。
  * - `creatable` で、一覧にない文字を項目として追加できる。`create` プロパティで項目の作り方(サーバーへの登録など)を決められる。
  * - 既定(単一選択・`creatable` なし)では、自由入力は値にならない。選択肢に無い文字のまま離れると、選択中の表示に戻る。
  *
@@ -131,6 +131,7 @@ export class JimbleCombobox extends JimbleFormElement {
     multiple: { type: Boolean, reflect: true },
     creatable: { type: Boolean, reflect: true },
     match: { reflect: true },
+    searchGroup: { type: Boolean, reflect: true, attribute: 'search-group' },
     open: { type: Boolean, reflect: true },
     loadDelay: { type: Number, attribute: 'load-delay' },
     loadMinLength: { type: Number, attribute: 'load-min-length' },
@@ -152,6 +153,8 @@ export class JimbleCombobox extends JimbleFormElement {
   declare creatable: boolean
   /** 一致のさせ方。`contains`(含む・既定)または `starts-with`(前方一致) */
   declare match: 'contains' | 'starts-with'
+  /** グループ名も絞り込みの対象にする(例: 「関東」と入力すると、その組の候補がすべて残る)。既定はしない */
+  declare searchGroup: boolean
   /** 候補を開いているか */
   declare open: boolean
   /** `load` を呼ぶまでの待ち時間(ミリ秒)。既定 250 */
@@ -255,6 +258,7 @@ export class JimbleCombobox extends JimbleFormElement {
     this.multiple = false
     this.creatable = false
     this.match = 'contains'
+    this.searchGroup = false
     this.open = false
     this.loadDelay = 250
     this.loadMinLength = 0
@@ -324,7 +328,8 @@ export class JimbleCombobox extends JimbleFormElement {
     return all.filter((o) =>
       this.filter
         ? this.filter(this.#text, o)
-        : matches(this.#text, o.label, o.keywords, this.match),
+        : matches(this.#text, o.label, o.keywords, this.match) ||
+          (this.searchGroup && !!o.group && matches(this.#text, o.group, '', this.match)),
     )
   }
   /** 一覧にない文字を追加するための行(入力があり、同じ項目が無いとき) */

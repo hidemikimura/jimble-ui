@@ -701,3 +701,30 @@ describe('前へ / 後ろへボタン(タッチの代わり)', () => {
     expect(el.shadowRoot!.querySelector('[part="chip-move"]')).toBeNull()
   })
 })
+
+describe('グループ名での絞り込み（search-group）', () => {
+  const cities = async (attrs: string) => {
+    const f = await mount<HTMLFormElement>(html`<form></form>`)
+    f.innerHTML = `<jimble-combobox name="c" aria-label="都市" ${attrs}>
+      <jimble-option value="a" group="関東">東京</jimble-option>
+      <jimble-option value="b" group="関西">大阪</jimble-option>
+      <jimble-option value="c" group="関東">横浜</jimble-option>
+    </jimble-combobox>`
+    const el = f.querySelector('jimble-combobox') as JimbleCombobox
+    await el.updateComplete
+    return el
+  }
+
+  it('既定ではグループ名は対象外。search-group を付けるとグループ名でも残る', async () => {
+    const off = await cities('')
+    await type(off, '関東')
+    expect(shown(off)).toEqual([])
+    const on = await cities('search-group')
+    await type(on, '関東')
+    expect(shown(on)).toEqual(['東京', '横浜'])
+    await type(on, '横')
+    expect(shown(on)).toEqual(['横浜'])
+    await type(on, 'かんさい')
+    expect(shown(on)).toEqual([])
+  })
+})

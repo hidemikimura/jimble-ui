@@ -105,6 +105,7 @@ export class JimbleDateInput extends JimbleFormElement {
     max: {},
     placeholder: {},
     readonly: { type: Boolean, reflect: true },
+    pickerOnly: { type: Boolean, reflect: true, attribute: 'picker-only' },
     range: { type: Boolean, reflect: true },
     time: { type: Boolean, reflect: true },
     months: { type: Number },
@@ -120,6 +121,8 @@ export class JimbleDateInput extends JimbleFormElement {
   declare max: string | undefined
   declare placeholder: string | undefined
   declare readonly: boolean
+  /** 手入力を不可にし、カレンダー（と時刻の欄）からだけ選ばせる。入力欄のクリック・Space・↓ でカレンダーを開き、Backspace / Delete で消せる */
+  declare pickerOnly: boolean
   /** 期間（開始と終了）を選ぶ。値は `開始/終了` */
   declare range: boolean
   /** 時刻（時・分）も選ぶ。値は `YYYY-MM-DDTHH:mm` */
@@ -225,6 +228,7 @@ export class JimbleDateInput extends JimbleFormElement {
     this.max = undefined
     this.placeholder = undefined
     this.readonly = false
+    this.pickerOnly = false
     this.range = false
     this.time = false
     this.months = 1
@@ -399,6 +403,11 @@ export class JimbleDateInput extends JimbleFormElement {
     this.#dirty = true
     this.requestUpdate('value')
     this.commit()
+    // カレンダーを開いたまま入力しているとき、解釈できた日に表示を合わせる
+    if (this.open && this.#start) {
+      this.view = { y: this.#start.y, m: this.#start.m, d: 1 }
+      this.focusDay = this.#start
+    }
   }
 
   /** 入力を確定する(blur・Enter)。有効な値は正規の書式に整える */
@@ -423,8 +432,37 @@ export class JimbleDateInput extends JimbleFormElement {
       this.#openCalendar()
       return
     }
+    if (this.pickerOnly && !this.readonly && !this.isDisabled) {
+      if (event.key === ' ') {
+        event.preventDefault()
+        this.#openCalendar()
+        return
+      }
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        event.preventDefault()
+        if (this.#start || this.#end) {
+          this.#start = null
+          this.#end = null
+          this.#pending = null
+          this.#changed()
+        }
+        return
+      }
+    }
     if (event.key === 'Enter') this.#settle()
     handleImplicitSubmit(event, this.form, this.isDisabled, this.ime)
+  }
+
+  // picker-only のとき、入力欄のクリックでカレンダーを開く(手入力する通常の入力では、クリックは文字の位置決めなので開かない)
+  #onInputPointerDown = () => {
+    this.#wasOpenOnPointerDown = this.open
+  }
+  #onInputClick = () => {
+    const wasOpen = this.#wasOpenOnPointerDown
+    this.#wasOpenOnPointerDown = false
+    if (!this.pickerOnly || wasOpen || this.isDisabled || this.readonly) return
+    this.#settle()
+    this.#openCalendar(false)
   }
 
   // ---- カレンダー ----------------------------------------------------------------------
@@ -493,7 +531,9 @@ export class JimbleDateInput extends JimbleFormElement {
     this.open = false
   }
 
-  #openCalendar() {
+  #focusDayOnOpen = true
+  #openCalendar(focusDay = true) {
+    this.#focusDayOnOpen = focusDay
     const base = this.#start ?? today()
     const day = clamp(base, this.#minDT?.date ?? null, this.#maxDT?.date ?? null)
     this.view = { y: day.y, m: day.m, d: 1 }
@@ -594,6 +634,7 @@ export class JimbleDateInput extends JimbleFormElement {
     const isOpen = (e as ToggleEvent).newState === 'open'
     if (this.open !== isOpen) this.open = isOpen
     if (isOpen) {
+      if (!this.#focusDayOnOpen) return
       void this.updateComplete.then(() =>
         this.renderRoot
           .querySelector<HTMLElement>(`[data-date="${toISO(this.focusDay)}"]`)
@@ -857,13 +898,15 @@ export class JimbleDateInput extends JimbleFormElement {
           name=${ifDefined(this.name || undefined)}
           placeholder=${this.placeholder ?? this.#placeholder()}
           ?disabled=${disabled}
-          ?readonly=${this.readonly}
+          ?readonly=${this.readonly || this.pickerOnly}
           ?required=${this.required || this.field.required}
           aria-label=${ifDefined(this.accessibleName())}
           aria-invalid=${invalid ? 'true' : nothing}
           aria-describedby=${ifDefined(this.describedBy)}
           @input=${this.#onInput}
           @keydown=${this.#onKeydown}
+          @pointerdown=${this.#onInputPointerDown}
+          @click=${this.#onInputClick}
           @blur=${() => this.#settle()}
           @change=${(e: Event) => e.stopPropagation()}
         />
