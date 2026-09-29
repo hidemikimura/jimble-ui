@@ -37,7 +37,7 @@ import '@hidemikimura/jimble-ui/button' // 個別
 import { toast } from '@hidemikimura/jimble-ui/toast'
 ```
 
-1.0 までは、マイナーバージョンで互換性が壊れることがあります（`@0.1` のように固定するのを勧める）。
+1.0 までは、マイナーバージョンで互換性が壊れることがあります（`@0.2` のように固定するのを勧める）。
 
 ## 共通の規約
 
