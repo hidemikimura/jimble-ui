@@ -4,7 +4,7 @@ order: 5
 description: 1 行のテキスト入力
 ---
 
-`<jimble-input>` は 1 行のテキスト入力です。ラベルは [Field](../field/) で付けます。フォームへの参加、検証、Enter による送信は [フォームとの連携](../../guide/forms/) を参照してください。
+`<jimble-input>` は 1 行のテキスト入力です。ラベル・ヒント（`hint`）・エラー（`error`）は [Field](../field/) の属性で付けます（`<jimble-field label="…" hint="…">` で包みます）。フォームへの参加、検証、Enter による送信は [フォームとの連携](../../guide/forms/) を参照してください。
 
 ## 使い方
 
