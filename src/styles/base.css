@@ -9,3 +9,27 @@
     display: none !important;
   }
 }
+
+/*
+ * ブラウザの自動入力(オートフィル)は、内側の <input> だけに薄い青などの背景を塗る。
+ * 入力欄の背景と枠は外側のラッパーが持ち、内側の input は透明なので、そのままだと
+ * input の領域だけが青くなる。ラッパーの背景色で内側から塗りつぶして、見た目を変えない。
+ */
+@layer components {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 100rem var(--_bg, var(--_c-surface)) inset;
+    -webkit-text-fill-color: var(--_fg, var(--_c-text));
+    caret-color: var(--_fg, var(--_c-text));
+  }
+  /* Firefox */
+  input:autofill,
+  textarea:autofill {
+    background-color: transparent;
+    color: inherit;
+  }
+}
