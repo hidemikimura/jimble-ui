@@ -185,8 +185,8 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - イベント: `change`, `input`, `jimble-search`, `jimble-create`, `jimble-load-error`, `jimble-reorder`, `jimble-open`, `jimble-close`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/combobox/
-- **`jimble-date-input`** — 日付の入力。
-  - 属性: `value=値`, `min=値`, `max=値`, `placeholder=値`, `readonly`, `first-day-of-week=数値`, `open`, `view=値`, `focusDay=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+- **`jimble-date-input`** — 日付・日時・期間の入力。
+  - 属性: `value=値`, `min=値`, `max=値`, `placeholder=値`, `readonly`, `range`, `time`, `months=数値`, `minute-step=数値`, `first-day-of-week=数値`, `open`, `view=値`, `focusDay=値`, `hoverDay=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `type`, `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/date-input/
 - **`jimble-color-input`** — 色の入力。
@@ -301,7 +301,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - `max-items`: 選べる数の上限。`reorderable`: チップの並べ替え（Alt+左右の矢印、ドラッグ。`jimble-reorder`）。`jimble-option` の `group="関東"`: 見出し付きでまとまる。
   - `creatable`: 一覧にない文字を追加できる（`jimble-create`。`create` プロパティで作り方を決める）。
 - **ファイル添付**（`jimble-file-input`）: ドロップエリア + 「ファイルを選択」ボタン + 一覧。`multiple`・`accept=".pdf,image/*"`・`max-size`（バイト）・`max-files`。合わないファイルは追加されず理由が出る（`jimble-reject`）。ファイルはそのままフォームに送られる。**`upload` プロパティ**（`(file, { onProgress, signal }) => Promise<id>`）を渡すと自動でサーバーへ送り（進捗・中止・再試行つき）、フォームには返した ID が送られる（アップロード中・失敗があると検証が通らない）。サーバー側の検証は必須。
-- **日付入力**（`jimble-date-input`）: 値は `YYYY-MM-DD` の文字列（`Date` を渡さない）。範囲は `min` / `max`、週の始まりは `first-day-of-week`。`<input type="date">` の代わりに使う（`jimble-input` に `type="date"` はない）。時刻・期間は未対応。
+- **日付入力**（`jimble-date-input`）: 日付・日時・期間の選択（`<input type="date">` の代わり。`jimble-input` に `type="date"` はない）。値は文字列で、`Date` を渡さない。既定 `YYYY-MM-DD`、`time` で `YYYY-MM-DDTHH:mm`、`range` で `開始/終了`（`2026-09-01/2026-09-10`。`start` / `end` プロパティ）、`range time` で両方。`min` / `max`、`first-day-of-week`、`months="2"`、`minute-step`。期間は 2 回クリック（開始→終了）。時刻ありはカレンダーが開いたままで「完了」で閉じる。秒・タイムゾーン・12 時間表記は未対応。
 - **色選択**（`jimble-color-input`）: 値は小文字の `#rrggbb`。候補の色は `presets`。透明度は未対応。
 - **通知**: `JimbleUI.toast('...')` / `JimbleUI.toast.success('...')`（CDN）または `import { toast } from '@hidemikimura/jimble-ui/toast'`。`toast({ message, variant, heading, duration, action })`。danger と `action` 付きは自動で消えない。要素を自分で置かない。ダイアログの中で出しても操作・読み上げできる。重要な情報は通知だけに頼らず `jimble-alert` などで画面内にも出す。
 
@@ -568,7 +568,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## 対応ブラウザと既知の制約
 
-Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: 非モーダルのパネル、Select の複数選択・絞り込み（Combobox を使う）、メニューのサブメニュー、表のセル結合、日付の範囲選択・時刻、色の透明度、ダークモード、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
+Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: 非モーダルのパネル、Select の複数選択・絞り込み（Combobox を使う）、メニューのサブメニュー、表のセル結合、日付の秒・タイムゾーン、色の透明度、ダークモード、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
 
 ## 動作の確かめ方
 

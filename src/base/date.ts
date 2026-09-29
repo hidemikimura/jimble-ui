@@ -171,3 +171,101 @@ export function formatPattern(locale: string): string {
     )
     .join('')
 }
+
+// ---- 日時・期間 ------------------------------------------------------------------------
+// 値の書式: 日時は `YYYY-MM-DDTHH:mm`(タイムゾーンなし)、期間は `開始/終了`(ISO 8601 の期間の書き方)。
+
+/** 日付 + 時刻(時・分。タイムゾーンなし) */
+export interface DateTime {
+  date: YMD
+  h: number
+  m: number
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+export const compareDateTime = (a: DateTime, b: DateTime): number =>
+  compare(a.date, b.date) || a.h - b.h || a.m - b.m
+
+export function isValidTime(h: number, m: number): boolean {
+  return Number.isInteger(h) && Number.isInteger(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59
+}
+
+/** `YYYY-MM-DD` または `YYYY-MM-DDTHH:mm`。日付だけなら時刻は 00:00。不正なら null */
+export function parseISODateTime(s: string | null | undefined): DateTime | null {
+  const match = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(s ?? '')
+  if (!match) return null
+  const date = parseISO(match[1])
+  const h = match[2] === undefined ? 0 : Number(match[2])
+  const m = match[3] === undefined ? 0 : Number(match[3])
+  return date && isValidTime(h, m) ? { date, h, m } : null
+}
+
+/** 値の文字列にする。withTime なら `YYYY-MM-DDTHH:mm`、そうでなければ `YYYY-MM-DD` */
+export const toISODateTime = (v: DateTime, withTime: boolean): string =>
+  withTime ? `${toISO(v.date)}T${pad2(v.h)}:${pad2(v.m)}` : toISO(v.date)
+
+/** 表示用(日本語なら `2026/09/29 14:30`) */
+export function formatDateTime(v: DateTime, locale: string, withTime: boolean): string {
+  return withTime
+    ? `${formatDate(v.date, locale)} ${pad2(v.h)}:${pad2(v.m)}`
+    : formatDate(v.date, locale)
+}
+
+/**
+ * 入力された文字を日時として解釈する。時刻は `14:30`・`14時30分`・`14時` を末尾に置く(全角も可)。
+ * withTime でも時刻が無ければ 00:00。withTime でなければ時刻は無視せず、あれば 'invalid'。
+ */
+export function parseDateTimeInput(
+  text: string,
+  locale: string,
+  withTime: boolean,
+): DateTime | null | 'invalid' {
+  let rest = text.normalize('NFKC').trim()
+  if (!rest) return null
+  let h = 0
+  let m = 0
+  const time =
+    /(?:^|[\sT])(\d{1,2})\s*[:時]\s*(\d{1,2})\s*分?\s*$/.exec(rest) ??
+    /(?:^|[\sT])(\d{1,2})\s*時\s*$/.exec(rest)
+  if (time) {
+    if (!withTime) return 'invalid'
+    h = Number(time[1])
+    m = time[2] === undefined ? 0 : Number(time[2])
+    if (!isValidTime(h, m)) return 'invalid'
+    rest = rest.slice(0, time.index).trim()
+  }
+  const date = parseInput(rest, locale)
+  if (date === null) return 'invalid' // 時刻だけ
+  if (date === 'invalid') return 'invalid'
+  return { date, h, m }
+}
+
+/** 期間の区切り(前後に空白のある `-`、`〜`、`~`、`–`、`—`、`to`)。日付の区切りの `-` とは区別する */
+const RANGE_SEPARATOR = /\s+[-]\s+|\s*[〜~–—]\s*|\s+to\s+/i
+
+/**
+ * 入力された文字を期間として解釈する。終了だけが空なら end が null(入力の途中)。
+ * 空 → null。解釈できない → 'invalid'
+ */
+export function parseRangeInput(
+  text: string,
+  locale: string,
+  withTime: boolean,
+): { start: DateTime; end: DateTime | null } | null | 'invalid' {
+  const normalized = text.normalize('NFKC').trim()
+  if (!normalized) return null
+  const parts = normalized.split(RANGE_SEPARATOR).map((s) => s.trim())
+  if (parts.length > 2) return 'invalid'
+  const start = parseDateTimeInput(parts[0]!, locale, withTime)
+  if (!start || start === 'invalid') return 'invalid'
+  if (parts.length === 1 || parts[1] === '') return { start, end: null }
+  const end = parseDateTimeInput(parts[1]!, locale, withTime)
+  if (!end || end === 'invalid') return 'invalid'
+  return { start, end }
+}
+
+/** 入力の書式の目安(プレースホルダー用): `yyyy/mm/dd hh:mm` など */
+export function formatDateTimePattern(locale: string, withTime: boolean): string {
+  return withTime ? `${formatPattern(locale)} hh:mm` : formatPattern(locale)
+}

@@ -1,10 +1,4 @@
-<!-- title: 範囲（min / max）と月曜始まり -->
-<jimble-field label="予約日" hint="2026年9月10日から20日の間で選べます">
-  <jimble-date-input
-    name="reserve"
-    value="2026-09-15"
-    min="2026-09-10"
-    max="2026-09-20"
-    first-day-of-week="1"
-  ></jimble-date-input>
+<!-- title: 期間（range・2 か月表示） -->
+<jimble-field label="期間" hint="1 回目のクリックで開始日、2 回目で終了日を選びます">
+  <jimble-date-input name="period" range months="2" first-day-of-week="1"></jimble-date-input>
 </jimble-field>

@@ -377,6 +377,28 @@ test.describe('日付・色・コンボボックス(実操作)', () => {
     expect(valid).toBe(true)
   })
 
+  test('日付入力: 期間を 2 回クリックで選ぶと、フォームの値が 開始/終了 になる', async ({
+    page,
+  }) => {
+    await page.goto('/components/date-input/')
+    const example = page.locator('docs-example', { hasText: '期間と時刻（range と time' })
+    const el = example.locator('jimble-date-input')
+    const input = el.locator('input[part="input"]')
+    await expect(input).toHaveValue('2026/09/29 09:00 〜 2026/09/30 18:30')
+    await el.locator('[part="calendar-button"]').click()
+    await el.locator('[data-date="2026-09-01"]').click()
+    await el.locator('[data-date="2026-09-05"]').click()
+    await expect(el.locator('[part="time-hour"]').first()).toBeEnabled()
+    await el.locator('[part="time-hour"]').first().fill('7')
+    await el.locator('[part="time-hour"]').first().press('Tab')
+    await el.getByRole('button', { name: '完了' }).click()
+    await expect(el.locator('[part="popup"]')).toBeHidden()
+    await example.getByRole('button', { name: '送信' }).click()
+    await expect(example.locator('output')).toContainText(
+      '"event":"2026-09-01T07:00/2026-09-05T18:30"',
+    )
+  })
+
   test('色選択: スライダー・候補の色で値が変わり、Escape で入力欄に戻る', async ({ page }) => {
     await page.goto('/components/color-input/')
     const example = page.locator('docs-example', { hasText: 'フォームの送信とリセット' })

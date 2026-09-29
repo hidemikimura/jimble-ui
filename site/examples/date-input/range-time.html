@@ -1,0 +1,24 @@
+<!-- title: 期間と時刻（range と time・フォーム） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(
+      Object.fromEntries(new FormData(this)),
+    )
+  "
+>
+  <jimble-field label="開催期間" required>
+    <jimble-date-input
+      name="event"
+      range
+      time
+      value="2026-09-29T09:00/2026-09-30T18:30"
+    ></jimble-date-input>
+  </jimble-field>
+  <div class="row">
+    <jimble-button type="submit" variant="primary">送信</jimble-button>
+    <jimble-button type="reset">リセット</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>

@@ -15,6 +15,13 @@ import {
   parseISO,
   toISO,
   weekday,
+  compareDateTime,
+  formatDateTime,
+  isValidTime,
+  parseDateTimeInput,
+  parseISODateTime,
+  parseRangeInput,
+  toISODateTime,
 } from '../../src/base/date.ts'
 
 const v = (y: number, m: number, d: number) => ({ y, m, d })
@@ -141,5 +148,69 @@ describe('書式と入力の解釈', () => {
     ]) {
       expect(parseInput(t, 'ja'), t).toBe('invalid')
     }
+  })
+})
+
+describe('日時', () => {
+  const dt = (y: number, m: number, d: number, h = 0, mi = 0) => ({ date: v(y, m, d), h, m: mi })
+
+  it('ISO の日時を解釈・整形する', () => {
+    expect(parseISODateTime('2026-09-29T14:30')).toEqual(dt(2026, 9, 29, 14, 30))
+    expect(parseISODateTime('2026-09-29')).toEqual(dt(2026, 9, 29))
+    expect(parseISODateTime('2026-09-29T24:00')).toBeNull()
+    expect(parseISODateTime('2026-02-30T10:00')).toBeNull()
+    expect(toISODateTime(dt(2026, 9, 5, 4, 7), true)).toBe('2026-09-05T04:07')
+    expect(toISODateTime(dt(2026, 9, 5, 4, 7), false)).toBe('2026-09-05')
+    expect(formatDateTime(dt(2026, 9, 5, 4, 7), 'ja', true)).toBe('2026/09/05 04:07')
+    expect(isValidTime(23, 59)).toBe(true)
+    expect(isValidTime(24, 0)).toBe(false)
+  })
+
+  it('日時の比較', () => {
+    expect(compareDateTime(dt(2026, 9, 1, 10), dt(2026, 9, 1, 9, 59))).toBeGreaterThan(0)
+    expect(compareDateTime(dt(2026, 9, 1), dt(2026, 9, 2))).toBeLessThan(0)
+  })
+
+  it('入力: 時刻は 14:30・14時30分・14時・全角。時刻なしは 00:00', () => {
+    for (const t of [
+      '2026/9/29 14:30',
+      '2026-09-29T14:30',
+      '2026年9月29日 14時30分',
+      '２０２６／９／２９ １４：３０',
+    ]) {
+      expect(parseDateTimeInput(t, 'ja', true)).toEqual(dt(2026, 9, 29, 14, 30))
+    }
+    expect(parseDateTimeInput('2026/9/29 9時', 'ja', true)).toEqual(dt(2026, 9, 29, 9, 0))
+    expect(parseDateTimeInput('2026/9/29', 'ja', true)).toEqual(dt(2026, 9, 29))
+    expect(parseDateTimeInput('', 'ja', true)).toBeNull()
+    expect(parseDateTimeInput('2026/9/29 25:00', 'ja', true)).toBe('invalid')
+    expect(parseDateTimeInput('14:30', 'ja', true)).toBe('invalid')
+    expect(parseDateTimeInput('2026/9/29 14:30', 'ja', false)).toBe('invalid')
+    expect(parseDateTimeInput('2026/9/29', 'ja', false)).toEqual(dt(2026, 9, 29))
+  })
+
+  it('期間: 区切りは 〜 ~ – to と、空白つきの -。終了が空なら end は null', () => {
+    const r = { start: dt(2026, 9, 1), end: dt(2026, 9, 10) }
+    for (const t of [
+      '2026/09/01 〜 2026/09/10',
+      '2026/9/1～2026/9/10',
+      '2026-09-01 - 2026-09-10',
+      '2026-09-01 to 2026-09-10',
+      '2026/09/01 – 2026/09/10',
+    ]) {
+      expect(parseRangeInput(t, 'ja', false)).toEqual(r)
+    }
+    expect(parseRangeInput('2026-09-01', 'ja', false)).toEqual({ start: dt(2026, 9, 1), end: null })
+    expect(parseRangeInput('2026/09/01 〜 ', 'ja', false)).toEqual({
+      start: dt(2026, 9, 1),
+      end: null,
+    })
+    expect(parseRangeInput('', 'ja', false)).toBeNull()
+    expect(parseRangeInput('2026/09/01 〜 abc', 'ja', false)).toBe('invalid')
+    expect(parseRangeInput('a 〜 b 〜 c', 'ja', false)).toBe('invalid')
+    expect(parseRangeInput('2026/09/01 09:00 〜 2026/09/10 18:30', 'ja', true)).toEqual({
+      start: dt(2026, 9, 1, 9),
+      end: dt(2026, 9, 10, 18, 30),
+    })
   })
 })

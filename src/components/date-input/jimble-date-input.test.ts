@@ -254,3 +254,229 @@ describe('アクセシビリティ', () => {
     await expectNoA11yViolations(f)
   })
 })
+
+describe('日時（time）', () => {
+  const timeInputs = (el: JimbleDateInput) => ({
+    h: el.shadowRoot!.querySelector<HTMLInputElement>('[part="time-hour"]')!,
+    m: el.shadowRoot!.querySelector<HTMLInputElement>('[part="time-minute"]')!,
+  })
+  const setNum = (input: HTMLInputElement, v: string) => {
+    input.value = v
+    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+
+  it('value は YYYY-MM-DDTHH:mm。表示は日本語の書式で、時刻の欄に反映される', async () => {
+    const { f, el } = await make('time value="2026-09-29T14:30"')
+    expect(input(el).value).toBe('2026/09/29 14:30')
+    expect(data(f)).toEqual({ d: '2026-09-29T14:30' })
+    expect(input(el).placeholder).toBe('yyyy/mm/dd hh:mm')
+    expect(timeInputs(el).h.value).toBe('14')
+    expect(timeInputs(el).m.value).toBe('30')
+  })
+
+  it('日を選んでも開いたまま。時刻を変えると値と change が更新され、「完了」で閉じる', async () => {
+    const { f, el } = await make('time')
+    const onChange = vi.fn()
+    el.addEventListener('change', onChange)
+    btn(el).click()
+    await tick()
+    expect(timeInputs(el).h.disabled).toBe(true)
+    day(el, '2026-09-15').click()
+    await tick()
+    expect(isOpen(el)).toBe(true)
+    expect(data(f)).toEqual({ d: '2026-09-15T00:00' })
+    expect(timeInputs(el).h.disabled).toBe(false)
+    setNum(timeInputs(el).h, '9')
+    setNum(timeInputs(el).m, '5')
+    await el.updateComplete
+    expect(data(f)).toEqual({ d: '2026-09-15T09:05' })
+    expect(input(el).value).toBe('2026/09/15 09:05')
+    expect(timeInputs(el).h.value).toBe('09')
+    expect(onChange).toHaveBeenCalled()
+    const done = [
+      ...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('[part="footer"] button'),
+    ].at(-1)!
+    expect(done.textContent!.trim()).toBe('完了')
+    done.click()
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    expect(el.shadowRoot!.activeElement).toBe(input(el))
+  })
+
+  it('範囲外の時・分は丸められる。刻み（minute-step）が欄に付く', async () => {
+    const { el } = await make('time minute-step="15" value="2026-09-15T10:00"')
+    btn(el).click()
+    await tick()
+    expect(timeInputs(el).m.step).toBe('15')
+    setNum(timeInputs(el).h, '99')
+    await el.updateComplete
+    expect(el.value).toBe('2026-09-15T23:00')
+  })
+
+  it('テキストで 2026/9/29 9時5分 と入力できる。時刻の無い入力は 00:00', async () => {
+    const { el } = await make('time')
+    input(el).focus()
+    input(el).value = '2026/9/29 9時5分'
+    input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    expect(el.value).toBe('2026-09-29T09:05')
+    input(el).value = '2026/9/30'
+    input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    expect(el.value).toBe('2026-09-30T00:00')
+  })
+
+  it('time でなければ時刻つきの入力は不正。min の時刻も検証される', async () => {
+    const a = await make()
+    input(a.el).value = '2026/9/29 10:00'
+    input(a.el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    expect(a.el.validity.badInput).toBe(true)
+    const b = await make('time min="2026-09-29T10:00" value="2026-09-29T09:00"')
+    expect(b.el.validity.rangeUnderflow).toBe(true)
+    expect(b.el.validationMessage).toContain('10:00')
+  })
+})
+
+describe('期間（range）', () => {
+  it('value は 開始/終了。表示は「開始 〜 終了」で、フォームに 1 つの値として送られる。start / end で取れる', async () => {
+    const { f, el } = await make('range value="2026-09-01/2026-09-10"')
+    expect(input(el).value).toBe('2026/09/01 〜 2026/09/10')
+    expect(data(f)).toEqual({ d: '2026-09-01/2026-09-10' })
+    expect(el.start).toBe('2026-09-01')
+    expect(el.end).toBe('2026-09-10')
+    expect(input(el).placeholder).toBe('yyyy/mm/dd 〜 yyyy/mm/dd')
+  })
+
+  it('1 回目で開始、2 回目で終了。間が強調され、閉じて change が 1 回出る。逆順なら入れ替わる', async () => {
+    const { f, el } = await make('range')
+    const onChange = vi.fn()
+    el.addEventListener('change', onChange)
+    btn(el).click()
+    await tick()
+    day(el, '2026-09-20').click()
+    await tick()
+    expect(isOpen(el)).toBe(true)
+    expect(data(f)).toEqual({})
+    expect(el.shadowRoot!.querySelector('[role="status"]')!.textContent).toContain('終了日を選択')
+    day(el, '2026-09-23').dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }))
+    await el.updateComplete
+    const selected = () =>
+      [...el.shadowRoot!.querySelectorAll('td[aria-selected="true"] [data-date]')].map(
+        (b) => (b as HTMLElement).dataset.date,
+      )
+    expect(selected()).toEqual(['2026-09-20', '2026-09-21', '2026-09-22', '2026-09-23'])
+    day(el, '2026-09-12').click() // 開始より前 → 入れ替わる
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    expect(data(f)).toEqual({ d: '2026-09-12/2026-09-20' })
+    expect(input(el).value).toBe('2026/09/12 〜 2026/09/20')
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('端の日には 開始日 / 終了日 が読み上げの名前に付く', async () => {
+    const { el } = await make('range value="2026-09-10/2026-09-12"')
+    btn(el).click()
+    await tick()
+    expect(day(el, '2026-09-10').getAttribute('aria-label')).toContain('開始日')
+    expect(day(el, '2026-09-12').getAttribute('aria-label')).toContain('終了日')
+    expect(day(el, '2026-09-11').getAttribute('aria-label')).not.toContain('開始日')
+    expect(
+      el.shadowRoot!.querySelector('[role="grid"]')!.getAttribute('aria-multiselectable'),
+    ).toBe('true')
+  })
+
+  it('キーボードだけで選べる（Enter で開始、移動して Enter で終了）', async () => {
+    const { el } = await make('range value="2026-09-10/2026-09-12"')
+    btn(el).click()
+    await tick()
+    await userEvent.keyboard('{Enter}') // 10 日を開始に
+    await userEvent.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{Enter}')
+    await tick()
+    expect(el.value).toBe('2026-09-10/2026-09-13')
+  })
+
+  it('テキストで 〜 ～ - to の区切りを受け付ける。終了が無い・順序が逆は検証エラー', async () => {
+    const { el } = await make('range')
+    const type = (t: string) => {
+      input(el).value = t
+      input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    }
+    type('2026/9/1～2026/9/10')
+    expect(el.value).toBe('2026-09-01/2026-09-10')
+    type('2026-09-01 to 2026-09-10')
+    expect(el.value).toBe('2026-09-01/2026-09-10')
+    type('2026/09/01')
+    expect(el.value).toBe('')
+    expect(el.validity.badInput).toBe(true)
+    expect(el.validationMessage).toContain('終了')
+    type('2026/09/10 〜 2026/09/01')
+    expect(el.validity.customError).toBe(true)
+    type('abc')
+    expect(el.validity.badInput).toBe(true)
+  })
+
+  it('reset で value 属性に戻る。クリアで空になる', async () => {
+    const { f, el } = await make('range value="2026-09-01/2026-09-10"')
+    el.value = '2026-10-01/2026-10-05'
+    f.reset()
+    await el.updateComplete
+    expect(el.value).toBe('2026-09-01/2026-09-10')
+    btn(el).click()
+    await tick()
+    ;[...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('[part="footer"] button')][0]!.click()
+    await tick()
+    expect(data(f)).toEqual({})
+  })
+
+  it('range と time: 開始・終了の時刻の欄があり、既定は 00:00 と 23:59', async () => {
+    const { f, el } = await make('range time')
+    btn(el).click()
+    await tick()
+    day(el, '2026-09-01').click()
+    await tick()
+    day(el, '2026-09-03').click()
+    await tick()
+    expect(isOpen(el)).toBe(true)
+    expect(data(f)).toEqual({ d: '2026-09-01T00:00/2026-09-03T23:59' })
+    expect(el.shadowRoot!.querySelectorAll('[part="time"] [role="group"]').length).toBe(2)
+    expect(input(el).value).toBe('2026/09/01 00:00 〜 2026/09/03 23:59')
+    // 同じ日で終了が開始より前なら検証エラー
+    input(el).value = '2026/09/01 10:00 〜 2026/09/01 09:00'
+    input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    expect(el.validity.customError).toBe(true)
+  })
+})
+
+describe('複数の月（months）', () => {
+  it('months="2" で 2 か月が並び、端で月をまたいで移動しても表示が追従する', async () => {
+    const { el } = await make('months="2" value="2026-09-29"')
+    btn(el).click()
+    await tick()
+    const grids = () => el.shadowRoot!.querySelectorAll('[part="grid"]')
+    expect(grids().length).toBe(2)
+    expect(day(el, '2026-10-05')).not.toBeNull()
+    expect(el.shadowRoot!.querySelectorAll('[part="title"]').length).toBe(2)
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}')
+    await tick()
+    expect((el.shadowRoot!.activeElement as HTMLElement).dataset.date).toBe('2026-11-03')
+    expect(day(el, '2026-11-03')).not.toBeNull()
+  })
+
+  it('range time months=2 の開いた状態でも axe 違反がない', async () => {
+    const f = await mount<HTMLElement>(
+      html`<jimble-field label="期間"
+        ><jimble-date-input
+          name="p"
+          range
+          time
+          months="2"
+          value="2026-09-01T09:00/2026-09-10T18:30"
+        ></jimble-date-input
+      ></jimble-field>`,
+    )
+    const el = f.querySelector('jimble-date-input') as JimbleDateInput
+    await el.updateComplete
+    btn(el).click()
+    await tick()
+    await expectNoA11yViolations(f)
+  })
+})

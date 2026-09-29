@@ -17,6 +17,11 @@
       flip-inline,
       flip-block flip-inline;
     width: max-content;
+    max-width: calc(100vw - 1rem);
+    /* 日時・期間を選ぶカレンダーは背が高い。上下のうち広い側に出し、収まらなければ中でスクロールする */
+    position-try-order: most-height;
+    max-height: 100%;
+    overflow-y: auto;
   }
   :host(jimble-date-input) [part='grid'] td {
     padding: 0;
