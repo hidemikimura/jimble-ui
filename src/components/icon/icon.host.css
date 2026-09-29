@@ -1,0 +1,9 @@
+@layer components {
+  :host(jimble-icon) {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 0;
+    /* 周りの文字色に従う(共通の :host は文字色を決めているので、引き継ぐ指定が要る) */
+    color: inherit;
+  }
+}

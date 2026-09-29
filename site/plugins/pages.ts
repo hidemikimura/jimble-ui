@@ -159,6 +159,21 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
 }
 
 // ---- トークン表 --------------------------------------------------------------------------
+/** icons/svg の全アイコンの一覧(名前 + 見た目) */
+function iconsHtml(): string {
+  const names = readdirSync(resolve(repoRoot, 'icons/svg'))
+    .filter((f) => f.endsWith('.svg'))
+    .map((f) => f.replace(/\.svg$/, ''))
+    .sort()
+  return (
+    `<ul class="icon-grid" aria-label="アイコンの一覧">` +
+    names
+      .map((n) => `<li><jimble-icon name="${n}" size="lg"></jimble-icon><code>${n}</code></li>`)
+      .join('') +
+    `</ul>`
+  )
+}
+
 function tokensHtml(): string {
   const scaleRe = /^color-(primary|neutral|success|warning|danger|info)-(\d+)$/
   const scales = new Map<string, string[]>()
@@ -247,20 +262,22 @@ function render(page: Page, pages: Page[], md: MarkdownIt, manifest: Manifest | 
     return (r === '.' ? './' : `${r}/`).replace(/^(?!\.)/, './')
   }
   const source = page.body.replace(
-    /^::(example|api|tokens)(?:[ \t]+(\S+))?[ \t]*$/gm,
+    /^::(example|api|tokens|icons)(?:[ \t]+(\S+))?[ \t]*$/gm,
     (_, kind: string, arg?: string) =>
       `\n<div data-directive="${kind}" data-arg="${arg ?? ''}"></div>\n`,
   )
   const body = md
     .render(source)
     .replace(
-      /<div data-directive="(example|api|tokens)" data-arg="([^"]*)"><\/div>/g,
+      /<div data-directive="(example|api|tokens|icons)" data-arg="([^"]*)"><\/div>/g,
       (_, kind: string, arg: string) =>
         kind === 'example'
           ? exampleHtml(arg, here)
           : kind === 'api'
             ? apiHtml(manifest, arg)
-            : tokensHtml(),
+            : kind === 'icons'
+              ? iconsHtml()
+              : tokensHtml(),
     )
   const nav = (section: Page['section'], label: string) =>
     `<p class="nav-heading">${label}</p><ul>${pages

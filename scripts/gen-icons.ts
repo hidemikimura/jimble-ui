@@ -27,14 +27,28 @@ for (const file of readdirSync(srcDir)
   const id = camel(name)
   names.push(name)
   outputs.push([
+    `register/${name}.ts`,
+    `${banner}import { ${id} } from '../${id}.js'\nimport { registerIcon } from '../registry.js'\n\nregisterIcon('${name}', ${id})\n`,
+  ])
+  outputs.push([
     `${id}.ts`,
     `${banner}import { svg } from 'lit'\nimport type { Icon } from './render.js'\n\n` +
       `export const ${id}: Icon = {\n  viewBox: '${viewBox}',\n  fill: '${fill}',\n  body: svg\`${body}\`,\n}\n`,
   ])
 }
 
+// 全アイコンをまとめて登録する入口と、名前の一覧
+outputs.push([
+  'register/index.ts',
+  banner + names.map((n) => `import './${n}.js'`).join('\n') + '\n',
+])
+outputs.push([
+  'names.ts',
+  `${banner}/** jimble-icon の name に使えるアイコンの名前 */\nexport const ICON_NAMES = [\n${names.map((n) => `  '${n}',`).join('\n')}\n] as const\nexport type IconName = (typeof ICON_NAMES)[number]\n`,
+])
+
 let stale = false
-mkdirSync(outDir, { recursive: true })
+mkdirSync(resolve(outDir, 'register'), { recursive: true })
 for (const [file, content] of outputs) {
   const path = resolve(outDir, file)
   if (check) {

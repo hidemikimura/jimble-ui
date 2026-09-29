@@ -5,7 +5,7 @@
 //   skills/jimble-ui/SKILL.md          … パッケージに同梱する(利用者が .claude/skills/ にコピーして使う)
 //   .claude/skills/jimble-ui/SKILL.md  … このリポジトリで開発するときに使う
 // 実行: node scripts/gen-skill.ts [--check]   （事前に custom-elements.json が必要: npm run gen:manifest）
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
@@ -36,6 +36,7 @@ const GROUPS: [string, string[]][] = [
       'badge',
       'alert',
       'spinner',
+      'icon',
       'table',
       'table-header',
       'table-body',
@@ -160,6 +161,16 @@ function example(id: string): string {
   return '```html\n' + html.trim() + '\n```'
 }
 
+/** 使えるアイコンの名前(icons/svg のファイル名) */
+function iconNames(): string {
+  return readdirSync(resolve(root, 'icons/svg'))
+    .filter((f) => f.endsWith('.svg'))
+    .map((f) => f.replace(/\.svg$/, ''))
+    .sort()
+    .map((n) => `\`${n}\``)
+    .join('、')
+}
+
 const template = readFileSync(resolve(import.meta.dirname, 'skill-template.md'), 'utf8')
 const [, frontmatter = '', body = ''] = /^(---\n[\s\S]*?\n---\n)([\s\S]*)$/.exec(template) ?? []
 if (!frontmatter) throw new Error('テンプレートの先頭に frontmatter がありません')
@@ -168,6 +179,7 @@ const generated =
   '\n<!-- 生成物: scripts/gen-skill.ts が scripts/skill-template.md・custom-elements.json・site/examples から作る。直接編集しない。 -->\n' +
   body
     .replace('{{components}}', components())
+    .replace('{{icons}}', iconNames())
     .replace(/\{\{example:([\w/-]+)\}\}/g, (_, id: string) => example(id))
 
 if (/\{\{/.test(generated)) throw new Error('展開されていないプレースホルダーが残っています')

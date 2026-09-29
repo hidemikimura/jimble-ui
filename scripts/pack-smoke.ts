@@ -58,12 +58,16 @@ async function main() {
     `import '@hidemikimura/jimble-ui/button'
 import '@hidemikimura/jimble-ui/table'
 import '@hidemikimura/jimble-ui/dialog'
+import '@hidemikimura/jimble-ui/icon'
+import '@hidemikimura/jimble-ui/icons/check'
+import '@hidemikimura/jimble-ui/icons'
+import { ICON_NAMES } from '@hidemikimura/jimble-ui/icons/names'
 import { setLocale, getLocale } from '@hidemikimura/jimble-ui/i18n'
 import en from '@hidemikimura/jimble-ui/locales/en'
 import { toast } from '@hidemikimura/jimble-ui/toast'
 import * as all from '@hidemikimura/jimble-ui'
 import '@hidemikimura/jimble-ui/tokens.css'
-window.__smoke = { setLocale, getLocale, en, toast, all }
+window.__smoke = { setLocale, getLocale, en, toast, all, ICON_NAMES }
 `,
   )
   const vite = join(root, 'node_modules/vite/bin/vite.js')
@@ -78,6 +82,9 @@ import { toast, type ToastOptions } from '@hidemikimura/jimble-ui/toast'
 import { setLocale, type Locale } from '@hidemikimura/jimble-ui/i18n'
 import en from '@hidemikimura/jimble-ui/locales/en'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
+import { registerIcon } from '@hidemikimura/jimble-ui/icon'
+import '@hidemikimura/jimble-ui/icons/check'
+import { ICON_NAMES, type IconName } from '@hidemikimura/jimble-ui/icons/names'
 
 const b: JimbleButton = document.createElement('jimble-button')
 b.variant = 'primary'
@@ -88,6 +95,10 @@ const opts: ToastOptions = { message: 'x', variant: 'success' }
 const l: Locale = en
 setLocale(l)
 toast(opts)
+const n: IconName = 'check'
+// @ts-expect-error 存在しない名前
+const bad: IconName = 'no-such-icon'
+void [n, bad, ICON_NAMES, registerIcon]
 void t
 void JimbleUI
 `,

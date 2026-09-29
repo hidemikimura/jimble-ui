@@ -81,6 +81,7 @@
   "sideEffects": [
     "./dist/index.js",
     "./dist/components/*.js",
+    "./dist/icons/*.js",
     "./dist/chunks/*.js",
     "./dist/cdn/*.js",
     "./src/**"
@@ -89,6 +90,18 @@
     ".": {
       "types": "./dist/types/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./icons": {
+      "types": "./dist/types/icons/register/index.d.ts",
+      "default": "./dist/icons/index.js"
+    },
+    "./icons/names": {
+      "types": "./dist/types/icons/names.d.ts",
+      "default": "./dist/icons/names.js"
+    },
+    "./icons/*": {
+      "types": "./dist/types/icons/register/*.d.ts",
+      "default": "./dist/icons/*.js"
     },
     "./i18n": {
       "types": "./dist/types/i18n/index.d.ts",

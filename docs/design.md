@@ -1499,6 +1499,15 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 
 - `jimble-spinner`（43 要素）。既存の内部アイコン（`spinner`、ボタンの loading と同じ）を単独の部品にした。既定は `role=status` + 「読み込み中」（`common.loading`）を `sr-only` で持ち、隣に文字があるときは `decorative`（`role` なし・読み上げから外す）。色は `currentColor`、`variant="primary"` で主色。`motion-safe` で回転、`motion-reduce` では点滅（動きを止めても読み込み中と分かるように）。
 
+**追補: 公開アイコン `jimble-icon`（2026-09-29）**
+
+- **方針の変更**: 当初（§9）は「同梱は内部用のみ、汎用セットは非同梱」だったが、管理画面でアイコンを別途用意する手間をなくすため、Heroicons v2 の 20/solid から**管理画面でよく使う約 100 個**（内部用 + 追加分）を公開した。`icons/svg/` に vendor（MIT 表記は既存のまま）。線画（outline）や他のセットは対象外。
+- **仕組み**: アイコンを 1 つずつ登録する登録簿（`src/icons/registry.ts`、`registerIcon` / `getIcon`）に、`jimble-icon` が `name` で引く。登録が増えたら描き直す（個別 import の順序に依存しない）。`gen:icons` が、アイコン本体（`src/icons/<id>.ts`）に加えて登録用の入口（`src/icons/register/<name>.ts` と全部の `index.ts`）と名前の一覧（`names.ts`: `ICON_NAMES` / `IconName`）を生成する。
+- **読み込み**: 全部品の入口（`@hidemikimura/jimble-ui`・CDN）には全アイコンが入る。個別 import は `.../icon`（要素）+ `.../icons/<name>`（1 つ）または `.../icons`（全部）。`package.json` の `exports` に `./icons`・`./icons/names`・`./icons/*` を追加し、`sideEffects` に `dist/icons/*.js` を加えた。
+- **アクセシビリティ**: 既定は装飾（`aria-hidden`）。`label` を付けると `role=img`。アイコンだけのボタンは、ボタン側の `aria-label`（ドキュメントと skill で明記）。
+- **サイズ**: CDN バンドルは 53.4 KB → 64.8 KB gz（アイコン約 100 個で +11 KB）。予算を 56 KB から 70 KB に上げた。npm の個別 import では、使うアイコンだけが入る。
+- **独自アイコン**: `registerIcon(name, { viewBox, fill, body })`（`body` は Lit の `svg` テンプレート。文字列の SVG は XSS の恐れがあるので受け付けない）。
+
 ---
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）

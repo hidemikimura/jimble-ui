@@ -168,6 +168,28 @@ small {
 .warn {
   color: #b45309;
 }
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+.icon-grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+.icon-grid code {
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
 .row {
   display: flex;
   flex-wrap: wrap;

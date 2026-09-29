@@ -10,6 +10,12 @@ for (const file of globSync('src/components/*/index.ts')) {
   const name = file.split('/')[2]!
   entries[`components/${name}`] = resolve(file)
 }
+// アイコンは 1 つずつ読み込める(icons/<name>)。icons は全部、icons/names は名前の一覧
+for (const file of globSync('src/icons/register/*.ts')) {
+  const name = file.split('/')[3]!.replace(/\.ts$/, '')
+  entries[`icons/${name}`] = resolve(file)
+}
+entries['icons/names'] = resolve('src/icons/names.ts')
 entries.i18n = resolve('src/i18n/index.ts')
 for (const file of globSync('src/locales/*.ts')) {
   entries[`locales/${file.split('/')[2]!.replace(/\.ts$/, '')}`] = resolve(file)

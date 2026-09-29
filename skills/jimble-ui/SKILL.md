@@ -112,6 +112,9 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
+- **`jimble-icon`** — アイコン。
+  - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
 - **`jimble-table`** — データテーブル。
   - 属性: `label=値`, `sticky-header`, `striped`, `loading`
   - スロット: (既定)
@@ -279,6 +282,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **ダイアログ**: `heading` 属性（または `title` スロット / `aria-label`）が必要。開閉は `el.show()` / `el.hide()` / `open` 属性。中の要素に `data-dialog-close` を付けると、JavaScript なしで閉じる。確認など応答が必須のものは `alert`（背景クリックで閉じない）にして、安全な側のボタンに `autofocus`。閉じる前に `jimble-close-request`（`preventDefault()` で止められる）。
 - **ドロワー**（`jimble-drawer`。サイドモーダル・スライドパネル・ボトムシート）: 画面の端から出るモーダル。API と挙動は `jimble-dialog` と同じ（`heading`・`show()` / `hide()`・`data-dialog-close`・`jimble-close-request`）。位置は `placement`（`end` 右・既定 / `start` 左 / `top` / `bottom`）、幅は `size`。確認など短い操作は dialog、詳細・絞り込み・編集は drawer。開いている間は背面が操作できない（非モーダルは未対応）。
 - **スピナー**（`jimble-spinner`）: 読み込み中の表示。既定で `role="status"` と「読み込み中」を伝える。隣に同じ意味の文字があるときは `decorative`。ボタンの読み込み中は `jimble-button` の `loading`（スピナーを自分で置かない）。
+- **アイコン**（`jimble-icon`）: `<jimble-icon name="check">`。色は文字色に従う。`size`（`sm` `md` `lg` `xl`）。**意味を持つときだけ `label` を付ける**（`role="img"`）。隣に文字があるときは付けない。アイコンだけのボタンは、ボタンに `aria-label`。**`name` は次の一覧にあるものだけ**（推測しない）: `adjustments-horizontal`、`archive-box`、`arrow-down`、`arrow-down-tray`、`arrow-left`、`arrow-path`、`arrow-right`、`arrow-top-right-on-square`、`arrow-up`、`arrow-up-tray`、`banknotes`、`bars-3`、`bell`、`bolt`、`bookmark`、`building-office`、`calendar`、`calendar-days`、`chart-bar`、`chat-bubble-left`、`check`、`check-circle`、`chevron-down`、`chevron-left`、`chevron-right`、`chevron-up-down`、`clipboard`、`clipboard-document`、`clock`、`cloud`、`code-bracket`、`cog-6-tooth`、`command-line`、`computer-desktop`、`cpu-chip`、`credit-card`、`cube`、`currency-yen`、`device-phone-mobile`、`document`、`document-text`、`ellipsis-horizontal`、`ellipsis-vertical`、`envelope`、`exclamation-circle`、`exclamation-triangle`、`eye`、`eye-slash`、`face-smile`、`flag`、`folder`、`funnel`、`globe-alt`、`hand-thumb-down`、`hand-thumb-up`、`heart`、`home`、`identification`、`inbox`、`information-circle`、`key`、`language`、`link`、`list-bullet`、`lock-closed`、`lock-open`、`magnifying-glass`、`map-pin`、`minus`、`minus-circle`、`no-symbol`、`paper-clip`、`pencil`、`pencil-square`、`phone`、`photo`、`plus`、`plus-circle`、`power`、`printer`、`puzzle-piece`、`question-mark-circle`、`queue-list`、`rectangle-stack`、`server`、`share`、`shield-check`、`shopping-cart`、`spinner`、`squares-2x2`、`star`、`swatch`、`table-cells`、`tag`、`trash`、`truck`、`tv`、`user`、`user-circle`、`user-group`、`user-plus`、`users`、`wrench-screwdriver`、`x-circle`、`x-mark`。全部品を読み込む入口（CDN も）には全部入っている。個別 import は `@hidemikimura/jimble-ui/icon` + `@hidemikimura/jimble-ui/icons/<name>`。
 - **メニュー**: トリガーは `slot="trigger"`。項目は `jimble-menu-item`（`value`）。選ばれたら `jimble-select`（`e.detail.value`）。
 - **セレクト**: 選択肢は `jimble-option`（`value`）。未選択はプレースホルダー（ネイティブと違い、最初の選択肢が自動で選ばれない）。
 - **コンボボックス**（`jimble-combobox`）: 選択肢が多く、探して選ぶときに使う。選択肢は `jimble-select` と同じ `jimble-option`（読みは `keywords="とうきょう tokyo"`）。既定では**自由入力は値にならない**。文字入力では `input` / `change` は出ず、`jimble-search`（`detail.query`）が出る。
