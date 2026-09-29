@@ -51,7 +51,9 @@ interface ValidatorTarget extends HTMLElement {
  * - Promise を返すと、サーバーへの問い合わせなどにも使える。結果が出るまでは「確認中です」となり、送信されない。
  *   Promise を返す検証は、入力のたびには呼ばず、値が確定したとき(`change`・フォーカスが外れたとき)に呼ぶ。古い結果は捨てる。
  * - `setCustomValidity` や `error` 属性(サーバーからのエラーなど)とは別に扱うので、互いに上書きしない。
- * - `validateNow()` で、いつでも検証して、結果(`true` = 問題なし)を待てる。
+ * - `validateNow()` で、いつでも検証して、結果(`true` = 問題なし)を待てる。`showErrors()` は検証して、エラーを表示する。
+ *   `hideErrors()` は、エラーの表示を隠す。
+ * - 部品の値がプログラムから変わったとき(`input.value = '…'`。フリガナの自動入力など)も、自動で再検証される。
  * - 1 つの field に部品が複数あるとき(姓と名など)は、部品ごとに呼ばれる。3 つ目の引数 `context.get('first')` で、ほかの部品の値を引ける。
  *   どれかの部品の値が変わると、ほかの部品(同期の検証のもの)も再検証する。エラーは、無効な最初の部品のものが表示される。
  *
@@ -154,6 +156,7 @@ export class JimbleField extends JimbleElement {
           this.requestUpdate()
         }
       },
+      valueChanged: (control) => this.valueChanged(control),
       report: (control, message) => {
         if ((this.#reports.get(control) ?? '') === message) return
         this.#reports.set(control, message)
@@ -182,6 +185,30 @@ export class JimbleField extends JimbleElement {
     }
   }
 
+  /** 直前に検証した値(プログラムからの値の変更を見分けるため) */
+  #lastKey = new WeakMap<HTMLElement, string>()
+  #keyOf(control: HTMLElement): string {
+    return JSON.stringify(this.#valueOf(control), (_k, v) => (v instanceof File ? v.name : v))
+  }
+
+  /** 部品の値が、イベントなしに(プログラムから)変わったとき。氏名から自動入力されたフリガナなど */
+  valueChanged(control: HTMLElement): void {
+    // 部品は、入力イベントを field に届ける前に値を確定して通知してくる。イベントで検証済みかどうかを見分けるため、
+    // イベントの処理がすべて終わったあと(次のタスク)に確かめる
+    setTimeout(() => {
+      if (
+        !this.validate ||
+        !this.isConnected ||
+        this.#lastKey.get(control) === this.#keyOf(control)
+      )
+        return
+      void this.#runOne(control, false)
+      for (const other of this.#controls) {
+        if (other !== control && this.#async.get(other) !== true) void this.#runOne(other, false)
+      }
+    })
+  }
+
   #valueOf(control: HTMLElement): FieldValue {
     const c = control as HTMLElement & Record<string, unknown>
     if (Array.isArray(c.values) && (c.multiple || c.localName === 'jimble-dual-listbox'))
@@ -204,6 +231,7 @@ export class JimbleField extends JimbleElement {
       this.#apply(control, '')
       return
     }
+    this.#lastKey.set(control, this.#keyOf(control))
     if (fromInput && this.#async.get(control)) return
     const id = (this.#seq.get(control) ?? 0) + 1
     this.#seq.set(control, id)
@@ -256,6 +284,23 @@ export class JimbleField extends JimbleElement {
     return [...this.#controls].every(
       (c) => (c as Partial<ValidatorTarget>).validity?.valid !== false,
     )
+  }
+
+  /**
+   * 中の部品を今すぐ検証して、エラーを**表示する**(送信を試みたときと同じ状態にする)。すべて問題なければ `true`。
+   * 「別の入力を受けて、この項目をエラーにする」ときに使う。
+   */
+  async showErrors(): Promise<boolean> {
+    const ok = await this.validateNow()
+    for (const c of this.#controls)
+      (c as Partial<{ setTouched(t: boolean): void }>).setTouched?.(true)
+    return ok
+  }
+
+  /** エラーの**表示を隠す**(値と検証の結果は変えない。次にフォーカスが外れたり、送信を試みたりすると、また出る) */
+  hideErrors(): void {
+    for (const c of this.#controls)
+      (c as Partial<{ setTouched(t: boolean): void }>).setTouched?.(false)
   }
 
   protected override updated(changed: PropertyValues): void {

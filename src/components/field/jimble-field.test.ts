@@ -310,3 +310,100 @@ describe('1 つの field に部品が複数ある(姓と名)', () => {
     await expectNoA11yViolations(form)
   })
 })
+
+describe('外から実行する（フリガナの自動入力など）', () => {
+  type C = HTMLElement & {
+    value: string
+    validity: ValidityState
+    updateComplete: Promise<unknown>
+  }
+  async function nameAndKana() {
+    const form = await mount<HTMLFormElement>(html`<form></form>`)
+    form.innerHTML = `<jimble-input name="name" aria-label="氏名"></jimble-input>
+      <jimble-field id="kana" label="フリガナ"><jimble-input name="kana"></jimble-input></jimble-field>`
+    const field = form.querySelector('#kana') as JimbleField
+    field.validate = (v) => (v ? null : 'フリガナを入力してください。')
+    await field.updateComplete
+    await tick()
+    return {
+      form,
+      field,
+      name: form.querySelector('jimble-input[name="name"]') as C,
+      kana: form.querySelector('jimble-input[name="kana"]') as C,
+    }
+  }
+
+  it('1. showErrors で、その場でエラーにして、表示する（触れていなくても）', async () => {
+    const { field, kana } = await nameAndKana()
+    expect(errorText(field)).toBe('')
+    expect(await field.showErrors()).toBe(false)
+    await tick(60)
+    expect(errorText(field)).toBe('フリガナを入力してください。')
+    expect(kana.validity.customError).toBe(true)
+  })
+
+  it('2. 値がプログラムから入ると(イベントなしでも)自動で再検証され、エラーが消える', async () => {
+    const { form, field, kana } = await nameAndKana()
+    await field.showErrors()
+    await tick(60)
+    expect(errorText(field)).toBe('フリガナを入力してください。')
+    kana.value = 'ヤマダ' // Autokana.js のように、value を直接書き換える(input イベントは出ない)
+    await kana.updateComplete
+    await tick(60)
+    expect(kana.validity.valid).toBe(true)
+    expect(errorText(field)).toBe('')
+    expect(form.checkValidity()).toBe(true)
+    kana.value = '' // 空に戻すと、また無効になる(触れた状態のままなので、エラーも出る)
+    await kana.updateComplete
+    await tick(60)
+    expect(kana.validity.valid).toBe(false)
+    expect(errorText(field)).toBe('フリガナを入力してください。')
+  })
+
+  it('3. hideErrors で、エラーの表示だけを隠す(検証の結果は変わらない)。もう一度 showErrors で出る', async () => {
+    const { form, field, kana } = await nameAndKana()
+    await field.showErrors()
+    await tick(60)
+    field.hideErrors()
+    await tick(60)
+    expect(errorText(field)).toBe('')
+    expect(kana.validity.valid).toBe(false)
+    expect(form.checkValidity()).toBe(false)
+    await field.showErrors()
+    await tick(60)
+    expect(errorText(field)).toBe('フリガナを入力してください。')
+  })
+
+  it('氏名の入力(input イベント)から、フリガナの value を書き換える連携ができる', async () => {
+    const { field, name, kana } = await nameAndKana()
+    const table: Record<string, string> = { 山: 'ヤマ', 田: 'ダ' }
+    name.addEventListener('input', () => {
+      kana.value = [...name.value].map((c) => table[c] ?? '').join('')
+    })
+    await field.showErrors()
+    name.focus()
+    await userEvent.keyboard('山田')
+    await tick(100)
+    expect(kana.value).toBe('ヤマダ')
+    expect(kana.validity.valid).toBe(true)
+    field.hideErrors()
+    await tick(60)
+    expect(errorText(field)).toBe('')
+  })
+
+  it('入力で変えたときに、検証が二重に呼ばれない(同じ値では再検証しない)', async () => {
+    const calls: string[] = []
+    const { field, kana } = await nameAndKana()
+    field.validate = (v) => {
+      calls.push(String(v))
+      return null
+    }
+    await field.updateComplete
+    await tick()
+    calls.length = 0
+    kana.focus()
+    await userEvent.keyboard('ア')
+    await tick(60)
+    expect(calls).toEqual(['ア'])
+  })
+})

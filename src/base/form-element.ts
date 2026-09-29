@@ -50,6 +50,7 @@ export abstract class JimbleFormElement extends JimbleElement {
   #touched = false
   #customMessage = ''
   #validatorMessage = ''
+  #lastFormState: string | null | undefined = undefined
   #hintId = this.uid('hint')
   #errorId = this.uid('error')
 
@@ -100,6 +101,16 @@ export abstract class JimbleFormElement extends JimbleElement {
   /** エラー表示にするか（field の error 属性 ∥ touched 後の検証失敗） */
   protected get showInvalid(): boolean {
     return this.field.explicitError || (this.#touched && !this.internals.validity.valid)
+  }
+
+  /**
+   * 「触れた」状態にする(エラーを表示する)/ 戻す(エラーの表示を隠す。値と検証の結果は変えない)。
+   * 送信を試みたり、フォーカスが外れたりしたときと同じ状態を、プログラムから作る。
+   */
+  setTouched(touched: boolean): void {
+    if (this.#touched === touched) return
+    this.#touched = touched
+    this.requestUpdate()
   }
 
   #markTouched() {
@@ -183,6 +194,11 @@ export abstract class JimbleFormElement extends JimbleElement {
       this.internals.setValidity({})
     }
     this.field.report(this.touched ? this.internals.validationMessage : '')
+    // 値が(プログラムからも)変わったら、field の validate に知らせる。最初の 1 回は知らせない(field が最初に検証する)
+    const state = this.formState
+    if (this.#lastFormState !== undefined && state !== this.#lastFormState)
+      this.field.valueChanged()
+    this.#lastFormState = state
   }
 
   /** 既定の検証: ネイティブのコントロールの validity を写し、メッセージは辞書から引く */

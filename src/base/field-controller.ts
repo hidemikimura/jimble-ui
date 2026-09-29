@@ -14,6 +14,8 @@ export interface FieldInfo {
   register(control: HTMLElement): () => void
   /** 中に登録されているコントロールの数(複数あるときは、部品ごとの名前を組み合わせる) */
   count: number
+  /** コントロールの値が変わった(プログラムからの変更も含む)ことを知らせる。field の validate が、必要なら再検証する */
+  valueChanged(control: HTMLElement): void
   /** コントロールが検証メッセージ（touched 後のみ）を報告する。複数あるときは、無効な最初のものを表示する */
   report(control: HTMLElement, message: string): void
 }
@@ -74,6 +76,11 @@ export class FieldControlController implements ReactiveController {
   }
   get required(): boolean {
     return this.#info?.required ?? false
+  }
+
+  /** 値が変わったことを field に伝える */
+  valueChanged(): void {
+    this.#info?.valueChanged(this.#host)
   }
 
   /** 検証メッセージを field に伝える（変化したときだけ） */

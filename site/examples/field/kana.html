@@ -1,0 +1,49 @@
+<!-- title: 外から検証する（氏名からフリガナを自動入力） -->
+<form
+  class="stack"
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent =
+      '送信しました: ' + JSON.stringify(Object.fromEntries(new FormData(this)))
+  "
+>
+  <jimble-field label="氏名">
+    <jimble-input
+      id="kana-name"
+      name="name"
+      autocomplete="name"
+      placeholder="山田 太郎"
+    ></jimble-input>
+  </jimble-field>
+  <jimble-field
+    id="kana-field"
+    label="フリガナ"
+    hint="氏名を入力すると、自動で入ります（手で直せます）"
+  >
+    <jimble-input id="kana-input" name="kana" placeholder="ヤマダ タロウ"></jimble-input>
+  </jimble-field>
+  <div class="row">
+    <jimble-button id="kana-show">フリガナをエラーにする</jimble-button>
+    <jimble-button id="kana-hide">エラーの表示を消す</jimble-button>
+    <jimble-button type="submit" variant="primary">登録</jimble-button>
+  </div>
+  <output aria-live="polite"></output>
+</form>
+<script>
+  const kanaField = document.getElementById('kana-field')
+  kanaField.validate = (value) => (value ? null : 'フリガナを入力してください。')
+
+  // 実際は Autokana.js などで、氏名の入力からフリガナを作って、フリガナの value に入れる。
+  // ここでは、それを真似た小さな変換表で代わりにする。value を書き換えるだけで、フリガナの検証は自動でやり直される
+  const KANA = { 山: 'ヤマ', 田: 'ダ', 太: 'タ', 郎: 'ロウ', ' ': ' ' }
+  document.getElementById('kana-name').addEventListener('input', (e) => {
+    document.getElementById('kana-input').value = [...e.target.value]
+      .map((c) => KANA[c] ?? '')
+      .join('')
+  })
+
+  // 1. フリガナをその場でエラーにして、表示する
+  document.getElementById('kana-show').addEventListener('click', () => kanaField.showErrors())
+  // 3. エラーの表示だけを消す(検証の結果は、そのまま)
+  document.getElementById('kana-hide').addEventListener('click', () => kanaField.hideErrors())
+</script>
