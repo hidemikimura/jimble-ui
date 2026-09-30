@@ -73,6 +73,19 @@ describe('表示と値', () => {
   })
 })
 
+describe('枠', () => {
+  it('リストの枠は border で描く(行の背景に、左右の枠が隠れない)', async () => {
+    const { el } = await make()
+    const list = el.shadowRoot!.querySelector<HTMLElement>('[part="listbox"]')!
+    const cs = getComputedStyle(list)
+    expect(cs.borderLeftWidth).toBe('1px')
+    expect(cs.borderRightWidth).toBe('1px')
+    const row = rows(el, 'available')[0]!
+    expect(row.getBoundingClientRect().left).toBeGreaterThan(list.getBoundingClientRect().left)
+    expect(row.getBoundingClientRect().right).toBeLessThan(list.getBoundingClientRect().right)
+  })
+})
+
 describe('移す', () => {
   it('行をクリックで選び(もう一度で解除)、「追加」で右へ。「削除」で左へ戻る。input / change が出る', async () => {
     const { f, el } = await make()

@@ -17,8 +17,7 @@ import '../select/jimble-option.js'
 
 type Side = 'available' | 'selected'
 
-const LIST =
-  'h-(--_h) overflow-auto rounded-md bg-surface ring-1 ring-inset ring-line-control outline outline-1 outline-transparent'
+const LIST = 'h-(--_h) overflow-auto rounded-md border border-line-control bg-surface'
 const ROW =
   'flex w-full items-center justify-between gap-2 border-b border-line px-3 py-2 text-sm text-fg select-none ' +
   'cursor-default outline outline-1 outline-transparent -outline-offset-2 ' +
