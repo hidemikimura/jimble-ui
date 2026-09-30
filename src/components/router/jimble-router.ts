@@ -226,7 +226,8 @@ export class JimbleRouter extends JimbleElement {
     super.updated(changed)
     // ルートが渡されたら(あとから差し替えられたときも)、いまの URL のページを表示する
     if ((changed.has('routes') || changed.has('fallback')) && JimbleRouter.#active === this) {
-      if (this.routes.length || this.fallback) void this.#renderCurrent()
+      // updated の中で状態を変えると、Lit が「更新のあとの更新」と警告するので、次のタスクで行う
+      if (this.routes.length || this.fallback) queueMicrotask(() => void this.#renderCurrent())
     }
   }
 

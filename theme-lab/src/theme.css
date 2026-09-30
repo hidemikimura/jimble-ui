@@ -1,0 +1,152 @@
+/*
+ * jimble-ui 管理画面のカラーテーマ（デザイナー用）
+ *
+ * このファイルの値を書き換えて保存すると、開いているブラウザに、すぐに反映されます。
+ *   - 色は、#rrggbb・rgb()・oklch() など、CSS の色ならどれでも書けます。
+ *   - `var(--jimble-…)` と書いてある値は、ほかの変数を参照しています(その変数を変えると、一緒に変わります)。
+ *   - 部品の作りを変えなくても、この変数だけで、色・角丸・高さ・フォント・影を変えられます。
+ * 変更したら、「コントラスト」ページで、文字と背景の組み合わせが基準(WCAG AA)を満たしているか確認してください。
+ * 画面右下の「テーマ調整」からも、色をその場で試せます(こちらは、ブラウザの中だけの試し用。決めた値は、このファイルに書いてください)。
+ */
+:root {
+  /* ---- 主色(primary) ----
+     ボタン・リンク・フォーカスリング・選択状態の色。
+     600 = 主ボタンの背景・リンク・フォーカスリング(白い文字が乗るので、暗めにする。白との比 4.5:1 以上)
+     500 = 主ボタンの hover / 700 = バッジの文字・リンクの hover / 50 = バッジの背景・淡い強調
+  */
+  --jimble-color-primary-50: oklch(96.2% 0.018 272.314);
+  --jimble-color-primary-100: oklch(93% 0.034 272.788);
+  --jimble-color-primary-200: oklch(87% 0.065 274.039);
+  --jimble-color-primary-300: oklch(78.5% 0.115 274.713);
+  --jimble-color-primary-400: oklch(67.3% 0.182 276.935);
+  --jimble-color-primary-500: oklch(58.5% 0.233 277.117);
+  --jimble-color-primary-600: oklch(51.1% 0.262 276.966);
+  --jimble-color-primary-700: oklch(45.7% 0.24 277.023);
+  --jimble-color-primary-800: oklch(39.8% 0.195 277.366);
+  --jimble-color-primary-900: oklch(35.9% 0.144 278.697);
+  --jimble-color-primary-950: oklch(25.7% 0.09 281.288);
+
+  /* ---- ニュートラル(neutral: 文字・枠・背景のグレー) ----
+     900 = 本文の文字 / 500 = 補助の文字・入力欄の枠(背景との比 3:1 以上)/ 300 = 区切り線
+     100 = 沈んだ背景(hover など) / 50 = ページの背景
+  */
+  --jimble-color-neutral-50: oklch(98.5% 0.002 247.839);
+  --jimble-color-neutral-100: oklch(96.7% 0.003 264.542);
+  --jimble-color-neutral-200: oklch(92.8% 0.006 264.531);
+  --jimble-color-neutral-300: oklch(87.2% 0.01 258.338);
+  --jimble-color-neutral-400: oklch(70.7% 0.022 261.325);
+  --jimble-color-neutral-500: oklch(55.1% 0.027 264.364);
+  --jimble-color-neutral-600: oklch(44.6% 0.03 256.802);
+  --jimble-color-neutral-700: oklch(37.3% 0.034 259.733);
+  --jimble-color-neutral-800: oklch(27.8% 0.033 256.848);
+  --jimble-color-neutral-900: oklch(21% 0.034 264.665);
+  --jimble-color-neutral-950: oklch(13% 0.028 261.692);
+
+  /* ---- 成功(success) ----
+     50 = 背景 / 600 = アイコン / 700 = バッジの文字 / 800 = アラートの文字
+  */
+  --jimble-color-success-50: oklch(98.2% 0.018 155.826);
+  --jimble-color-success-100: oklch(96.2% 0.044 156.743);
+  --jimble-color-success-200: oklch(92.5% 0.084 155.995);
+  --jimble-color-success-500: oklch(72.3% 0.219 149.579);
+  --jimble-color-success-600: oklch(62.7% 0.194 149.214);
+  --jimble-color-success-700: oklch(52.7% 0.154 150.069);
+  --jimble-color-success-800: oklch(44.8% 0.119 151.328);
+
+  /* ---- 警告(warning) ----
+     50 = 背景 / 600 = アイコン / 700 = バッジの文字 / 800 = アラートの文字
+  */
+  --jimble-color-warning-50: oklch(98.7% 0.022 95.277);
+  --jimble-color-warning-100: oklch(96.2% 0.059 95.617);
+  --jimble-color-warning-200: oklch(92.4% 0.12 95.746);
+  --jimble-color-warning-500: oklch(76.9% 0.188 70.08);
+  --jimble-color-warning-600: oklch(66.6% 0.179 58.318);
+  --jimble-color-warning-700: oklch(55.5% 0.163 48.998);
+  --jimble-color-warning-800: oklch(47.3% 0.137 46.201);
+
+  /* ---- エラー(danger) ----
+     50 = 背景 / 600 = エラーの枠・アイコン・danger ボタンの背景 / 700 = バッジの文字・danger ボタンの hover / 800 = アラートの文字
+  */
+  --jimble-color-danger-50: oklch(97.1% 0.013 17.38);
+  --jimble-color-danger-100: oklch(93.6% 0.032 17.717);
+  --jimble-color-danger-200: oklch(88.5% 0.062 18.334);
+  --jimble-color-danger-500: oklch(63.7% 0.237 25.331);
+  --jimble-color-danger-600: oklch(57.7% 0.245 27.325);
+  --jimble-color-danger-700: oklch(50.5% 0.213 27.518);
+  --jimble-color-danger-800: oklch(44.4% 0.177 26.899);
+
+  /* ---- 情報(info) ----
+     50 = 背景 / 600 = アイコン / 700 = バッジの文字 / 800 = アラートの文字
+  */
+  --jimble-color-info-50: oklch(97.7% 0.013 236.62);
+  --jimble-color-info-100: oklch(95.1% 0.026 236.824);
+  --jimble-color-info-200: oklch(90.1% 0.058 230.902);
+  --jimble-color-info-500: oklch(68.5% 0.169 237.323);
+  --jimble-color-info-600: oklch(58.8% 0.158 241.966);
+  --jimble-color-info-700: oklch(50% 0.134 242.749);
+  --jimble-color-info-800: oklch(44.3% 0.11 240.79);
+
+  /* ---- 面・文字・枠(意味を持つ色。上の段階への参照) ----
+     surface = カード・入力欄の背景 / surface-muted = ページの背景 / surface-sunken = hover などの沈んだ背景 / surface-overlay = ダイアログ・メニューの背景
+     text = 本文 / text-muted = 補助の文字 / text-placeholder = 入力欄のプレースホルダー / text-on-primary = 主ボタンの文字
+     ring = 区切り線 / ring-control = 入力欄の枠 / ring-focus = フォーカスリング / ring-invalid = エラーの枠
+  */
+  --jimble-color-surface: #ffffff;
+  --jimble-color-surface-muted: var(--jimble-color-neutral-50);
+  --jimble-color-surface-sunken: var(--jimble-color-neutral-100);
+  --jimble-color-surface-overlay: #ffffff;
+  --jimble-color-backdrop: color-mix(in oklab, var(--jimble-color-neutral-900) 50%, transparent);
+  --jimble-color-text: var(--jimble-color-neutral-900);
+  --jimble-color-text-muted: var(--jimble-color-neutral-500);
+  --jimble-color-text-placeholder: var(--jimble-color-neutral-500);
+  --jimble-color-text-disabled: var(--jimble-color-neutral-400);
+  --jimble-color-text-on-primary: #ffffff;
+  --jimble-color-text-link: var(--jimble-color-primary-600);
+  --jimble-color-ring: var(--jimble-color-neutral-300);
+  --jimble-color-ring-control: var(--jimble-color-neutral-500);
+  --jimble-color-ring-focus: var(--jimble-color-primary-600);
+  --jimble-color-ring-invalid: var(--jimble-color-danger-600);
+  --jimble-color-primary: var(--jimble-color-primary-600);
+
+  /* ---- 角丸・高さ・影 ----
+     radius-* = 角の丸み(control = 入力欄・ボタン、card = カード、overlay = ダイアログ・メニュー)
+     control-height-* = ボタン・入力欄の高さ(sm / md / lg)
+  */
+  --jimble-radius-sm: 0.25rem;
+  --jimble-radius-md: 0.375rem;
+  --jimble-radius-lg: 0.5rem;
+  --jimble-radius-xl: 0.75rem;
+  --jimble-radius-full: 9999px;
+  --jimble-radius-control: var(--jimble-radius-lg);
+  --jimble-radius-card: var(--jimble-radius-lg);
+  --jimble-radius-overlay: var(--jimble-radius-xl);
+  --jimble-control-height-sm: 2rem;
+  --jimble-control-height-md: 2.25rem;
+  --jimble-control-height-lg: 2.5rem;
+  --jimble-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --jimble-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --jimble-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --jimble-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* ---- フォント・余白 ----
+     font-sans = 本文のフォント / font-mono = コードのフォント / spacing = 余白の基準(4px)
+  */
+  --jimble-font-sans:
+    system-ui, 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', Meiryo, sans-serif;
+  --jimble-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --jimble-font-size-xs: 0.75rem;
+  --jimble-font-size-sm: 0.875rem;
+  --jimble-font-size-base: 1rem;
+  --jimble-font-size-lg: 1.125rem;
+  --jimble-font-size-xl: 1.25rem;
+  --jimble-spacing: 0.25rem;
+
+  /* ---- 動き・フォーカス ----
+     focus-ring-width = フォーカスリングの太さ / duration-* = アニメーションの長さ(視差効果を減らす設定では止まります)
+  */
+  --jimble-focus-ring-width: 2px;
+  --jimble-duration-fast: 100ms;
+  --jimble-duration-base: 150ms;
+  --jimble-duration-slow: 250ms;
+  --jimble-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}

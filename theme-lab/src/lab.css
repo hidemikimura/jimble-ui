@@ -1,0 +1,124 @@
+/* サンプルサイトの、ページの並べ方だけを決めるスタイル(色は、jimble-ui の変数を使う。色を決めるのは theme.css) */
+body {
+  margin: 0;
+  font-family: var(--jimble-font-sans);
+  background: var(--jimble-color-surface-muted);
+  color: var(--jimble-color-text);
+}
+h2,
+h3 {
+  margin: 0;
+}
+.brand {
+  color: var(--jimble-color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+.header-spacer {
+  flex: 1;
+}
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+.grid-2 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+.section {
+  margin-top: 1.5rem;
+}
+.muted {
+  color: var(--jimble-color-text-muted);
+  font-size: var(--jimble-font-size-sm);
+}
+.stat {
+  display: grid;
+  gap: 0.25rem;
+}
+.stat .value {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  margin: 1rem 0;
+}
+.filters > * {
+  min-width: 12rem;
+}
+.login {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1rem;
+}
+.login jimble-card {
+  width: min(24rem, 100%);
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.swatch {
+  display: grid;
+  gap: 0.25rem;
+  width: 4.5rem;
+  font-size: 0.7rem;
+  text-align: center;
+}
+.swatch span.chip {
+  display: block;
+  height: 2.5rem;
+  border-radius: var(--jimble-radius-md);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+}
+table.contrast {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--jimble-font-size-sm);
+}
+table.contrast th,
+table.contrast td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--jimble-color-ring);
+  text-align: left;
+  vertical-align: middle;
+}
+table.contrast .sample {
+  display: inline-block;
+  min-width: 5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--jimble-radius-sm);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+  text-align: center;
+}
+[data-bare] jimble-app-shell::part(header),
+[data-bare] jimble-app-shell::part(sidebar) {
+  display: none;
+}
+[data-bare] jimble-app-shell::part(base) {
+  grid-template-columns: minmax(0, 1fr);
+}
+[data-bare] jimble-app-shell::part(main) {
+  padding: 0;
+}
+a:not([class]) {
+  color: var(--jimble-color-text-link);
+}

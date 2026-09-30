@@ -1,0 +1,20 @@
+{
+  "name": "jimble-theme-lab",
+  "private": true,
+  "type": "module",
+  "description": "jimble-ui の管理画面カラーテーマを調整するためのサンプルサイト",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hidemikimura/jimble-ui": "^0.3.0",
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite": "^8.3.1"
+  }
+}

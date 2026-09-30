@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>jimble-ui テーマ</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <jimble-app-shell id="shell">
+      <a slot="header" class="brand" href="/">jimble 管理画面</a>
+      <span slot="header" class="header-spacer"></span>
+      <jimble-dropdown-menu slot="header" id="user-menu">
+        <jimble-button slot="trigger" size="sm" variant="ghost">山田 太郎</jimble-button>
+        <jimble-menu-item value="profile">プロフィール</jimble-menu-item>
+        <jimble-menu-item value="login">ログアウト</jimble-menu-item>
+      </jimble-dropdown-menu>
+      <jimble-sidebar-nav slot="sidebar" label="メインメニュー" id="nav"></jimble-sidebar-nav>
+      <jimble-router id="app"></jimble-router>
+    </jimble-app-shell>
+    <lab-tuner></lab-tuner>
+  </body>
+</html>
