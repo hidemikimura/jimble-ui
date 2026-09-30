@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/hidemikimura/jimble-ui/compare/v0.3.0...v0.3.1) (2026-09-30)
+
+
+### 修正
+
+* **router:** 更新の直後ではなく、次のマイクロタスクで描画する ([8e3c966](https://github.com/hidemikimura/jimble-ui/commit/8e3c9660e0ef76613ce3c4f707a760e9706f8d65))
+
+
+### ドキュメント
+
+* **theme-lab:** デザイナー向けのカラーテーマ調整サイトを追加する ([72d0984](https://github.com/hidemikimura/jimble-ui/commit/72d09841645ae26be1042c070c868b03c41934a7))
+
 ## [0.3.0](https://github.com/hidemikimura/jimble-ui/compare/v0.2.0...v0.3.0) (2026-09-29)
 
 
