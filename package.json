@@ -30,6 +30,8 @@
     "check-dist": "node scripts/check-dist.ts",
     "check-package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./tokens.css ./cloak.css",
     "pack-smoke": "node scripts/pack-smoke.ts",
+    "theme-lab": "npm --prefix theme-lab run dev",
+    "theme-lab:build": "npm --prefix theme-lab run build",
     "dev:site": "npm run gen:manifest && vite --config site/vite.config.ts",
     "build:site": "npm run gen:manifest && vite build --config site/vite.config.ts",
     "typecheck": "tsc --noEmit",

@@ -5,7 +5,7 @@ import lit from 'eslint-plugin-lit'
 import wc from 'eslint-plugin-wc'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'site/dist', '**/*.generated.*'] },
+  { ignores: ['theme-lab/dist', 'dist', 'node_modules', 'site/dist', '**/*.generated.*'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
