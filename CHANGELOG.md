@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/hidemikimura/jimble-ui/compare/v0.3.1...v0.3.2) (2026-09-30)
+
+
+### 修正
+
+* **dual-listbox:** 行にマウスを重ねても、リストの左右の枠が消えないようにする ([2770268](https://github.com/hidemikimura/jimble-ui/commit/2770268ac2ce4f5f7dd7ee2da32a04c88b180526))
+
 ## [0.3.1](https://github.com/hidemikimura/jimble-ui/compare/v0.3.0...v0.3.1) (2026-09-30)
 
 
