@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { userEvent } from 'vitest/browser'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../field/jimble-field.js'
 import { setLocale } from '../../i18n/index.js'
 import en from '../../locales/en.js'
@@ -8,7 +8,13 @@ import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
 import { JimbleDateInput } from './jimble-date-input.js'
 
+// 値のないときカレンダーは「今月」で開く。テストが実行する月に左右されないよう、今日を固定する(Date だけ)
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date('2026-09-29T12:00:00'))
+})
 afterEach(() => {
+  vi.useRealTimers()
   cleanup()
   setLocale({ $locale: 'ja' })
 })
