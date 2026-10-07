@@ -1,0 +1,32 @@
+@layer components {
+  :host(jimble-kanban) {
+    display: block;
+  }
+  :host(jimble-kanban-column) {
+    display: block;
+    flex-shrink: 0;
+  }
+  :host(jimble-kanban-card) {
+    display: block;
+    outline: none;
+    -webkit-touch-callout: none;
+  }
+  :host(jimble-kanban-card:not([locked])) {
+    cursor: grab;
+  }
+  :host(jimble-kanban-card:state(dragging)) {
+    position: relative;
+    z-index: 10;
+    pointer-events: none;
+    cursor: grabbing;
+    user-select: none;
+  }
+  /* 強制色モードでは、挿入位置の線の背景色が消えるので、選択色(Highlight)で塗る */
+  @media (forced-colors: active) {
+    :host(jimble-kanban-card) [part='drop-indicator'],
+    :host(jimble-kanban-column) [part='drop-indicator'] {
+      forced-color-adjust: none;
+      background-color: Highlight !important;
+    }
+  }
+}

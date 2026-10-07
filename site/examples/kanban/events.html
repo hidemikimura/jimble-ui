@@ -1,0 +1,30 @@
+<!-- title: 動かしたときに保存する（キャンセルで元に戻す） -->
+<div class="stack">
+  <jimble-kanban id="kanban-save" label="案件">
+    <jimble-kanban-column value="lead" heading="見込み">
+      <jimble-kanban-card value="c1">株式会社アルファ</jimble-kanban-card>
+      <jimble-kanban-card value="c2">ベータ商事</jimble-kanban-card>
+    </jimble-kanban-column>
+    <jimble-kanban-column value="proposal" heading="提案">
+      <jimble-kanban-card value="c3">ガンマ工業</jimble-kanban-card>
+    </jimble-kanban-column>
+    <jimble-kanban-column value="won" heading="受注（動かせません）">
+      <jimble-kanban-card value="c4" locked>デルタ物産</jimble-kanban-card>
+    </jimble-kanban-column>
+  </jimble-kanban>
+  <output id="kanban-save-log" aria-live="polite">カードを動かしてみてください</output>
+</div>
+<script>
+  const kanban = document.getElementById('kanban-save')
+  kanban.addEventListener('jimble-card-move', (e) => {
+    const { value, from, to, index } = e.detail
+    // 「受注」への移動は、サーバーが断ったことにする(キャンセルすると、カードは動かない)
+    if (to === 'won') {
+      e.preventDefault()
+      document.getElementById('kanban-save-log').textContent = `${value}: 受注へは動かせません`
+      return
+    }
+    document.getElementById('kanban-save-log').textContent =
+      `${value}: ${from} → ${to}（${index + 1} 番目）。並び: ${JSON.stringify(kanban.board)}`
+  })
+</script>

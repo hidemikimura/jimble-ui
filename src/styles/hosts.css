@@ -18,6 +18,7 @@
 @import '../components/file-input/file-input.host.css';
 @import '../components/icon/icon.host.css';
 @import '../components/input/input.host.css';
+@import '../components/kanban/kanban.host.css';
 @import '../components/page-header/page-header.host.css';
 @import '../components/pagination/pagination.host.css';
 @import '../components/radio-group/radio-group.host.css';

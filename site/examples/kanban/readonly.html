@@ -1,0 +1,19 @@
+<!-- title: 閲覧だけ（readonly）と、動かせないカード（locked） -->
+<div class="stack">
+  <jimble-kanban label="閲覧用" readonly>
+    <jimble-kanban-column value="a" heading="未対応">
+      <jimble-kanban-card>お問い合わせ #1204</jimble-kanban-card>
+      <jimble-kanban-card>お問い合わせ #1205</jimble-kanban-card>
+    </jimble-kanban-column>
+    <jimble-kanban-column value="b" heading="対応済み">
+      <jimble-kanban-card>お問い合わせ #1198</jimble-kanban-card>
+    </jimble-kanban-column>
+  </jimble-kanban>
+  <jimble-kanban label="一部固定">
+    <jimble-kanban-column value="a" heading="準備中">
+      <jimble-kanban-card locked>承認済み（固定）</jimble-kanban-card>
+      <jimble-kanban-card>下書き</jimble-kanban-card>
+    </jimble-kanban-column>
+    <jimble-kanban-column value="b" heading="公開中"></jimble-kanban-column>
+  </jimble-kanban>
+</div>

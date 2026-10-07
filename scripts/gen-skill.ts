@@ -47,6 +47,9 @@ const GROUPS: [string, string[]][] = [
       'description-list',
       'description-item',
       'pagination',
+      'kanban',
+      'kanban-column',
+      'kanban-card',
     ],
   ],
   [
@@ -101,6 +104,8 @@ const PAGE: Record<string, string> = {
   'menu-item': 'dropdown-menu',
   'menu-separator': 'dropdown-menu',
   'toast-region': 'toast',
+  'kanban-column': 'kanban',
+  'kanban-card': 'kanban',
 }
 // input / change をネイティブと同じく出すフォーム部品
 const FORM = new Set([

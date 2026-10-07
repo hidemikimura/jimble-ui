@@ -30,6 +30,7 @@ const PAGES = [
   '/components/combobox/',
   '/components/date-input/',
   '/components/dual-listbox/',
+  '/components/kanban/',
   '/components/file-input/',
   '/components/color-input/',
   '/components/toast/',

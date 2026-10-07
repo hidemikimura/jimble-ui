@@ -55,7 +55,7 @@ const kb = (n: number) => (n / 1024).toFixed(1)
 const gz = (f: string) => gzipSync(readFileSync(f)).length
 const BUDGET = {
   /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
-  shared: 13 * 1024,
+  shared: 13.5 * 1024,
   /** それ以外の JS(部品 1 つぶんなど) */
   each: 8 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */

@@ -1,0 +1,43 @@
+<!-- title: 基本（タスクボード） -->
+<jimble-kanban label="タスク">
+  <jimble-kanban-column value="todo" heading="未着手">
+    <jimble-kanban-card value="t1">
+      <div class="stack" style="gap: 0.5rem">
+        <strong>請求書の送付</strong>
+        <small>山田 太郎 ・ 10/12</small>
+        <div><jimble-badge variant="warning">急ぎ</jimble-badge></div>
+      </div>
+    </jimble-kanban-card>
+    <jimble-kanban-card value="t2">
+      <div class="stack" style="gap: 0.5rem">
+        <strong>在庫の棚卸し</strong>
+        <small>佐藤 花子 ・ 10/20</small>
+      </div>
+    </jimble-kanban-card>
+    <jimble-kanban-card value="t3">
+      <div class="stack" style="gap: 0.5rem">
+        <strong>クーポンの設定</strong>
+        <small>鈴木 一郎 ・ 10/25</small>
+      </div>
+    </jimble-kanban-card>
+  </jimble-kanban-column>
+  <jimble-kanban-column value="doing" heading="進行中">
+    <jimble-kanban-card value="t4">
+      <div class="stack" style="gap: 0.5rem">
+        <strong>配送業者の見直し</strong>
+        <small>高橋 健 ・ 10/15</small>
+        <div><jimble-badge variant="info">確認待ち</jimble-badge></div>
+      </div>
+    </jimble-kanban-card>
+  </jimble-kanban-column>
+  <jimble-kanban-column value="review" heading="確認中"></jimble-kanban-column>
+  <jimble-kanban-column value="done" heading="完了">
+    <jimble-kanban-card value="t5">
+      <div class="stack" style="gap: 0.5rem">
+        <strong>月次レポートの作成</strong>
+        <small>田中 美咲 ・ 9/30</small>
+        <div><jimble-badge variant="success">完了</jimble-badge></div>
+      </div>
+    </jimble-kanban-card>
+  </jimble-kanban-column>
+</jimble-kanban>
