@@ -809,6 +809,28 @@ test.describe('app-shell(実際のビューポート)', () => {
     expect(Math.round(sidebar.width)).toBe(256)
     expect(main.left).toBeGreaterThanOrEqual(sidebar.right - 1)
   })
+  test('広い画面: 本文が長くても、サイドバーは画面の高さ(ヘッダーの下から下端まで)で、スクロールしても動かない', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1200, height: 700 })
+    await page.goto('/frames/app-shell/admin-page/')
+    const shell = page.locator('jimble-app-shell')
+    await shell.evaluate((el) => {
+      const tall = document.createElement('div')
+      tall.style.height = '3000px'
+      el.append(tall)
+    })
+    await page.evaluate(() => window.scrollTo(0, 1000))
+    const rects = await shell.evaluate((el) => {
+      const rect = (part: string) =>
+        el.shadowRoot!.querySelector(`[part="${part}"]`)!.getBoundingClientRect().toJSON()
+      return { header: rect('header'), sidebar: rect('sidebar') }
+    })
+    // クラスの組み立てミス(Tailwind が CSS を出さない)だと、サイドバーが本文と同じ高さに伸びて、動いてしまう
+    expect(Math.round(rects.header.top)).toBe(0)
+    expect(Math.round(rects.sidebar.top)).toBe(56)
+    expect(Math.round(rects.sidebar.height)).toBe(700 - 56)
+  })
 
   test('狭い画面: メニューボタンでドロワーが開き、Esc で閉じてフォーカスがボタンに戻る', async ({
     page,

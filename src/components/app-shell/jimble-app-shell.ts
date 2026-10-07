@@ -210,7 +210,7 @@ export class JimbleAppShell extends JimbleElement {
       <div
         id="sidebar-host"
         part="sidebar"
-        class="sticky top-(--_hh) hidden h-[calc(100dvh-var(--_hh))] overflow-auto bg-surface p-3 ring-1 ring-inset ring-line md:block"
+        class="sticky top-(--_hh) hidden h-[calc(100dvh_-_var(--_hh))] overflow-auto bg-surface p-3 ring-1 ring-inset ring-line md:block"
       ></div>
       <main
         id="main"
