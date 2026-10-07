@@ -36,7 +36,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 
 ## 守る約束（破ると壊れるもの）
 
-1. **Tailwind のクラスは完全な文字列リテラルで書く**（`` `bg-${x}` `` の組み立て禁止。スキャナが検出できない）。**生の色は使わない**（`bg-indigo-600`、`#4f46e5`）。意味トークン（`bg-primary-600`、`text-fg-muted`、`ring-line-control`）だけ。内部のクラス名は公開 API ではない。
+1. **Tailwind のクラスは完全な文字列リテラルで書く**（`` `bg-${x}` `` の組み立て禁止。スキャナが検出できない）。**生の色は使わない**（`bg-indigo-600`、`#4f46e5`）。意味トークン（`bg-primary-600`、`text-fg-muted`、`ring-line-control`）だけ。内部のクラス名は公開 API ではない。**`[calc(…)]` など任意の値は、演算子の前後に `_` で空白を入れる**（`h-[calc(100dvh_-_var(--_hh))]`）。空白がないと、Tailwind は何も言わずにその CSS を捨てる。新しい任意の値を足したら、ビルド後の CSS に出ているか確かめる。
 2. **トークンの既定値を `:host` / `:root` に宣言しない**（利用者の `:root` での上書きが負ける）。`var(--jimble-x, 既定値)` のフォールバックで持つ。`*.host.css` から使う色は、生成される `--_c-*`（`aliases.generated.css`）を参照する。
 3. **Shadow DOM 内では Tailwind v4 の `@property` が効かない**。`build/postcss-shadow-fix.ts` が補正している。`shadow-*` / `ring-*` を触るときは、ブラウザテストで `box-shadow` が効くことを確認する。
 4. **リアクティブプロパティは `static properties: PropertyDeclarations` + `declare` フィールド**。デコレーターは使わない。`value` / `checked` は「属性=初期値、プロパティ=現在値」（利用者が触ったら属性で上書きしない）。
@@ -61,6 +61,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 
 ## コミットとリリース
 
+- **コミット本文に、`h-[calc(100dvh-var(--_hh))]` のような「`名前(`」を含む行を書かない**。release-please が Conventional Commits として解釈できず、そのコミットを黙って無視する（リリース PR が作られない）。クラス名やコードは、本文に書かず、説明の文章にする。
 - **Conventional Commits**（`feat(button): …`）。commitlint が検査する: 件名は **100 文字以内**、**文頭を大文字にしない**（`subject-case`）。末尾に `Co-Authored-By` を付ける。
 - **`git push`、タグ、`npm publish`、GitHub / npm の設定、トークン・シークレットは、ユーザーの指示があるまで行わない。** リリースは release-please のリリース PR をマージして行う（`docs/release.md`）。
 - 公開したバージョンは同じ番号で出し直せない。バージョン番号の決まり方は release-please に任せる（0.x は `feat` で minor）。
