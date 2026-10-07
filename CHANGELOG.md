@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/hidemikimura/jimble-ui/compare/v0.3.2...v0.4.0) (2026-10-07)
+
+
+### 追加
+
+* **kanban:** カンバンボード jimble-kanban を追加する ([d2f06f2](https://github.com/hidemikimura/jimble-ui/commit/d2f06f272c9a5271922a28eac336486dd3f0459f))
+
 ## [0.3.2](https://github.com/hidemikimura/jimble-ui/compare/v0.3.1...v0.3.2) (2026-09-30)
 
 
