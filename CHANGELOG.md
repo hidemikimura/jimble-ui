@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/hidemikimura/jimble-ui/compare/v0.4.0...v0.4.1) (2026-10-07)
+
+
+### 修正
+
+* **app-shell:** サイドバーの高さを、画面の高さに揃える ([12c69c3](https://github.com/hidemikimura/jimble-ui/commit/12c69c34b4d44dbb2626ab8a5a217d60f37a5087))
+
 ## [0.4.0](https://github.com/hidemikimura/jimble-ui/compare/v0.3.2...v0.4.0) (2026-10-07)
 
 
