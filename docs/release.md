@@ -66,4 +66,5 @@ npm pack --dry-run      # 含まれるファイルの一覧
 
 - **リリース PR が作られない**: コミットが Conventional Commits か、`feat` / `fix` などを含むか確認する。`docs` / `chore` だけでは作られない。
 - **publish ジョブが 403 になる**: 初回は、`NPM_TOKEN` にスコープ `@hidemikimura` の Read and write があるか、2FA の設定でトークンが弾かれていないかを確認する。Trusted Publishing に切り替えたあとは、Workflow filename が `release.yml` と一致しているかを確認する。
+- **publish ジョブだけが止まった・失敗した**: 実行画面の「Re-run」で再実行すると、release-please が「リリースは作成済み」と判断して、**publish が飛ばされます**（npm に公開されないまま「成功」になる）。代わりに、Actions の **Release → Run workflow** で、公開するタグ（例: `v0.4.0`）を指定して手動実行する。そのタグのソースで、検証と `npm publish` が走る。npm にまだ無いバージョンだけ公開できる。
 - **公開を取り消したい**: 公開から 72 時間以内なら `npm unpublish @hidemikimura/jimble-ui@x.y.z` できる。それ以降は `npm deprecate` を使う。

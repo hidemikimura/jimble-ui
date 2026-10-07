@@ -5,6 +5,14 @@ name: Release
 on:
   push:
     branches: [main]
+  # 公開のジョブだけが止まった・失敗したときに、タグを指定して公開をやり直す。
+  # 「失敗したジョブの再実行」は、release-please が「リリースは作成済み」と判断するので、publish が飛ばされる。
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '公開するタグ(例: v0.4.0)。npm にまだ無いバージョンだけ公開できる'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +20,7 @@ permissions:
 
 jobs:
   release-please:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.rp.outputs.release_created }}
@@ -25,13 +34,17 @@ jobs:
 
   publish:
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    # release-please のジョブが飛ばされる手動実行でも走るよう、always() を付ける
+    if: ${{ always() && (needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write # npm の Trusted Publishing(OIDC)と provenance に必要
     steps:
       - uses: actions/checkout@v7
+        with:
+          # 手動実行のときは、指定したタグのソースを公開する
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: 24 # npm 11.5.1 以上(Trusted Publishing)を含む
