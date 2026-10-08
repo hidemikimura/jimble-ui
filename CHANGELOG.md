@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/hidemikimura/jimble-ui/compare/v0.4.1...v0.5.0) (2026-10-08)
+
+
+### 追加
+
+* **app-shell:** サイドバーを、細い表示と広い表示に切り替えられるようにする ([76b33b8](https://github.com/hidemikimura/jimble-ui/commit/76b33b86972ce57916aad00425654e17c213f673))
+
 ## [0.4.1](https://github.com/hidemikimura/jimble-ui/compare/v0.4.0...v0.4.1) (2026-10-07)
 
 
