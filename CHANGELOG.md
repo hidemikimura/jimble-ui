@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/hidemikimura/jimble-ui/compare/v0.6.0...v0.6.1) (2026-10-08)
+
+
+### ドキュメント
+
+* **theme-lab:** jimble-ui の依存を 0.6.0 に上げる ([bc796ba](https://github.com/hidemikimura/jimble-ui/commit/bc796ba1089ad704e20aed95d99b6fc2feb71a6a))
+
 ## [0.6.0](https://github.com/hidemikimura/jimble-ui/compare/v0.5.0...v0.6.0) (2026-10-08)
 
 
