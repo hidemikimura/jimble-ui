@@ -66,7 +66,7 @@ const GROUPS: Group[] = [
   },
   {
     title: 'ヘッダー・サイドバー',
-    note: '暗くするときは、文字・アイコン・hover・現在のページも一緒に変える(0.5.0 以降)',
+    note: '暗くするときは、文字・アイコン・hover・現在のページも一緒に変える(0.6.0 以降)',
     vars: [
       ['--jimble-app-shell-header-bg', 'ヘッダーの背景'],
       ['--jimble-app-shell-header-text', 'ヘッダーの文字'],

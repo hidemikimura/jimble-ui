@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@hidemikimura/jimble-ui": "^0.4.1",
+    "@hidemikimura/jimble-ui": "^0.6.0",
     "lit": "^3.3.3"
   },
   "devDependencies": {
