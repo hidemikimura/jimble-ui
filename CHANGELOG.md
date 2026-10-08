@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/hidemikimura/jimble-ui/compare/v0.5.0...v0.6.0) (2026-10-08)
+
+
+### 追加
+
+* **app-shell:** ヘッダーとサイドバーの色・アイコンの大きさを、CSS 変数で変えられるようにする ([0d5afd5](https://github.com/hidemikimura/jimble-ui/commit/0d5afd5a81868897b1e0463746606f0704c56af0))
+
+
+### 修正
+
+* **app-shell:** ヘッダーとサイドバーの重なり順が効いていなかったのを直す ([2bbde91](https://github.com/hidemikimura/jimble-ui/commit/2bbde911d7b8a09a243bc981b3c32d0dc1cefeb9))
+
+
+### ドキュメント
+
+* **theme-lab:** 全部品とヘッダー・サイドバーの色を試せるようにする ([ea2ae0e](https://github.com/hidemikimura/jimble-ui/commit/ea2ae0e75ec6f8799f5175da092a71f5ea4384b6))
+
 ## [0.5.0](https://github.com/hidemikimura/jimble-ui/compare/v0.4.1...v0.5.0) (2026-10-08)
 
 
