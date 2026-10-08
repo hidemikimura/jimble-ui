@@ -73,8 +73,7 @@ describe('表示と非表示', () => {
     await tick(250)
     expect(shown(el)).toBe(true)
     popup(el).dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }))
-    await tick(250)
-    expect(shown(el)).toBe(false)
+    await closed(el)
   })
 
   it('disabled や text が空のときは出ない。タッチのホバーでは出ない', async () => {
@@ -182,7 +181,9 @@ describe('アクセシビリティ', () => {
     const { wrap, el } = await tip()
     expect(popup(el).getAttribute('aria-hidden')).toBe('true')
     btn(el).focus()
-    await tick(300) // フェードが終わってからコントラストを測る
+    await opened(el)
+    // フェードが終わってからコントラストを測る(固定の待ち時間だと、遅い CI で、半透明の途中を測って落ちる)
+    await vi.waitFor(() => expect(getComputedStyle(popup(el)).opacity).toBe('1'), { timeout: 3000 })
     await expectNoA11yViolations(wrap)
   })
 
