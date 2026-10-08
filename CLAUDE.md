@@ -12,6 +12,10 @@
 | `docs/release.md`                   | リリース手順（release-please・Trusted Publishing）                                                                                                     |
 | `.claude/skills/jimble-ui/SKILL.md` | jimble-ui の**使い方**（利用者向けの skill。生成物）                                                                                                   |
 
+## theme-lab
+
+`theme-lab/` は、デザイナーが色を決めるサンプルサイト（npm の公開版を使う、独立したプロジェクト。`cd theme-lab && npm install && npm run dev`）。**部品を足したら、theme-lab のページにも置く**（`tests/unit/theme-lab.test.ts` が全部品の使用を検査する）。未公開の変更を試すには、`npm pack` した tarball を `npm install --no-save <tgz>` で入れる。
+
 ## コマンド
 
 | 目的                                         | コマンド                                                                             |

@@ -8,6 +8,7 @@ import { components } from './pages/components.ts'
 import { contrastPage } from './pages/contrast.ts'
 import { dashboard } from './pages/dashboard.ts'
 import { forms } from './pages/forms.ts'
+import { kanbanPage } from './pages/kanban.ts'
 import { login } from './pages/login.ts'
 import { notFound } from './pages/not-found.ts'
 import { orderDetail } from './pages/order-detail.ts'
@@ -24,6 +25,7 @@ const NAV = [
       { path: '/orders', label: '注文の一覧', icon: 'table-cells' },
       { path: '/orders/1048', label: '注文の詳細', icon: 'document-text' },
       { path: '/forms', label: '入力フォーム', icon: 'pencil-square' },
+      { path: '/kanban', label: 'かんばん', icon: 'queue-list' },
       { path: '/login', label: 'ログイン', icon: 'lock-closed' },
     ],
   },
@@ -64,6 +66,7 @@ app.routes = [
   { path: '/orders', title: '注文の一覧', render: () => orders() },
   { path: '/orders/:id', title: '注文の詳細', render: (ctx) => orderDetail(ctx) },
   { path: '/forms', title: '入力フォーム', render: () => forms() },
+  { path: '/kanban', title: 'かんばん', render: () => kanbanPage() },
   { path: '/components', title: '部品一覧', render: () => components() },
   { path: '/contrast', title: 'コントラスト', render: () => contrastPage() },
   { path: '/login', title: 'ログイン', render: () => login() },
@@ -76,6 +79,22 @@ app.addEventListener('jimble-route-change', () => {
   drawNav()
 })
 drawNav()
+
+// サイドバーの細い / 広いは、ブラウザに覚えておく(開き直しても、同じ状態で確認できる)
+const shell = document.getElementById('shell')!
+const KEY = 'lab-sidebar-collapsed'
+try {
+  shell.toggleAttribute('sidebar-collapsed', localStorage.getItem(KEY) === 'true')
+} catch {
+  /* 保存できない環境では、広い表示のまま */
+}
+shell.addEventListener('jimble-sidebar-toggle', (e) => {
+  try {
+    localStorage.setItem(KEY, String((e as CustomEvent<{ collapsed: boolean }>).detail.collapsed))
+  } catch {
+    /* 保存できなくても、切り替えは動く */
+  }
+})
 
 document.getElementById('user-menu')!.addEventListener('jimble-select', (e) => {
   if ((e as CustomEvent<{ value: string }>).detail.value === 'login') void app.navigate('/login')

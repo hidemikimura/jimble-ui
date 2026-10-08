@@ -108,6 +108,43 @@
   --jimble-color-ring-invalid: var(--jimble-color-danger-600);
   --jimble-color-primary: var(--jimble-color-primary-600);
 
+  /* ---- ヘッダー・サイドバー(jimble-ui 0.5.0 以降) ----
+     ヘッダーとサイドバーだけの色・アイコンの大きさ。上の色を参照しているので、変えなければ全体の色に従います。
+     背景を暗くするときは、文字・アイコン・hover・現在のページ・フォーカスの色も、一緒に変えてください
+     (文字は 4.5:1、アイコンは 3:1 以上)。下の「ダークの例」を、コピーして使えます。
+     header-* = ヘッダー / sidebar-bg・sidebar-ring = サイドバーの面(ドロワーも同じ)
+     sidebar-nav-* = サイドバーの項目(text = 文字 / icon-color・icon-size = アイコン / hover-bg = hover の背景
+                     / current-bg・current-text = 現在のページ / ring-focus = フォーカスの輪郭)
+  */
+  --jimble-app-shell-header-bg: var(--jimble-color-surface);
+  --jimble-app-shell-header-text: var(--jimble-color-text);
+  --jimble-app-shell-header-hover-bg: var(--jimble-color-surface-sunken);
+  --jimble-app-shell-header-ring: var(--jimble-color-ring);
+  --jimble-app-shell-sidebar-bg: var(--jimble-color-surface);
+  --jimble-app-shell-sidebar-ring: var(--jimble-color-ring);
+  --jimble-sidebar-nav-text: var(--jimble-color-text);
+  --jimble-sidebar-nav-icon-color: var(--jimble-color-text-muted);
+  --jimble-sidebar-nav-icon-size: 1.25rem;
+  --jimble-sidebar-nav-hover-bg: var(--jimble-color-surface-sunken);
+  --jimble-sidebar-nav-current-bg: var(--jimble-color-primary-50);
+  --jimble-sidebar-nav-current-text: var(--jimble-color-primary-700);
+  --jimble-sidebar-nav-ring-focus: var(--jimble-color-ring-focus);
+
+  /* ダークの例(使うときは、上の同じ名前の行を、これに置き換える)
+  --jimble-app-shell-header-bg: #0f172a;
+  --jimble-app-shell-header-text: #f8fafc;
+  --jimble-app-shell-header-hover-bg: #1e293b;
+  --jimble-app-shell-header-ring: #0f172a;
+  --jimble-app-shell-sidebar-bg: #0f172a;
+  --jimble-app-shell-sidebar-ring: #0f172a;
+  --jimble-sidebar-nav-text: #cbd5e1;
+  --jimble-sidebar-nav-icon-color: #94a3b8;
+  --jimble-sidebar-nav-hover-bg: #1e293b;
+  --jimble-sidebar-nav-current-bg: #4338ca;
+  --jimble-sidebar-nav-current-text: #ffffff;
+  --jimble-sidebar-nav-ring-focus: #a5b4fc;
+  */
+
   /* ---- 角丸・高さ・影 ----
      radius-* = 角の丸み(control = 入力欄・ボタン、card = カード、overlay = ダイアログ・メニュー)
      control-height-* = ボタン・入力欄の高さ(sm / md / lg)

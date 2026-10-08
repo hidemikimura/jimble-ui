@@ -10,7 +10,7 @@ h3 {
   margin: 0;
 }
 .brand {
-  color: var(--jimble-color-text);
+  color: var(--jimble-app-shell-header-text, var(--jimble-color-text));
   font-weight: 700;
   text-decoration: none;
 }
@@ -121,4 +121,26 @@ table.contrast .sample {
 }
 a:not([class]) {
   color: var(--jimble-color-text-link);
+}
+
+/* ヘッダーのユーザーメニューは、ヘッダーの色に合わせる(暗いヘッダーでも読める) */
+#user-menu jimble-button {
+  --jimble-button-fg: var(--jimble-app-shell-header-text, var(--jimble-color-text));
+  --jimble-button-bg-hover: var(
+    --jimble-app-shell-header-hover-bg,
+    var(--jimble-color-surface-sunken)
+  );
+}
+/* 部品一覧: 状態ごとに並べる */
+.states {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  align-items: start;
+}
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 1rem 0 0;
 }

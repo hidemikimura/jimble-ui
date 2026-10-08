@@ -64,11 +64,30 @@ const GROUPS: Group[] = [
       ['--jimble-color-ring-focus', 'フォーカスリング'],
     ],
   },
+  {
+    title: 'ヘッダー・サイドバー',
+    note: '暗くするときは、文字・アイコン・hover・現在のページも一緒に変える(0.5.0 以降)',
+    vars: [
+      ['--jimble-app-shell-header-bg', 'ヘッダーの背景'],
+      ['--jimble-app-shell-header-text', 'ヘッダーの文字'],
+      ['--jimble-app-shell-header-hover-bg', 'ヘッダーのボタンの hover'],
+      ['--jimble-app-shell-header-ring', 'ヘッダーの縁'],
+      ['--jimble-app-shell-sidebar-bg', 'サイドバーの背景'],
+      ['--jimble-app-shell-sidebar-ring', 'サイドバーの縁'],
+      ['--jimble-sidebar-nav-text', '項目の文字'],
+      ['--jimble-sidebar-nav-icon-color', 'アイコン'],
+      ['--jimble-sidebar-nav-hover-bg', '項目の hover の背景'],
+      ['--jimble-sidebar-nav-current-bg', '現在のページの背景'],
+      ['--jimble-sidebar-nav-current-text', '現在のページの文字'],
+      ['--jimble-sidebar-nav-ring-focus', 'フォーカスの輪郭'],
+    ],
+  },
 ]
 const RADII: [string, string][] = [
   ['--jimble-radius-control', 'ボタン・入力欄の角丸'],
   ['--jimble-radius-card', 'カードの角丸'],
   ['--jimble-radius-overlay', 'ダイアログ・メニューの角丸'],
+  ['--jimble-sidebar-nav-icon-size', 'サイドバーのアイコンの大きさ(px)'],
 ]
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
@@ -276,7 +295,7 @@ export class LabTuner extends LitElement {
                     </details>`,
                 )}
                 <details>
-                  <summary>角丸</summary>
+                  <summary>角丸・大きさ</summary>
                   ${RADII.map(
                     ([name, label]) =>
                       html`<div class="row wide">

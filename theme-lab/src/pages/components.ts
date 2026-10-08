@@ -1,17 +1,42 @@
 import { html } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
+import { CONTROL_SECTIONS, controlStates } from './control-states.ts'
 
 type El = HTMLElement & { show(): void; hide(): void }
 const $ = (id: string) => document.getElementById(id) as El
+
+// 目次(ページの中の移動。ルーターに渡さないよう、リンクではなくボタンでスクロールする)
+const SECTIONS: [id: string, title: string][] = [
+  ['sec-button', 'ボタン'],
+  ['sec-badge', 'バッジ'],
+  ['sec-icon', 'アイコン・ツールチップ'],
+  ['sec-alert', 'アラート'],
+  ['sec-overlay', 'ダイアログ・メニュー・通知'],
+  ['sec-nav', 'タブ・ページネーション'],
+  ['sec-data', '表・説明リスト'],
+  ...CONTROL_SECTIONS,
+]
+const jump = (id: string) =>
+  document.getElementById(id)?.scrollIntoView({
+    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+  })
 
 export function components() {
   return html`
     <jimble-page-header
       heading="部品一覧"
-      description="色を変えたときに、見た目をまとめて確認するページです。マウスを重ねる・フォーカスする・操作するで、状態の色も確かめてください。"
+      description="色を変えたときに、すべての部品の見た目をまとめて確認するページです。マウスを重ねる・フォーカスする・操作する、で状態の色も確かめてください。かんばん・サイドバー・ヘッダーは、ほかのページで見られます。"
     ></jimble-page-header>
+    <nav class="toc" aria-label="このページの目次">
+      ${SECTIONS.map(
+        ([id, title]) =>
+          html`<jimble-button size="sm" variant="ghost" @click=${() => jump(id)}
+            >${title}</jimble-button
+          >`,
+      )}
+    </nav>
 
-    <jimble-card class="section">
+    <jimble-card class="section" id="sec-button">
       <h3 slot="header">ボタン</h3>
       <div class="stack">
         ${(['primary', 'secondary', 'danger', 'ghost'] as const).map(
@@ -29,11 +54,21 @@ export function components() {
               >
             </div>`,
         )}
+        <div class="row">
+          <span class="muted" style="width: 5rem">幅いっぱい・アイコンのみ</span>
+          <jimble-button variant="primary" block style="max-width: 16rem">幅いっぱい</jimble-button>
+          <jimble-button variant="secondary" aria-label="設定"
+            ><jimble-icon name="cog-6-tooth"></jimble-icon
+          ></jimble-button>
+          <jimble-button variant="ghost" aria-label="削除"
+            ><jimble-icon name="trash"></jimble-icon
+          ></jimble-button>
+        </div>
       </div>
     </jimble-card>
 
     <div class="grid-2 section">
-      <jimble-card>
+      <jimble-card id="sec-badge">
         <h3 slot="header">バッジ</h3>
         <div class="row">
           ${(['neutral', 'primary', 'success', 'warning', 'danger', 'info'] as const).map(
@@ -46,7 +81,7 @@ export function components() {
           )}
         </div>
       </jimble-card>
-      <jimble-card>
+      <jimble-card id="sec-icon">
         <h3 slot="header">スピナー・アイコン・ツールチップ</h3>
         <div class="row">
           <jimble-spinner size="sm"></jimble-spinner>
@@ -68,7 +103,7 @@ export function components() {
       </jimble-card>
     </div>
 
-    <jimble-card class="section">
+    <jimble-card class="section" id="sec-alert">
       <h3 slot="header">アラート</h3>
       <div class="stack">
         ${(['info', 'success', 'warning', 'danger'] as const).map(
@@ -82,8 +117,8 @@ export function components() {
       </div>
     </jimble-card>
 
-    <jimble-card class="section">
-      <h3 slot="header">オーバーレイ・通知</h3>
+    <jimble-card class="section" id="sec-overlay">
+      <h3 slot="header">ダイアログ・メニュー・通知</h3>
       <div class="row">
         <jimble-button @click=${() => $('lab-dialog').show()}>ダイアログ</jimble-button>
         <jimble-button @click=${() => $('lab-alertdialog').show()}>確認ダイアログ</jimble-button>
@@ -94,6 +129,7 @@ export function components() {
           ></jimble-button>
           <jimble-menu-item value="a">編集</jimble-menu-item>
           <jimble-menu-item value="b">複製</jimble-menu-item>
+          <jimble-menu-separator></jimble-menu-separator>
           <jimble-menu-item value="c" disabled>無効な項目</jimble-menu-item>
           <jimble-menu-item value="d" variant="danger">削除</jimble-menu-item>
         </jimble-dropdown-menu>
@@ -125,7 +161,7 @@ export function components() {
     </jimble-card>
 
     <div class="grid-2 section">
-      <jimble-card>
+      <jimble-card id="sec-nav">
         <h3 slot="header">タブ・ページネーション・パンくず</h3>
         <div class="stack">
           <jimble-breadcrumb>
@@ -143,7 +179,7 @@ export function components() {
           <jimble-pagination page="7" total="243" page-size="20" size="sm"></jimble-pagination>
         </div>
       </jimble-card>
-      <jimble-card>
+      <jimble-card id="sec-data">
         <h3 slot="header">説明リスト・表</h3>
         <div class="stack">
           <jimble-description-list>
@@ -173,5 +209,9 @@ export function components() {
         </div>
       </jimble-card>
     </div>
+
+    <h2 class="section">入力部品の状態</h2>
+    <p class="muted">通常・入力済み・無効・読み取り専用・エラーを、部品ごとに並べています。</p>
+    ${controlStates()}
   `
 }

@@ -31,8 +31,32 @@ const PAIRS: [string, string, number, string][] = [
   ['warning-600', 'warning-50', 3, 'warning アイコン'],
   ['danger-600', 'danger-50', 3, 'danger アイコン'],
   ['info-600', 'info-50', 3, 'info アイコン'],
+  // ヘッダー・サイドバー(0.5.0 以降。完全な変数名で書く)
+  ['--jimble-app-shell-header-text', '--jimble-app-shell-header-bg', 4.5, 'ヘッダーの文字'],
+  [
+    '--jimble-app-shell-header-text',
+    '--jimble-app-shell-header-hover-bg',
+    4.5,
+    'ヘッダーのボタン（hover）',
+  ],
+  ['--jimble-sidebar-nav-text', '--jimble-app-shell-sidebar-bg', 4.5, 'サイドバーの項目の文字'],
+  ['--jimble-sidebar-nav-text', '--jimble-sidebar-nav-hover-bg', 4.5, 'サイドバーの項目（hover）'],
+  [
+    '--jimble-sidebar-nav-current-text',
+    '--jimble-sidebar-nav-current-bg',
+    4.5,
+    '現在のページの項目',
+  ],
+  ['--jimble-sidebar-nav-icon-color', '--jimble-app-shell-sidebar-bg', 3, 'サイドバーのアイコン'],
+  [
+    '--jimble-sidebar-nav-ring-focus',
+    '--jimble-app-shell-sidebar-bg',
+    3,
+    'サイドバーのフォーカスの輪郭',
+  ],
 ]
-const v = (t: string) => `--jimble-color-${t}`
+// 「primary-600」のようなトークン名は --jimble-color-… に、「--」で始まるものは、そのまま変数名にする
+const v = (t: string) => (t.startsWith('--') ? t : `--jimble-color-${t}`)
 
 export function contrastPage() {
   let redraw = () => {}
