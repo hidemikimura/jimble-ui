@@ -51,6 +51,12 @@ describe('構造とランドマーク', () => {
     expect(part(el, 'skip-link').textContent!.trim()).toBe('本文へ移動')
   })
 
+  it('ヘッダーは、本文の sticky な要素(表の見出しなど)より上に出る(z-index が実際に付いている)', async () => {
+    // Tailwind は、定義のないクラス(z-sticky など)の CSS を黙って出さない。計算結果で確かめる
+    const { el } = await shell()
+    expect(getComputedStyle(part(el, 'header')).zIndex).toBe('10')
+  })
+
   it('ヘッダーの高さは --jimble-app-shell-header-height で変えられる(既定 3.5rem = 56px)', async () => {
     const { el } = await shell()
     expect(Math.round(part(el, 'header').getBoundingClientRect().height)).toBe(56)

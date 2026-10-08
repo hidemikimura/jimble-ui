@@ -284,14 +284,14 @@ export class JimbleAppShell extends JimbleElement {
       <button
         part="skip-link"
         type="button"
-        class="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-drawer focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:shadow-lg focus:outline focus:outline-2 focus:outline-focus"
+        class="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-(--jimble-z-drawer,20) focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:shadow-lg focus:outline focus:outline-2 focus:outline-focus"
         @click=${this.#focusMain}
       >
         ${this.t('shell.skipToContent')}
       </button>
       <header
         part="header"
-        class="sticky top-0 z-sticky col-span-full flex h-(--_hh) items-center gap-3 bg-surface px-4 shadow-sm ring-1 ring-inset ring-line"
+        class="sticky top-0 z-(--jimble-z-sticky,10) col-span-full flex h-(--_hh) items-center gap-3 bg-surface px-4 shadow-sm ring-1 ring-inset ring-line"
       >
         ${
           this.wide
@@ -324,7 +324,7 @@ export class JimbleAppShell extends JimbleElement {
       <div
         id="sidebar"
         part="sidebar"
-        class="${SIDEBAR}${rail ? 'z-sticky' : 'overflow-auto p-3'}"
+        class="${SIDEBAR}${rail ? 'z-(--jimble-z-drawer,20)' : 'overflow-auto p-3'}"
         @pointerenter=${this.#onSidebarPointerEnter}
         @pointerleave=${this.#onSidebarPointerLeave}
         @focusin=${this.#onSidebarFocusChange}

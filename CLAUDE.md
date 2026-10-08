@@ -36,7 +36,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 
 ## 守る約束（破ると壊れるもの）
 
-1. **Tailwind のクラスは完全な文字列リテラルで書く**（`` `bg-${x}` `` の組み立て禁止。スキャナが検出できない）。**生の色は使わない**（`bg-indigo-600`、`#4f46e5`）。意味トークン（`bg-primary-600`、`text-fg-muted`、`ring-line-control`）だけ。内部のクラス名は公開 API ではない。**`[calc(…)]` など任意の値は、演算子の前後に `_` で空白を入れる**（`h-[calc(100dvh_-_var(--_hh))]`）。空白がないと、Tailwind は何も言わずにその CSS を捨てる。新しい任意の値を足したら、ビルド後の CSS に出ているか確かめる。
+1. **Tailwind のクラスは完全な文字列リテラルで書く**（`` `bg-${x}` `` の組み立て禁止。スキャナが検出できない）。**生の色は使わない**（`bg-indigo-600`、`#4f46e5`）。意味トークン（`bg-primary-600`、`text-fg-muted`、`ring-line-control`）だけ。内部のクラス名は公開 API ではない。**`[calc(…)]` など任意の値は、演算子の前後に `_` で空白を入れる**（`h-[calc(100dvh_-_var(--_hh))]`）。空白がないと、Tailwind は何も言わずにその CSS を捨てる。新しい任意の値を足したら、ビルド後の CSS に出ているか確かめる。**トークンの名前で書いたクラス（`z-sticky` など）は、Tailwind に定義がないと何も出ない**ので、`z-(--jimble-z-sticky,10)` のように変数で書く。
 2. **トークンの既定値を `:host` / `:root` に宣言しない**（利用者の `:root` での上書きが負ける）。`var(--jimble-x, 既定値)` のフォールバックで持つ。`*.host.css` から使う色は、生成される `--_c-*`（`aliases.generated.css`）を参照する。
 3. **Shadow DOM 内では Tailwind v4 の `@property` が効かない**。`build/postcss-shadow-fix.ts` が補正している。`shadow-*` / `ring-*` を触るときは、ブラウザテストで `box-shadow` が効くことを確認する。
 4. **リアクティブプロパティは `static properties: PropertyDeclarations` + `declare` フィールド**。デコレーターは使わない。`value` / `checked` は「属性=初期値、プロパティ=現在値」（利用者が触ったら属性で上書きしない）。

@@ -847,6 +847,17 @@ test.describe('app-shell(実際のビューポート)', () => {
     expect((await box('main')).left).toBe(mainLeft)
     await expect(nav).not.toHaveAttribute('compact', '')
     expect(await labelWidth()).toBeGreaterThan(40)
+    // 本文の中の sticky な要素(表の見出しなど、z-sticky)より、広がったサイドバーが上に出る
+    await page.evaluate(() => {
+      const probe = document.createElement('div')
+      probe.id = 'probe'
+      probe.style.cssText =
+        'position: sticky; top: 0; z-index: 10; height: 400px; background: red; margin-top: -2rem'
+      document.querySelector('jimble-app-shell')!.append(probe)
+    })
+    await expect
+      .poll(() => page.evaluate(() => document.elementFromPoint(200, 300)?.id ?? 'sidebar'))
+      .not.toBe('probe')
     // 子項目も、広がった中で開ける
     await shell.locator('jimble-nav-group').locator('[part="button"]').click()
     await expect(shell.locator('jimble-nav-item', { hasText: 'プロフィール' })).toBeVisible()
