@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/hidemikimura/jimble-ui/compare/v0.6.1...v0.6.2) (2026-10-08)
+
+
+### 修正
+
+* **app-shell:** 部品の内側でフォーカスしたとき、画面が大きく跳ぶのを直す ([303b552](https://github.com/hidemikimura/jimble-ui/commit/303b55220809000d206ed9b55dc27ab5446ca615))
+
 ## [0.6.1](https://github.com/hidemikimura/jimble-ui/compare/v0.6.0...v0.6.1) (2026-10-08)
 
 
