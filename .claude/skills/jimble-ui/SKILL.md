@@ -44,7 +44,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - タグは `jimble-*`。属性は kebab-case（`icon-only`、`sticky-header`）。プロパティは camelCase（`iconOnly`）。
 - 真偽値は**属性の有無**で表す（`disabled`、`loading`、`open`）。`disabled="false"` と書いても、属性があるので**無効になる**（有効にするには属性を書かない）。
 - 共通の属性: `variant`（見た目。部品ごとの決まった値。未知の値は既定に戻る）、`size`（`sm` / `md` / `lg`、既定 `md`）、`disabled`、`loading`、`open`。
-- 独自イベントは `jimble-` で始まる（`jimble-close-request`、`jimble-select` …）。フォーム部品は、ネイティブと同じ `input` / `change` を出す。詳細は `event.detail`。
+- 独自イベントは `jimble-` で始まる（`jimble-close-request`、`jimble-select` …）。**バブルしない**ので、リスナーは、その部品自身に付ける（親や `document` に付けても届かない。ルーターの `jimble-route-*` だけはバブルする）。入れ子の部品（ドロワーの中の select など）の通知が、外側に漏れることはない。フォーム部品は、ネイティブと同じ `input` / `change` を出す。詳細は `event.detail`。
 - 要素は、使う前に登録されている必要がある（スクリプトを読み込む）。登録前は中身が素のまま見える。
 
 ## コンポーネント早見

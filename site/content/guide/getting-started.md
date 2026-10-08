@@ -72,6 +72,7 @@ button.variant = 'primary'
 - 属性は kebab-case、真偽値は属性の有無で表します（`disabled`、`loading`）。
 - 共通の属性: `variant`（見た目）、`size`（`sm` / `md` / `lg`）、`disabled`、`loading`、`open`。
 - 独自イベントは `jimble-` で始まります（例: `jimble-close-request`）。ネイティブと同じ意味のものは同名です（`input`、`change`）。
+- `jimble-*` のイベントは**バブルしません**（ネイティブの `close` と同じです）。リスナーは、その部品自身に付けてください（`dialog.addEventListener('jimble-close', …)`）。ドロワーの中の select の `jimble-close` が、ドロワーに届くことはありません。親や `document` でまとめて受けたいときは、キャプチャ段階（`addEventListener(name, fn, true)`）を使います。ルーターの `jimble-route-*` だけは、アプリ全体で受けるため、バブルします。
 - 内部のクラス名は公開 API ではありません。見た目の調整は [テーマ](../theming/) の方法を使ってください。
 
 ## 対応ブラウザ

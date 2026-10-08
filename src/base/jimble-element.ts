@@ -49,13 +49,20 @@ export class JimbleElement extends LitElement {
     return `${prefix}-${++uidCounter}`
   }
 
-  /** `jimble-` を付けて CustomEvent を発火する。既定で bubbles + composed。 */
+  /**
+   * `jimble-` を付けて CustomEvent を発火する。既定では**バブルしない**(composed)。
+   *
+   * 開閉・選択・並べ替えなど「この部品自身の状態の通知」は、ネイティブの `close` / `toggle` と同じく、
+   * バブルさせない。同じ名前(`jimble-open` / `jimble-close` など)を多くの部品が使うので、バブルすると、
+   * ドロワーの中の select の `jimble-close` を、ドロワーのリスナーが受け取ってしまう。
+   * アプリ全体で受ける通知(ルーターなど)だけ、`bubbles: true` を指定する。
+   */
   protected emit<T = undefined>(
     name: string,
-    init: { detail?: T; cancelable?: boolean } = {},
+    init: { detail?: T; cancelable?: boolean; bubbles?: boolean } = {},
   ): CustomEvent<T> {
     const event = new CustomEvent<T>(`jimble-${name}`, {
-      bubbles: true,
+      bubbles: init.bubbles ?? false,
       composed: true,
       cancelable: init.cancelable ?? false,
       detail: init.detail as T,

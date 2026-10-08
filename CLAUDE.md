@@ -48,6 +48,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 6. **Shadow DOM の境界**:
    - ARIA の IDREF は境界をまたげない。ラベル・ヒント・エラーは**文字列で渡して、部品側の root に写す**（`jimble-field`）。anchor 名（CSS Anchor Positioning）も同じツリー内でだけ有効。
    - リスナーから見た `event.target` は host に再ターゲットされる。内側の要素を探すときは `event.composedPath()`。
+   - **`jimble-*` イベント（`emit()`）は、既定でバブルしない。** `jimble-open` / `jimble-close` など同じ名前を多くの部品が使うので、バブルすると入れ子の部品の通知が親に漏れる。アプリ全体で受けるもの（ルーター）だけ `bubbles: true` を指定する。テストでは、親のリスナーではなく、部品自身のリスナーで確かめる。
    - light DOM のスロット内容は、Shadow 内の要素の `textContent` に含まれない。
 7. **オーバーレイはネイティブ機能に任せる**（`<dialog>` の `showModal()`、Popover API）。popover 要素に `display` を変えるクラスを付けない（UA の非表示が壊れる）。メニュー/セレクトを Tab で閉じるときは、**描画を待たず同期的に `hidePopover()`**（Firefox で tabindex=0 の項目にフォーカスが移る）。toast の領域は、開いているモーダルの `<dialog>` の中へ移動する（モーダルの外は inert）。
 8. **IME**: Enter・Esc・先頭文字検索は `ImeController` で変換中を除外する。

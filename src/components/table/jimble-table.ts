@@ -55,6 +55,9 @@ export class JimbleTable extends JimbleElement {
     this.stickyHeader = false
     this.striped = false
     this.loading = false
+    // 見出しセルの jimble-sort は、表で受ける(セルがバブルさせる)。入れ子の表や外側のリスナーには漏らさず、
+    // この表で止める(同じ表に付けた、アプリのリスナーには、これまでどおり届く)
+    this.addEventListener('jimble-sort', (e) => e.stopPropagation())
   }
 
   override connectedCallback(): void {
@@ -226,7 +229,8 @@ export class JimbleTableHeadCell extends JimbleElement {
 
   #toggle = () => {
     const direction: SortDirection = this.sort === 'ascending' ? 'descending' : 'ascending'
-    const event = this.emit('sort', { detail: { direction }, cancelable: true })
+    // 表(jimble-table)で受ける通知なので、表までバブルさせる(表の中で止まる)
+    const event = this.emit('sort', { detail: { direction }, cancelable: true, bubbles: true })
     if (event.defaultPrevented) return
     // 同じ表の中の、ほかの見出しの並び順を解除する
     this.closest('jimble-table')

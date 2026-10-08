@@ -176,3 +176,31 @@ describe('読み込み中と axe', () => {
     await expectNoA11yViolations(s.c)
   })
 })
+
+describe('jimble-sort の伝わり方', () => {
+  it('見出しセルの jimble-sort は、表のリスナーに届くが、表の外側には漏れない(入れ子の表を含む)', async () => {
+    const { c, el, heads } = await table()
+    const onTable = vi.fn()
+    const onOuter = vi.fn()
+    el.addEventListener('jimble-sort', onTable)
+    c.addEventListener('jimble-sort', onOuter) // 表を囲む要素
+    document.addEventListener('jimble-sort', onOuter)
+    try {
+      sortBtn(heads[2]!).click()
+      await tick()
+      expect(onTable).toHaveBeenCalledTimes(1)
+      expect((onTable.mock.calls[0]![0] as CustomEvent).detail).toEqual({ direction: 'ascending' })
+      expect(onOuter).not.toHaveBeenCalled()
+    } finally {
+      document.removeEventListener('jimble-sort', onOuter)
+    }
+  })
+
+  it('表に付けたリスナーで preventDefault() すると、見出しの並び順は変わらない', async () => {
+    const { el, heads } = await table()
+    el.addEventListener('jimble-sort', (e) => e.preventDefault())
+    sortBtn(heads[2]!).click()
+    await tick()
+    expect(heads[2]!.sort).toBe('none')
+  })
+})

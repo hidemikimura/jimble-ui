@@ -330,7 +330,7 @@ LitElement
 |------|------|
 | 共有スタイル | `static styles = [sharedSheet]`。サブクラスは `[...super.styles, …]` で追加 |
 | `static define(tag)` | `customElements.get(tag)` を確認してから登録。CDN と個別 import の二重登録でも例外にならない（先勝ち + 開発時に警告） |
-| `emit(name, options)` | `jimble-` を自動付与して CustomEvent を発火。既定 `bubbles: true, composed: true`。`detail` は型付き |
+| `emit(name, options)` | `jimble-` を自動付与して CustomEvent を発火。既定 `bubbles: false, composed: true`（アプリ全体で受ける通知だけ `bubbles: true` を指定。下の追補）。`detail` は型付き |
 | `t(key, params)` | i18n の翻訳関数。`LocalizeController` を自動で接続し、ロケール変更で再描画（§8） |
 | `uid(prefix)` | 同一 root 内で使う ID 生成（`aria-describedby` 用） |
 | `warn(msg)` | 開発ビルドのみのコンソール警告（`__DEV__` を本番で除去）。必須属性の欠落（アイコンのみボタンの `aria-label` など）に使う |
@@ -711,7 +711,7 @@ Shadow 内のネイティブ入力は外側の `<form>` に属さないので、
 | 属性 | kebab-case、小文字。真偽値は**属性の有無**（`disabled`、値は書かない）。列挙値は小文字 kebab（`variant="primary"`） |
 | プロパティ | camelCase。属性と 1:1（`full-width` ↔ `fullWidth`）。真偽値の属性は `reflect: true` |
 | 反映（reflect） | UI の状態を表し CSS の属性セレクターで使うもの（`disabled`, `open`, `loading`, `size`, `variant`）は reflect する。`value` は reflect しない（§5.1） |
-| イベント | `jimble-` + kebab-case。過去形/現在形は下記。`bubbles: true, composed: true`。`detail` は型付き |
+| イベント | `jimble-` + kebab-case。過去形/現在形は下記。**バブルしない**（`composed: true`。ルーターのイベントだけバブル）。`detail` は型付き |
 | スロット | kebab-case。既定スロット + 名前付き（`prefix`, `suffix`, `icon`, `header`, `footer`, `actions`, `trigger`） |
 | part | kebab-case、**意味を表す名前**（Tailwind のクラスとは無関係）。ルートは必ず `base` |
 | CSS 変数 | §4.2 |
@@ -1555,6 +1555,13 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 
 - カンバン・サイドバーの切り替え・テーマ変数・イベントの修正で、90 KB にほぼ達し、イベントの修正（約 20 バイト）で超えたため、92 KB に上げた（利用者の判断）。これ以上の部品の追加は、また予算に当たる。根本的な対処は、アイコン（約 11 KB）を CDN の本体から分けること。
 - 共有チャンクの予算は 14 KB（変更なし）。
+
+**追補: `jimble-*` イベントを、既定でバブルさせない（2026-10-09・破壊的変更）**
+
+- **症状**: ドロワーの中の select を閉じると、ドロワーの `jimble-close` のリスナーが呼ばれた（ドロワーは閉じていない）。同じ名前（`jimble-open` / `jimble-close` / `jimble-close-request` / `jimble-dismiss` など）を多くの部品が使い、しかも `emit()` の既定が `bubbles: true` だったため、入れ子にすると、どの部品の通知か区別できなかった（タブの中のタブの `jimble-tab-change` なども同じ）。
+- **判断**: 「この部品自身の状態の通知」は、ネイティブの `close` / `toggle` と同じく、バブルさせない。`emit()` の既定を `bubbles: false`（`composed: true` のまま）にして、アプリ全体で受ける通知だけ `bubbles: true` を指定できるようにした。**ルーターの `jimble-route-*` は、計測やエラー表示をアプリ全体で受けるので、バブルのまま**。フォーム部品の `input` / `change` は、`emit()` ではなくネイティブ相当の再発火で、これまでどおりバブルする。
+- **互換性**: 親や `document` で、イベントの委譲（`container.addEventListener('jimble-close', …)`）をしていたコードは、届かなくなる。**キャプチャ段階のリスナー（`addEventListener(name, fn, true)`）は、バブルしないイベントでも届く**ので、委譲が要るときは、これで移行できる。リポジトリ内・サイト・theme-lab のリスナーは、すべて発火元の部品に付いていて、影響しなかった。0.x なので、`feat!` の minor で出す。
+- **検証**: `src/base/jimble-element.test.ts`（修正前の実装では、9 件が失敗することを確認）。ドロワーの中の select、入れ子のタブ、`bubbles: true` の指定を確かめる。
 
 **追補: app-shell のフォーカス補正が、Shadow DOM の中で大きく跳んでいた不具合（2026-10-08）**
 

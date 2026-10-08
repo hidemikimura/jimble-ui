@@ -378,7 +378,8 @@ export class JimbleRouter extends JimbleElement {
   }
 
   #dispatch(name: string, detail: unknown) {
-    this.emit(`route-${name}`, { detail })
+    // 画面の遷移は、アプリ全体(計測・エラー表示など)で受けるので、バブルさせる
+    this.emit(`route-${name}`, { detail, bubbles: true })
   }
 
   async #transition(args: {
@@ -414,6 +415,7 @@ export class JimbleRouter extends JimbleElement {
       const event = this.emit('route-error', {
         detail: { error, url, route: matched.route },
         cancelable: true,
+        bubbles: true,
       })
       // デプロイで古くなった画面(ハッシュ付きのファイルが無い)は、通常のページ遷移で新しい画面を読み込み直して復旧する
       if (!event.defaultPrevented && this.#recoverFromChunkError(error, url)) return
