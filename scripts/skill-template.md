@@ -181,6 +181,12 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
 
 {{example:app-shell/collapsible}}
 
+### ヘッダー・サイドバーの色とアイコンの大きさ
+
+`jimble-app-shell`（または `:root`）に、CSS 変数で指定する。`--jimble-app-shell-header-bg` / `-header-text` / `-header-hover-bg` / `-header-ring`、`--jimble-app-shell-sidebar-bg` / `-sidebar-ring`、`--jimble-sidebar-nav-text` / `-icon-color` / `-icon-size` / `-hover-bg` / `-current-bg` / `-current-text` / `-ring-focus`。**背景を暗くするときは、文字・アイコン・ホバー・現在のページ・フォーカスの色も一緒に変える**（文字 4.5:1、アイコン 3:1）。アイコンの大きさは `jimble-icon` にだけ効く。
+
+{{example:app-shell/theme}}
+
 ### 一覧ページの骨格（app-shell + page-header + tabs + table + pagination）
 
 {{example:app-shell/admin-page}}

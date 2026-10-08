@@ -22,20 +22,21 @@ function deepActiveElement(): Element | null {
 
 // グリッドの列など。Tailwind が拾えるよう、完全な文字列で書く
 const BASE =
-  'grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-surface-muted text-fg md:transition-[grid-template-columns] md:duration-150 motion-reduce:transition-none [--_hh:var(--jimble-app-shell-header-height,3.5rem)] '
+  'grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-surface-muted text-fg md:transition-[grid-template-columns] md:duration-150 motion-reduce:transition-none [--_hh:var(--jimble-app-shell-header-height,3.5rem)] ' +
+  '[--_ring-header:var(--jimble-app-shell-header-ring,var(--color-line))] [--_ring-sidebar:var(--jimble-app-shell-sidebar-ring,var(--color-line))] '
 const COLS_WIDE = 'md:grid-cols-[var(--jimble-app-shell-sidebar-width,16rem)_minmax(0,1fr)]'
 const COLS_RAIL =
   'md:grid-cols-[var(--jimble-app-shell-sidebar-collapsed-width,4rem)_minmax(0,1fr)]'
 const SIDEBAR =
-  'sticky top-(--_hh) hidden h-[calc(100dvh_-_var(--_hh))] bg-surface ring-1 ring-inset ring-line md:block '
+  'sticky top-(--_hh) hidden h-[calc(100dvh_-_var(--_hh))] [background-color:var(--jimble-app-shell-sidebar-bg,var(--color-surface))] ring-1 ring-inset ring-(--_ring-sidebar) md:block '
 /** 細いサイドバーの中身。マウスを重ねると、本文に重なるように広がる（列の幅は変えない） */
 const PANEL_RAIL =
-  'absolute inset-y-0 start-0 overflow-x-hidden overflow-y-auto bg-surface p-3 ring-1 ring-inset ring-line ' +
+  'absolute inset-y-0 start-0 overflow-x-hidden overflow-y-auto p-3 [background-color:var(--jimble-app-shell-sidebar-bg,var(--color-surface))] ring-1 ring-inset ring-(--_ring-sidebar) ' +
   'transition-[width] duration-150 motion-reduce:transition-none '
 
 const ICON_BUTTON =
-  'inline-flex size-9 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg ' +
-  'hover:bg-surface-sunken outline outline-1 outline-transparent focus-visible:outline-2 ' +
+  'inline-flex size-9 shrink-0 items-center justify-center rounded-md cursor-pointer text-inherit ' +
+  'hover:[background-color:var(--jimble-app-shell-header-hover-bg,var(--color-surface-sunken))] outline outline-1 outline-transparent focus-visible:outline-2 ' +
   'focus-visible:outline-offset-1 focus-visible:outline-focus'
 
 /**
@@ -71,6 +72,12 @@ const ICON_BUTTON =
  * @cssprop [--jimble-app-shell-sidebar-width=16rem] - サイドバーの幅（細い表示でマウスを重ねたときに広がる幅も同じ）
  * @cssprop [--jimble-app-shell-sidebar-collapsed-width=4rem] - 細い表示のサイドバーの幅
  * @cssprop [--jimble-app-shell-main-padding=4 単位(1rem)] - 本文の余白
+ * @cssprop [--jimble-app-shell-header-bg=var(--jimble-color-surface)] - ヘッダーの背景
+ * @cssprop [--jimble-app-shell-header-text=var(--jimble-color-text)] - ヘッダーの文字色（ヘッダーの中のボタンにも効く）
+ * @cssprop [--jimble-app-shell-header-hover-bg=var(--jimble-color-surface-sunken)] - ヘッダーの中のボタン（メニュー・幅の切り替え）にマウスを重ねたときの背景
+ * @cssprop [--jimble-app-shell-header-ring=var(--jimble-color-ring)] - ヘッダーの縁の色
+ * @cssprop [--jimble-app-shell-sidebar-bg=var(--jimble-color-surface)] - サイドバーの背景（ドロワー・広がった細い表示も同じ）
+ * @cssprop [--jimble-app-shell-sidebar-ring=var(--jimble-color-ring)] - サイドバーの縁の色
  *
  * @fires jimble-open - ドロワーが開いた
  * @fires jimble-close - ドロワーが閉じた
@@ -291,7 +298,7 @@ export class JimbleAppShell extends JimbleElement {
       </button>
       <header
         part="header"
-        class="sticky top-0 z-(--jimble-z-sticky,10) col-span-full flex h-(--_hh) items-center gap-3 bg-surface px-4 shadow-sm ring-1 ring-inset ring-line"
+        class="sticky top-0 z-(--jimble-z-sticky,10) col-span-full flex h-(--_hh) items-center gap-3 px-4 shadow-sm ring-1 ring-inset ring-(--_ring-header) [background-color:var(--jimble-app-shell-header-bg,var(--color-surface))] [color:var(--jimble-app-shell-header-text,var(--color-fg))]"
       >
         ${
           this.wide
@@ -351,7 +358,7 @@ export class JimbleAppShell extends JimbleElement {
       <dialog
         part="drawer"
         aria-label=${label}
-        class="m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-3rem))] max-w-none overflow-auto border-0 bg-surface p-0 text-fg shadow-lg backdrop:bg-backdrop"
+        class="m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-3rem))] max-w-none overflow-auto border-0 p-0 text-fg shadow-lg backdrop:bg-backdrop [background-color:var(--jimble-app-shell-sidebar-bg,var(--color-surface))]"
         @cancel=${this.#onCancel}
         @close=${this.#onDrawerClose}
         @click=${this.#onDrawerClick}

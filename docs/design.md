@@ -1558,6 +1558,16 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **対策**: `z-(--jimble-z-sticky,10)` / `z-(--jimble-z-drawer,20)` に直した（`--jimble-z-*` は、`tokens.generated.css` にある）。ヘッダーの z-index が計算結果で 10 であることを、単体テストで確かめる。
 - **教訓**: Tailwind のクラスは、書いただけでは CSS が出るかが分からない。**新しい種類のクラス（任意の値、トークンの名前を使ったもの）は、ビルド後の CSS か、計算結果（`getComputedStyle`）で確かめる**（CLAUDE.md の約束 1）。
 
+**追補: ヘッダー・サイドバーのテーマ変数（2026-10-08）**
+
+- **要件**: Sidebar Nav の背景・文字・アイコンの大きさ、app-shell のヘッダーの背景・文字を、テーマとして変えられるようにする。
+- **変数**: 部品ごとの CSS 変数で、既定値は**意味トークンへのフォールバック**（`var(--jimble-app-shell-header-bg, var(--color-surface))`）。指定しなければ見た目は変わらない（約束 2）。ヘッダー: `--jimble-app-shell-header-bg` / `-header-text` / `-header-hover-bg` / `-header-ring`。サイドバーの面: `--jimble-app-shell-sidebar-bg` / `-sidebar-ring`。項目: `--jimble-sidebar-nav-text` / `-icon-color` / `-icon-size` / `-hover-bg` / `-current-bg` / `-current-text` / `-ring-focus`。
+- **背景はどちらの部品か**: `jimble-sidebar-nav` は背景を持たない（枠を作るのは app-shell）ので、サイドバーの背景は app-shell の `--jimble-app-shell-sidebar-bg`。ドロワー（狭い画面）と、細い表示で広がる面も同じ変数に従う。
+- **暗い背景のために必要になった変数**: 背景だけを変えると、文字・ホバー・現在のページ・フォーカスの色が合わなくなる。そのため、ホバーの背景・現在のページの色・フォーカスの色・ヘッダーの中のボタンのホバーを、変数にした。ヘッダーの中のボタンは、`text-fg` の固定から `inherit` に変え、ヘッダーの文字色に従う。
+- **アイコンの大きさ**: `--jimble-sidebar-nav-icon-size` を、アイコンのラッパーの `--jimble-icon-size`（`jimble-icon` が読む変数）に渡す。未指定のときは、変数が無効（guaranteed-invalid）になり、`jimble-icon` 自身の大きさ（`size` 属性）が使われる。副作用: ラッパーの中では、`:root` に書いた `--jimble-icon-size` は届かない。`<svg>` を直接入れた場合は効かない。
+- **サイズ**: 変数の指定が共有の CSS に入り、共有チャンクが 13.6 KB になったので、共有チャンクの予算を 13.5 KB から 14 KB に上げた。CDN バンドルは 89.9 KB で、予算（90 KB）にほぼ達している。次の機能の前に、予算を上げるか、アイコンの分離（約 11 KB）を決める必要がある。
+- **対象外**: 項目の文字サイズ・角丸・余白。必要になったら足す。コントラストは、変数を変えた利用者の責任（`theme-lab` のコントラストのページで確かめられる）。
+
 **追補: app-shell のサイドバーを細くする機能 `sidebar-collapsible`（2026-10-08）**
 
 - **要件**: ヘッダーのボタンで、サイドバーを「アイコンだけの細い表示」と「項目名つきの広い表示」に切り替える。細い表示でも、マウスを重ねると項目名が出て、子項目も開ける。

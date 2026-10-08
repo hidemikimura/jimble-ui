@@ -157,3 +157,45 @@ describe('compact（アイコンだけの細い表示）', () => {
     await expectNoA11yViolations(c)
   })
 })
+
+describe('テーマ（CSS 変数）', () => {
+  const cs = (e: Element) => getComputedStyle(e)
+  const iconWrap = (i: Element) => i.shadowRoot!.querySelector<HTMLElement>('a > span')!
+
+  it('既定では、意味トークンの色になる（変数を指定しない）', async () => {
+    const { items } = await nav()
+    const idle = cs(link(items[1]!)).color
+    // 現在のページは primary、ほかは本文の色
+    expect(cs(link(items[0]!)).color).not.toBe(idle)
+    // アイコンの大きさは、jimble-icon 自身に任せる（変数を渡さない）
+    expect(cs(iconWrap(items[1]!)).getPropertyValue('--jimble-icon-size').trim()).toBe('')
+  })
+
+  it('文字・現在のページ・アイコンの色と大きさ・ホバーの背景を、変数で変えられる', async () => {
+    const { el, items, group } = await nav()
+    const set = (name: string, value: string) => el.style.setProperty(name, value)
+    set('--jimble-sidebar-nav-text', 'rgb(1, 2, 3)')
+    set('--jimble-sidebar-nav-current-bg', 'rgb(10, 20, 30)')
+    set('--jimble-sidebar-nav-current-text', 'rgb(250, 251, 252)')
+    set('--jimble-sidebar-nav-icon-color', 'rgb(100, 110, 120)')
+    set('--jimble-sidebar-nav-icon-size', '2rem')
+    await tick()
+    expect(cs(link(items[1]!)).color).toBe('rgb(1, 2, 3)')
+    expect(cs(link(items[0]!)).backgroundColor).toBe('rgb(10, 20, 30)')
+    expect(cs(link(items[0]!)).color).toBe('rgb(250, 251, 252)')
+    expect(cs(iconWrap(items[1]!)).color).toBe('rgb(100, 110, 120)')
+    expect(cs(iconWrap(items[1]!)).getPropertyValue('--jimble-icon-size').trim()).toBe('2rem')
+    expect(cs(gbtn(group)).color).toBe('rgb(1, 2, 3)') // グループの見出しも同じ文字色
+    // 開閉の矢印は、アイコンの色
+    const chevron = [...group.shadowRoot!.querySelectorAll<HTMLElement>('button > span')].at(-1)!
+    expect(cs(chevron).color).toBe('rgb(100, 110, 120)')
+  })
+
+  it('ホバーの背景を変数で変えられる。細い表示の頭文字の背景も同じ変数', async () => {
+    const { el, items } = await nav('compact')
+    el.style.setProperty('--jimble-sidebar-nav-hover-bg', 'rgb(40, 50, 60)')
+    await tick()
+    const initial = items[0]!.shadowRoot!.querySelector<HTMLElement>('[part="initial"]')!
+    expect(cs(initial).backgroundColor).toBe('rgb(40, 50, 60)')
+  })
+})

@@ -7,13 +7,29 @@ import { renderIcon } from '../../icons/render.js'
 
 const LINK =
   'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium no-underline outline ' +
-  'outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
+  'outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 ' +
+  'focus-visible:[outline-color:var(--jimble-sidebar-nav-ring-focus,var(--color-focus))]'
+/** 項目の色。利用者が CSS 変数で変えられる(既定は意味トークン) */
+const IDLE =
+  '[color:var(--jimble-sidebar-nav-text,var(--color-fg))] ' +
+  'hover:[background-color:var(--jimble-sidebar-nav-hover-bg,var(--color-surface-sunken))]'
+const CURRENT =
+  '[background-color:var(--jimble-sidebar-nav-current-bg,var(--color-primary-50))] ' +
+  '[color:var(--jimble-sidebar-nav-current-text,var(--color-primary-700))]'
+/** アイコン。大きさは、中の jimble-icon が読む --jimble-icon-size に渡す(未指定なら、アイコン自身の大きさ) */
+const ICON =
+  'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted))] ' +
+  '[--jimble-icon-size:var(--jimble-sidebar-nav-icon-size)]'
+const CHEVRON =
+  'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted))]'
 /** 項目名: 通常は行いっぱいに出し、compact では見えなくして読み上げだけに残す */
 const LABEL = 'min-w-0 flex-1 truncate'
 const LABEL_HIDDEN = 'sr-only'
 /** アイコンのない項目を compact にしたときの、頭文字の表示 */
 const INITIAL =
-  'inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-xs font-semibold text-fg'
+  'inline-flex size-5 shrink-0 items-center justify-center rounded-md text-xs font-semibold ' +
+  '[background-color:var(--jimble-sidebar-nav-hover-bg,var(--color-surface-sunken))] ' +
+  '[color:var(--jimble-sidebar-nav-text,var(--color-fg))]'
 const initialOf = (source: HTMLElement | string) =>
   [...(typeof source === 'string' ? source : (source.textContent ?? '')).trim()][0] ?? ''
 
@@ -29,6 +45,14 @@ const initialOf = (source: HTMLElement | string) =>
  *
  * @csspart base - nav 要素
  * @csspart list - 項目を並べる領域
+ *
+ * @cssprop [--jimble-sidebar-nav-text=var(--jimble-color-text)] - 項目の文字色
+ * @cssprop [--jimble-sidebar-nav-icon-color=var(--jimble-color-text-muted)] - アイコンと開閉の矢印の色
+ * @cssprop [--jimble-sidebar-nav-icon-size=アイコン自身の大きさ(1.25rem)] - アイコン（`jimble-icon`）の大きさ
+ * @cssprop [--jimble-sidebar-nav-hover-bg=var(--jimble-color-surface-sunken)] - マウスを重ねた項目の背景（細い表示の頭文字の背景にも使う）
+ * @cssprop [--jimble-sidebar-nav-current-bg=var(--jimble-color-primary-50)] - 現在のページの背景
+ * @cssprop [--jimble-sidebar-nav-current-text=var(--jimble-color-primary-700)] - 現在のページの文字色
+ * @cssprop [--jimble-sidebar-nav-ring-focus=var(--jimble-color-ring-focus)] - フォーカスの輪郭の色
  */
 export class JimbleSidebarNav extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -121,9 +145,7 @@ export class JimbleNavItem extends JimbleElement {
   /** アイコン。compact でアイコンがないときは頭文字を出す（読み上げでは項目名が読まれるので、頭文字は隠す） */
   #renderIcon() {
     const icon = this.#slots.hasSlot('icon')
-    return html`<span class=${icon ? 'inline-flex shrink-0 text-fg-muted' : 'hidden'}
-        ><slot name="icon"></slot></span
-      >${
+    return html`<span class=${icon ? ICON : 'hidden'}><slot name="icon"></slot></span>${
         this.compact && !icon
           ? html`<span part="initial" class=${INITIAL} aria-hidden="true">${initialOf(this)}</span>`
           : nothing
@@ -133,9 +155,7 @@ export class JimbleNavItem extends JimbleElement {
   protected override render() {
     return html`<a
       part="link"
-      class="${LINK} ${
-        this.current ? 'bg-primary-50 text-primary-700' : 'text-fg hover:bg-surface-sunken'
-      }"
+      class="${LINK} ${this.current ? CURRENT : IDLE}"
       href=${ifDefined(this.href)}
       target=${ifDefined(this.target)}
       rel=${ifDefined(this.target === '_blank' ? 'noopener' : undefined)}
@@ -210,14 +230,12 @@ export class JimbleNavGroup extends JimbleElement {
     return html`<button
         part="button"
         type="button"
-        class="${LINK} text-fg hover:bg-surface-sunken cursor-pointer"
+        class="${LINK} ${IDLE} cursor-pointer"
         aria-expanded=${expanded ? 'true' : 'false'}
         aria-controls=${this.#id}
         @click=${() => (this.open = !this.open)}
       >
-        <span class=${icon ? 'inline-flex shrink-0 text-fg-muted' : 'hidden'}
-          ><slot name="icon"></slot></span
-        >${
+        <span class=${icon ? ICON : 'hidden'}><slot name="icon"></slot></span>${
           this.compact && !icon
             ? html`<span part="initial" class=${INITIAL} aria-hidden="true"
                 >${initialOf(this.label)}</span
@@ -226,7 +244,7 @@ export class JimbleNavGroup extends JimbleElement {
         }
         <span class=${this.compact ? LABEL_HIDDEN : `${LABEL} text-left`}>${this.label}</span>
         <span
-          class=${this.compact ? 'hidden' : `inline-flex shrink-0 text-fg-muted ${this.open ? 'rotate-180' : ''}`}
+          class=${this.compact ? 'hidden' : `${CHEVRON} ${this.open ? 'rotate-180' : ''}`}
           aria-hidden="true"
           >${renderIcon(chevronDown, 'size-4')}</span
         >

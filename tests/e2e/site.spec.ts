@@ -47,6 +47,7 @@ const PAGES = [
   '/frames/app-shell/basic/',
   '/frames/app-shell/admin-page/',
   '/frames/app-shell/collapsible/',
+  '/frames/app-shell/theme/',
 ]
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 

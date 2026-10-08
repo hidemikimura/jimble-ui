@@ -339,3 +339,41 @@ describe('サイドバーの幅の切り替え（sidebar-collapsible）', () => 
     await expectNoA11yViolations(el)
   })
 })
+
+describe('テーマ（CSS 変数）', () => {
+  const cs = (e: Element) => getComputedStyle(e)
+
+  it('既定では、ヘッダーとサイドバーは面の色（白）・本文の文字色', async () => {
+    const { el } = await shell()
+    expect(cs(part(el, 'header')).backgroundColor).toBe('rgb(255, 255, 255)')
+    expect(cs(part(el, 'sidebar')).backgroundColor).toBe('rgb(255, 255, 255)')
+  })
+
+  it('ヘッダーの背景・文字色・ボタンのホバーの背景と、サイドバーの背景を変数で変えられる', async () => {
+    const { el } = await shell('sidebar-collapsible')
+    el.wide = true
+    await el.updateComplete
+    el.style.setProperty('--jimble-app-shell-header-bg', 'rgb(15, 23, 42)')
+    el.style.setProperty('--jimble-app-shell-header-text', 'rgb(248, 250, 252)')
+    el.style.setProperty('--jimble-app-shell-sidebar-bg', 'rgb(30, 41, 59)')
+    el.style.setProperty('--jimble-app-shell-header-ring', 'rgb(1, 2, 3)')
+    await tick()
+    expect(cs(part(el, 'header')).backgroundColor).toBe('rgb(15, 23, 42)')
+    expect(cs(part(el, 'header')).color).toBe('rgb(248, 250, 252)')
+    // ヘッダーの中のボタンは、ヘッダーの文字色を引き継ぐ
+    expect(cs(part(el, 'toggle-button')).color).toBe('rgb(248, 250, 252)')
+    expect(cs(part(el, 'sidebar')).backgroundColor).toBe('rgb(30, 41, 59)')
+    // ドロワー(狭い画面)の背景も、サイドバーと同じ
+    expect(cs(el.shadowRoot!.querySelector('dialog')!).backgroundColor).toBe('rgb(30, 41, 59)')
+    expect(cs(part(el, 'header')).boxShadow).toContain('rgb(1, 2, 3)')
+  })
+
+  it('細い表示で広がった面（sidebar-panel）の背景も、サイドバーの背景に従う', async () => {
+    const { el } = await shell('sidebar-collapsible sidebar-collapsed')
+    el.wide = true
+    await el.updateComplete
+    el.style.setProperty('--jimble-app-shell-sidebar-bg', 'rgb(30, 41, 59)')
+    await tick()
+    expect(cs(part(el, 'sidebar-panel')).backgroundColor).toBe('rgb(30, 41, 59)')
+  })
+})

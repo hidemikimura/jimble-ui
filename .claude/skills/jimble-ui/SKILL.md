@@ -582,6 +582,55 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
 </jimble-app-shell>
 ```
 
+### ヘッダー・サイドバーの色とアイコンの大きさ
+
+`jimble-app-shell`（または `:root`）に、CSS 変数で指定する。`--jimble-app-shell-header-bg` / `-header-text` / `-header-hover-bg` / `-header-ring`、`--jimble-app-shell-sidebar-bg` / `-sidebar-ring`、`--jimble-sidebar-nav-text` / `-icon-color` / `-icon-size` / `-hover-bg` / `-current-bg` / `-current-text` / `-ring-focus`。**背景を暗くするときは、文字・アイコン・ホバー・現在のページ・フォーカスの色も一緒に変える**（文字 4.5:1、アイコン 3:1）。アイコンの大きさは `jimble-icon` にだけ効く。
+
+```html
+<jimble-app-shell
+  sidebar-collapsible
+  style="
+    --jimble-app-shell-header-bg: #0f172a;
+    --jimble-app-shell-header-text: #f8fafc;
+    --jimble-app-shell-header-hover-bg: #1e293b;
+    --jimble-app-shell-header-ring: #0f172a;
+    --jimble-app-shell-sidebar-bg: #0f172a;
+    --jimble-app-shell-sidebar-ring: #0f172a;
+    --jimble-sidebar-nav-text: #cbd5e1;
+    --jimble-sidebar-nav-icon-color: #94a3b8;
+    --jimble-sidebar-nav-icon-size: 1.5rem;
+    --jimble-sidebar-nav-hover-bg: #1e293b;
+    --jimble-sidebar-nav-current-bg: #4338ca;
+    --jimble-sidebar-nav-current-text: #ffffff;
+    --jimble-sidebar-nav-ring-focus: #a5b4fc;
+  "
+>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar">
+    <jimble-nav-item href="#" current>
+      <jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="users"></jimble-icon>顧客
+    </jimble-nav-item>
+    <jimble-nav-group label="設定" open>
+      <jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>
+      <jimble-nav-item href="#">プロフィール</jimble-nav-item>
+      <jimble-nav-item href="#">チーム</jimble-nav-item>
+    </jimble-nav-group>
+  </jimble-sidebar-nav>
+
+  <jimble-page-header
+    heading="ダッシュボード"
+    description="ヘッダーとサイドバーの色、アイコンの大きさを、CSS 変数で変えています。"
+  ></jimble-page-header>
+</jimble-app-shell>
+```
+
 ### 一覧ページの骨格（app-shell + page-header + tabs + table + pagination）
 
 ```html

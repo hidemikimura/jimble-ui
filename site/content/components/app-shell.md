@@ -19,6 +19,8 @@ description: 管理画面の枠組み（ヘッダー・サイドバー・本文�
 
 ::example app-shell/collapsible
 
+::example app-shell/theme
+
 ## サイドバーを細くする（`sidebar-collapsible`）
 
 `sidebar-collapsible` を付けると、ヘッダーの左にボタンが出て、サイドバーを**アイコンだけの細い表示**（4rem）と**項目名つきの広い表示**（16rem）に切り替えられます（広い画面のみ。狭い画面のドロワーは、いつも項目名つきです）。
@@ -44,6 +46,26 @@ shell.addEventListener('jimble-sidebar-toggle', (e) =>
 - 切り替えボタンは、名前が固定（「サイドバーの幅を切り替え」）で、状態は `aria-expanded` で伝わります。細い表示でも、項目名は読み上げに残ります（画面から隠すだけです）。
 - ドロワーは Esc・背景クリック・閉じるボタン・サイドバーのリンクのクリックで閉じ、フォーカスは開いたボタンに戻ります。ドロワーが開いている間、背面は操作できません。
 - ドロワーを開いている間に `toast()` を出しても、通知はドロワーの中に表示されます（[オーバーレイの仕組み](../../guide/overlays/) を参照）。
+
+## テーマ（色・アイコンの大きさ）
+
+ヘッダーとサイドバーの色は、CSS 変数で変えられます。`jimble-app-shell` に指定するか、`:root` に書くと、アプリ全体に効きます。**既定は、他の部品と同じ意味トークン**（背景は `--jimble-color-surface` など）なので、指定しなければ今までと同じ見た目です。
+
+```css
+jimble-app-shell {
+  --jimble-app-shell-header-bg: #0f172a;
+  --jimble-app-shell-header-text: #f8fafc;
+  --jimble-app-shell-sidebar-bg: #0f172a;
+  --jimble-sidebar-nav-text: #cbd5e1;
+  --jimble-sidebar-nav-current-bg: #4338ca;
+  --jimble-sidebar-nav-current-text: #ffffff;
+  --jimble-sidebar-nav-icon-size: 1.5rem;
+}
+```
+
+- ヘッダーの背景（`--jimble-app-shell-header-bg`）と文字色（`--jimble-app-shell-header-text`）。ヘッダーの中のボタン（メニュー・幅の切り替え）は、この文字色を引き継ぎます。ボタンにマウスを重ねたときの背景は `--jimble-app-shell-header-hover-bg` です。
+- サイドバーの背景は `--jimble-app-shell-sidebar-bg`（狭い画面のドロワー、細い表示で広がった面も同じ）。項目の文字・アイコン・現在のページの色、アイコンの大きさは、[Sidebar Nav](../sidebar-nav/) の変数です。
+- **背景を暗くするときは、文字・アイコン・ホバー・現在のページの色も一緒に変えてください。** 文字は 4.5:1、アイコンと縁は 3:1 以上のコントラストが目安です。フォーカスの輪郭も、背景に見える色にします（`--jimble-sidebar-nav-ring-focus`）。
 
 ## カスタマイズ
 
