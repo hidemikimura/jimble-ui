@@ -1,0 +1,30 @@
+<!-- title: サイドバーを細くできる（sidebar-collapsible。ヘッダー左のボタンで切り替え） -->
+<!-- frame: 560 -->
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar">
+    <jimble-nav-item href="#" current>
+      <jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="users"></jimble-icon>顧客
+    </jimble-nav-item>
+    <jimble-nav-group label="設定">
+      <jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>
+      <jimble-nav-item href="#">プロフィール</jimble-nav-item>
+      <jimble-nav-item href="#">チーム</jimble-nav-item>
+    </jimble-nav-group>
+  </jimble-sidebar-nav>
+
+  <jimble-page-header
+    heading="ダッシュボード"
+    description="ヘッダー左のボタンで、サイドバーを細くできます。細いときも、マウスを重ねると項目名と子項目が出ます。"
+  ></jimble-page-header>
+  <jimble-card style="margin-top: 1rem">
+    <p style="margin: 0">ここに本文が入ります。</p>
+  </jimble-card>
+</jimble-app-shell>

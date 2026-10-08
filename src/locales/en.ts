@@ -93,6 +93,7 @@ const en: Locale = {
   'combobox.selectedList': 'Selected items',
   'shell.openMenu': 'Open menu',
   'shell.closeMenu': 'Close menu',
+  'shell.toggleSidebar': 'Toggle sidebar width',
   'shell.skipToContent': 'Skip to content',
   'nav.label': 'Main menu',
   'breadcrumb.label': 'Breadcrumb',

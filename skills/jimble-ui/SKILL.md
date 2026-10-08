@@ -52,12 +52,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 枠組み
 
 - **`jimble-app-shell`** — 管理画面の枠組み: 上部のヘッダー、左のサイドバー、本文。
-  - 属性: `sidebar-open`
+  - 属性: `sidebar-open`, `sidebar-collapsible`, `sidebar-collapsed`
   - スロット: `header`, `sidebar`, (既定)
-  - イベント: `jimble-open`, `jimble-close`
+  - イベント: `jimble-open`, `jimble-close`, `jimble-sidebar-toggle`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/app-shell/
 - **`jimble-sidebar-nav`** — サイドバーのナビゲーション。
-  - 属性: `label=値`
+  - 属性: `label=値`, `compact`
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/sidebar-nav/
 - **`jimble-nav-item`** — ナビゲーションの項目（リンク）。
@@ -545,6 +545,41 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
     消えない通知
   </jimble-button>
 </div>
+```
+
+### サイドバーを細くできる管理画面
+
+`jimble-app-shell` に `sidebar-collapsible` を付けると、ヘッダーのボタンで、サイドバーを「アイコンだけの細い表示」と「項目名つきの広い表示」に切り替えられる（広い画面のみ）。細い表示でも、マウスを重ねる・フォーカスすると広がって、項目名と子項目（`jimble-nav-group`）が使える。**項目には `slot="icon"` のアイコンを付ける**（ない項目は頭文字になる）。状態は `sidebar-collapsed` で、切り替わると `jimble-sidebar-toggle`（`detail.collapsed`）が出る。
+
+```html
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar">
+    <jimble-nav-item href="#" current>
+      <jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文
+    </jimble-nav-item>
+    <jimble-nav-item href="#">
+      <jimble-icon slot="icon" name="users"></jimble-icon>顧客
+    </jimble-nav-item>
+    <jimble-nav-group label="設定">
+      <jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>
+      <jimble-nav-item href="#">プロフィール</jimble-nav-item>
+      <jimble-nav-item href="#">チーム</jimble-nav-item>
+    </jimble-nav-group>
+  </jimble-sidebar-nav>
+
+  <jimble-page-header
+    heading="ダッシュボード"
+    description="ヘッダー左のボタンで、サイドバーを細くできます。細いときも、マウスを重ねると項目名と子項目が出ます。"
+  ></jimble-page-header>
+  <jimble-card style="margin-top: 1rem">
+    <p style="margin: 0">ここに本文が入ります。</p>
+  </jimble-card>
+</jimble-app-shell>
 ```
 
 ### 一覧ページの骨格（app-shell + page-header + tabs + table + pagination）

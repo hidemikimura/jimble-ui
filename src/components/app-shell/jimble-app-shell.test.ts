@@ -221,3 +221,115 @@ describe('アクセシビリティ(axe)', () => {
     }
   })
 })
+
+describe('サイドバーの幅の切り替え（sidebar-collapsible）', () => {
+  // テスト用の iframe は狭いので、広い画面の状態(wide)を直接立てて、ロジックだけを確かめる。
+  // 見た目(幅・重なり)は、広い画面の E2E で確かめる
+  const nav = (el: JimbleAppShell) =>
+    el.querySelector('jimble-sidebar-nav') as HTMLElement & { compact: boolean }
+  const toggle = (el: JimbleAppShell) =>
+    el.shadowRoot!.querySelector<HTMLButtonElement>('[part="toggle-button"]')
+  const sidebar = (el: JimbleAppShell) => el.shadowRoot!.querySelector<HTMLElement>('#sidebar')!
+  const wideShell = async (attrs = 'sidebar-collapsible') => {
+    const { el } = await shell(attrs)
+    el.wide = true
+    await el.updateComplete
+    return el
+  }
+  const enter = (el: JimbleAppShell, pointerType = 'mouse') =>
+    sidebar(el).dispatchEvent(new PointerEvent('pointerenter', { pointerType }))
+
+  it('sidebar-collapsible がなければ、切り替えボタンは出ない。あれば広い画面だけに出る', async () => {
+    const plain = await wideShell('')
+    expect(toggle(plain)).toBeNull()
+    cleanup()
+    const el = await wideShell()
+    expect(toggle(el)).not.toBeNull()
+    el.wide = false
+    await el.updateComplete
+    expect(toggle(el)).toBeNull() // 狭い画面は、ドロワーを開くボタン
+    expect(el.shadowRoot!.querySelector('[part="menu-button"]')).not.toBeNull()
+  })
+
+  it('ボタンで細い / 広いが切り替わり、aria-expanded・jimble-sidebar-toggle・nav の compact が追従する', async () => {
+    const el = await wideShell()
+    const onToggle = vi.fn()
+    el.addEventListener('jimble-sidebar-toggle', (e) => onToggle((e as CustomEvent).detail))
+    expect(toggle(el)!.getAttribute('aria-expanded')).toBe('true')
+    expect(toggle(el)!.getAttribute('aria-label')).toBe('サイドバーの幅を切り替え')
+    expect(nav(el).compact).toBe(false)
+    toggle(el)!.click()
+    await el.updateComplete
+    expect(el.hasAttribute('sidebar-collapsed')).toBe(true)
+    expect(toggle(el)!.getAttribute('aria-expanded')).toBe('false')
+    expect(nav(el).compact).toBe(true)
+    expect(onToggle).toHaveBeenLastCalledWith({ collapsed: true })
+    toggle(el)!.click()
+    await el.updateComplete
+    expect(nav(el).compact).toBe(false)
+    expect(onToggle).toHaveBeenLastCalledWith({ collapsed: false })
+    expect(onToggle).toHaveBeenCalledTimes(2)
+  })
+
+  it('sidebar-collapsed の初期値は、イベントを出さずに反映される', async () => {
+    const onToggle = vi.fn()
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.addEventListener('jimble-sidebar-toggle', onToggle)
+    c.innerHTML = `<jimble-app-shell sidebar-collapsible sidebar-collapsed>
+      <jimble-sidebar-nav slot="sidebar"><jimble-nav-item href="#">A</jimble-nav-item></jimble-sidebar-nav>
+    </jimble-app-shell>`
+    const el = c.querySelector('jimble-app-shell') as JimbleAppShell
+    el.wide = true
+    await el.updateComplete
+    await tick()
+    expect(nav(el).compact).toBe(true)
+    expect(onToggle).not.toHaveBeenCalled()
+  })
+
+  it('細い表示でマウスを重ねると、少し待って広がり（nav は compact でなくなる）、離れると戻る', async () => {
+    const el = await wideShell('sidebar-collapsible sidebar-collapsed')
+    expect(nav(el).compact).toBe(true)
+    enter(el)
+    await vi.waitFor(() => expect(el.peek).toBe(true), { timeout: 3000 })
+    await el.updateComplete
+    expect(nav(el).compact).toBe(false)
+    sidebar(el).dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }))
+    await vi.waitFor(() => expect(el.peek).toBe(false), { timeout: 3000 })
+    await el.updateComplete
+    expect(nav(el).compact).toBe(true)
+  })
+
+  it('通り過ぎただけ(すぐ離れる)では広がらない。タッチのホバーでは広がらない', async () => {
+    const el = await wideShell('sidebar-collapsible sidebar-collapsed')
+    enter(el)
+    sidebar(el).dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }))
+    await tick(300)
+    expect(el.peek).toBe(false)
+    enter(el, 'touch')
+    await tick(300)
+    expect(el.peek).toBe(false)
+  })
+
+  it('広い表示に戻すと、広げて見せる状態も終わる。狭い画面では、折りたたんでいても細くならない', async () => {
+    const el = await wideShell('sidebar-collapsible sidebar-collapsed')
+    enter(el)
+    await vi.waitFor(() => expect(el.peek).toBe(true), { timeout: 3000 })
+    el.sidebarCollapsed = false
+    await el.updateComplete
+    await vi.waitFor(() => expect(el.peek).toBe(false))
+    el.sidebarCollapsed = true
+    el.wide = false
+    await el.updateComplete
+    await tick()
+    expect(nav(el).compact).toBe(false) // ドロワーは常に項目名つき
+  })
+
+  it('axe の違反がない（細い表示・広がった表示）', async () => {
+    const el = await wideShell('sidebar-collapsible sidebar-collapsed')
+    await expectNoA11yViolations(el)
+    enter(el)
+    await vi.waitFor(() => expect(el.peek).toBe(true), { timeout: 3000 })
+    await tick(300)
+    await expectNoA11yViolations(el)
+  })
+})

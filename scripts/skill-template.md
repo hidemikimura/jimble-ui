@@ -175,6 +175,12 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
 
 {{example:toast/options}}
 
+### サイドバーを細くできる管理画面
+
+`jimble-app-shell` に `sidebar-collapsible` を付けると、ヘッダーのボタンで、サイドバーを「アイコンだけの細い表示」と「項目名つきの広い表示」に切り替えられる（広い画面のみ）。細い表示でも、マウスを重ねる・フォーカスすると広がって、項目名と子項目（`jimble-nav-group`）が使える。**項目には `slot="icon"` のアイコンを付ける**（ない項目は頭文字になる）。状態は `sidebar-collapsed` で、切り替わると `jimble-sidebar-toggle`（`detail.collapsed`）が出る。
+
+{{example:app-shell/collapsible}}
+
 ### 一覧ページの骨格（app-shell + page-header + tabs + table + pagination）
 
 {{example:app-shell/admin-page}}

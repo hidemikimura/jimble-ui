@@ -99,3 +99,61 @@ describe('jimble-sidebar-nav', () => {
     await expectNoA11yViolations(c)
   })
 })
+
+describe('compact（アイコンだけの細い表示）', () => {
+  const label = (i: Element) => i.shadowRoot!.querySelector('a > span:last-child')!
+  const initial = (i: Element) => i.shadowRoot!.querySelector('[part="initial"]')
+
+  it('compact を付けると項目に伝わり、項目名は見えなくなる（読み上げには残る）。外すと戻る', async () => {
+    const { el, items } = await nav()
+    expect(items.every((i) => !i.compact)).toBe(true)
+    el.toggleAttribute('compact', true)
+    await tick()
+    expect(items.every((i) => i.compact)).toBe(true)
+    // sr-only: 画面からは消えるが、アクセシビリティツリーには残る(display: none ではない)
+    expect(label(items[0]!).className).toContain('sr-only')
+    expect(getComputedStyle(label(items[0]!)).display).not.toBe('none')
+    expect(items[0]!.textContent).toContain('ダッシュボード') // 項目名は slot された light DOM のまま
+    expect(label(items[0]!).querySelector('slot')).not.toBeNull()
+    el.toggleAttribute('compact', false)
+    await tick()
+    expect(items.every((i) => !i.compact)).toBe(true)
+    expect(label(items[0]!).className).not.toContain('sr-only')
+  })
+
+  it('アイコンのない項目・グループは、頭文字を出す（読み上げからは隠す）。アイコンのある項目は出さない', async () => {
+    const { items, group } = await nav('compact')
+    expect(initial(items[0]!)!.textContent!.trim()).toBe('ダ')
+    expect(initial(items[0]!)!.getAttribute('aria-hidden')).toBe('true')
+    expect(initial(items[1]!)).toBeNull() // 注文にはアイコンがある
+    expect(initial(group)!.textContent!.trim()).toBe('設')
+  })
+
+  it('グループは、子項目と開閉の矢印を隠し、開閉の状態は「閉じている」と伝える。open は覚えている', async () => {
+    const { el, group } = await nav('', 'open')
+    expect(gbtn(group).getAttribute('aria-expanded')).toBe('true')
+    el.toggleAttribute('compact', true)
+    await tick()
+    const panel = group.shadowRoot!.querySelector<HTMLElement>('[part="panel"]')!
+    expect(getComputedStyle(panel).display).toBe('none')
+    expect(gbtn(group).getAttribute('aria-expanded')).toBe('false')
+    expect(group.open).toBe(true)
+    el.toggleAttribute('compact', false)
+    await tick()
+    expect(getComputedStyle(panel).display).not.toBe('none')
+    expect(gbtn(group).getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('あとから足した項目にも、compact が伝わる', async () => {
+    const { el, c } = await nav('compact')
+    el.insertAdjacentHTML('beforeend', '<jimble-nav-item href="/new">新規</jimble-nav-item>')
+    await tick()
+    const added = c.querySelector<JimbleNavItem>('jimble-nav-item[href="/new"]')!
+    expect(added.compact).toBe(true)
+  })
+
+  it('compact でも axe の違反がない', async () => {
+    const { c } = await nav('compact')
+    await expectNoA11yViolations(c)
+  })
+})

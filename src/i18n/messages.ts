@@ -92,6 +92,7 @@ const ja = {
   'combobox.selectedList': '選択中の項目',
   'shell.openMenu': 'メニューを開く',
   'shell.closeMenu': 'メニューを閉じる',
+  'shell.toggleSidebar': 'サイドバーの幅を切り替え',
   'shell.skipToContent': '本文へ移動',
   'nav.label': 'メインメニュー',
   'breadcrumb.label': 'パンくずリスト',

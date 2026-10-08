@@ -46,6 +46,7 @@ const PAGES = [
   '/components/description-list/',
   '/frames/app-shell/basic/',
   '/frames/app-shell/admin-page/',
+  '/frames/app-shell/collapsible/',
 ]
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 
@@ -808,6 +809,58 @@ test.describe('app-shell(実際のビューポート)', () => {
     )
     expect(Math.round(sidebar.width)).toBe(256)
     expect(main.left).toBeGreaterThanOrEqual(sidebar.right - 1)
+  })
+  test('サイドバーを細くできる: ボタンで 64px になり、マウスを重ねると項目名と子項目つきで広がる(本文は動かない)', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1200, height: 700 })
+    await page.goto('/frames/app-shell/collapsible/')
+    const shell = page.locator('jimble-app-shell')
+    const box = (part: string) =>
+      shell.evaluate(
+        (el, p) => el.shadowRoot!.querySelector(`[part="${p}"]`)!.getBoundingClientRect().toJSON(),
+        part,
+      )
+    const toggle = shell.locator('[part="toggle-button"]')
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(Math.round((await box('sidebar')).width)).toBe(256)
+
+    await toggle.click()
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect.poll(async () => Math.round((await box('sidebar')).width)).toBe(64)
+    const mainLeft = (await box('main')).left
+    const nav = shell.locator('jimble-sidebar-nav')
+    // 細い間は、項目名が画面に出ない(幅が 1px の読み上げ用)
+    const labelWidth = () =>
+      shell
+        .locator('jimble-nav-item')
+        .first()
+        .evaluate(
+          (el) =>
+            el.shadowRoot!.querySelector('a > span:last-child')!.getBoundingClientRect().width,
+        )
+    expect(await labelWidth()).toBeLessThanOrEqual(1)
+
+    // マウスを重ねると、本文に重なるように広がる。列の幅(本文の位置)は変わらない
+    await page.mouse.move(30, 150)
+    await expect.poll(async () => Math.round((await box('sidebar-panel')).width)).toBe(256)
+    expect((await box('main')).left).toBe(mainLeft)
+    await expect(nav).not.toHaveAttribute('compact', '')
+    expect(await labelWidth()).toBeGreaterThan(40)
+    // 子項目も、広がった中で開ける
+    await shell.locator('jimble-nav-group').locator('[part="button"]').click()
+    await expect(shell.locator('jimble-nav-item', { hasText: 'プロフィール' })).toBeVisible()
+
+    // 離れると、細い表示に戻る(マウスで押したボタンに、フォーカスが残っていても)
+    await page.mouse.move(700, 400)
+    await expect.poll(async () => Math.round((await box('sidebar-panel')).width)).toBe(64)
+    await expect(nav).toHaveAttribute('compact', '')
+    await expect(shell.locator('jimble-nav-item', { hasText: 'プロフィール' })).toBeHidden()
+
+    // もう一度ボタンで、広い表示に戻る
+    await toggle.click()
+    await expect.poll(async () => Math.round((await box('sidebar')).width)).toBe(256)
+    await expect(nav).not.toHaveAttribute('compact', '')
   })
   test('広い画面: 本文が長くても、サイドバーは画面の高さ(ヘッダーの下から下端まで)で、スクロールしても動かない', async ({
     page,

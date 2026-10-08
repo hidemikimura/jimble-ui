@@ -7,6 +7,12 @@
     position: fixed;
     inset: 0 auto 0 0;
   }
+  /* 細い表示のサイドバーは、広がると本文に重なる。強制色モードでは影・リングが消えるので、枠線で区切る */
+  @media (forced-colors: active) {
+    :host(jimble-app-shell[sidebar-collapsed]) [part='sidebar-panel'] {
+      border: 1px solid CanvasText;
+    }
+  }
   @media (forced-colors: active) {
     :host(jimble-app-shell) [part='header'],
     :host(jimble-app-shell) [part='sidebar'] {
