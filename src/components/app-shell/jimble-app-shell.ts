@@ -239,8 +239,13 @@ export class JimbleAppShell extends JimbleElement {
   // 固定ヘッダーの下にフォーカスが隠れないよう、スクロールを補正する（WCAG 2.4.11）
   #keepFocusVisible = (event: FocusEvent) => {
     const header = this.renderRoot?.querySelector<HTMLElement>('[part="header"]')
-    const target = event.target as HTMLElement | null
-    if (!header || !target || this.#drawer?.open) return
+    // event.target は、Shadow DOM をまたぐと外側の要素(背の高いホストなど)に置き換わる。
+    // 実際にフォーカスされた要素は、イベントの経路の先頭にある
+    const path = event.composedPath()
+    const target = path[0]
+    if (!header || !(target instanceof Element) || this.#drawer?.open) return
+    // ヘッダーの中は、固定で隠れない(上端は、いつもヘッダーの下端より上にあるので、補正すると動いてしまう)
+    if (path.includes(header)) return
     const top = target.getBoundingClientRect().top
     const limit = header.getBoundingClientRect().bottom
     if (top < limit) window.scrollBy({ top: top - limit - 8 })

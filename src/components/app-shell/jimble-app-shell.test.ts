@@ -377,3 +377,72 @@ describe('テーマ（CSS 変数）', () => {
     expect(cs(part(el, 'sidebar-panel')).backgroundColor).toBe('rgb(30, 41, 59)')
   })
 })
+
+describe('固定ヘッダーの下にフォーカスが隠れない（スクロールの補正）', () => {
+  // Shadow DOM の中の入力欄を持つ、背の高いホスト(表・かんばん・独自の部品などを想定)
+  const defineTallHost = () => {
+    if (customElements.get('x-tall-host')) return
+    customElements.define(
+      'x-tall-host',
+      class extends HTMLElement {
+        constructor() {
+          super()
+          this.attachShadow({ mode: 'open' }).innerHTML =
+            '<style>:host { display: block }</style><div style="height: 2600px; padding-top: 1500px; box-sizing: border-box"><input aria-label="奥の入力欄" style="display: block"></div>'
+        }
+      },
+    )
+  }
+  const scrollTo = (y: number) => {
+    window.scrollTo(0, y)
+    return tick()
+  }
+
+  it('Shadow DOM の中の入力欄にフォーカスしても、ホストの上端ではなく、入力欄そのものを見る(大きく跳ばない)', async () => {
+    defineTallHost()
+    const { el } = await shell('', '<x-tall-host></x-tall-host>')
+    const input = el.querySelector('x-tall-host')!.shadowRoot!.querySelector('input')!
+    // 入力欄が画面の中ほどに見えるところまでスクロールする(ホストの上端は、はるか上)
+    window.scrollBy(0, input.getBoundingClientRect().top - 300)
+    await tick()
+    const before = window.scrollY
+    // ホストの上端は画面のはるか上、入力欄は見えている
+    expect(el.querySelector('x-tall-host')!.getBoundingClientRect().top).toBeLessThan(-500)
+    expect(input.getBoundingClientRect().top).toBeGreaterThan(200)
+    input.focus()
+    await tick()
+    expect(document.activeElement).toBe(el.querySelector('x-tall-host'))
+    expect(Math.abs(window.scrollY - before)).toBeLessThan(2)
+  })
+
+  it('ヘッダーの中の要素にフォーカスしても、ページは動かない（固定なので、隠れない）', async () => {
+    const { el } = await shell('', '<div style="height: 2000px"></div>')
+    const button = document.createElement('button')
+    button.slot = 'header'
+    button.textContent = 'ユーザー'
+    el.append(button)
+    await tick()
+    await scrollTo(400)
+    const before = window.scrollY
+    expect(before).toBeGreaterThan(100)
+    button.focus()
+    await tick()
+    expect(window.scrollY).toBe(before)
+  })
+
+  it('本文の要素が固定ヘッダーの下に隠れているときは、見える位置までスクロールする', async () => {
+    const { el } = await shell(
+      '',
+      '<div style="height: 1200px"></div><button id="far">下のボタン</button><div style="height: 1200px"></div>',
+    )
+    const far = el.querySelector<HTMLElement>('#far')!
+    // ボタンを、ヘッダーの下(画面の上端付近)に隠れる位置まで動かす
+    window.scrollBy(0, far.getBoundingClientRect().top - 20)
+    await tick()
+    expect(far.getBoundingClientRect().top).toBeLessThan(40)
+    far.focus({ preventScroll: true })
+    await tick()
+    const header = el.shadowRoot!.querySelector('[part="header"]')!.getBoundingClientRect()
+    expect(far.getBoundingClientRect().top).toBeGreaterThanOrEqual(header.bottom)
+  })
+})
