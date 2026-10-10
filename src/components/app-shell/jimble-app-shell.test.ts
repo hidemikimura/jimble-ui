@@ -430,6 +430,24 @@ describe('固定ヘッダーの下にフォーカスが隠れない（スクロ�
     expect(window.scrollY).toBe(before)
   })
 
+  it('本文のフォーカスできない場所をクリックして、main にフォーカスが移っても、先頭へ戻らない', async () => {
+    // main は、スキップリンクの移動先のため tabindex=-1 を持つ。クリックすると、main がフォーカスされる。
+    // main はページ全体の高さなので、上端を見せようとすると、先頭までスクロールしてしまう
+    const { el } = await shell(
+      '',
+      '<div style="height: 1500px"></div><p id="para">本文の段落（フォーカスできない）</p><div style="height: 1500px"></div>',
+    )
+    const para = el.querySelector<HTMLElement>('#para')!
+    window.scrollBy(0, para.getBoundingClientRect().top - 300)
+    await tick()
+    const before = window.scrollY
+    expect(before).toBeGreaterThan(800)
+    await userEvent.click(para)
+    await tick()
+    expect(el.shadowRoot!.activeElement?.localName).toBe('main')
+    expect(Math.abs(window.scrollY - before)).toBeLessThan(2)
+  })
+
   it('本文の要素が固定ヘッダーの下に隠れているときは、見える位置までスクロールする', async () => {
     const { el } = await shell(
       '',

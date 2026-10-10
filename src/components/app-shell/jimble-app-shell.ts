@@ -246,9 +246,12 @@ export class JimbleAppShell extends JimbleElement {
     if (!header || !(target instanceof Element) || this.#drawer?.open) return
     // ヘッダーの中は、固定で隠れない(上端は、いつもヘッダーの下端より上にあるので、補正すると動いてしまう)
     if (path.includes(header)) return
-    const top = target.getBoundingClientRect().top
+    const rect = target.getBoundingClientRect()
     const limit = header.getBoundingClientRect().bottom
-    if (top < limit) window.scrollBy({ top: top - limit - 8 })
+    // 画面に収まらない要素(本文 main 自身など)は、上端を見せようとしない。
+    // 本文のクリックで main にフォーカスが移るたびに、先頭まで戻ってしまう
+    if (rect.height > window.innerHeight - limit) return
+    if (rect.top < limit) window.scrollBy({ top: rect.top - limit - 8 })
   }
 
   #focusMain = (event: Event) => {
