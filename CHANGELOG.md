@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/hidemikimura/jimble-ui/compare/v0.7.0...v0.7.1) (2026-10-10)
+
+
+### 修正
+
+* **app-shell:** 本文をクリックしたとき、画面の先頭へ戻るのを直す ([008b2b8](https://github.com/hidemikimura/jimble-ui/commit/008b2b8fc49a4b78fde5d371e77155605b709583))
+
 ## [0.7.0](https://github.com/hidemikimura/jimble-ui/compare/v0.6.2...v0.7.0) (2026-10-08)
 
 
