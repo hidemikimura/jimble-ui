@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/hidemikimura/jimble-ui/compare/v0.6.2...v0.7.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **events:** jimble-open や jimble-close などのイベントは、バブルしなくなった。 親や document で受けているコードは、届かなくなる。リスナーは部品自身に付けるか、 キャプチャ段階で受ける。
+
+### 追加
+
+* **events:** jimble-* のイベントを、既定でバブルさせない ([0cb32e8](https://github.com/hidemikimura/jimble-ui/commit/0cb32e899fed4f415e8f033f510b820456bf955e))
+
 ## [0.6.2](https://github.com/hidemikimura/jimble-ui/compare/v0.6.1...v0.6.2) (2026-10-08)
 
 
