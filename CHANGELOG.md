@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/hidemikimura/jimble-ui/compare/v0.7.1...v0.7.2) (2026-10-10)
+
+
+### 修正
+
+* **app-shell:** ドロワーや select の一覧を開いたとき、ページが動くのを直す ([2675138](https://github.com/hidemikimura/jimble-ui/commit/2675138dcc85169af1bbd3f8c62cea6ec6215533))
+
 ## [0.7.1](https://github.com/hidemikimura/jimble-ui/compare/v0.7.0...v0.7.1) (2026-10-10)
 
 
