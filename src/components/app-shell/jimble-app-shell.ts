@@ -246,6 +246,16 @@ export class JimbleAppShell extends JimbleElement {
     if (!header || !(target instanceof Element) || this.#drawer?.open) return
     // ヘッダーの中は、固定で隠れない(上端は、いつもヘッダーの下端より上にあるので、補正すると動いてしまう)
     if (path.includes(header)) return
+    // トップレイヤー(開いている popover・モーダルの dialog)の中は、ヘッダーより前面にあって隠れない。
+    // select の一覧・ドロワーなどの中にフォーカスが移ったときに、補正すると、ページが動いてしまう
+    if (
+      path.some(
+        (n) =>
+          n instanceof Element &&
+          (n.matches('[popover]:popover-open') || n.matches('dialog[open]')),
+      )
+    )
+      return
     const rect = target.getBoundingClientRect()
     const limit = header.getBoundingClientRect().bottom
     // 画面に収まらない要素(本文 main 自身など)は、上端を見せようとしない。

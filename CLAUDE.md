@@ -63,6 +63,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 - 非 ASCII の実キー入力（`userEvent.keyboard('削')`）はエンジンによって `key` が正しく渡らない。日本語のキーは合成の `KeyboardEvent` で確認する。
 - Linux の Chromium は幅のあるスクロールバーを出す。E2E で**画面の端**をクリックしない。
 - 無効な要素（`disabled`）への Playwright の `click` は待ち続ける。プログラムから `click()` する。
+- Playwright の `click()` は、**画面の外の要素を、自分でスクロールして表示する**。スクロール位置を測る試験では、座標で `mouse.click` する（測りたい動きと区別できない）。
 
 ## コミットとリリース
 

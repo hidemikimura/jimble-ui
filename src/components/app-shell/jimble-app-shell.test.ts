@@ -8,6 +8,10 @@ import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
 import type { JimbleAppShell } from './jimble-app-shell.js'
 import './jimble-app-shell.js'
+import '../drawer/jimble-drawer.js'
+import '../dialog/jimble-dialog.js'
+import '../select/jimble-option.js'
+import '../select/jimble-select.js'
 
 afterEach(() => {
   cleanup()
@@ -446,6 +450,48 @@ describe('固定ヘッダーの下にフォーカスが隠れない（スクロ�
     await tick()
     expect(el.shadowRoot!.activeElement?.localName).toBe('main')
     expect(Math.abs(window.scrollY - before)).toBeLessThan(2)
+  })
+
+  it('ドロワー・ダイアログ・select の一覧(トップレイヤー)を開いても、ページはスクロールしない', async () => {
+    // トップレイヤーの中の要素は、固定ヘッダーより前面にあって隠れない。上端がヘッダーの下端より上にあっても、補正しない
+    const opts = Array.from(
+      { length: 30 },
+      (_, i) => `<jimble-option value="o${i}">選択肢 ${i}</jimble-option>`,
+    ).join('')
+    const { el } = await shell(
+      '',
+      `<div style="height: 1500px"></div>
+       <div id="host">
+         <jimble-drawer id="dr" heading="ドロワー"><jimble-field label="メモ"><jimble-input></jimble-input></jimble-field></jimble-drawer>
+         <jimble-dialog id="dlg" heading="ダイアログ">本文</jimble-dialog>
+         <jimble-select id="sel" placeholder="選択">${opts}</jimble-select>
+       </div>
+       <div style="height: 2000px"></div>`,
+    )
+    const host = el.querySelector<HTMLElement>('#host')!
+    window.scrollBy(0, host.getBoundingClientRect().top - 250)
+    await tick()
+    const before = window.scrollY
+    expect(before).toBeGreaterThan(800)
+    const drawer = el.querySelector('#dr') as HTMLElement & { show(): void; hide(): void }
+    const dialog = el.querySelector('#dlg') as HTMLElement & { show(): void; hide(): void }
+    const select = el.querySelector('#sel') as HTMLElement
+    for (const [name, open, close] of [
+      ['drawer', () => drawer.show(), () => drawer.hide()],
+      ['dialog', () => dialog.show(), () => dialog.hide()],
+      [
+        'select',
+        () => select.shadowRoot!.querySelector<HTMLElement>('button')!.click(),
+        () => userEvent.keyboard('{Escape}'),
+      ],
+    ] as const) {
+      await open()
+      await tick(150)
+      expect(Math.abs(window.scrollY - before), `${name} を開いたとき`).toBeLessThan(2)
+      await close()
+      await tick(150)
+      expect(Math.abs(window.scrollY - before), `${name} を閉じたとき`).toBeLessThan(2)
+    }
   })
 
   it('本文の要素が固定ヘッダーの下に隠れているときは、見える位置までスクロールする', async () => {
