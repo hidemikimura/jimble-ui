@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/hidemikimura/jimble-ui/compare/v0.8.0...v0.8.1) (2026-10-15)
+
+
+### 修正
+
+* **breadcrumb:** 区切りのない最初の項目と、文字の縦位置が揃わないのを直す ([0d0f3e9](https://github.com/hidemikimura/jimble-ui/commit/0d0f3e995981bc7eac79b14ab90ba6a2b71e537a))
+
 ## [0.8.0](https://github.com/hidemikimura/jimble-ui/compare/v0.7.2...v0.8.0) (2026-10-15)
 
 
