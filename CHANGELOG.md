@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/hidemikimura/jimble-ui/compare/v0.8.1...v0.8.2) (2026-10-15)
+
+
+### 修正
+
+* **components:** 存在しない CSS 変数が、部品の一覧に載っていたのを直す ([bb4f05c](https://github.com/hidemikimura/jimble-ui/commit/bb4f05c75d302333e1d6b1a469f0532b8550269a))
+
 ## [0.8.1](https://github.com/hidemikimura/jimble-ui/compare/v0.8.0...v0.8.1) (2026-10-15)
 
 
