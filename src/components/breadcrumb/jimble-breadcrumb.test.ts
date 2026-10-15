@@ -67,3 +67,20 @@ describe('jimble-breadcrumb', () => {
     await expectNoA11yViolations(c)
   })
 })
+
+describe('縦位置', () => {
+  it('すべての項目の高さが同じで、文字の縦位置が揃う（最初の項目には区切りがなく、構造が違う）', async () => {
+    const { items } = await crumbs()
+    const textOf = (item: Element) =>
+      item.shadowRoot!.querySelector('[part="link"], [part="current"]')!
+    const rects = items.map((i) => i.getBoundingClientRect())
+    // 項目(ホスト)の高さが、中の文字の高さと同じ(行の高さの基準の分だけ、背が高くならない)
+    for (const [i, item] of items.entries())
+      expect(Math.abs(rects[i]!.height - textOf(item).getBoundingClientRect().height)).toBeLessThan(
+        0.5,
+      )
+    // 文字の上端が揃う
+    const tops = items.map((i) => textOf(i).getBoundingClientRect().top)
+    for (const top of tops) expect(Math.abs(top - tops[0]!)).toBeLessThan(0.5)
+  })
+})

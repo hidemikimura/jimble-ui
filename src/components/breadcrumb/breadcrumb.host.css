@@ -2,8 +2,11 @@
   :host(jimble-breadcrumb) {
     display: block;
   }
+  /* inline-block だと、中の inline-flex が行の高さの基準(ストラット)の分だけ背が高くなり、
+     区切りのある項目と、ない最初の項目で高さが違って、文字の縦位置がずれる */
   :host(jimble-breadcrumb-item) {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
   }
   /* 最初の項目の前には区切りを出さない */
   :host(jimble-breadcrumb-item:first-child) [part='separator'] {
