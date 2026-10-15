@@ -40,7 +40,7 @@ const BASE =
   'outline outline-1 outline-transparent [border-radius:var(--jimble-alert-radius,var(--radius-card))]'
 const CLOSE =
   'inline-flex size-6 shrink-0 items-center justify-center rounded-md cursor-pointer ' +
-  'text-current hover:bg-black/5 outline outline-1 outline-transparent ' +
+  'text-current hover:[background-color:color-mix(in_oklab,currentColor_8%,transparent)] outline outline-1 outline-transparent ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus'
 
 /**

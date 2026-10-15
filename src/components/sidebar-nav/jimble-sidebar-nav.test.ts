@@ -129,8 +129,13 @@ describe('compact（アイコンだけの細い表示）', () => {
     expect(initial(group)!.textContent!.trim()).toBe('設')
   })
 
-  it('グループは、子項目と開閉の矢印を隠し、開閉の状態は「閉じている」と伝える。open は覚えている', async () => {
+  it('アイコンのあるグループは、子項目と開閉の矢印を隠し、開閉の状態は「閉じている」と伝える。open は覚えている', async () => {
     const { el, group } = await nav('', 'open')
+    group.insertAdjacentHTML(
+      'afterbegin',
+      '<svg slot="icon" width="16" height="16" aria-hidden="true"></svg>',
+    )
+    await tick()
     expect(gbtn(group).getAttribute('aria-expanded')).toBe('true')
     el.toggleAttribute('compact', true)
     await tick()
@@ -142,6 +147,24 @@ describe('compact（アイコンだけの細い表示）', () => {
     await tick()
     expect(getComputedStyle(panel).display).not.toBe('none')
     expect(gbtn(group).getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('アイコンのないグループは、見出しを出さず、子項目をそのまま並べる（子項目のアイコンが見える）。名前は読み上げに残る', async () => {
+    const { el, group } = await nav()
+    el.toggleAttribute('compact', true)
+    await tick()
+    const panel = group.shadowRoot!.querySelector<HTMLElement>('[part="panel"]')!
+    expect(getComputedStyle(gbtn(group)).display).toBe('none') // 見出しのボタンは出さない
+    expect(getComputedStyle(panel).display).not.toBe('none') // 子項目は並ぶ
+    expect(panel.getAttribute('aria-label')).toBe('設定') // グループの名前は、リストの名前として残る
+    expect(group.matches(':state(flat)')).toBe(true)
+    const children = [...group.querySelectorAll<JimbleNavItem>('jimble-nav-item')]
+    expect(children.every((c) => c.compact)).toBe(true)
+    el.toggleAttribute('compact', false)
+    await tick()
+    expect(group.matches(':state(flat)')).toBe(false)
+    expect(getComputedStyle(gbtn(group)).display).not.toBe('none')
+    expect(panel.hasAttribute('aria-label')).toBe(false)
   })
 
   it('あとから足した項目にも、compact が伝わる', async () => {

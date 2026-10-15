@@ -6,6 +6,17 @@
   :host(jimble-nav-group) {
     display: block;
   }
+  /* 細い表示で、アイコンのないグループは、見出しを出さず、前のグループとの間に区切り線を引く */
+  :host(jimble-nav-group:state(flat)) {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--_c-ring);
+  }
+  :host(jimble-nav-group:state(flat):first-child) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
   @media (forced-colors: active) {
     :host(jimble-nav-item[current]) [part='link'] {
       outline: 2px solid Highlight;

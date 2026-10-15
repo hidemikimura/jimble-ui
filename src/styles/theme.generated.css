@@ -82,6 +82,10 @@
   --shadow-lg: var(--jimble-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1));
   --font-sans: var(--jimble-font-sans, system-ui, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif);
   --font-mono: var(--jimble-font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  --font-weight-normal: var(--jimble-font-weight-normal, 400);
+  --font-weight-medium: var(--jimble-font-weight-medium, 500);
+  --font-weight-semibold: var(--jimble-font-weight-semibold, 600);
+  --font-weight-bold: var(--jimble-font-weight-bold, 700);
   --text-xs: var(--jimble-font-size-xs, 0.75rem);
   --text-xs--line-height: 1rem;
   --text-sm: var(--jimble-font-size-sm, 0.875rem);

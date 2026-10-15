@@ -219,18 +219,26 @@ export class JimbleNavGroup extends JimbleElement {
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
     this.internals.role = 'listitem'
+    this.setState('flat', this.#isFlat())
     if (changed.has('open') && changed.get('open') !== undefined)
       this.emit(this.open ? 'open' : 'close')
   }
 
+  /** 細い表示で、グループ自身のアイコンがないときは、見出しを出さず、子項目をそのまま並べる */
+  #isFlat() {
+    return this.compact && !this.#slots.hasSlot('icon')
+  }
+
   protected override render() {
-    // compact の間は子項目を隠すので、開閉の状態も「閉じている」として伝える（開いていたことは open に残る）
+    // アイコンのあるグループは、compact の間、子項目を隠す(広げたときに開閉できる)。開閉の状態も「閉じている」と伝える
+    // (開いていたことは open に残る)。アイコンのないグループは、見出しを隠して、子項目(のアイコン)をそのまま並べる
+    const flat = this.#isFlat()
     const expanded = this.open && !this.compact
     const icon = this.#slots.hasSlot('icon')
     return html`<button
         part="button"
         type="button"
-        class="${LINK} ${IDLE} cursor-pointer"
+        class="${LINK} ${IDLE} cursor-pointer ${flat ? 'hidden' : ''}"
         aria-expanded=${expanded ? 'true' : 'false'}
         aria-controls=${this.#id}
         @click=${() => (this.open = !this.open)}
@@ -253,7 +261,8 @@ export class JimbleNavGroup extends JimbleElement {
         part="panel"
         id=${this.#id}
         role="list"
-        class=${expanded ? 'mt-0.5 flex flex-col gap-0.5 ps-3' : 'hidden'}
+        aria-label=${flat ? this.label : nothing}
+        class=${flat ? 'flex flex-col gap-0.5' : expanded ? 'mt-0.5 flex flex-col gap-0.5 ps-3' : 'hidden'}
       >
         <slot @slotchange=${() => this.requestUpdate()}></slot>
       </div>`

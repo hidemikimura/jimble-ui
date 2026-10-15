@@ -74,7 +74,9 @@ export class JimbleRadio extends JimbleElement {
       <span
         part="indicator"
         class="${INDICATOR} ${BOX[size]} ${this.checked ? 'bg-primary-600 ring-primary-600' : 'bg-surface ring-line-control'}"
-        ><span class="rounded-full bg-white ${DOT[size]} ${this.checked ? '' : 'hidden'}"></span
+        ><span
+          class="rounded-full bg-fg-on-primary ${DOT[size]} ${this.checked ? '' : 'hidden'}"
+        ></span
       ></span>
       <span part="label" class="select-none text-fg ${TEXT[size]}"><slot></slot></span>
     </span>`

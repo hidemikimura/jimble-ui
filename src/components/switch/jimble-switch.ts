@@ -27,6 +27,9 @@ const TEXT: Record<ControlSize, string> = { sm: 'text-sm', md: 'text-sm', lg: 't
  * @csspart label - ラベルを包む要素
  *
  * @fires change - 状態が変わった（ネイティブと同じ。bubbles + composed）
+ *
+ * @cssprop [--jimble-switch-thumb-bg=var(--jimble-color-surface)] - つまみ（丸）の塗り
+ * @cssprop [--jimble-switch-thumb-ring=文字色の 12%] - つまみの縁の色
  */
 export class JimbleSwitch extends JimbleToggleControl {
   #slots = new SlotController(this)
@@ -68,7 +71,7 @@ export class JimbleSwitch extends JimbleToggleControl {
           <span
             part="thumb"
             aria-hidden="true"
-            class="pointer-events-none absolute top-0.5 left-0.5 rounded-full bg-white shadow-sm ring-1 ring-black/10 transition-transform motion-reduce:transition-none ${THUMB[size]}"
+            class="pointer-events-none absolute top-0.5 left-0.5 rounded-full shadow-sm ring-1 ring-(--_thumb-ring) [--_thumb-ring:var(--jimble-switch-thumb-ring,color-mix(in_oklab,var(--color-fg)_12%,transparent))] [background-color:var(--jimble-switch-thumb-bg,var(--color-surface))] transition-transform motion-reduce:transition-none ${THUMB[size]}"
           ></span>
         </span>
         <span part="label" class="select-none text-fg ${TEXT[size]} ${hasLabel ? '' : 'hidden'}"

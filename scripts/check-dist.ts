@@ -55,7 +55,7 @@ const kb = (n: number) => (n / 1024).toFixed(1)
 const gz = (f: string) => gzipSync(readFileSync(f)).length
 const BUDGET = {
   /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
-  shared: 14 * 1024,
+  shared: 15 * 1024,
   /** それ以外の JS(部品 1 つぶんなど) */
   each: 8 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
@@ -84,6 +84,60 @@ if (largest)
   console.log(
     `最大の部品チャンク: ${kb(largest[1])} KB gz (予算 ${kb(BUDGET.each)} KB) ${largest[0].replace(dist + '/', '')}`,
   )
+
+// (e) src の Tailwind クラスが、すべて CSS に出ている。
+// Tailwind は、定義のないクラス(theme に無い色・太さ・z-index、空白のない calc など)の CSS を、エラーも出さずに捨てる。
+// 「書いたのに効いていない」クラスを、公開の前に見つける(bg-white・font-semibold・z-sticky で実際に起きた)
+{
+  const css = readFileSync(cdn, 'utf8').replaceAll('\\\\', '\\')
+  // クラスの先頭の部分(ユーティリティ名)。これに当てはまるものだけを、クラスとして検査する
+  const UTILITY =
+    /^(bg|text|ring|border|shadow|outline|rounded|p|px|py|pt|pb|ps|pe|m|mx|my|mt|mb|ms|me|gap|gap-x|gap-y|w|h|min-w|min-h|max-w|max-h|size|flex|grid|inline|items|justify|self|place|col|row|top|left|right|bottom|inset|inset-x|inset-y|start|end|z|overflow|opacity|transition|duration|cursor|select|font|leading|tracking|truncate|whitespace|rotate|translate|scale|shrink|grow|order|aspect|space|divide|accent|fill|stroke|underline|appearance|pointer-events|list|object|tabular)(-|$)/
+  const srcFiles = walk(join(root, 'src')).filter(
+    (f) => f.endsWith('.ts') && !f.endsWith('.test.ts'),
+  )
+  const missing = new Map<string, Set<string>>()
+  for (const file of srcFiles) {
+    // コメント(JSDoc など)の中の言葉は、クラスではない
+    const text = readFileSync(file, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '')
+    for (const lit of text.matchAll(/'([^'\n]*)'|"([^"\n]*)"|`([^`]*)`/g)) {
+      const body = (lit[1] ?? lit[2] ?? lit[3] ?? '').replace(/\$\{[^}]*\}/g, ' ')
+      // クラスを含む文字列だけを見る(日本語の文言・属性名などを除く)
+      if (
+        !/\b(flex|grid|bg-|text-|ring-|px-|py-|rounded|size-|gap-|border|shadow|items-|justify-)/.test(
+          body,
+        )
+      )
+        continue
+      for (const raw of body.split(/[\s"'`<>]+/)) {
+        let token = raw.replace(/^[,;:]+|[,;:)}\\]+$/g, '')
+        while (
+          token.endsWith(')') &&
+          (token.match(/\(/g)?.length ?? 0) < (token.match(/\)/g)?.length ?? 0)
+        )
+          token = token.slice(0, -1)
+        if (!token || token.includes('${')) continue
+        // 先頭の variant(hover: / md: / [&_x]: など)を外して、ユーティリティ名を見る
+        const core = token
+          .replace(/^(?:(?:\[[^\]]*\]|[a-z@\d\-*=&>.%_()[\]]+?):)+/, '')
+          .replace(/^[!-]+/, '')
+        if (!UTILITY.test(core)) continue
+        const escaped = token.replace(/([^a-zA-Z0-9_-])/g, '\\$1')
+        if (!css.includes('.' + escaped)) {
+          const set = missing.get(token) ?? new Set<string>()
+          set.add(file.replace(root + '/', ''))
+          missing.set(token, set)
+        }
+      }
+    }
+  }
+  for (const [token, where] of missing)
+    fail(
+      `CSS が出ていないクラス: ${token}（${[...where].join(', ')}）。Tailwind に定義がないか、書き方が違う`,
+    )
+}
 
 // (d) 配布用ファイルが揃っている
 for (const f of [

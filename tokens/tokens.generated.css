@@ -85,6 +85,10 @@
   --jimble-focus-ring-width: 2px;
   --jimble-font-sans: system-ui, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
   --jimble-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --jimble-font-weight-normal: 400;
+  --jimble-font-weight-medium: 500;
+  --jimble-font-weight-semibold: 600;
+  --jimble-font-weight-bold: 700;
   --jimble-font-size-xs: 0.75rem;
   --jimble-font-size-sm: 0.875rem;
   --jimble-font-size-base: 1rem;
