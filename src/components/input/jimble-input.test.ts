@@ -115,9 +115,15 @@ describe('値とフォーム', () => {
   it('input は host まで届き、change は blur 時に host から 1 回だけ出る', async () => {
     const onInput = vi.fn()
     const onChange = vi.fn()
-    const el = await mount<JimbleInput>(
-      html`<jimble-input @input=${onInput} @change=${onChange}></jimble-input>`,
+    // Tab の移動先になる要素が要る(無いと、新しい Firefox は、ページの外へ出て、blur しない)
+    const c = await mount<HTMLElement>(
+      html`<div>
+        <jimble-input @input=${onInput} @change=${onChange}></jimble-input
+        ><input aria-label="次の入力欄" />
+      </div>`,
     )
+    const el = c.querySelector('jimble-input') as JimbleInput
+    await el.updateComplete
     await userEvent.type(inner(el), 'ab')
     expect(onInput).toHaveBeenCalledTimes(2)
     expect((onInput.mock.calls[0]![0] as Event).target).toBe(el)

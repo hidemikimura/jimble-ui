@@ -82,10 +82,15 @@ describe('jimble-radio-group', () => {
     const { g, radios } = await group()
     g.value = 'pro'
     await g.updateComplete
+    // Tab の移動先になる要素が要る(無いと、新しい Firefox は、ページの外へ出て、フォーカスが残る)
+    const next = document.createElement('input')
+    next.setAttribute('aria-label', '次の入力欄')
+    g.after(next)
     await userEvent.tab()
     expect(document.activeElement).toBe(radios[1])
     await userEvent.tab()
     expect(g.contains(document.activeElement)).toBe(false)
+    expect(document.activeElement).toBe(next)
   })
 
   it('無効なラジオは選べない。グループが disabled なら全部選べず送信もされない', async () => {
