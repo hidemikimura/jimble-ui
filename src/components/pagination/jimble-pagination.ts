@@ -15,9 +15,10 @@ const ITEM =
   'inline-flex items-center justify-center rounded-md font-medium select-none shadow-sm ring-1 ring-inset ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-2 ' +
   'focus-visible:outline-focus'
-const NORMAL = 'bg-surface text-fg ring-line hover:bg-surface-muted cursor-pointer'
+const NORMAL = 'bg-surface text-fg ring-line-button hover:bg-surface-muted cursor-pointer'
 const CURRENT = 'bg-primary-600 text-fg-on-primary ring-primary-600'
-const DISABLED = 'bg-surface text-fg-disabled ring-line opacity-60 cursor-not-allowed shadow-none'
+const DISABLED =
+  'bg-surface text-fg-disabled ring-line-button opacity-60 cursor-not-allowed shadow-none'
 
 /** 表示するページ番号の並び。省略は 'ellipsis'。先頭・末尾・現在の前後を残す */
 export function pageRange(page: number, total: number, siblings: number): (number | 'ellipsis')[] {

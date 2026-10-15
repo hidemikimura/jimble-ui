@@ -4,7 +4,7 @@ import { JimbleElement } from '../../base/jimble-element.js'
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right'
 
 const POPUP =
-  'm-0 border-0 bg-neutral-900 px-2.5 py-1.5 text-xs font-medium leading-5 text-fg-on-primary shadow-md ' +
+  'm-0 border-0 px-2.5 py-1.5 text-xs font-medium leading-5 shadow-md [background-color:var(--jimble-tooltip-bg,var(--color-neutral-900))] [color:var(--jimble-tooltip-text,var(--color-fg-on-primary))] ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-tooltip-radius,var(--radius-md))]'
 
 /**
@@ -27,6 +27,8 @@ const POPUP =
  * @csspart popup - ツールチップ
  *
  * @cssprop [--jimble-tooltip-radius=var(--jimble-radius-md)] - 角丸
+ * @cssprop [--jimble-tooltip-bg=var(--jimble-color-neutral-900)] - 背景色
+ * @cssprop [--jimble-tooltip-text=var(--jimble-color-text-on-primary)] - 文字色
  * @cssprop [--jimble-tooltip-max-width=20rem] - `multiline` のときの最大の幅
  *
  * @fires jimble-open - 表示した

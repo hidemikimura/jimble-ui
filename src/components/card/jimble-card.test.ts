@@ -12,9 +12,9 @@ const part = (el: JimbleCard, name: string) =>
 describe('jimble-card', () => {
   it('面として shadow と ring が効く', async () => {
     const el = await mount<JimbleCard>(html`<jimble-card>本文</jimble-card>`)
-    const s = getComputedStyle(part(el, 'base'))
-    expect(s.boxShadow).toContain('inset')
-    expect(s.boxShadow).toContain('3px')
+    // 枠(inset の ring)は要素自身、影(shadow-sm)は、枠とは別に ::before で描く(none を指定しても、枠が消えない)
+    expect(getComputedStyle(part(el, 'base')).boxShadow).toContain('inset')
+    expect(getComputedStyle(part(el, 'base'), '::before').boxShadow).toContain('3px')
   })
 
   it('header / footer は中身があるときだけ表示される', async () => {

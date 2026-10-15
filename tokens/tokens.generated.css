@@ -65,6 +65,9 @@
   --jimble-color-ring-control: var(--jimble-color-neutral-500);
   --jimble-color-ring-focus: var(--jimble-color-primary-600);
   --jimble-color-ring-invalid: var(--jimble-color-danger-600);
+  --jimble-color-ring-card: var(--jimble-color-ring);
+  --jimble-color-ring-divider: var(--jimble-color-ring);
+  --jimble-color-ring-button: var(--jimble-color-ring);
   --jimble-color-primary: var(--jimble-color-primary-600);
   --jimble-spacing: 0.25rem;
   --jimble-radius-sm: 0.25rem;

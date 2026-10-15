@@ -181,6 +181,10 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
 
 {{example:app-shell/collapsible}}
 
+### 色・太さ・影・角丸を、テーマで変える
+
+`:root` に CSS 変数を書く。**枠の色は、用途別に分けられる**: `--jimble-color-ring-card`（カードの枠）・`--jimble-color-ring-divider`（区切り線）・`--jimble-color-ring-button`（ボタンの枠）。ほかに、文字の太さ `--jimble-font-weight-medium` / `-semibold`、影 `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`、`--jimble-badge-radius`、ツールチップ `--jimble-tooltip-bg` / `-text`、スイッチの丸 `--jimble-switch-thumb-bg` / `-ring`、表の見出し `--jimble-table-header-bg` / `-text`、`--jimble-breadcrumb-justify`（`center` で中央）、`--jimble-page-header-heading-weight`。一覧は `docs` の「テーマで変えられる項目」を参照。
+
 ### ヘッダー・サイドバーの色とアイコンの大きさ
 
 `jimble-app-shell`（または `:root`）に、CSS 変数で指定する。`--jimble-app-shell-header-bg` / `-header-text` / `-header-hover-bg` / `-header-ring`、`--jimble-app-shell-sidebar-bg` / `-sidebar-ring`、`--jimble-sidebar-nav-text` / `-icon-color` / `-icon-size` / `-hover-bg` / `-current-bg` / `-current-text` / `-ring-focus`。**背景を暗くするときは、文字・アイコン・ホバー・現在のページ・フォーカスの色も一緒に変える**（文字 4.5:1、アイコン 3:1）。アイコンの大きさは `jimble-icon` にだけ効く。

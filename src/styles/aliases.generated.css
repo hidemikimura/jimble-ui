@@ -10,5 +10,6 @@
     --_c-ring-focus: var(--jimble-color-ring-focus, var(--jimble-color-primary-600, oklch(51.1% 0.262 276.966)));
     --_c-primary-50: var(--jimble-color-primary-50, oklch(96.2% 0.018 272.314));
     --_c-primary-700: var(--jimble-color-primary-700, oklch(45.7% 0.24 277.023));
+    --_c-ring-divider: var(--jimble-color-ring-divider, var(--jimble-color-ring, var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338))));
   }
 }

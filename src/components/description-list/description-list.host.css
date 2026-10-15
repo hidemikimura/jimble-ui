@@ -15,7 +15,7 @@
   :host(jimble-description-item) [part='label'],
   :host(jimble-description-item) [part='value'] {
     padding: calc(var(--jimble-spacing, 0.25rem) * 3) calc(var(--jimble-spacing, 0.25rem) * 4);
-    box-shadow: inset 0 -1px 0 var(--_c-ring);
+    box-shadow: inset 0 -1px 0 var(--_c-ring-divider);
   }
   @media (max-width: 39.999rem) {
     :host(jimble-description-item) [part='label'] {

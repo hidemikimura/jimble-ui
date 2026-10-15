@@ -24,7 +24,7 @@ export const TEXT_SIZE: Record<ControlSize, string> = {
     '[--_px:var(--jimble-input-padding-x,calc(var(--spacing)*3.5))] text-base',
 }
 const WRAP =
-  'flex w-full min-h-(--_h) gap-2 bg-(--_bg) text-(--_fg) px-(--_px) shadow-sm ' +
+  'flex w-full min-h-(--_h) gap-2 bg-(--_bg) text-(--_fg) px-(--_px) [--_shadow:var(--jimble-input-shadow,var(--shadow-sm))] relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:[box-shadow:var(--_shadow)] ' +
   'ring-1 ring-inset ring-(--_ring) focus-within:ring-2 focus-within:ring-(--_ring-focus) ' +
   '[border-radius:var(--jimble-input-radius,var(--radius-control))] ' +
   'outline outline-1 outline-transparent focus-within:outline-2'

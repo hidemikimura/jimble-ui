@@ -48,6 +48,7 @@ const PAIRS: [string, string, number, string][] = [
   ['text', 'surface-sunken', 4.5, 'カンバンの列の見出し・件数・空の表示'],
   ['primary-700', 'surface', 4.5, 'カンバンの「ここに移動」'],
   ['ring-control', 'surface-sunken', 3, 'カンバンの受け口の枠 (1.4.11)'],
+  ['text-on-primary', 'neutral-900', 4.5, 'ツールチップ（濃い背景に白い文字）'],
   ['text-placeholder', 'surface', 4.5, 'プレースホルダー'],
   ['text-link', 'surface', 4.5, 'リンク'],
   ['text-on-primary', 'primary-600', 4.5, 'primary ボタン'],

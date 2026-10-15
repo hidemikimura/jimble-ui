@@ -3,10 +3,11 @@ import { JimbleElement } from '../../base/jimble-element.js'
 import { SlotController } from '../../base/slot-controller.js'
 
 const BASE =
-  'bg-surface text-fg shadow-sm ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
+  'bg-surface text-fg [--_shadow:var(--jimble-card-shadow,var(--shadow-sm))] relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:[box-shadow:var(--_shadow)] ring-1 ring-inset ring-line-card ' +
+  'outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-card-radius,var(--radius-card))]'
 const SECTION = 'p-(--jimble-card-padding,calc(var(--spacing)*4))'
-const DIVIDER = 'h-px bg-line'
+const DIVIDER = 'h-px bg-line-divider'
 
 /**
  * 関連する情報をまとめる面。ヘッダー・フッターは中身があるときだけ描画する。
@@ -24,6 +25,8 @@ const DIVIDER = 'h-px bg-line'
  *
  * @cssprop [--jimble-card-radius=var(--jimble-radius-card)] - 角丸
  * @cssprop [--jimble-card-padding=4 単位(1rem)] - 各領域の内側の余白
+ * @cssprop [--jimble-card-shadow=var(--jimble-shadow-sm)] - 影
+ * @cssprop （枠の色は `--jimble-color-ring-card`、ヘッダー・フッターの区切り線の色は `--jimble-color-ring-divider`）
  */
 export class JimbleCard extends JimbleElement {
   #slots = new SlotController(this)

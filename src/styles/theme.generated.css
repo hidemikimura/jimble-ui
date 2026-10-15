@@ -66,6 +66,9 @@
   --color-line-control: var(--jimble-color-ring-control, var(--jimble-color-neutral-500, oklch(55.1% 0.027 264.364)));
   --color-focus: var(--jimble-color-ring-focus, var(--jimble-color-primary-600, oklch(51.1% 0.262 276.966)));
   --color-invalid: var(--jimble-color-ring-invalid, var(--jimble-color-danger-600, oklch(57.7% 0.245 27.325)));
+  --color-line-card: var(--jimble-color-ring-card, var(--jimble-color-ring, var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338))));
+  --color-line-divider: var(--jimble-color-ring-divider, var(--jimble-color-ring, var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338))));
+  --color-line-button: var(--jimble-color-ring-button, var(--jimble-color-ring, var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338))));
   --color-primary: var(--jimble-color-primary, var(--jimble-color-primary-600, oklch(51.1% 0.262 276.966)));
   --spacing: var(--jimble-spacing, 0.25rem);
   --radius-sm: var(--jimble-radius-sm, 0.25rem);

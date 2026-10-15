@@ -25,6 +25,7 @@ export type InputType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url'
  * @csspart suffix - suffix スロットを包む要素
  *
  * @cssprop [--jimble-input-radius=var(--jimble-radius-control)] - 角丸
+ * @cssprop [--jimble-input-shadow=var(--jimble-shadow-sm)] - 影
  * @cssprop [--jimble-input-height=サイズに応じた --jimble-control-height-*] - 高さ（最小）
  * @cssprop [--jimble-input-padding-x=サイズに応じる] - 左右の余白
  * @cssprop [--jimble-input-width=100%] - 幅

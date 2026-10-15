@@ -1563,6 +1563,18 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **互換性**: 親や `document` で、イベントの委譲（`container.addEventListener('jimble-close', …)`）をしていたコードは、届かなくなる。**キャプチャ段階のリスナー（`addEventListener(name, fn, true)`）は、バブルしないイベントでも届く**ので、委譲が要るときは、これで移行できる。リポジトリ内・サイト・theme-lab のリスナーは、すべて発火元の部品に付いていて、影響しなかった。0.x なので、`feat!` の minor で出す。
 - **検証**: `src/base/jimble-element.test.ts`（修正前の実装では、9 件が失敗することを確認）。ドロワーの中の select、入れ子のタブ、`bubbles: true` の指定を確かめる。
 
+**追補: テーマで設定できる項目の拡張と、CSS が出ていなかったクラス（2026-10-15）**
+
+- **要件**（利用者の追加依頼 PDF）: 区切り線・カードの枠・ボタンの枠を別々の色に／文字の太さ（見出しを bold に）／バッジの角丸／ツールチップの色／カード・入力欄・ボタンの影／スイッチの丸を白に／現在のページのアイコンの色／表の見出しの背景／パンくずの中央揃え／細いサイドバーでアイコンが出ない。
+- **枠の色（トークン）**: `color-ring-card`（`--color-line-card`）・`color-ring-divider`（`--color-line-divider`）・`color-ring-button`（`--color-line-button`）を足した。既定は `color-ring` を参照するので、指定しなければ見た目は変わらない。カード（かんばんのカード・列を含む）の枠、区切り線（カードの見出しの下・表の行・説明リスト・メニューの区切り・タブの線・dual-listbox の行・date-input の時刻の上）、ボタン（secondary・ページ送り）の枠に、それぞれ適用した。
+- **部品の変数**: `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`（影。**枠（ring）とは別に、疑似要素 `::before` で描く**。Tailwind の `box-shadow` は、枠と影を 1 つの宣言に合成するので、`none` を指定すると宣言全体が無効になり、枠まで消えた。疑似要素なら `none` も使え、枠は残る。ghost のボタンは、既定が影なし）、`--jimble-tooltip-bg` / `-text`、`--jimble-switch-thumb-bg` / `-ring`、`--jimble-table-header-bg` / `-text`、`--jimble-breadcrumb-justify`、`--jimble-page-header-heading-weight`、`--jimble-sidebar-nav-current-icon-color`。`--jimble-badge-radius` は、すでにあった（theme-lab の `theme.css` に載せていなかっただけ）。
+- **パンくずの「中央揃え」**: PDF の取り消し線の意図が読み取れなかったため、横の位置（`justify-content`）を変数にした（`center` で中央）。縦方向の揃えは、もともと中央（`items-center`）。
+- **見つかった不具合: CSS が出ていなかったクラス（5 種類）**: `font-medium` / `font-semibold`（太さのテーマ変数が未定義）、`bg-white`（ラジオの点・スイッチのつまみ）、`ring-black/10`（スイッチのつまみの縁）、`hover:bg-black/5`（アラートの閉じるボタン）。このライブラリのテーマは `--color-*` を空にして標準の色を消しているため、`white` / `black` が存在しない。結果として、**スイッチのつまみは透明（本文色の濃い縁だけ）、ラジオの選択済みの点は透明、見出し・ラベル・サイドバーの項目などは、意図した太さにならず標準の太さ**だった。対策: 太さのトークン（`font-weight-normal` / `medium` / `semibold` / `bold`）を足し、`bg-white` は `bg-fg-on-primary`（ラジオの点）と変数（つまみ）に、`black/N` は `color-mix` に置き換えた。
+- **再発防止**: `scripts/check-dist.ts` に検査 (e) を足した。`src` の Tailwind クラスのうち、ビルド後の CSS に出ていないものがあれば、`check-dist`（公開の前の検証）が失敗する。修正前の実装では、上の 5 種類を、ちょうど検出することを確認した。`src/styles/theme-vars.test.ts` が、新しい変数が、実際の見た目（計算結果）に効くことを確かめる（修正前の実装では 42 件が失敗）。
+- **細いサイドバーの修正**: アイコンのないグループは、細い表示で、見出しが頭文字（「画」「確」）になり、子項目（アイコンのある項目）が隠れていた。アイコンのないグループは、見出しを出さず、子項目をそのまま並べる（グループの名前は、リストの名前として読み上げに残し、グループの間に区切り線を引く）。アイコンのあるグループは、これまでどおり、アイコンだけを出し、広げたときに子項目を開く。
+- **サイズ**: 共有チャンクの予算を 14 KB から 15 KB に上げた（トークンとクラスが増えた。実測 14.2 KB）。CDN バンドルは 90.9 KB（予算 92 KB）。
+- **見た目が変わるもの（修正の結果）**: `font-semibold`（ページの見出し・ダイアログのタイトル・カレンダーの月など）が、標準より太くなる（日本語のシステムフォントでは、600 は太字、500 は標準のまま）。スイッチのつまみは白く塗られ、ラジオの選択済みの点は白く出る。
+
 **追補: 全部品のスクロール位置の調査と、トップレイヤー内のフォーカスでの不具合（2026-10-10）**
 
 - **調査の方法**: フォーカスなどでページが不当にスクロールしないかを、(1) コードの `focus()` / `scrollIntoView` / `scrollBy` の洗い出し、(2) 実際のブラウザ（3 エンジン）で、長いページの中ほどに各部品を置いて、操作のたびにスクロール位置を測る、の 2 通りで確かめた。対象は、select・combobox（単一・複数）・dropdown-menu・date-input（単一・期間・時刻）・color-input・dual-listbox・tabs・radio / checkbox / switch・dialog・drawer・toast・tooltip・pagination・table・kanban・file-input・field・サイドバー（細い表示）で、素のページと app-shell の中の両方。

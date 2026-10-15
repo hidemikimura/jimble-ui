@@ -19,7 +19,7 @@ type Side = 'available' | 'selected'
 
 const LIST = 'h-(--_h) overflow-auto rounded-md border border-line-control bg-surface'
 const ROW =
-  'flex w-full items-center justify-between gap-2 border-b border-line px-3 py-2 text-sm text-fg select-none ' +
+  'flex w-full items-center justify-between gap-2 border-b border-line-divider px-3 py-2 text-sm text-fg select-none ' +
   'cursor-default outline outline-1 outline-transparent -outline-offset-2 ' +
   'focus-visible:outline-2 focus-visible:outline-focus'
 const MOVE_BTN =
@@ -645,7 +645,7 @@ export class JimbleDualListbox extends JimbleFormElement {
               part="group-label"
               id=${this.#groupId(side, b.group)}
               role="presentation"
-              class="border-b border-line bg-surface-muted px-3 py-1.5 text-xs font-semibold text-fg-muted"
+              class="border-b border-line-divider bg-surface-muted px-3 py-1.5 text-xs font-semibold text-fg-muted"
             >
               ${b.group}
             </div>

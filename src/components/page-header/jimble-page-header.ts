@@ -19,6 +19,8 @@ import { SlotController } from '../../base/slot-controller.js'
  * @csspart heading - 見出し
  * @csspart description - 説明
  * @csspart actions - 操作の領域
+ *
+ * @cssprop [--jimble-page-header-heading-weight=var(--jimble-font-weight-semibold)] - 見出しの文字の太さ
  */
 export class JimblePageHeader extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -56,7 +58,7 @@ export class JimblePageHeader extends JimbleElement {
             part="heading"
             role="heading"
             aria-level=${level}
-            class="text-xl font-semibold text-fg"
+            class="text-xl [font-weight:var(--jimble-page-header-heading-weight,var(--font-weight-semibold))] text-fg"
           >
             ${this.heading}<slot name="title"></slot>
           </div>

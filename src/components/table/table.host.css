@@ -39,14 +39,14 @@
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--_c-text);
-    box-shadow: inset 0 -1px 0 var(--_c-ring);
+    box-shadow: inset 0 -1px 0 var(--_c-ring-divider);
   }
   :host(jimble-table-head-cell) {
     position: var(--jimble-table-head-position, static);
     top: 0;
     z-index: 1;
-    background: var(--_c-surface-muted);
-    color: var(--_c-text-muted);
+    background: var(--jimble-table-header-bg, var(--_c-surface-muted));
+    color: var(--jimble-table-header-text, var(--_c-text-muted));
     font-weight: 600;
     white-space: nowrap;
   }

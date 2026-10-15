@@ -17,6 +17,8 @@ const LINK =
  *
  * @csspart base - nav 要素
  * @csspart list - 項目を並べる領域
+ *
+ * @cssprop [--jimble-breadcrumb-justify=flex-start] - 横の位置（`flex-start` / `center` / `flex-end`）
  */
 export class JimbleBreadcrumb extends JimbleElement {
   static override properties: PropertyDeclarations = { label: {} }
@@ -26,7 +28,11 @@ export class JimbleBreadcrumb extends JimbleElement {
 
   protected override render() {
     return html`<nav part="base" aria-label=${this.label ?? this.t('breadcrumb.label')}>
-      <div part="list" role="list" class="flex flex-wrap items-center gap-y-1 text-sm">
+      <div
+        part="list"
+        role="list"
+        class="flex flex-wrap items-center gap-y-1 text-sm [justify-content:var(--jimble-breadcrumb-justify,flex-start)]"
+      >
         <slot></slot>
       </div>
     </nav>`

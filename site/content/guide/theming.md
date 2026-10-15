@@ -56,6 +56,39 @@ jimble-button:state(loading) {
 </jimble-alert>
 ```
 
+## テーマで変えられる項目
+
+次の項目は、`:root`（または部品）に CSS 変数を書くだけで変えられます。指定しなければ、これまでと同じ見た目です。
+
+| 変えたいもの                                                           | CSS 変数                                                                                        | 既定                             |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
+| カードの枠の色                                                         | `--jimble-color-ring-card`                                                                      | `--jimble-color-ring`            |
+| 区切り線の色（カードの見出しの下・表の行・メニューの区切り・タブの線） | `--jimble-color-ring-divider`                                                                   | `--jimble-color-ring`            |
+| ボタン（secondary・ページ送り）の枠の色                                | `--jimble-color-ring-button`                                                                    | `--jimble-color-ring`            |
+| 文字の太さ（ラベル・見出しなど）                                       | `--jimble-font-weight-medium` / `-semibold` / `-bold` / `-normal`                               | 500 / 600 / 700 / 400            |
+| ページの見出しの太さ（見出しだけ）                                     | `--jimble-page-header-heading-weight`                                                           | `--jimble-font-weight-semibold`  |
+| カード・入力欄・ボタンの影（`none` で影なし）                          | `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`                     | `--jimble-shadow-sm`             |
+| バッジの角丸                                                           | `--jimble-badge-radius`                                                                         | `--jimble-radius-md`             |
+| ツールチップの背景・文字色                                             | `--jimble-tooltip-bg` / `--jimble-tooltip-text`                                                 | 濃い灰色・白                     |
+| スイッチの丸（つまみ）の塗り・縁                                       | `--jimble-switch-thumb-bg` / `--jimble-switch-thumb-ring`                                       | 面の色・薄い縁                   |
+| 表の見出しの行の背景・文字色                                           | `--jimble-table-header-bg` / `--jimble-table-header-text`                                       | ページの背景と同じ・補助の文字色 |
+| パンくずの横の位置                                                     | `--jimble-breadcrumb-justify`                                                                   | `flex-start`（`center` で中央）  |
+| サイドバーの現在のページのアイコンの色                                 | `--jimble-sidebar-nav-current-icon-color`                                                       | アイコンの色と同じ               |
+| ヘッダー・サイドバーの色・アイコンの大きさ                             | [App Shell](../../components/app-shell/) と [Sidebar Nav](../../components/sidebar-nav/) を参照 |                                  |
+
+```css
+:root {
+  --jimble-color-ring-card: #d1d5db; /* カードの枠 */
+  --jimble-color-ring-divider: #e5e7eb; /* 区切り線は、もっと薄く */
+  --jimble-color-ring-button: #6b7280; /* ボタンの枠は、濃く */
+  --jimble-font-weight-semibold: 700; /* 見出しを bold に */
+  --jimble-card-shadow: none;
+  --jimble-badge-radius: 9999px;
+}
+```
+
+部品ごとの変数は、各ページの「CSS 変数」の表にも載っています。**色を変えるときは、文字 4.5:1、枠・アイコン 3:1 のコントラストを保ってください。**
+
 ## トークン一覧
 
 色はすべて意味を表すトークンを通して指定されています。ダークモードは将来、ロール（`surface` や `text`）の値を差し替えるだけで追加できる設計です。

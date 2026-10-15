@@ -69,7 +69,7 @@ export class JimbleKanbanColumn extends JimbleElement {
     return html`<div
       part="base"
       class="flex w-(--jimble-kanban-column-width,18rem) shrink-0 flex-col rounded-lg bg-surface-sunken ${
-        this.over ? 'ring-2 ring-inset ring-focus' : 'ring-1 ring-inset ring-line'
+        this.over ? 'ring-2 ring-inset ring-focus' : 'ring-1 ring-inset ring-line-card'
       } outline outline-1 outline-transparent"
     >
       <div part="header" class="flex items-center gap-2 px-3 py-2.5">

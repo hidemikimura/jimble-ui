@@ -92,7 +92,7 @@ export class JimbleMenuSeparator extends JimbleElement {
     this.internals.role = 'separator'
   }
   protected override render() {
-    return html`<div part="base" class="my-1 h-px bg-line" aria-hidden="true"></div>`
+    return html`<div part="base" class="my-1 h-px bg-line-divider" aria-hidden="true"></div>`
   }
 }
 

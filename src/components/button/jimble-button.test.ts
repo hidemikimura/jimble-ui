@@ -29,16 +29,17 @@ describe('共有シートと Shadow DOM（M0 の検証）', () => {
     const el = await mount<JimbleButton>(
       html`<jimble-button variant="primary">保存</jimble-button>`,
     )
-    const { boxShadow } = getComputedStyle(inner(el))
+    // 影は、枠(ring)とは別に、疑似要素 ::before で描く(none を指定しても、枠が消えない)
+    const { boxShadow } = getComputedStyle(inner(el), '::before')
     expect(boxShadow).not.toBe('none')
     expect(boxShadow).toContain('3px')
   })
 
   it('secondary: ring-1 ring-inset が shadow-sm と合成されて効く（F1）', async () => {
     const el = await mount<JimbleButton>(html`<jimble-button>キャンセル</jimble-button>`)
-    const { boxShadow } = getComputedStyle(inner(el))
-    expect(boxShadow).toContain('inset')
-    expect(boxShadow).toContain('3px')
+    // 枠(inset の ring)は要素自身、影(shadow-sm)は ::before
+    expect(getComputedStyle(inner(el)).boxShadow).toContain('inset')
+    expect(getComputedStyle(inner(el), '::before').boxShadow).toContain('3px')
   })
 
   it('ring を持つ要素は透明な outline を併用する（強制色モード対策 F4）', async () => {

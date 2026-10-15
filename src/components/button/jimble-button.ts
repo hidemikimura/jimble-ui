@@ -15,22 +15,22 @@ const VARIANT: Record<ButtonVariant, string> = {
     '[--_bg:var(--jimble-button-bg,var(--color-primary-600))] ' +
     '[--_bg-hover:var(--jimble-button-bg-hover,var(--color-primary-500))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg-on-primary))] ' +
-    '[--_ring:var(--jimble-button-ring,transparent)] shadow-sm',
+    '[--_ring:var(--jimble-button-ring,transparent)] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   secondary:
     '[--_bg:var(--jimble-button-bg,var(--color-surface))] ' +
     '[--_bg-hover:var(--jimble-button-bg-hover,var(--color-surface-muted))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg))] ' +
-    '[--_ring:var(--jimble-button-ring,var(--color-line))] shadow-sm',
+    '[--_ring:var(--jimble-button-ring,var(--color-line-button))] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   danger:
     '[--_bg:var(--jimble-button-bg,var(--color-danger-600))] ' +
     '[--_bg-hover:var(--jimble-button-bg-hover,var(--color-danger-700))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg-on-primary))] ' +
-    '[--_ring:var(--jimble-button-ring,transparent)] shadow-sm',
+    '[--_ring:var(--jimble-button-ring,transparent)] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   ghost:
     '[--_bg:var(--jimble-button-bg,transparent)] ' +
     '[--_bg-hover:var(--jimble-button-bg-hover,var(--color-surface-sunken))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg))] ' +
-    '[--_ring:var(--jimble-button-ring,transparent)]',
+    '[--_ring:var(--jimble-button-ring,transparent)] [--_shadow:var(--jimble-button-shadow,none)]',
 }
 const SIZE: Record<ButtonSize, string> = {
   sm:
@@ -47,7 +47,7 @@ const SIZE: Record<ButtonSize, string> = {
     '[--_gap:var(--jimble-button-gap,calc(var(--spacing)*2))] text-base',
 }
 const BASE =
-  'inline-flex min-h-(--_h) items-center justify-center whitespace-nowrap select-none ' +
+  'inline-flex min-h-(--_h) items-center justify-center whitespace-nowrap select-none relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:[box-shadow:var(--_shadow)] ' +
   'cursor-pointer bg-(--_bg) text-(--_fg) hover:bg-(--_bg-hover) ' +
   'ring-1 ring-inset ring-(--_ring) [border-radius:var(--jimble-button-radius,var(--radius-control))] ' +
   '[font-weight:var(--jimble-button-font-weight,600)] gap-(--_gap) ' +
@@ -85,6 +85,8 @@ const ICON_ONLY = 'w-(--_h) p-0'
  * @cssprop [--jimble-button-bg-hover=variant に応じる] - hover 時の背景色
  * @cssprop [--jimble-button-fg=variant に応じる] - 文字色
  * @cssprop [--jimble-button-ring=variant に応じる] - 枠（ring）の色
+ * @cssprop [--jimble-button-shadow=var(--jimble-shadow-sm)] - 影（`none` で影なし。ghost の既定は影なし）
+ * @cssprop （secondary の枠の色の既定は `--jimble-color-ring-button`）
  */
 export class JimbleButton extends JimbleElement {
   static formAssociated = true

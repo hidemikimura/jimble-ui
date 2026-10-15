@@ -117,8 +117,8 @@ export class JimbleKanbanCard extends JimbleElement {
     const face = this.moving
       ? 'ring-2 ring-inset ring-focus shadow-sm'
       : this.dragging
-        ? 'ring-1 ring-inset ring-line shadow-lg'
-        : 'ring-1 ring-inset ring-line shadow-xs'
+        ? 'ring-1 ring-inset ring-line-card shadow-lg'
+        : 'ring-1 ring-inset ring-line-card shadow-xs'
     return html`<div part="base" class="relative flex flex-col gap-2">
       ${
         this.dropBefore

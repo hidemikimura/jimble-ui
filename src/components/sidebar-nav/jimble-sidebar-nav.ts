@@ -20,6 +20,9 @@ const CURRENT =
 const ICON =
   'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted))] ' +
   '[--jimble-icon-size:var(--jimble-sidebar-nav-icon-size)]'
+const ICON_CURRENT =
+  'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-current-icon-color,var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted)))] ' +
+  '[--jimble-icon-size:var(--jimble-sidebar-nav-icon-size)]'
 const CHEVRON =
   'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted))]'
 /** 項目名: 通常は行いっぱいに出し、compact では見えなくして読み上げだけに残す */
@@ -48,6 +51,7 @@ const initialOf = (source: HTMLElement | string) =>
  *
  * @cssprop [--jimble-sidebar-nav-text=var(--jimble-color-text)] - 項目の文字色
  * @cssprop [--jimble-sidebar-nav-icon-color=var(--jimble-color-text-muted)] - アイコンと開閉の矢印の色
+ * @cssprop [--jimble-sidebar-nav-current-icon-color=var(--jimble-sidebar-nav-icon-color)] - 現在のページのアイコンの色
  * @cssprop [--jimble-sidebar-nav-icon-size=アイコン自身の大きさ(1.25rem)] - アイコン（`jimble-icon`）の大きさ
  * @cssprop [--jimble-sidebar-nav-hover-bg=var(--jimble-color-surface-sunken)] - マウスを重ねた項目の背景（細い表示の頭文字の背景にも使う）
  * @cssprop [--jimble-sidebar-nav-current-bg=var(--jimble-color-primary-50)] - 現在のページの背景
@@ -145,7 +149,9 @@ export class JimbleNavItem extends JimbleElement {
   /** アイコン。compact でアイコンがないときは頭文字を出す（読み上げでは項目名が読まれるので、頭文字は隠す） */
   #renderIcon() {
     const icon = this.#slots.hasSlot('icon')
-    return html`<span class=${icon ? ICON : 'hidden'}><slot name="icon"></slot></span>${
+    return html`<span class=${icon ? (this.current ? ICON_CURRENT : ICON) : 'hidden'}
+        ><slot name="icon"></slot></span
+      >${
         this.compact && !icon
           ? html`<span part="initial" class=${INITIAL} aria-hidden="true">${initialOf(this)}</span>`
           : nothing

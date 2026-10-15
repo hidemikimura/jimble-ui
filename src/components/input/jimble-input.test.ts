@@ -38,8 +38,8 @@ describe('見た目', () => {
     expect(base(md).getBoundingClientRect().height).toBe(36)
     expect(base(sm).getBoundingClientRect().height).toBe(32)
     expect(base(lg).getBoundingClientRect().height).toBe(40)
-    expect(getComputedStyle(base(md)).boxShadow).toContain('inset')
-    expect(getComputedStyle(base(md)).boxShadow).toContain('3px')
+    expect(getComputedStyle(base(md)).boxShadow).toContain('inset') // 枠(ring)
+    expect(getComputedStyle(base(md), '::before').boxShadow).toContain('3px') // 影(::before)
   })
 
   it('公開 CSS 変数で枠の色・高さ・幅を変えられる', async () => {

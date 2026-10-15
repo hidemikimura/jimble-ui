@@ -10,7 +10,7 @@
   :host(jimble-nav-group:state(flat)) {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid var(--_c-ring);
+    border-top: 1px solid var(--_c-ring-divider);
   }
   :host(jimble-nav-group:state(flat):first-child) {
     margin-top: 0;

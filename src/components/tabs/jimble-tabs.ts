@@ -146,8 +146,8 @@ export class JimbleTabs extends JimbleElement {
         aria-orientation=${this.orientation}
         class=${
           vertical
-            ? 'flex shrink-0 flex-col shadow-[inset_-1px_0_0_0_var(--color-line)]'
-            : 'flex overflow-x-auto shadow-[inset_0_-1px_0_0_var(--color-line)]'
+            ? 'flex shrink-0 flex-col shadow-[inset_-1px_0_0_0_var(--color-line-divider)]'
+            : 'flex overflow-x-auto shadow-[inset_0_-1px_0_0_var(--color-line-divider)]'
         }
         @click=${this.#onClick}
         @keydown=${this.#onKeydown}

@@ -1021,7 +1021,10 @@ export class JimbleDateInput extends JimbleFormElement {
         </div>
         ${
           this.time
-            ? html`<div part="time" class="mt-3 flex flex-col gap-2 border-t border-line pt-3">
+            ? html`<div
+                part="time"
+                class="mt-3 flex flex-col gap-2 border-t border-line-divider pt-3"
+              >
                 ${
                   this.range
                     ? html`${this.#renderTimeRow('start', this.t('date.startTime'))}${this.#renderTimeRow('end', this.t('date.endTime'))}`
