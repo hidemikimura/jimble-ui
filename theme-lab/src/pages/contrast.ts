@@ -31,7 +31,16 @@ const PAIRS: [string, string, number, string][] = [
   ['warning-600', 'warning-50', 3, 'warning アイコン'],
   ['danger-600', 'danger-50', 3, 'danger アイコン'],
   ['info-600', 'info-50', 3, 'info アイコン'],
-  // ヘッダー・サイドバー(0.5.0 以降。完全な変数名で書く)
+  // 部品ごとの色(0.8.0 以降。完全な変数名で書く)
+  ['--jimble-tooltip-text', '--jimble-tooltip-bg', 4.5, 'ツールチップ'],
+  ['--jimble-table-header-text', '--jimble-table-header-bg', 4.5, '表の見出し'],
+  [
+    '--jimble-sidebar-nav-current-icon-color',
+    '--jimble-sidebar-nav-current-bg',
+    3,
+    '現在のページのアイコン',
+  ],
+  // ヘッダー・サイドバー(0.6.0 以降。完全な変数名で書く)
   ['--jimble-app-shell-header-text', '--jimble-app-shell-header-bg', 4.5, 'ヘッダーの文字'],
   [
     '--jimble-app-shell-header-text',

@@ -65,6 +65,27 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    title: '枠・区切り線（別々に）',
+    note: 'カードの枠・区切り線・ボタンの枠を、別の色にできる(0.8.0 以降)',
+    vars: [
+      ['--jimble-color-ring-card', 'カードの枠'],
+      ['--jimble-color-ring-divider', '区切り線'],
+      ['--jimble-color-ring-button', 'ボタンの枠'],
+    ],
+  },
+  {
+    title: '部品ごとの色',
+    note: 'ツールチップ・スイッチの丸・表の見出し(0.8.0 以降)',
+    vars: [
+      ['--jimble-tooltip-bg', 'ツールチップの背景'],
+      ['--jimble-tooltip-text', 'ツールチップの文字'],
+      ['--jimble-switch-thumb-bg', 'スイッチの丸の塗り'],
+      ['--jimble-switch-thumb-ring', 'スイッチの丸の縁'],
+      ['--jimble-table-header-bg', '表の見出しの背景'],
+      ['--jimble-table-header-text', '表の見出しの文字'],
+    ],
+  },
+  {
     title: 'ヘッダー・サイドバー',
     note: '暗くするときは、文字・アイコン・hover・現在のページも一緒に変える(0.6.0 以降)',
     vars: [
@@ -79,6 +100,7 @@ const GROUPS: Group[] = [
       ['--jimble-sidebar-nav-hover-bg', '項目の hover の背景'],
       ['--jimble-sidebar-nav-current-bg', '現在のページの背景'],
       ['--jimble-sidebar-nav-current-text', '現在のページの文字'],
+      ['--jimble-sidebar-nav-current-icon-color', '現在のページのアイコン'],
       ['--jimble-sidebar-nav-ring-focus', 'フォーカスの輪郭'],
     ],
   },
@@ -87,6 +109,7 @@ const RADII: [string, string][] = [
   ['--jimble-radius-control', 'ボタン・入力欄の角丸'],
   ['--jimble-radius-card', 'カードの角丸'],
   ['--jimble-radius-overlay', 'ダイアログ・メニューの角丸'],
+  ['--jimble-badge-radius', 'バッジの角丸'],
   ['--jimble-sidebar-nav-icon-size', 'サイドバーのアイコンの大きさ(px)'],
 ]
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */

@@ -145,6 +145,47 @@
   --jimble-sidebar-nav-ring-focus: #a5b4fc;
   */
 
+  /* ---- 枠・区切り線の色(別々に変えられます。jimble-ui 0.8.0 以降) ----
+     ring = 既定の区切り線の色。下の 3 つは、既定で ring と同じ色(変えると、その用途だけ変わります)
+     ring-card = カードの枠(かんばんのカード・列も) / ring-divider = 区切り線(カードの見出しの下、表の行、メニューの区切りなど)
+     ring-button = ボタン(secondary・ページ送り)の枠
+  */
+  --jimble-color-ring-card: var(--jimble-color-ring);
+  --jimble-color-ring-divider: var(--jimble-color-ring);
+  --jimble-color-ring-button: var(--jimble-color-ring);
+
+  /* ---- 文字の太さ(jimble-ui 0.8.0 以降) ----
+     medium = ラベル・サイドバーの項目など / semibold = 見出し・ダイアログのタイトルなど
+     (これまで、これらの太さは、指定しても効いていませんでした)
+  */
+  --jimble-font-weight-normal: 400;
+  --jimble-font-weight-medium: 500;
+  --jimble-font-weight-semibold: 600;
+  --jimble-font-weight-bold: 700;
+
+  /* ---- 部品ごとの見た目(jimble-ui 0.8.0 以降) ----
+     card-shadow / input-shadow / button-shadow = カード・入力欄(テキスト・セレクトなど)・ボタンの影(none で影なし)
+     badge-radius = バッジの角丸 / tooltip-bg・tooltip-text = ツールチップの背景・文字
+     switch-thumb-bg・switch-thumb-ring = スイッチの丸(つまみ)の塗りと縁
+     table-header-bg・table-header-text = 表の見出しの行の背景・文字
+     breadcrumb-justify = パンくずの横の位置(flex-start = 左 / center = 中央 / flex-end = 右)
+     page-header-heading-weight = ページの見出しの文字の太さ
+     sidebar-nav-current-icon-color = サイドバーの、現在のページのアイコンの色
+  */
+  --jimble-card-shadow: var(--jimble-shadow-sm);
+  --jimble-input-shadow: var(--jimble-shadow-sm);
+  --jimble-button-shadow: var(--jimble-shadow-sm);
+  --jimble-badge-radius: var(--jimble-radius-md);
+  --jimble-tooltip-bg: var(--jimble-color-neutral-900);
+  --jimble-tooltip-text: var(--jimble-color-text-on-primary);
+  --jimble-switch-thumb-bg: var(--jimble-color-surface);
+  --jimble-switch-thumb-ring: rgb(0 0 0 / 0.12);
+  --jimble-table-header-bg: var(--jimble-color-surface-muted);
+  --jimble-table-header-text: var(--jimble-color-text-muted);
+  --jimble-breadcrumb-justify: flex-start;
+  --jimble-page-header-heading-weight: var(--jimble-font-weight-semibold);
+  --jimble-sidebar-nav-current-icon-color: var(--jimble-sidebar-nav-icon-color);
+
   /* ---- 角丸・高さ・影 ----
      radius-* = 角の丸み(control = 入力欄・ボタン、card = カード、overlay = ダイアログ・メニュー)
      control-height-* = ボタン・入力欄の高さ(sm / md / lg)

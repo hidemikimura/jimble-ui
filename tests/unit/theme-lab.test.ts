@@ -47,4 +47,35 @@ describe('theme-lab', () => {
     for (const name of props)
       expect(theme, `${name} が theme.css にありません`).toContain(`${name}:`)
   })
+  it('部品ごとのテーマ変数・枠の色・文字の太さのトークンが、theme.css に全部あり、部品の cssprop にも載っている', () => {
+    const theme = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
+    const COMPONENT_VARS = [
+      ['jimble-card', '--jimble-card-shadow'],
+      ['jimble-input', '--jimble-input-shadow'],
+      ['jimble-button', '--jimble-button-shadow'],
+      ['jimble-badge', '--jimble-badge-radius'],
+      ['jimble-tooltip', '--jimble-tooltip-bg'],
+      ['jimble-tooltip', '--jimble-tooltip-text'],
+      ['jimble-switch', '--jimble-switch-thumb-bg'],
+      ['jimble-switch', '--jimble-switch-thumb-ring'],
+      ['jimble-table', '--jimble-table-header-bg'],
+      ['jimble-table', '--jimble-table-header-text'],
+      ['jimble-breadcrumb', '--jimble-breadcrumb-justify'],
+      ['jimble-page-header', '--jimble-page-header-heading-weight'],
+      ['jimble-sidebar-nav', '--jimble-sidebar-nav-current-icon-color'],
+    ] as const
+    for (const [tag, name] of COMPONENT_VARS) {
+      const declared = elements.find((e) => e.tagName === tag)?.cssProperties?.map((p) => p.name)
+      expect(declared, `${tag} の cssprop に ${name} がありません`).toContain(name)
+      expect(theme, `${name} が theme.css にありません`).toContain(`${name}:`)
+    }
+    for (const token of [
+      '--jimble-color-ring-card',
+      '--jimble-color-ring-divider',
+      '--jimble-color-ring-button',
+      '--jimble-font-weight-medium',
+      '--jimble-font-weight-semibold',
+    ])
+      expect(theme, `${token} が theme.css にありません`).toContain(`${token}:`)
+  })
 })
