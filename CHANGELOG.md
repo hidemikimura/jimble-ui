@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.8.0](https://github.com/hidemikimura/jimble-ui/compare/v0.7.2...v0.8.0) (2026-10-15)
+
+
+### 追加
+
+* **theme:** テーマで設定できる項目を増やす ([2db54f2](https://github.com/hidemikimura/jimble-ui/commit/2db54f2614d9b23ae0b0a7e5c458e7461eea9abb))
+
+
+### 修正
+
+* **dual-listbox:** すべて追加・すべて削除のボタンの名前に、見える文字を含める ([3fe3f7d](https://github.com/hidemikimura/jimble-ui/commit/3fe3f7d48cd88c40026fca5e283df7e4edf9ce82))
+* **theme:** 効いていなかった太さと色のクラスを直し、細いサイドバーのアイコンを出す ([a4171c1](https://github.com/hidemikimura/jimble-ui/commit/a4171c1addad7d82dace868ff60043134cbc30e8))
+
+
+### ドキュメント
+
+* **theme-lab:** 新しいテーマの項目を、theme.css と調整パネルに載せる ([df7f56f](https://github.com/hidemikimura/jimble-ui/commit/df7f56fa334750ecb518b49df813939c0510567d))
+
 ## [0.7.2](https://github.com/hidemikimura/jimble-ui/compare/v0.7.1...v0.7.2) (2026-10-10)
 
 
