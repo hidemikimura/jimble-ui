@@ -16,6 +16,7 @@ export type SortDirection = 'ascending' | 'descending' | 'none'
  * 表のロール（table / rowgroup / row / columnheader / cell）を持ち、CSS の `display: table*` で
  * 表のレイアウトになる（スクリーンリーダーには本物の表として伝わる）。
  * `colspan` / `rowspan` は使えない。
+ * 行の区切り線の色は `--jimble-color-ring-divider` で変える。
  *
  * @tag jimble-table
  *
@@ -29,7 +30,6 @@ export type SortDirection = 'ascending' | 'descending' | 'none'
  * @cssprop [--jimble-table-cell-padding-y=2 単位] - セルの上下の余白
  * @cssprop [--jimble-table-header-bg=var(--jimble-color-surface-muted)] - 見出しの行の背景
  * @cssprop [--jimble-table-header-text=var(--jimble-color-text-muted)] - 見出しの文字色
- * @cssprop （行の区切り線の色は `--jimble-color-ring-divider`）
  *
  * @fires jimble-sort - 並べ替え可能な見出しが押された(direction)。preventDefault() すると見出しの状態を変えない
  */

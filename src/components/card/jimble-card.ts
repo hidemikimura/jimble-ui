@@ -11,6 +11,7 @@ const DIVIDER = 'h-px bg-line-divider'
 
 /**
  * 関連する情報をまとめる面。ヘッダー・フッターは中身があるときだけ描画する。
+ * 枠の色は `--jimble-color-ring-card`、ヘッダー・フッターの区切り線の色は `--jimble-color-ring-divider` で変える。
  *
  * @tag jimble-card
  *
@@ -26,7 +27,6 @@ const DIVIDER = 'h-px bg-line-divider'
  * @cssprop [--jimble-card-radius=var(--jimble-radius-card)] - 角丸
  * @cssprop [--jimble-card-padding=4 単位(1rem)] - 各領域の内側の余白
  * @cssprop [--jimble-card-shadow=var(--jimble-shadow-sm)] - 影
- * @cssprop （枠の色は `--jimble-color-ring-card`、ヘッダー・フッターの区切り線の色は `--jimble-color-ring-divider`）
  */
 export class JimbleCard extends JimbleElement {
   #slots = new SlotController(this)

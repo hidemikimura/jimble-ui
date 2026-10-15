@@ -63,6 +63,7 @@ const ICON_ONLY = 'w-(--_h) p-0'
  *
  * `type="submit"` / `"reset"` は所属フォームの `requestSubmit()` / `reset()` を呼ぶ。
  * フォーム関連カスタム要素は送信ボタンになれないため、`name` / `value` は送信されない。
+ * secondary の枠の色の既定は `--jimble-color-ring-button`。
  *
  * @tag jimble-button
  *
@@ -86,7 +87,6 @@ const ICON_ONLY = 'w-(--_h) p-0'
  * @cssprop [--jimble-button-fg=variant に応じる] - 文字色
  * @cssprop [--jimble-button-ring=variant に応じる] - 枠（ring）の色
  * @cssprop [--jimble-button-shadow=var(--jimble-shadow-sm)] - 影（`none` で影なし。ghost の既定は影なし）
- * @cssprop （secondary の枠の色の既定は `--jimble-color-ring-button`）
  */
 export class JimbleButton extends JimbleElement {
   static formAssociated = true
