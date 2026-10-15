@@ -227,4 +227,63 @@
   --jimble-duration-base: 150ms;
   --jimble-duration-slow: 250ms;
   --jimble-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- 部品ごとの見た目（続き。jimble-ui 0.8.0 以降） ----
+     すべて、既定の値と同じです。変えると、その部品（または、その種類の部品すべて）だけ変わります。
+     radius = 角丸 / padding = 内側の余白 / width・height = 大きさ
+  */
+  --jimble-button-radius: var(--jimble-radius-control);
+  --jimble-button-font-weight: 600;
+  --jimble-input-radius: var(--jimble-radius-control);
+  --jimble-input-bg: var(--jimble-color-surface);
+  --jimble-input-fg: var(--jimble-color-text);
+  --jimble-input-ring: var(--jimble-color-ring-control);
+  --jimble-input-ring-focus: var(--jimble-color-ring-focus);
+  --jimble-input-ring-invalid: var(--jimble-color-ring-invalid);
+  --jimble-input-placeholder: var(--jimble-color-text-placeholder);
+  --jimble-card-radius: var(--jimble-radius-card);
+  --jimble-card-padding: calc(var(--jimble-spacing) * 4);
+  --jimble-alert-radius: var(--jimble-radius-card);
+  --jimble-alert-padding: calc(var(--jimble-spacing) * 4);
+  --jimble-dialog-radius: var(--jimble-radius-overlay);
+  --jimble-dialog-padding: calc(var(--jimble-spacing) * 4);
+  --jimble-drawer-radius: var(--jimble-radius-overlay);
+  --jimble-toast-radius: var(--jimble-radius-overlay);
+  --jimble-menu-radius: var(--jimble-radius-overlay);
+  --jimble-select-radius: var(--jimble-radius-overlay);
+  --jimble-combobox-radius: var(--jimble-radius-overlay);
+  --jimble-date-input-popup-radius: var(--jimble-radius-overlay);
+  --jimble-color-input-popup-radius: var(--jimble-radius-overlay);
+  --jimble-file-input-radius: var(--jimble-radius-control);
+  --jimble-tooltip-radius: var(--jimble-radius-md);
+  --jimble-tooltip-max-width: 20rem;
+  --jimble-table-cell-padding-x: 3;
+  --jimble-table-cell-padding-y: 2;
+  --jimble-table-max-height: none;
+  --jimble-kanban-column-width: 18rem;
+  --jimble-dual-listbox-height: 16rem;
+  --jimble-app-shell-header-height: 3.5rem;
+  --jimble-app-shell-sidebar-width: 16rem;
+  --jimble-app-shell-sidebar-collapsed-width: 4rem;
+  --jimble-z-sticky: 10;
+  --jimble-z-drawer: 20;
+
+  /* ---- 上級（コメントアウトしてあります。使うときは、コメントを外して値を書く） ----
+     大きさ（sm / md / lg）や、ボタンの種類（primary・secondary・danger・ghost）ごとに、
+     既定の値が違うものです。指定すると、すべての大きさ・すべての種類に、同じ値が効きます。
+  --jimble-button-bg: #4f46e5;
+  --jimble-button-bg-hover: #4338ca;
+  --jimble-button-fg: #ffffff;
+  --jimble-button-ring: transparent;
+  --jimble-button-height: 2.25rem;
+  --jimble-button-padding-x: 0.75rem;
+  --jimble-button-gap: 0.5rem;
+  --jimble-input-height: 2.25rem;
+  --jimble-input-padding-x: 0.75rem;
+  --jimble-input-width: 100%;
+  --jimble-icon-size: 1.25rem;
+  --jimble-spinner-size: 1.5rem;
+  --jimble-description-label-width: 8rem;
+  --jimble-app-shell-main-padding: 1.5rem;
+  */
 }

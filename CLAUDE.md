@@ -14,7 +14,7 @@
 
 ## theme-lab
 
-`theme-lab/` は、デザイナーが色を決めるサンプルサイト（npm の公開版を使う、独立したプロジェクト。`cd theme-lab && npm install && npm run dev`）。**部品を足したら、theme-lab のページにも置く**（`tests/unit/theme-lab.test.ts` が全部品の使用を検査する）。未公開の変更を試すには、`npm pack` した tarball を `npm install --no-save <tgz>` で入れる。
+`theme-lab/` は、デザイナーが色を決めるサンプルサイト（npm の公開版を使う、独立したプロジェクト。`cd theme-lab && npm install && npm run dev`）。**部品を足したら、theme-lab のページにも置く**（`tests/unit/theme-lab.test.ts` が全部品の使用を検査する）。**CSS 変数（`@cssprop`・トークン）を足したら、`theme-lab/src/catalog.ts` に載せ、`theme.css` にも書く**（同じ試験が、公開されている変数の載せ忘れ・存在しない変数・`theme.css` との食い違いを検査する。大きさや種類ごとに既定が違う変数は `opt: true` にして、`theme.css` ではコメントアウトで載せる）。未公開の変更を試すには、`npm pack` した tarball を `npm install --no-save <tgz>` で入れる。
 
 ## コマンド
 

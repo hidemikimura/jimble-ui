@@ -1,117 +1,8 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
+import { CATALOG, SHADOW_PRESETS, WEIGHTS, type Entry, type Group } from './catalog.ts'
 import { varHex } from './color.ts'
 
-interface Group {
-  title: string
-  note: string
-  vars: [name: string, label: string][]
-  scale?: string // 段階を自動で作れる色(primary など)
-}
-const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
-const SHORT = [50, 100, 200, 500, 600, 700, 800]
-const scaleVars = (name: string, steps: number[]): [string, string][] =>
-  steps.map((s) => [`--jimble-color-${name}-${s}`, String(s)])
-
-const GROUPS: Group[] = [
-  {
-    title: '主色 primary',
-    note: '600 = 主ボタン・リンク・フォーカス',
-    scale: 'primary',
-    vars: scaleVars('primary', STEPS),
-  },
-  {
-    title: 'ニュートラル neutral',
-    note: '900 = 本文 / 500 = 補助の文字・入力欄の枠 / 300 = 区切り線',
-    vars: scaleVars('neutral', STEPS),
-  },
-  {
-    title: '成功 success',
-    note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
-    scale: 'success',
-    vars: scaleVars('success', SHORT),
-  },
-  {
-    title: '警告 warning',
-    note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
-    scale: 'warning',
-    vars: scaleVars('warning', SHORT),
-  },
-  {
-    title: 'エラー danger',
-    note: '600 = 枠・danger ボタン / 700・800 = 文字',
-    scale: 'danger',
-    vars: scaleVars('danger', SHORT),
-  },
-  {
-    title: '情報 info',
-    note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
-    scale: 'info',
-    vars: scaleVars('info', SHORT),
-  },
-  {
-    title: '面・文字・枠',
-    note: '意味を持つ色(通常は、上の段階を参照しています)',
-    vars: [
-      ['--jimble-color-surface', '面（カード・入力欄）'],
-      ['--jimble-color-surface-muted', 'ページの背景'],
-      ['--jimble-color-surface-sunken', '沈んだ背景'],
-      ['--jimble-color-text', '本文'],
-      ['--jimble-color-text-muted', '補助の文字'],
-      ['--jimble-color-text-on-primary', '主ボタンの文字'],
-      ['--jimble-color-ring', '区切り線'],
-      ['--jimble-color-ring-control', '入力欄の枠'],
-      ['--jimble-color-ring-focus', 'フォーカスリング'],
-    ],
-  },
-  {
-    title: '枠・区切り線（別々に）',
-    note: 'カードの枠・区切り線・ボタンの枠を、別の色にできる(0.8.0 以降)',
-    vars: [
-      ['--jimble-color-ring-card', 'カードの枠'],
-      ['--jimble-color-ring-divider', '区切り線'],
-      ['--jimble-color-ring-button', 'ボタンの枠'],
-    ],
-  },
-  {
-    title: '部品ごとの色',
-    note: 'ツールチップ・スイッチの丸・表の見出し(0.8.0 以降)',
-    vars: [
-      ['--jimble-tooltip-bg', 'ツールチップの背景'],
-      ['--jimble-tooltip-text', 'ツールチップの文字'],
-      ['--jimble-switch-thumb-bg', 'スイッチの丸の塗り'],
-      ['--jimble-switch-thumb-ring', 'スイッチの丸の縁'],
-      ['--jimble-table-header-bg', '表の見出しの背景'],
-      ['--jimble-table-header-text', '表の見出しの文字'],
-    ],
-  },
-  {
-    title: 'ヘッダー・サイドバー',
-    note: '暗くするときは、文字・アイコン・hover・現在のページも一緒に変える(0.6.0 以降)',
-    vars: [
-      ['--jimble-app-shell-header-bg', 'ヘッダーの背景'],
-      ['--jimble-app-shell-header-text', 'ヘッダーの文字'],
-      ['--jimble-app-shell-header-hover-bg', 'ヘッダーのボタンの hover'],
-      ['--jimble-app-shell-header-ring', 'ヘッダーの縁'],
-      ['--jimble-app-shell-sidebar-bg', 'サイドバーの背景'],
-      ['--jimble-app-shell-sidebar-ring', 'サイドバーの縁'],
-      ['--jimble-sidebar-nav-text', '項目の文字'],
-      ['--jimble-sidebar-nav-icon-color', 'アイコン'],
-      ['--jimble-sidebar-nav-hover-bg', '項目の hover の背景'],
-      ['--jimble-sidebar-nav-current-bg', '現在のページの背景'],
-      ['--jimble-sidebar-nav-current-text', '現在のページの文字'],
-      ['--jimble-sidebar-nav-current-icon-color', '現在のページのアイコン'],
-      ['--jimble-sidebar-nav-ring-focus', 'フォーカスの輪郭'],
-    ],
-  },
-]
-const RADII: [string, string][] = [
-  ['--jimble-radius-control', 'ボタン・入力欄の角丸'],
-  ['--jimble-radius-card', 'カードの角丸'],
-  ['--jimble-radius-overlay', 'ダイアログ・メニューの角丸'],
-  ['--jimble-badge-radius', 'バッジの角丸'],
-  ['--jimble-sidebar-nav-icon-size', 'サイドバーのアイコンの大きさ(px)'],
-]
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
   50: [8, 'white'],
@@ -128,17 +19,27 @@ const MIX: Record<number, [number, 'white' | 'black']> = {
 
 export const THEME_EVENT = 'lab-theme-change'
 
-/** テーマ調整パネル。色をその場で試す(ブラウザの中だけ。決めた値は theme.css に書く) */
+const root = () => document.documentElement
+/** いまの値(var() は、解決された値になる)。宣言されていなければ、空 */
+const current = (name: string) => getComputedStyle(root()).getPropertyValue(name).trim()
+
+/** テーマ調整パネル。値をその場で試す(ブラウザの中だけ。決めた値は theme.css に書く) */
 export class LabTuner extends LitElement {
-  static override properties = { open: { state: true }, tick: { state: true } }
+  static override properties = {
+    open: { state: true },
+    tick: { state: true },
+    query: { state: true },
+  }
   declare open: boolean
   declare tick: number
+  declare query: string
   #overrides = new Map<string, string>()
 
   constructor() {
     super()
     this.open = false
     this.tick = 0
+    this.query = ''
     // theme.css を保存して(HMR で)読み込み直されたら、試し中の変更は、theme.css の値と食い違うので、捨てる
     import.meta.hot?.on('vite:afterUpdate', () => {
       if (this.#overrides.size) this.#reset(false)
@@ -164,8 +65,8 @@ export class LabTuner extends LitElement {
       bottom: 3rem;
       display: flex;
       flex-direction: column;
-      width: min(24rem, calc(100vw - 2rem));
-      max-height: min(40rem, calc(100vh - 6rem));
+      width: min(28rem, calc(100vw - 2rem));
+      max-height: min(44rem, calc(100vh - 6rem));
       background: var(--jimble-color-surface-overlay);
       border-radius: var(--jimble-radius-overlay);
       box-shadow:
@@ -176,6 +77,9 @@ export class LabTuner extends LitElement {
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--jimble-color-ring);
       font-weight: 600;
+    }
+    .search {
+      padding: 0.5rem 1rem 0;
     }
     .body {
       overflow: auto;
@@ -194,6 +98,11 @@ export class LabTuner extends LitElement {
     summary {
       cursor: pointer;
       font-weight: 600;
+    }
+    .count {
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--jimble-color-text-muted);
     }
     .note,
     .warn {
@@ -215,17 +124,40 @@ export class LabTuner extends LitElement {
       margin: 0.25rem 0;
     }
     .row.wide {
-      grid-template-columns: 9rem 1fr;
+      grid-template-columns: 11rem 1fr;
+    }
+    .row.stack {
+      grid-template-columns: 11rem 1fr;
+      align-items: start;
+    }
+    .stacked {
+      display: grid;
+      gap: 0.25rem;
     }
     label {
       font-size: 12px;
+    }
+    label code {
+      display: block;
+      color: var(--jimble-color-text-muted);
+      font-size: 10px;
+      word-break: break-all;
     }
   `
 
   #apply(name: string, value: string) {
     this.#overrides.set(name, value)
-    document.documentElement.style.setProperty(name, value)
+    root().style.setProperty(name, value)
     this.#changed()
+  }
+
+  /** 空にしたら、試した変更を取り消す(theme.css の値に戻る) */
+  #set(name: string, value: string) {
+    if (value.trim() === '') {
+      this.#overrides.delete(name)
+      root().style.removeProperty(name)
+      this.#changed()
+    } else this.#apply(name, value.trim())
   }
 
   #changed() {
@@ -234,15 +166,15 @@ export class LabTuner extends LitElement {
   }
 
   #reset(notify = true) {
-    for (const name of this.#overrides.keys()) document.documentElement.style.removeProperty(name)
+    for (const name of this.#overrides.keys()) root().style.removeProperty(name)
     this.#overrides.clear()
     if (notify) this.#changed()
   }
 
-  #generate(scale: string) {
+  #generate(g: Group) {
+    const scale = g.scale!
     const base = varHex(`--jimble-color-${scale}-600`)
-    const group = GROUPS.find((g) => g.scale === scale)!
-    for (const [name] of group.vars) {
+    for (const { name } of g.entries) {
       const step = Number(name.split('-').pop())
       const mix = MIX[step]
       if (mix) this.#apply(name, `color-mix(in oklab, ${base} ${mix[0]}%, ${mix[1]})`)
@@ -268,7 +200,116 @@ export class LabTuner extends LitElement {
     }
   }
 
+  /** 検索語に合うか(名前・ラベル) */
+  #matches(e: Entry) {
+    const q = this.query.trim().toLowerCase()
+    return !q || e.label.toLowerCase().includes(q) || e.name.toLowerCase().includes(q)
+  }
+
+  /** 値の種類ごとの入力欄 */
+  #editor(g: Group, e: Entry) {
+    const now = current(e.name)
+    const aria = `${g.title} ${e.label}`
+    const onText = (ev: Event) => this.#set(e.name, (ev.target as HTMLInputElement).value)
+    switch (e.kind) {
+      case 'color':
+        return html`<jimble-color-input
+          size="sm"
+          aria-label=${aria}
+          .value=${now ? varHex(e.name) : ''}
+          data-tick=${this.tick}
+          @change=${onText}
+        ></jimble-color-input>`
+      case 'weight':
+        return html`<jimble-select
+          size="sm"
+          aria-label=${aria}
+          placeholder="（既定）"
+          .value=${WEIGHTS.includes(now) ? now : ''}
+          data-tick=${this.tick}
+          @change=${onText}
+        >
+          ${WEIGHTS.map((w) => html`<jimble-option value=${w}>${w}</jimble-option>`)}
+        </jimble-select>`
+      case 'select':
+        return html`<jimble-select
+          size="sm"
+          aria-label=${aria}
+          placeholder="（既定）"
+          .value=${e.options!.includes(now) ? now : ''}
+          data-tick=${this.tick}
+          @change=${onText}
+        >
+          ${e.options!.map((o) => html`<jimble-option value=${o}>${o}</jimble-option>`)}
+        </jimble-select>`
+      case 'shadow':
+        return html`<div class="stacked">
+          <jimble-select
+            size="sm"
+            aria-label=${`${aria}（プリセット）`}
+            placeholder="プリセットから選ぶ"
+            .value=${''}
+            data-tick=${this.tick}
+            @change=${(ev: Event) => {
+              const v = (ev.target as HTMLInputElement).value
+              if (v) this.#set(e.name, v)
+              ;(ev.target as HTMLInputElement).value = ''
+            }}
+          >
+            ${SHADOW_PRESETS.map(([l, v]) => html`<jimble-option value=${v}>${l}</jimble-option>`)}
+          </jimble-select>
+          <jimble-input
+            size="sm"
+            aria-label=${aria}
+            .value=${now}
+            placeholder="例: 0 4px 12px rgb(0 0 0 / 0.15)"
+            data-tick=${this.tick}
+            @change=${onText}
+          ></jimble-input>
+        </div>`
+      default:
+        return html`<jimble-input
+          size="sm"
+          aria-label=${aria}
+          .value=${now}
+          placeholder=${e.hint ?? '（既定）'}
+          data-tick=${this.tick}
+          @change=${onText}
+        ></jimble-input>`
+    }
+  }
+
+  #group(g: Group, i: number) {
+    const entries = g.entries.filter((e) => this.#matches(e))
+    if (entries.length === 0) return nothing
+    const searching = this.query.trim() !== ''
+    return html`<details ?open=${searching || i === 0}>
+      <summary>${g.title} <span class="count">${entries.length} 件</span></summary>
+      ${g.note ? html`<p class="note">${g.note}</p>` : nothing}
+      ${
+        g.scale
+          ? html`<jimble-button size="sm" @click=${() => this.#generate(g)}
+              >600 の色から段階を作る</jimble-button
+            >`
+          : nothing
+      }
+      ${entries.map((e) => {
+        const compact = g.scale || e.name.includes('neutral')
+        const kind = e.kind === 'shadow' ? 'stack' : compact ? '' : 'wide'
+        return html`<div class="row ${kind}">
+          <label
+            >${e.label}${e.opt ? '（上級）' : ''}${
+              compact ? nothing : html`<code>${e.name.replace('--jimble-', '')}</code>`
+            }</label
+          >
+          ${this.#editor(g, e)}
+        </div>`
+      })}
+    </details>`
+  }
+
   protected override render() {
+    const total = CATALOG.reduce((n, g) => n + g.entries.length, 0)
     return html`
       <jimble-button
         class="fab"
@@ -281,60 +322,24 @@ export class LabTuner extends LitElement {
       ${
         this.open
           ? html`<section class="panel" aria-label="テーマ調整">
-              <header>テーマ調整（試し用）</header>
+              <header>テーマ調整（試し用・${total} 項目）</header>
+              <div class="search">
+                <jimble-input
+                  size="sm"
+                  type="search"
+                  aria-label="変数を探す"
+                  placeholder="変数を探す（例: shadow・角丸・ボタン）"
+                  .value=${this.query}
+                  @input=${(e: Event) => (this.query = (e.target as HTMLInputElement).value)}
+                ></jimble-input>
+              </div>
               <div class="body">
                 <p class="warn">
-                  ここで変えた色は、<strong>このブラウザの中だけ</strong>で、theme.css
-                  を保存すると破棄されます。 決めた値は「CSS をコピー」で、<code>theme.css</code>
-                  に貼り付けてください。
+                  ここで変えた値は、<strong>このブラウザの中だけ</strong>で、theme.css
+                  を保存すると破棄されます。決めた値は「CSS をコピー」で、<code>theme.css</code>
+                  に貼り付けてください。入力欄を空にすると、その変更を取り消します。
                 </p>
-                ${GROUPS.map(
-                  (g, i) =>
-                    html`<details ?open=${i === 0}>
-                      <summary>${g.title}</summary>
-                      <p class="note">${g.note}</p>
-                      ${
-                        g.scale
-                          ? html`<jimble-button size="sm" @click=${() => this.#generate(g.scale!)}
-                              >600 の色から段階を作る</jimble-button
-                            >`
-                          : nothing
-                      }
-                      ${g.vars.map(
-                        ([name, label]) =>
-                          html`<div
-                            class="row ${g.scale || name.includes('neutral') ? '' : 'wide'}"
-                          >
-                            <label>${label}</label>
-                            <jimble-color-input
-                              size="sm"
-                              aria-label=${`${g.title} ${label}`}
-                              .value=${varHex(name)}
-                              data-tick=${this.tick}
-                              @change=${(e: Event) => this.#apply(name, (e.target as HTMLInputElement).value)}
-                            ></jimble-color-input>
-                          </div>`,
-                      )}
-                    </details>`,
-                )}
-                <details>
-                  <summary>角丸・大きさ</summary>
-                  ${RADII.map(
-                    ([name, label]) =>
-                      html`<div class="row wide">
-                        <label>${label}</label>
-                        <jimble-input
-                          type="number"
-                          size="sm"
-                          min="0"
-                          max="32"
-                          aria-label=${label}
-                          .value=${String(Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) * (getComputedStyle(document.documentElement).getPropertyValue(name).includes('rem') ? 16 : 1)) || 0)}
-                          @change=${(e: Event) => this.#apply(name, `${(e.target as HTMLInputElement).value}px`)}
-                        ></jimble-input>
-                      </div>`,
-                  )}
-                </details>
+                ${CATALOG.map((g, i) => this.#group(g, i))}
               </div>
               <footer>
                 <jimble-button

@@ -3,6 +3,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { ALL } from '../../theme-lab/src/catalog.ts'
 import { loadElements } from '../../scripts/lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '../..')
@@ -32,50 +33,59 @@ describe('theme-lab', () => {
     expect(labSource, `${tag} が theme-lab にありません`).toMatch(new RegExp(`<${tag}[\\s>/]`))
   })
 
-  it('ヘッダー・サイドバーの色・アイコンの CSS 変数が、theme.css に全部ある（部品の cssprop と同じ）', () => {
-    const theme = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
-    const props = elements
-      .filter((e) => ['jimble-app-shell', 'jimble-sidebar-nav'].includes(e.tagName))
+  // ---- 変数のカタログ(theme-lab/src/catalog.ts)が、公開されている変数と、theme.css に、過不足なく対応している ----
+  const theme = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
+  const published = new Set(
+    elements
       .flatMap((e) => e.cssProperties ?? [])
       .map((p) => p.name)
-      .filter((n) =>
-        /^--jimble-(app-shell-(header|sidebar)|sidebar-nav)-.*(bg|text|ring|color|size|focus)$/.test(
-          n,
-        ),
-      )
-    expect(props.length).toBeGreaterThan(8)
-    for (const name of props)
-      expect(theme, `${name} が theme.css にありません`).toContain(`${name}:`)
-  })
-  it('部品ごとのテーマ変数・枠の色・文字の太さのトークンが、theme.css に全部あり、部品の cssprop にも載っている', () => {
-    const theme = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
-    const COMPONENT_VARS = [
-      ['jimble-card', '--jimble-card-shadow'],
-      ['jimble-input', '--jimble-input-shadow'],
-      ['jimble-button', '--jimble-button-shadow'],
-      ['jimble-badge', '--jimble-badge-radius'],
-      ['jimble-tooltip', '--jimble-tooltip-bg'],
-      ['jimble-tooltip', '--jimble-tooltip-text'],
-      ['jimble-switch', '--jimble-switch-thumb-bg'],
-      ['jimble-switch', '--jimble-switch-thumb-ring'],
-      ['jimble-table', '--jimble-table-header-bg'],
-      ['jimble-table', '--jimble-table-header-text'],
-      ['jimble-breadcrumb', '--jimble-breadcrumb-justify'],
-      ['jimble-page-header', '--jimble-page-header-heading-weight'],
-      ['jimble-sidebar-nav', '--jimble-sidebar-nav-current-icon-color'],
-    ] as const
-    for (const [tag, name] of COMPONENT_VARS) {
-      const declared = elements.find((e) => e.tagName === tag)?.cssProperties?.map((p) => p.name)
-      expect(declared, `${tag} の cssprop に ${name} がありません`).toContain(name)
-      expect(theme, `${name} が theme.css にありません`).toContain(`${name}:`)
+      .filter((n) => /^--jimble-[a-z0-9-]+$/.test(n)),
+  )
+  const tokens = new Set(
+    [
+      ...readFileSync(resolve(root, 'tokens/tokens.generated.css'), 'utf8').matchAll(
+        /^\s*(--jimble-[a-z0-9-]+):/gm,
+      ),
+    ].map((m) => m[1]!),
+  )
+  const catalog = new Map(ALL.map((e) => [e.name, e]))
+
+  it('カタログに、重複がなく、種類ごとの必要な情報がそろっている', () => {
+    expect(catalog.size).toBe(ALL.length) // 名前の重複なし
+    for (const e of ALL) {
+      expect(e.label, `${e.name} の説明がありません`).not.toBe('')
+      if (e.kind === 'select')
+        expect(e.options?.length, `${e.name} の選択肢がありません`).toBeGreaterThan(0)
     }
-    for (const token of [
-      '--jimble-color-ring-card',
-      '--jimble-color-ring-divider',
-      '--jimble-color-ring-button',
-      '--jimble-font-weight-medium',
-      '--jimble-font-weight-semibold',
-    ])
-      expect(theme, `${token} が theme.css にありません`).toContain(`${token}:`)
+  })
+
+  it('公開されているすべての CSS 変数（部品の cssprop）が、カタログにある', () => {
+    expect(published.size).toBeGreaterThan(60)
+    const missing = [...published].filter((n) => !catalog.has(n))
+    expect(missing, `カタログにない変数: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('すべてのトークン（--jimble-color-* ・角丸・影・文字・動きなど）が、カタログにある', () => {
+    expect(tokens.size).toBeGreaterThan(90)
+    const missing = [...tokens].filter((n) => !catalog.has(n))
+    expect(missing, `カタログにないトークン: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('カタログにあって、ライブラリに無い変数（古い名前・書き間違い）がない', () => {
+    const stale = ALL.map((e) => e.name).filter((n) => !published.has(n) && !tokens.has(n))
+    expect(stale, `存在しない変数: ${stale.join(', ')}`).toEqual([])
+  })
+
+  it('theme.css に、カタログのすべての変数がある（上級以外は、有効な宣言。上級は、コメントアウト）', () => {
+    const active = new Set([...theme.matchAll(/^\s*(--jimble-[a-z0-9-]+):/gm)].map((m) => m[1]!))
+    const anywhere = new Set([...theme.matchAll(/(--jimble-[a-z0-9-]+):/g)].map((m) => m[1]!))
+    for (const e of ALL) {
+      if (e.opt)
+        expect(anywhere.has(e.name), `${e.name} が theme.css にありません（上級）`).toBe(true)
+      else
+        expect(active.has(e.name), `${e.name} が theme.css に、有効な宣言としてありません`).toBe(
+          true,
+        )
+    }
   })
 })
