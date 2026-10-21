@@ -153,6 +153,8 @@ for (const f of [
 if (!existsSync(join(root, 'custom-elements.json'))) fail('custom-elements.json がありません')
 if (!existsSync(join(root, 'skills/jimble-ui/SKILL.md')))
   fail('skills/jimble-ui/SKILL.md がありません(npm run gen:skill)')
+if (!existsSync(join(root, 'skills/jimble-ui/references')))
+  fail('skills/jimble-ui/references/ がありません(npm run gen:skill)')
 
 if (errors.length) {
   console.error('\ncheck-dist 失敗:\n' + errors.map((e) => `  - ${e}`).join('\n'))

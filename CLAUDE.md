@@ -28,15 +28,15 @@
 
 ## 生成物（直接編集しない。変更したら再生成してコミットする）
 
-| 生成物                                                                                   | 元                                                                      | コマンド               |
-| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
-| `src/styles/theme.generated.css`, `aliases.generated.css`, `tokens/tokens.generated.css` | `tokens/tokens.json`                                                    | `npm run gen:tokens`   |
-| `src/icons/*.ts`                                                                         | `icons/svg/*.svg`                                                       | `npm run gen:icons`    |
-| `custom-elements.json`（git 管理外）                                                     | 各部品の JSDoc                                                          | `npm run gen:manifest` |
-| `skills/jimble-ui/SKILL.md`, `.claude/skills/jimble-ui/SKILL.md`                         | `scripts/skill-template.md` + `custom-elements.json` + `site/examples/` | `npm run gen:skill`    |
-| `CHANGELOG.md`, `package.json` の version                                                | release-please が書く                                                   | —                      |
+| 生成物                                                                                   | 元                                                                                                        | コマンド               |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `src/styles/theme.generated.css`, `aliases.generated.css`, `tokens/tokens.generated.css` | `tokens/tokens.json`                                                                                      | `npm run gen:tokens`   |
+| `src/icons/*.ts`                                                                         | `icons/svg/*.svg`                                                                                         | `npm run gen:icons`    |
+| `custom-elements.json`（git 管理外）                                                     | 各部品の JSDoc                                                                                            | `npm run gen:manifest` |
+| `skills/jimble-ui/{SKILL.md,references/*.md}`, `.claude/skills/jimble-ui/` の同じ構成    | `scripts/skill-template.md` + `scripts/skill-references/*.md` + `custom-elements.json` + `site/examples/` | `npm run gen:skill`    |
+| `CHANGELOG.md`, `package.json` の version                                                | release-please が書く                                                                                     | —                      |
 
-CI は `gen:*:check` で最新かどうかを検査する。**API（属性・スロット・イベント）を変えたら JSDoc を直し、`gen:manifest` → `gen:skill` を実行する。** skill の使い方の説明を変えるときは `scripts/skill-template.md` を編集する（`tests/unit/skill.test.ts` が、skill 内のタグ・属性が実在することを保証する）。
+CI は `gen:*:check` で最新かどうかを検査する。**API（属性・スロット・イベント）を変えたら JSDoc を直し、`gen:manifest` → `gen:skill` を実行する。** skill の使い方の説明を変えるときは `scripts/skill-template.md`（常に読まれる。約 2 万文字（テストの上限は 24,576 文字）未満に保つ）か、部品ごとの注意書きと例の `scripts/skill-references/*.md`（必要なときだけ読まれる）を編集する（`tests/unit/skill.test.ts` が、skill 内のタグ・属性が実在することを保証する）。
 
 ## 守る約束（破ると壊れるもの）
 

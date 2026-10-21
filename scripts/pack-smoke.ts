@@ -222,6 +222,9 @@ void JimbleUI
   step('skill が同梱されている')
   const skillPath = join(work, 'node_modules/@hidemikimura/jimble-ui/skills/jimble-ui/SKILL.md')
   if (!existsSync(skillPath)) throw new Error('skills/jimble-ui/SKILL.md が配布物に入っていません')
+  const refsPath = join(work, 'node_modules/@hidemikimura/jimble-ui/skills/jimble-ui/references')
+  if (!existsSync(refsPath) || readdirSync(refsPath).length === 0)
+    throw new Error('skills/jimble-ui/references/ が配布物に入っていません')
   const files = readdirSync(join(work, 'node_modules/@hidemikimura/jimble-ui'))
   console.log('pack-smoke OK（配布物の直下:', files.join(', '), '）')
 }

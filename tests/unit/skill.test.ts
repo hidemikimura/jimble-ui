@@ -1,12 +1,15 @@
 // AI 向けの skill が、実装と食い違っていないことを保証する。
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { loadElements } from '../../scripts/lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf8')
-const skill = read('skills/jimble-ui/SKILL.md')
+const main = read('skills/jimble-ui/SKILL.md')
+const refNames = readdirSync(resolve(root, 'skills/jimble-ui/references')).sort()
+// SKILL.md と references/ の全体(コード例の検査は、注意書きを移した先も対象にする)
+const skill = [main, ...refNames.map((n) => read(`skills/jimble-ui/references/${n}`))].join('\n')
 const elements = loadElements()
 const byTag = new Map(elements.map((e) => [e.tagName, e]))
 
@@ -16,18 +19,30 @@ const GLOBAL =
 
 describe('skill(AI 向けの使い方)', () => {
   it('パッケージ同梱の skill と、リポジトリの .claude/skills の skill が同じ', () => {
-    expect(read('.claude/skills/jimble-ui/SKILL.md')).toBe(skill)
+    expect(read('.claude/skills/jimble-ui/SKILL.md')).toBe(main)
+    expect(readdirSync(resolve(root, '.claude/skills/jimble-ui/references')).sort()).toEqual(
+      refNames,
+    )
+    for (const n of refNames)
+      expect(read(`.claude/skills/jimble-ui/references/${n}`)).toBe(
+        read(`skills/jimble-ui/references/${n}`),
+      )
+  })
+
+  it('SKILL.md が短く保たれ、すべての references/ を案内している', () => {
+    expect(main.length).toBeLessThan(24 * 1024)
+    for (const n of refNames) expect(main, n).toContain(`references/${n}`)
   })
 
   it('frontmatter に name と description(いつ使うか)がある', () => {
-    const fm = /^---\n([\s\S]*?)\n---\n/.exec(skill)?.[1] ?? ''
+    const fm = /^---\n([\s\S]*?)\n---\n/.exec(main)?.[1] ?? ''
     expect(fm).toMatch(/^name: jimble-ui$/m)
     expect(fm).toMatch(/^description: .{60,}$/m)
     expect(fm).toContain('jimble-')
   })
 
   it('全部の要素が「コンポーネント早見」に載っている', () => {
-    for (const e of elements) expect(skill, e.tagName).toContain(`**\`${e.tagName}\`**`)
+    for (const e of elements) expect(main, e.tagName).toContain(`**\`${e.tagName}\`**`)
   })
 
   it('展開されていないプレースホルダーが無い', () => {

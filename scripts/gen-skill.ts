@@ -4,14 +4,16 @@
 // を埋め込む。出力先:
 //   skills/jimble-ui/SKILL.md          … パッケージに同梱する(利用者が .claude/skills/ にコピーして使う)
 //   .claude/skills/jimble-ui/SKILL.md  … このリポジトリで開発するときに使う
+// 部品ごとの注意書きと例は scripts/skill-references/<名前>.md に置き、<出力先>/references/<名前>.md に生成する。
+// SKILL.md は呼び出すたびに全部読み込まれるので短く保ち、詳細は必要なときだけ読ませる。
 // 実行: node scripts/gen-skill.ts [--check]   （事前に custom-elements.json が必要: npm run gen:manifest）
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const SITE = 'https://hidemikimura.github.io/jimble-ui'
-const OUTPUTS = ['skills/jimble-ui/SKILL.md', '.claude/skills/jimble-ui/SKILL.md']
+const OUTPUT_DIRS = ['skills/jimble-ui', '.claude/skills/jimble-ui']
 
 const GROUPS: [string, string[]][] = [
   [
@@ -190,38 +192,56 @@ function iconNames(): string {
     .join('、')
 }
 
-const template = readFileSync(resolve(import.meta.dirname, 'skill-template.md'), 'utf8')
-const [, frontmatter = '', body = ''] = /^(---\n[\s\S]*?\n---\n)([\s\S]*)$/.exec(template) ?? []
-if (!frontmatter) throw new Error('テンプレートの先頭に frontmatter がありません')
-const generated =
-  frontmatter +
-  '\n<!-- 生成物: scripts/gen-skill.ts が scripts/skill-template.md・custom-elements.json・site/examples から作る。直接編集しない。 -->\n' +
-  body
+const expand = (text: string) =>
+  text
     .replace('{{components}}', components())
     .replace('{{icons}}', iconNames())
     .replace(/\{\{example:([\w/-]+)\}\}/g, (_, id: string) => example(id))
 
-if (/\{\{/.test(generated)) throw new Error('展開されていないプレースホルダーが残っています')
+const NOTICE =
+  '<!-- 生成物: scripts/gen-skill.ts が scripts/skill-template.md・scripts/skill-references・custom-elements.json・site/examples から作る。直接編集しない。 -->\n'
 
+/** 出力先からの相対パス → 中身 */
+function generate(): Map<string, string> {
+  const template = readFileSync(resolve(import.meta.dirname, 'skill-template.md'), 'utf8')
+  const [, frontmatter = '', body = ''] = /^(---\n[\s\S]*?\n---\n)([\s\S]*)$/.exec(template) ?? []
+  if (!frontmatter) throw new Error('テンプレートの先頭に frontmatter がありません')
+  const files = new Map([['SKILL.md', frontmatter + '\n' + NOTICE + expand(body)]])
+  const refDir = resolve(import.meta.dirname, 'skill-references')
+  for (const f of readdirSync(refDir)
+    .filter((n) => n.endsWith('.md'))
+    .sort())
+    files.set(`references/${f}`, NOTICE + '\n' + expand(readFileSync(resolve(refDir, f), 'utf8')))
+  for (const [name, text] of files)
+    if (/\{\{/.test(text))
+      throw new Error(`展開されていないプレースホルダーが残っています: ${name}`)
+  return files
+}
+
+const generated = generate()
 const check = process.argv.includes('--check')
 let stale = false
-for (const rel of OUTPUTS) {
-  const path = resolve(root, rel)
-  if (check) {
-    let cur = ''
-    try {
-      cur = readFileSync(path, 'utf8')
-    } catch {
-      /* 無ければ古い扱い */
+for (const dir of OUTPUT_DIRS) {
+  if (!check) rmSync(resolve(root, dir, 'references'), { recursive: true, force: true })
+  for (const [name, text] of generated) {
+    const rel = `${dir}/${name}`
+    const path = resolve(root, rel)
+    if (check) {
+      let cur = ''
+      try {
+        cur = readFileSync(path, 'utf8')
+      } catch {
+        /* 無ければ古い扱い */
+      }
+      if (cur !== text) {
+        stale = true
+        console.error(`古い生成物: ${rel}（npm run gen:skill を実行してください）`)
+      }
+    } else {
+      mkdirSync(dirname(path), { recursive: true })
+      writeFileSync(path, text)
+      console.log(`生成: ${rel} (${(text.length / 1024).toFixed(1)} KB)`)
     }
-    if (cur !== generated) {
-      stale = true
-      console.error(`古い生成物: ${rel}（npm run gen:skill を実行してください）`)
-    }
-  } else {
-    mkdirSync(dirname(path), { recursive: true })
-    writeFileSync(path, generated)
-    console.log(`生成: ${rel} (${(generated.length / 1024).toFixed(1)} KB)`)
   }
 }
 if (stale) process.exit(1)
