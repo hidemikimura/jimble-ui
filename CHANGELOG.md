@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3](https://github.com/hidemikimura/jimble-ui/compare/v0.8.2...v0.8.3) (2026-10-21)
+
+
+### 修正
+
+* **components:** オーバーレイ系の部品固有の角丸の変数が、効かなかったのを直す ([e3756ee](https://github.com/hidemikimura/jimble-ui/commit/e3756eef17e6e2811cce41bdfabb8ab2fd11e8be))
+
 ## [0.8.2](https://github.com/hidemikimura/jimble-ui/compare/v0.8.1...v0.8.2) (2026-10-15)
 
 
