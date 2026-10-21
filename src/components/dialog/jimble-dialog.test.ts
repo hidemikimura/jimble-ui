@@ -7,6 +7,7 @@ import { setLocale } from '../../i18n/index.js'
 import en from '../../locales/en.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
+import { radiusTests } from '../../test/radius.js'
 import { JimbleDialog } from './jimble-dialog.js'
 
 afterEach(() => {
@@ -309,4 +310,12 @@ describe('アクセシビリティ(axe)', () => {
       await expectNoA11yViolations(el)
     })
   }
+})
+
+radiusTests('--jimble-dialog-radius', async () => {
+  const { el } = await dlg()
+  el.show()
+  await el.updateComplete
+  await tick()
+  return { host: el, target: part(el, 'panel') }
 })

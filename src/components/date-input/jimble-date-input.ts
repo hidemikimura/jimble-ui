@@ -36,7 +36,7 @@ const ICON_BUTTON =
   'hover:bg-surface-sunken hover:text-fg disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 ' +
   'outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const POPUP =
-  'rounded-overlay border-0 bg-surface-overlay p-3 text-fg shadow-lg ring-1 ring-inset ring-line ' +
+  'border-0 bg-surface-overlay p-3 text-fg shadow-lg ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-date-input-popup-radius,var(--radius-overlay))]'
 const DAY =
   'inline-flex size-9 items-center justify-center text-sm cursor-pointer outline outline-1 ' +

@@ -1563,6 +1563,15 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **互換性**: 親や `document` で、イベントの委譲（`container.addEventListener('jimble-close', …)`）をしていたコードは、届かなくなる。**キャプチャ段階のリスナー（`addEventListener(name, fn, true)`）は、バブルしないイベントでも届く**ので、委譲が要るときは、これで移行できる。リポジトリ内・サイト・theme-lab のリスナーは、すべて発火元の部品に付いていて、影響しなかった。0.x なので、`feat!` の minor で出す。
 - **検証**: `src/base/jimble-element.test.ts`（修正前の実装では、9 件が失敗することを確認）。ドロワーの中の select、入れ子のタブ、`bubbles: true` の指定を確かめる。
 
+**追補: オーバーレイ系の角丸の CSS 変数が効かなかった不具合（2026-10-21）**
+
+- **症状**: `jimble-dialog`（`--jimble-dialog-radius`）、`jimble-date-input`（`--jimble-date-input-popup-radius`）、`jimble-select`（`--jimble-select-radius`）、`jimble-dropdown-menu`（`--jimble-menu-radius`）、`jimble-toast`（`--jimble-toast-radius`）で、部品固有の角丸の変数を指定しても、角丸が変わらなかった（ホストの変数は変わるが、part の `border-radius` が、共通の `--jimble-radius-overlay` のまま）。利用者からの指摘（`fix-overlay-radius-prompt.md`）で発覚。
+- **原因**: 同じ要素に `rounded-overlay` と `[border-radius:var(--jimble-xxx-radius,var(--radius-overlay))]` の両方が付いていた。どちらも `@layer utilities` で、詳細度が同じ（クラス 1 つ）。生成される CSS で `.rounded-overlay` が後に出るため、後勝ちで共通の値が効いた。`calc` の空白・`z-sticky` と同じ「クラスが書いてあるのに期待どおりに効かない」種類で、今回は「効くが、別のクラスに負ける」。
+- **対策**: 5 つの要素から `rounded-overlay` を外した（既定値は、任意値のフォールバック `var(--radius-overlay)` が持つので、既定の見た目は変わらない）。クラスの並べ替えや `!important` は、Tailwind の出力順に依存するので採らない。
+- **試験**: `src/test/radius.ts`（共通の補助）を、5 つの部品のテストから使う。(1) ホストに `28px` を指定すると、その part が `28px` になる、(2) 指定しなければ、既定の `12px`（見た目が変わらない）、(3) 共通トークン `--jimble-radius-overlay` だけを変えても反映される。3 エンジン。修正前は、(1) が 5 部品 × 3 エンジンで失敗することを確認。
+- **再発の検出**: `tests/unit/no-conflicting-radius.test.ts` が、ソースの文字列（連結した class を含む）から、同じ要素に `rounded-*` と `[border-radius:…]` がある組み合わせを見つける。`before:rounded-[inherit]` のように variant つきのもの（別の要素・疑似要素）は対象外。検出の自己テストつき。修正前は、この 5 か所を、ちょうど指摘することを確認。
+- **範囲外（報告のみ）**: モーダル（`jimble-dialog`）を開くと、トーストの領域（`jimble-toast-region`）が、dialog の **Shadow DOM の中の `<dialog>`** に移動する（`src/base/modal-stack.ts` の `topModal()` が、その `<dialog>` を返す）。そのため、ページの CSS の `jimble-toast { … }` や `jimble-toast::part(base)` は、別のツリーにあるので届かない（CSS 変数・継承されるプロパティは届く）。直すなら、領域を `jimble-dialog` の **light DOM**（ホストの子）に置き、名前つきスロットで `<dialog>` の中へ投影する案がある（モーダルの内側になるので inert にならず、ページの CSS も届く）。ただし、領域の位置・トップレイヤーの扱い・読み上げ・テストへの影響が大きいので、別の課題にした。
+
 **追補: theme-lab で、すべての CSS 変数を調整できるようにする（2026-10-16）**
 
 - **要件**: 「`--jimble-card-shadow` などの設定がない。設定できる変数を、なるべくすべて変更できるように」。実際には、`theme.css` には載っていたが、調整パネルは、色と角丸の 5 つしか操作できず、影・太さ・部品ごとの角丸や余白は、ファイルを直接編集するしかなかった。

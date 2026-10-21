@@ -9,7 +9,7 @@ import type { JimbleOption } from './jimble-option.js'
 import './jimble-option.js'
 
 const LIST =
-  'max-h-[min(20rem,50dvh)] overflow-auto rounded-overlay border-0 bg-surface-overlay p-1 text-fg shadow-lg ' +
+  'max-h-[min(20rem,50dvh)] overflow-auto border-0 bg-surface-overlay p-1 text-fg shadow-lg ' +
   'ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-select-radius,var(--radius-overlay))]'
 

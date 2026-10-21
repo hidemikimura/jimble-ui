@@ -6,6 +6,7 @@ import { setLocale } from '../../i18n/index.js'
 import en from '../../locales/en.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
+import { radiusTests } from '../../test/radius.js'
 import { JimbleSelect } from './jimble-select.js'
 import type { JimbleOption } from './jimble-option.js'
 
@@ -335,4 +336,11 @@ describe('アクセシビリティ(axe)', () => {
     const b = await select('required disabled')
     await expectNoA11yViolations(b.f)
   })
+})
+
+radiusTests('--jimble-select-radius', async () => {
+  const { el } = await select()
+  button(el).click()
+  await tick()
+  return { host: el, target: list(el) }
 })

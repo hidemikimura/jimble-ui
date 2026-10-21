@@ -11,7 +11,7 @@ export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-e
 export type MenuCloseReason = 'escape' | 'action' | 'outside' | 'tab' | 'api'
 
 const MENU =
-  'max-h-[min(24rem,50dvh)] min-w-40 overflow-auto rounded-overlay border-0 bg-surface-overlay p-1 text-fg ' +
+  'max-h-[min(24rem,50dvh)] min-w-40 overflow-auto border-0 bg-surface-overlay p-1 text-fg ' +
   'shadow-lg ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-menu-radius,var(--radius-overlay))]'
 

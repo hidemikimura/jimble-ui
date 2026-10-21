@@ -20,7 +20,7 @@ const DIALOG =
   'm-auto max-h-[calc(100dvh-2rem)] max-w-none overflow-visible border-0 bg-transparent p-0 ' +
   'text-fg backdrop:bg-backdrop'
 const PANEL =
-  'flex max-h-[calc(100dvh-2rem)] flex-col rounded-overlay bg-surface-overlay shadow-lg ring-1 ring-inset ring-line ' +
+  'flex max-h-[calc(100dvh-2rem)] flex-col bg-surface-overlay shadow-lg ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-dialog-radius,var(--radius-overlay))]'
 const CLOSE =
   'inline-flex size-8 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +

@@ -5,6 +5,7 @@ import { setLocale } from '../../i18n/index.js'
 import en from '../../locales/en.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup } from '../../test/mount.js'
+import { radiusTests } from '../../test/radius.js'
 import type { JimbleDialog } from '../dialog/jimble-dialog.js'
 import type { JimbleToastRegion } from './jimble-toast-region.js'
 import { toast } from './toast.js'
@@ -235,4 +236,13 @@ describe('アクセシビリティ(axe)', () => {
     await tick(80)
     await expectNoA11yViolations(region())
   })
+})
+
+radiusTests('--jimble-toast-radius', async () => {
+  const handle = toast('保存しました')
+  await tick()
+  return {
+    host: handle.element,
+    target: handle.element.shadowRoot!.querySelector<HTMLElement>('[part="base"]')!,
+  }
 })

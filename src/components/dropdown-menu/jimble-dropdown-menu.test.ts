@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import '../button/jimble-button.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
+import { radiusTests } from '../../test/radius.js'
 import type { JimbleButton } from '../button/jimble-button.js'
 import { JimbleDropdownMenu } from './jimble-dropdown-menu.js'
 import type { JimbleMenuItem } from './jimble-menu-item.js'
@@ -294,4 +295,11 @@ describe('アクセシビリティ(axe)', () => {
     await tick()
     await expectNoA11yViolations(el)
   })
+})
+
+radiusTests('--jimble-menu-radius', async () => {
+  const { el, trigger } = await menu()
+  innerButton(trigger).click()
+  await tick()
+  return { host: el, target: menuEl(el) }
 })

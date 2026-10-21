@@ -38,7 +38,7 @@ const DEFAULT_DURATION: Record<ToastVariant, number> = {
 }
 
 const BASE =
-  'pointer-events-auto flex items-start gap-3 rounded-overlay bg-surface-overlay p-3 text-sm text-fg shadow-lg ' +
+  'pointer-events-auto flex items-start gap-3 bg-surface-overlay p-3 text-sm text-fg shadow-lg ' +
   'ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-toast-radius,var(--radius-overlay))]'
 const CLOSE =

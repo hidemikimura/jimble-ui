@@ -6,6 +6,7 @@ import { setLocale } from '../../i18n/index.js'
 import en from '../../locales/en.js'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
+import { radiusTests } from '../../test/radius.js'
 import { JimbleDateInput } from './jimble-date-input.js'
 
 // 値のないときカレンダーは「今月」で開く。テストが実行する月に左右されないよう、今日を固定する(Date だけ)
@@ -664,4 +665,11 @@ describe('月・年の選択（ヘッダー）', () => {
     expect(day(el, '2026-12-05')).not.toBeNull()
     expect(day(el, '2027-01-05')).not.toBeNull() // 2 か月目
   })
+})
+
+radiusTests('--jimble-date-input-popup-radius', async () => {
+  const { el } = await make()
+  btn(el).click()
+  await tick()
+  return { host: el, target: popup(el) }
 })
