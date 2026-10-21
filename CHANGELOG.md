@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0](https://github.com/hidemikimura/jimble-ui/compare/v0.8.4...v0.9.0) (2026-10-21)
+
+
+### 追加
+
+* **theme:** ボタンの hover の色を種類ごとに変えられ、暗幕の濃さと表の行の hover も変えられる ([db61734](https://github.com/hidemikimura/jimble-ui/commit/db61734628de857d271613cf9ef47dd97ef3cdfc))
+
+
+### 修正
+
+* **site:** テーマのページで、長い CSS 変数の名前が、狭い画面で表を横にはみ出させるのを直す ([1b3fe5b](https://github.com/hidemikimura/jimble-ui/commit/1b3fe5b9413912d9d01ccd8c2db0e712bed2c7f2))
+
 ## [0.8.4](https://github.com/hidemikimura/jimble-ui/compare/v0.8.3...v0.8.4) (2026-10-21)
 
 
