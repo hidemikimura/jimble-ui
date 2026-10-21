@@ -309,6 +309,16 @@ describe('サイドバーの幅の切り替え（sidebar-collapsible）', () => 
     expect(nav(el).compact).toBe(true)
   })
 
+  it('細い表示のサイドバーは、広げるまでヘッダーより前に出ない（ヘッダーの影が隠れない）', async () => {
+    const el = await wideShell('sidebar-collapsible sidebar-collapsed')
+    const headerZ = Number(getComputedStyle(part(el, 'header')).zIndex)
+    expect(Number(getComputedStyle(sidebar(el)).zIndex.replace('auto', '0'))).toBeLessThan(headerZ)
+    enter(el)
+    await vi.waitFor(() => expect(el.peek).toBe(true), { timeout: 3000 })
+    await el.updateComplete
+    expect(Number(getComputedStyle(sidebar(el)).zIndex)).toBeGreaterThan(headerZ) // 広げたときは本文の上に出る
+  })
+
   it('通り過ぎただけ(すぐ離れる)では広がらない。タッチのホバーでは広がらない', async () => {
     const el = await wideShell('sidebar-collapsible sidebar-collapsed')
     enter(el)

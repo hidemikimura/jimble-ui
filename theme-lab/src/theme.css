@@ -182,6 +182,7 @@
   --jimble-switch-thumb-ring: rgb(0 0 0 / 0.12);
   --jimble-table-header-bg: var(--jimble-color-surface-muted);
   --jimble-table-header-text: var(--jimble-color-text-muted);
+  --jimble-table-row-hover-bg: var(--jimble-color-surface-muted);
   --jimble-breadcrumb-justify: flex-start;
   --jimble-page-header-heading-weight: var(--jimble-font-weight-semibold);
   --jimble-sidebar-nav-current-icon-color: var(--jimble-sidebar-nav-icon-color);
@@ -245,7 +246,16 @@
   --jimble-card-padding: calc(var(--jimble-spacing) * 4);
   --jimble-alert-radius: var(--jimble-radius-card);
   --jimble-alert-padding: calc(var(--jimble-spacing) * 4);
+  --jimble-button-primary-bg-hover: var(--jimble-color-primary-500);
+  --jimble-button-primary-fg-hover: var(--jimble-color-text-on-primary);
+  --jimble-button-secondary-bg-hover: var(--jimble-color-surface-muted);
+  --jimble-button-secondary-fg-hover: var(--jimble-color-text);
+  --jimble-button-danger-bg-hover: var(--jimble-color-danger-700);
+  --jimble-button-danger-fg-hover: var(--jimble-color-text-on-primary);
+  --jimble-button-ghost-bg-hover: var(--jimble-color-surface-sunken);
+  --jimble-button-ghost-fg-hover: var(--jimble-color-text);
   --jimble-dialog-radius: var(--jimble-radius-overlay);
+  --jimble-backdrop-opacity: 50%;
   --jimble-dialog-padding: calc(var(--jimble-spacing) * 4);
   --jimble-drawer-radius: var(--jimble-radius-overlay);
   --jimble-toast-radius: var(--jimble-radius-overlay);
@@ -274,6 +284,7 @@
   --jimble-button-bg: #4f46e5;
   --jimble-button-bg-hover: #4338ca;
   --jimble-button-fg: #ffffff;
+  --jimble-button-fg-hover: #ffffff;
   --jimble-button-ring: transparent;
   --jimble-button-height: 2.25rem;
   --jimble-button-padding-x: 0.75rem;

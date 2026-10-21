@@ -298,3 +298,67 @@ describe('アクセシビリティ（axe）', () => {
     })
   }
 })
+
+describe('hover の色（種類ごとの CSS 変数）', () => {
+  const bg = (el: JimbleButton) => getComputedStyle(inner(el)).backgroundColor
+  const fg = (el: JimbleButton) => getComputedStyle(inner(el)).color
+  const hovered = async (el: JimbleButton) => {
+    await userEvent.hover(inner(el))
+    await tick()
+  }
+
+  it('種類ごとの bg-hover は、その種類にだけ効く（共通の bg-hover より優先する）', async () => {
+    document.documentElement.style.setProperty('--jimble-button-bg-hover', 'rgb(1, 2, 3)')
+    document.documentElement.style.setProperty(
+      '--jimble-button-primary-bg-hover',
+      'rgb(10, 20, 30)',
+    )
+    const primary = await mount<JimbleButton>(
+      html`<jimble-button variant="primary">保存</jimble-button>`,
+    )
+    await hovered(primary)
+    expect(bg(primary)).toBe('rgb(10, 20, 30)')
+    cleanup()
+    const danger = await mount<JimbleButton>(
+      html`<jimble-button variant="danger">削除</jimble-button>`,
+    )
+    await hovered(danger)
+    expect(bg(danger)).toBe('rgb(1, 2, 3)')
+  })
+
+  it('fg-hover を指定すると、背景はそのままで、文字の色だけが hover で変わる（secondary）', async () => {
+    document.documentElement.style.setProperty(
+      '--jimble-button-secondary-fg-hover',
+      'rgb(0, 128, 0)',
+    )
+    document.documentElement.style.setProperty(
+      '--jimble-button-secondary-bg-hover',
+      'rgb(255, 255, 255)',
+    )
+    const el = await mount<JimbleButton>(html`<jimble-button>レポートを出力</jimble-button>`)
+    const before = fg(el)
+    await hovered(el)
+    expect(fg(el)).toBe('rgb(0, 128, 0)')
+    expect(fg(el)).not.toBe(before)
+    expect(bg(el)).toBe('rgb(255, 255, 255)')
+  })
+
+  it('指定しなければ、hover しても文字の色は変わらず、背景は従来どおり', async () => {
+    const el = await mount<JimbleButton>(html`<jimble-button variant="ghost">表示</jimble-button>`)
+    const before = { fg: fg(el), bg: bg(el) }
+    await hovered(el)
+    expect(fg(el)).toBe(before.fg)
+    expect(bg(el)).not.toBe(before.bg)
+  })
+
+  it('ghost: 背景を透明のままにして、文字の色だけを変えられる（ヘッダーの文字だけのボタン）', async () => {
+    document.documentElement.style.setProperty('--jimble-button-ghost-bg-hover', 'transparent')
+    document.documentElement.style.setProperty('--jimble-button-ghost-fg-hover', 'rgb(0, 0, 255)')
+    const el = await mount<JimbleButton>(
+      html`<jimble-button variant="ghost">山田 太郎</jimble-button>`,
+    )
+    await hovered(el)
+    expect(bg(el)).toBe('rgba(0, 0, 0, 0)')
+    expect(fg(el)).toBe('rgb(0, 0, 255)')
+  })
+})

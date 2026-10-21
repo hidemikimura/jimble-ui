@@ -19,11 +19,11 @@
   :host(jimble-table-row) {
     display: table-row;
   }
-  :host(jimble-table-row:hover) {
-    background: var(--_c-surface-muted);
-  }
   :host(jimble-table-row:nth-child(even)) {
     background: var(--jimble-table-stripe, transparent);
+  }
+  :host(jimble-table-row:hover) {
+    background: var(--jimble-table-row-hover-bg, var(--_c-surface-muted));
   }
   :host(jimble-table-row[selected]) {
     background: var(--_c-primary-50);

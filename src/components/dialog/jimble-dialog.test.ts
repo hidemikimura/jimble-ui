@@ -204,6 +204,21 @@ describe('閉じる操作と jimble-close-request', () => {
     expect(d.open).toBe(false)
   })
 
+  it('--jimble-backdrop-opacity で、暗幕の色はそのまま、透けぐあいだけを変えられる', async () => {
+    const { el } = await dlg()
+    el.show()
+    await tick()
+    const alpha = () => {
+      const m = /\/\s*([\d.]+)\)/.exec(getComputedStyle(native(el), '::backdrop').backgroundColor)
+      return m ? Number(m[1]) : 1
+    }
+    const base = alpha()
+    expect(base).toBeCloseTo(0.5, 1)
+    el.style.setProperty('--jimble-backdrop-opacity', '20%')
+    await tick()
+    expect(alpha()).toBeCloseTo(0.2, 1)
+  })
+
   it('static-backdrop と alert は背景クリックで閉じない', async () => {
     for (const attrs of ['static-backdrop', 'alert']) {
       const { el } = await dlg(attrs)

@@ -85,6 +85,17 @@ describe('レイアウト(R5: カスタム要素 + display: table*)', () => {
   })
 })
 
+describe('行の hover の色', () => {
+  it('--jimble-table-row-hover-bg で、マウスを重ねた行の背景を変えられる（縞の行でも効く）', async () => {
+    const { el } = await table('striped style="--jimble-table-row-hover-bg: rgb(1, 2, 3)"')
+    for (const row of el.querySelectorAll('jimble-table-body jimble-table-row')) {
+      await userEvent.hover(row)
+      await tick()
+      expect(getComputedStyle(row).backgroundColor, row.textContent ?? '').toBe('rgb(1, 2, 3)')
+    }
+  })
+})
+
 describe('固定ヘッダーとスクロール', () => {
   it('sticky-header + max-height: 縦にスクロールしても見出しが上に残る', async () => {
     const { el } = await table('sticky-header style="--jimble-table-max-height: 160px"', 40)

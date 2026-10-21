@@ -28,6 +28,7 @@ export type SortDirection = 'ascending' | 'descending' | 'none'
  * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）
  * @cssprop [--jimble-table-cell-padding-x=3 単位] - セルの左右の余白
  * @cssprop [--jimble-table-cell-padding-y=2 単位] - セルの上下の余白
+ * @cssprop [--jimble-table-row-hover-bg=var(--jimble-color-surface-muted)] - マウスを重ねた行の背景
  * @cssprop [--jimble-table-header-bg=var(--jimble-color-surface-muted)] - 見出しの行の背景
  * @cssprop [--jimble-table-header-text=var(--jimble-color-text-muted)] - 見出しの文字色
  *

@@ -202,7 +202,7 @@ export const CATALOG: Group[] = [
   // ---- 部品ごと ----
   {
     title: 'ボタン',
-    note: '背景・文字・枠は、種類(primary・secondary など)ごとに違う既定値があるため、指定するとすべての種類に効きます',
+    note: '背景・文字・枠は、種類(primary・secondary など)ごとに違う既定値があるため、指定するとすべての種類に効きます。hover の色だけは、種類ごとの変数があります（共通の hover より優先）',
     entries: [
       radius('--jimble-button-radius', '角丸'),
       weight('--jimble-button-font-weight', '文字の太さ'),
@@ -213,6 +213,15 @@ export const CATALOG: Group[] = [
       c('--jimble-button-bg', '背景（種類に応じる）', true),
       c('--jimble-button-bg-hover', 'hover の背景（種類に応じる）', true),
       c('--jimble-button-fg', '文字（種類に応じる）', true),
+      c('--jimble-button-fg-hover', 'hover の文字（種類に応じる）', true),
+      c('--jimble-button-primary-bg-hover', '主ボタンの hover の背景'),
+      c('--jimble-button-primary-fg-hover', '主ボタンの hover の文字'),
+      c('--jimble-button-secondary-bg-hover', '白ボタンの hover の背景'),
+      c('--jimble-button-secondary-fg-hover', '白ボタンの hover の文字'),
+      c('--jimble-button-danger-bg-hover', '危険ボタンの hover の背景'),
+      c('--jimble-button-danger-fg-hover', '危険ボタンの hover の文字'),
+      c('--jimble-button-ghost-bg-hover', 'ghost ボタンの hover の背景'),
+      c('--jimble-button-ghost-fg-hover', 'ghost ボタンの hover の文字'),
       c('--jimble-button-ring', '枠（種類に応じる）', true),
     ],
   },
@@ -256,6 +265,11 @@ export const CATALOG: Group[] = [
     note: '',
     entries: [
       radius('--jimble-dialog-radius', 'ダイアログの角丸'),
+      len(
+        '--jimble-backdrop-opacity',
+        'ダイアログ・ドロワーの背後の暗幕の濃さ（色は変えない）',
+        '例: 40%',
+      ),
       len(
         '--jimble-dialog-padding',
         'ダイアログ・ドロワーの余白',
@@ -302,6 +316,7 @@ export const CATALOG: Group[] = [
     note: '行の区切り線の色は「枠・区切り線」の divider',
     entries: [
       c('--jimble-table-header-bg', '表の見出しの背景'),
+      c('--jimble-table-row-hover-bg', '表の行にマウスを重ねたときの背景'),
       c('--jimble-table-header-text', '表の見出しの文字'),
       num('--jimble-table-cell-padding-x', 'セルの左右の余白（余白の単位の数）', '例: 3'),
       num('--jimble-table-cell-padding-y', 'セルの上下の余白（余白の単位の数）', '例: 2'),

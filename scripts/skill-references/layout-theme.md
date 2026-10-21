@@ -14,7 +14,7 @@
 
 ### 色・太さ・影・角丸を、テーマで変える
 
-`:root` に CSS 変数を書く。**枠の色は、用途別に分けられる**: `--jimble-color-ring-card`（カードの枠）・`--jimble-color-ring-divider`（区切り線）・`--jimble-color-ring-button`（ボタンの枠）。ほかに、文字の太さ `--jimble-font-weight-medium` / `-semibold`、影 `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`、`--jimble-badge-radius`、ツールチップ `--jimble-tooltip-bg` / `-text`、スイッチの丸 `--jimble-switch-thumb-bg` / `-ring`、表の見出し `--jimble-table-header-bg` / `-text`、`--jimble-breadcrumb-justify`（`center` で中央）、`--jimble-page-header-heading-weight`。一覧は <https://hidemikimura.github.io/jimble-ui/guide/theming/> の「テーマで変えられる項目」を参照。
+`:root` に CSS 変数を書く。**枠の色は、用途別に分けられる**: `--jimble-color-ring-card`（カードの枠）・`--jimble-color-ring-divider`（区切り線）・`--jimble-color-ring-button`（ボタンの枠）。ほかに、文字の太さ `--jimble-font-weight-medium` / `-semibold`、影 `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`、`--jimble-badge-radius`、ツールチップ `--jimble-tooltip-bg` / `-text`、スイッチの丸 `--jimble-switch-thumb-bg` / `-ring`、表の見出し `--jimble-table-header-bg` / `-text`、`--jimble-breadcrumb-justify`（`center` で中央）、`--jimble-page-header-heading-weight`。ボタンの hover の色は、種類ごと（`--jimble-button-primary-bg-hover` / `-fg-hover`。`secondary`・`danger`・`ghost` も同じ）。**文字の色だけ変えるとき**は、`-bg-hover` に元の背景色（ghost なら `transparent`）を書く。表の行の hover は `--jimble-table-row-hover-bg`、暗幕の濃さだけは `--jimble-backdrop-opacity`（色ごと変えるなら `--jimble-color-backdrop`）。一覧は <https://hidemikimura.github.io/jimble-ui/guide/theming/> の「テーマで変えられる項目」を参照。
 
 ### ヘッダー・サイドバーの色とアイコンの大きさ
 

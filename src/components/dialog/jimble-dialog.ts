@@ -50,6 +50,7 @@ const CLOSE =
  * @csspart body - 本文領域
  * @csspart footer - フッター領域
  *
+ * @cssprop [--jimble-backdrop-opacity=50%] - 背後の暗幕の濃さ（色は変えず、透けぐあいだけ変える。色ごと変えるときは `--jimble-color-backdrop`）
  * @cssprop [--jimble-dialog-radius=var(--jimble-radius-overlay)] - 角丸
  * @cssprop [--jimble-dialog-padding=4 単位(1rem)] - 各領域の内側の余白
  *

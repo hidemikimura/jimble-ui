@@ -349,7 +349,7 @@ export class JimbleAppShell extends JimbleElement {
       <div
         id="sidebar"
         part="sidebar"
-        class="${SIDEBAR}${rail ? 'z-(--jimble-z-drawer,20)' : 'overflow-auto p-3'}"
+        class="${SIDEBAR}${rail ? (this.peek ? 'z-(--jimble-z-drawer,20)' : '') : 'overflow-auto p-3'}"
         @pointerenter=${this.#onSidebarPointerEnter}
         @pointerleave=${this.#onSidebarPointerLeave}
         @focusin=${this.#onSidebarFocusChange}
