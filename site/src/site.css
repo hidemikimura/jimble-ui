@@ -162,6 +162,9 @@ thead th {
   background: #f9fafb;
   white-space: nowrap;
 }
+td code {
+  overflow-wrap: anywhere; /* 長い CSS 変数の名前で、狭い画面の表が横にはみ出さないように */
+}
 small {
   color: var(--muted);
 }
