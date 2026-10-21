@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4](https://github.com/hidemikimura/jimble-ui/compare/v0.8.3...v0.8.4) (2026-10-21)
+
+
+### ドキュメント
+
+* **skill:** 部品ごとの注意書きを references に分け、SKILL.md を短くする ([9eff47e](https://github.com/hidemikimura/jimble-ui/commit/9eff47ea0647e36db39fb33b2c65d0a62dde1076))
+
 ## [0.8.3](https://github.com/hidemikimura/jimble-ui/compare/v0.8.2...v0.8.3) (2026-10-21)
 
 
