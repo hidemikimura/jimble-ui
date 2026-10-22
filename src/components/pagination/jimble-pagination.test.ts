@@ -158,3 +158,27 @@ describe('アクセシビリティ(axe)', () => {
     }
   })
 })
+
+describe('影（--jimble-pagination-shadow）', () => {
+  // 影は、枠(ring)とは別に、疑似要素 ::before で描く
+  const shadowOf = (b: HTMLElement) => getComputedStyle(b, '::before').boxShadow
+  const ringOf = (b: HTMLElement) => getComputedStyle(b).boxShadow
+
+  it('既定では、ページのボタンに影がある', async () => {
+    const { el } = await pager('total-pages="9" page="4"')
+    for (const b of items(el).slice(0, 3)) expect(shadowOf(b)).not.toBe('none')
+  })
+
+  it('none を指定すると、影だけが消えて、枠は残る（現在のページも）', async () => {
+    const { el } = await pager('total-pages="9" page="4" style="--jimble-pagination-shadow: none"')
+    for (const b of items(el)) {
+      expect(shadowOf(b), b.getAttribute('aria-label') ?? '').toBe('none')
+      expect(ringOf(b), b.getAttribute('aria-label') ?? '').not.toBe('none')
+    }
+  })
+
+  it('指定しなければ、ボタンと共通の --jimble-button-shadow に従う', async () => {
+    const { el } = await pager('total-pages="9" page="4" style="--jimble-button-shadow: none"')
+    for (const b of items(el)) expect(shadowOf(b)).toBe('none')
+  })
+})

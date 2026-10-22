@@ -667,7 +667,7 @@ export class JimbleDualListbox extends JimbleFormElement {
       aria-disabled=${r.disabled ? 'true' : nothing}
       tabindex=${r.value === activeValue ? '0' : '-1'}
       draggable=${drag ? 'true' : nothing}
-      class="${ROW} ${isPicked ? 'bg-primary-50' : 'hover:bg-surface-sunken'} ${r.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${ROW} ${isPicked ? 'bg-primary-50' : 'hover:bg-item-hover'} ${r.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
       @click=${(e: MouseEvent) => this.#onRowClick(side, r, e)}
       @dblclick=${() => this.#onRowDblClick(side, r)}
       @dragstart=${(e: DragEvent) => this.#onDragStart(e, r.value)}

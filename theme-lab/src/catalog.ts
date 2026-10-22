@@ -110,6 +110,7 @@ export const CATALOG: Group[] = [
       c('--jimble-color-surface', '面（カード・入力欄）'),
       c('--jimble-color-surface-muted', 'ページの背景'),
       c('--jimble-color-surface-sunken', '沈んだ背景'),
+      c('--jimble-color-item-hover', 'メニュー・セレクトなどの項目にマウスを重ねた背景'),
       c('--jimble-color-surface-overlay', 'ダイアログ・メニューの背景'),
       c('--jimble-color-backdrop', 'ダイアログの背後の暗幕'),
       c('--jimble-color-text', '本文'),
@@ -207,6 +208,10 @@ export const CATALOG: Group[] = [
       radius('--jimble-button-radius', '角丸'),
       weight('--jimble-button-font-weight', '文字の太さ'),
       shadow('--jimble-button-shadow', '影（ghost は既定で影なし）'),
+      shadow(
+        '--jimble-pagination-shadow',
+        'ページネーションのボタンの影（既定はボタンの影と同じ）',
+      ),
       len('--jimble-button-height', '高さ（大きさに応じる）', undefined, true),
       len('--jimble-button-padding-x', '左右の余白（大きさに応じる）', undefined, true),
       len('--jimble-button-gap', 'アイコンとの間隔（大きさに応じる）', undefined, true),

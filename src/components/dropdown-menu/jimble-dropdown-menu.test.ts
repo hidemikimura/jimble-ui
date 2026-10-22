@@ -303,3 +303,21 @@ radiusTests('--jimble-menu-radius', async () => {
   await tick()
   return { host: el, target: menuEl(el) }
 })
+
+describe('項目の hover の色（--jimble-color-item-hover）', () => {
+  it('項目にマウスを重ねたときの背景を、トークンで変えられる。変えなければ従来どおり', async () => {
+    const { el, trigger, items } = await menu()
+    innerButton(trigger).click()
+    await tick()
+    const base = () =>
+      items[1]!.shadowRoot!.querySelector<HTMLElement>('[part="base"]') ?? items[1]!
+    const bg = () => getComputedStyle(base()).backgroundColor
+    await userEvent.hover(items[1]!)
+    await tick()
+    const before = bg()
+    expect(before).not.toBe('rgba(0, 0, 0, 0)')
+    el.style.setProperty('--jimble-color-item-hover', 'rgb(1, 2, 3)')
+    await tick()
+    expect(bg()).toBe('rgb(1, 2, 3)')
+  })
+})

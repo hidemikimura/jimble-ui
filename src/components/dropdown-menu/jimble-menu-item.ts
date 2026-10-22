@@ -6,7 +6,7 @@ export type MenuItemVariant = 'default' | 'danger'
 
 const BASE =
   'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-sm select-none cursor-default ' +
-  'outline outline-1 outline-transparent hover:bg-surface-sunken [:host(:focus)_&]:bg-surface-sunken'
+  'outline outline-1 outline-transparent hover:bg-item-hover [:host(:focus)_&]:bg-item-hover'
 const VARIANT: Record<MenuItemVariant, string> = { default: 'text-fg', danger: 'text-danger-700' }
 
 /**

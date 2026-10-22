@@ -40,7 +40,7 @@ const POPUP =
   '[border-radius:var(--jimble-combobox-radius,var(--radius-overlay))]'
 const OPTION =
   'flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-sm text-fg select-none ' +
-  'cursor-default outline outline-1 outline-transparent hover:bg-surface-sunken'
+  'cursor-default outline outline-1 outline-transparent hover:bg-item-hover'
 
 /** 候補・選択中の項目 */
 export interface ComboboxItem {
@@ -842,7 +842,7 @@ export class JimbleCombobox extends JimbleFormElement {
       part="option"
       id=${this.#optionId(r.key)}
       role="option"
-      class="${OPTION} ${r.key === this.#active ? 'bg-surface-sunken' : ''} ${this.#rowDisabled(r) ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${OPTION} ${r.key === this.#active ? 'bg-item-hover' : ''} ${this.#rowDisabled(r) ? 'opacity-50 cursor-not-allowed' : ''}"
       aria-selected=${selected ? 'true' : 'false'}
       aria-disabled=${this.#rowDisabled(r) ? 'true' : nothing}
       data-active=${r.key === this.#active ? '' : nothing}

@@ -47,6 +47,7 @@ export function applyPopupAria(
  * @csspart anchor - トリガーを包む要素(位置の基準)
  * @csspart menu - メニュー本体(role="menu")
  *
+ * @cssprop [--jimble-color-item-hover=var(--jimble-color-surface-sunken)] - 項目にマウスを重ねた・選んでいる背景（メニュー・セレクト・コンボボックス・左右分割の選択で共通）
  * @cssprop [--jimble-menu-radius=var(--jimble-radius-overlay)] - 角丸
  *
  * @fires jimble-open - 開いた

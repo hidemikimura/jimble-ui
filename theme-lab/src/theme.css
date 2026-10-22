@@ -94,6 +94,7 @@
   --jimble-color-surface: #ffffff;
   --jimble-color-surface-muted: var(--jimble-color-neutral-50);
   --jimble-color-surface-sunken: var(--jimble-color-neutral-100);
+  --jimble-color-item-hover: var(--jimble-color-surface-sunken);
   --jimble-color-surface-overlay: #ffffff;
   --jimble-color-backdrop: color-mix(in oklab, var(--jimble-color-neutral-900) 50%, transparent);
   --jimble-color-text: var(--jimble-color-neutral-900);
@@ -175,6 +176,7 @@
   --jimble-card-shadow: var(--jimble-shadow-sm);
   --jimble-input-shadow: var(--jimble-shadow-sm);
   --jimble-button-shadow: var(--jimble-shadow-sm);
+  --jimble-pagination-shadow: var(--jimble-button-shadow);
   --jimble-badge-radius: var(--jimble-radius-md);
   --jimble-tooltip-bg: var(--jimble-color-neutral-900);
   --jimble-tooltip-text: var(--jimble-color-text-on-primary);

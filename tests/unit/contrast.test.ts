@@ -46,6 +46,8 @@ const PAIRS: [string, string, number, string][] = [
   ['text-muted', 'surface', 4.5, '補助文字'],
   ['text-muted', 'surface-muted', 4.5, '補助文字(背景)'],
   ['text', 'surface-sunken', 4.5, 'カンバンの列の見出し・件数・空の表示'],
+  ['text', 'item-hover', 4.5, 'メニュー・セレクトなどの項目の hover'],
+  ['danger-700', 'item-hover', 4.5, 'メニューの危険な項目の hover'],
   ['primary-700', 'surface', 4.5, 'カンバンの「ここに移動」'],
   ['ring-control', 'surface-sunken', 3, 'カンバンの受け口の枠 (1.4.11)'],
   ['text-on-primary', 'neutral-900', 4.5, 'ツールチップ（濃い背景に白い文字）'],

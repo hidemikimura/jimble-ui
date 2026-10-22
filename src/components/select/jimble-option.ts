@@ -5,8 +5,8 @@ import { renderIcon } from '../../icons/render.js'
 
 const BASE =
   'flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-sm text-fg select-none ' +
-  'cursor-default outline outline-1 outline-transparent hover:bg-surface-sunken ' +
-  '[:host(:focus)_&]:bg-surface-sunken'
+  'cursor-default outline outline-1 outline-transparent hover:bg-item-hover ' +
+  '[:host(:focus)_&]:bg-item-hover'
 
 /**
  * セレクトの選択肢。`jimble-select` の直接の子として使う。ロール(option)と選択状態は host が持つ。

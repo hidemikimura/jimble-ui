@@ -12,13 +12,16 @@ const SIZE: Record<ControlSize, string> = {
   lg: 'min-w-10 h-10 px-3 text-base',
 }
 const ITEM =
-  'inline-flex items-center justify-center rounded-md font-medium select-none shadow-sm ring-1 ring-inset ' +
+  'inline-flex items-center justify-center rounded-md font-medium select-none ring-1 ring-inset ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-2 ' +
   'focus-visible:outline-focus'
-const NORMAL = 'bg-surface text-fg ring-line-button hover:bg-surface-muted cursor-pointer'
-const CURRENT = 'bg-primary-600 text-fg-on-primary ring-primary-600'
-const DISABLED =
-  'bg-surface text-fg-disabled ring-line-button opacity-60 cursor-not-allowed shadow-none'
+// 影は、枠(ring)とは別に、疑似要素 ::before で描く(none を指定しても、枠が消えない)。ボタンと同じ作り
+const SHADOW =
+  'relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:[box-shadow:var(--_shadow)] ' +
+  '[--_shadow:var(--jimble-pagination-shadow,var(--jimble-button-shadow,var(--shadow-sm)))]'
+const NORMAL = `${SHADOW} bg-surface text-fg ring-line-button hover:bg-surface-muted cursor-pointer`
+const CURRENT = `${SHADOW} bg-primary-600 text-fg-on-primary ring-primary-600`
+const DISABLED = 'bg-surface text-fg-disabled ring-line-button opacity-60 cursor-not-allowed'
 
 /** 表示するページ番号の並び。省略は 'ellipsis'。先頭・末尾・現在の前後を残す */
 export function pageRange(page: number, total: number, siblings: number): (number | 'ellipsis')[] {
@@ -56,6 +59,8 @@ export function pageRange(page: number, total: number, siblings: number): (numbe
  * @csspart list - ページの並び
  * @csspart item - 各ボタン/リンク（前へ・次へ・番号）
  * @csspart current - 現在のページ
+ *
+ * @cssprop [--jimble-pagination-shadow=var(--jimble-button-shadow)] - ページ・前へ・次へのボタンの影（`none` で影なし。指定しなければ `--jimble-button-shadow`、さらに指定がなければ小さい影）
  *
  * @fires jimble-page-change - ページが選ばれた(page)。preventDefault() すると移動しない
  */
