@@ -96,7 +96,11 @@
   --jimble-color-surface-sunken: var(--jimble-color-neutral-100);
   --jimble-color-item-hover: var(--jimble-color-surface-sunken);
   --jimble-color-surface-overlay: #ffffff;
-  --jimble-color-backdrop: color-mix(in oklab, var(--jimble-color-neutral-900) 50%, transparent);
+  --jimble-color-backdrop: color-mix(
+    in oklab,
+    var(--jimble-color-neutral-900) var(--jimble-backdrop-opacity, 50%),
+    transparent
+  );
   --jimble-color-text: var(--jimble-color-neutral-900);
   --jimble-color-text-muted: var(--jimble-color-neutral-500);
   --jimble-color-text-placeholder: var(--jimble-color-neutral-500);
