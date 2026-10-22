@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/hidemikimura/jimble-ui/compare/v0.9.0...v0.10.0) (2026-10-22)
+
+
+### 追加
+
+* **theme:** 項目の hover の色とページネーションの影を、CSS 変数で変えられるようにする ([1e9082f](https://github.com/hidemikimura/jimble-ui/commit/1e9082f0c9c13947a067e092cdb1e2eabce8904d))
+
 ## [0.9.0](https://github.com/hidemikimura/jimble-ui/compare/v0.8.4...v0.9.0) (2026-10-21)
 
 
