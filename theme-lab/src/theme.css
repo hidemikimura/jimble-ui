@@ -271,6 +271,8 @@
   --jimble-date-input-popup-radius: var(--jimble-radius-overlay);
   --jimble-color-input-popup-radius: var(--jimble-radius-overlay);
   --jimble-file-input-radius: var(--jimble-radius-control);
+  --jimble-file-input-button-hover-bg: var(--jimble-color-surface-sunken);
+  --jimble-file-input-button-hover-fg: var(--jimble-color-text);
   --jimble-tooltip-radius: var(--jimble-radius-md);
   --jimble-tooltip-max-width: 20rem;
   --jimble-table-cell-padding-x: 3;
@@ -294,6 +296,8 @@
   --jimble-button-ring: transparent;
   --jimble-button-height: 2.25rem;
   --jimble-button-padding-x: 0.75rem;
+  --jimble-icon-button-hover-bg: var(--jimble-color-surface-sunken);
+  --jimble-icon-button-hover-fg: var(--jimble-color-text);
   --jimble-button-gap: 0.5rem;
   --jimble-input-height: 2.25rem;
   --jimble-input-padding-x: 0.75rem;

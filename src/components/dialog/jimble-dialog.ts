@@ -24,7 +24,7 @@ const PANEL =
   'outline outline-1 outline-transparent [border-radius:var(--jimble-dialog-radius,var(--radius-overlay))]'
 const CLOSE =
   'inline-flex size-8 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-sunken outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg-muted))] outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 
 /**
@@ -51,6 +51,8 @@ const CLOSE =
  * @csspart footer - フッター領域
  *
  * @cssprop [--jimble-backdrop-opacity=50%] - 背後の暗幕の濃さ（色は変えず、透けぐあいだけ変える。色ごと変えるときは `--jimble-color-backdrop`）
+ * @cssprop [--jimble-icon-button-hover-bg=var(--jimble-color-surface-sunken)] - 閉じるボタンにマウスを重ねた背景（`transparent` で背景なし）。ほかの部品と共通
+ * @cssprop [--jimble-icon-button-hover-fg=var(--jimble-color-text-muted)] - 閉じるボタンにマウスを重ねたときのアイコンの色
  * @cssprop [--jimble-dialog-radius=var(--jimble-radius-overlay)] - 角丸
  * @cssprop [--jimble-dialog-padding=4 単位(1rem)] - 各領域の内側の余白
  *

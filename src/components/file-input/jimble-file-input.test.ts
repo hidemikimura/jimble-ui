@@ -1,4 +1,5 @@
 import { html } from 'lit'
+import { userEvent } from 'vitest/browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import '../field/jimble-field.js'
 import { setLocale } from '../../i18n/index.js'
@@ -320,5 +321,18 @@ describe('検証とアクセシビリティ', () => {
     el.removeFile(el.files[0]!)
     expect(revoke).toHaveBeenCalled()
     revoke.mockRestore()
+  })
+})
+
+describe('「ファイルを選択」ボタンの hover の色', () => {
+  it('--jimble-file-input-button-hover-bg / -fg で、背景と文字の色を変えられる', async () => {
+    const { el } = await make()
+    const browse = el.shadowRoot!.querySelector<HTMLElement>('[part="browse"]')!
+    el.style.setProperty('--jimble-file-input-button-hover-bg', 'rgb(1, 2, 3)')
+    el.style.setProperty('--jimble-file-input-button-hover-fg', 'rgb(0, 0, 255)')
+    await userEvent.hover(browse)
+    await new Promise((r) => setTimeout(r, 30))
+    expect(getComputedStyle(browse).backgroundColor).toBe('rgb(1, 2, 3)')
+    expect(getComputedStyle(browse).color).toBe('rgb(0, 0, 255)')
   })
 })

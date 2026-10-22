@@ -43,7 +43,7 @@ const BASE =
   '[border-radius:var(--jimble-toast-radius,var(--radius-overlay))]'
 const CLOSE =
   'inline-flex size-6 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-sunken outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg-muted))] outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 
 /**
@@ -66,6 +66,8 @@ const CLOSE =
  * @csspart actions - 操作領域
  * @csspart close-button - 閉じるボタン
  *
+ * @cssprop [--jimble-icon-button-hover-bg=var(--jimble-color-surface-sunken)] - 閉じるボタンにマウスを重ねた背景（`transparent` で背景なし）。ほかの部品と共通
+ * @cssprop [--jimble-icon-button-hover-fg=var(--jimble-color-text-muted)] - 閉じるボタンにマウスを重ねたときのアイコンの色
  * @cssprop [--jimble-toast-radius=var(--jimble-radius-overlay)] - 角丸
  *
  * @fires jimble-dismiss - 閉じられた(自動・ボタンのどちらでも)

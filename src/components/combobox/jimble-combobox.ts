@@ -16,19 +16,19 @@ import '../select/jimble-option.js'
 
 const ICON_BUTTON =
   'inline-flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-sunken hover:text-fg disabled:cursor-not-allowed outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const CHIP =
   'group inline-flex max-w-full items-center gap-0.5 rounded-md bg-surface-sunken py-0.5 pl-2 pr-0.5 text-sm text-fg ' +
   'ring-1 ring-inset ring-line'
 const CHIP_REMOVE =
   'inline-flex size-5 shrink-0 items-center justify-center rounded cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-overlay hover:text-fg outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-overlay))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 // 前へ / 後ろへボタンは、チップにフォーカスがあるとき(タップした直後など)だけ出す
 const CHIP_MOVE =
   'hidden group-focus-within:inline-flex size-5 shrink-0 items-center justify-center rounded cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-overlay hover:text-fg disabled:cursor-not-allowed disabled:opacity-40 outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-overlay))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-40 outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const INPUT =
   'min-w-0 flex-1 bg-transparent p-0 outline-none placeholder:text-(--_ph) disabled:cursor-not-allowed'
@@ -106,6 +106,8 @@ const CREATE_KEY = '\u0000create'
  * @csspart option - 候補
  * @csspart empty - 候補が無い・読み込み中・失敗のときの表示
  *
+ * @cssprop [--jimble-icon-button-hover-bg=var(--jimble-color-surface-sunken)] - 消去・開閉・チップの × など、アイコンだけの小さなボタンにマウスを重ねた背景（`transparent` で背景なし）。ほかの部品と共通
+ * @cssprop [--jimble-icon-button-hover-fg=var(--jimble-color-text)] - 同じボタンにマウスを重ねたときのアイコンの色
  * @cssprop [--jimble-combobox-radius=var(--jimble-radius-overlay)] - 候補の面の角丸
  * @cssprop [--jimble-input-radius=var(--jimble-radius-control)] - 入力欄の角丸
  * @cssprop [--jimble-input-height=サイズに応じた --jimble-control-height-*] - 高さ

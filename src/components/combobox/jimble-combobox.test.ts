@@ -728,3 +728,18 @@ describe('グループ名での絞り込み（search-group）', () => {
     expect(shown(on)).toEqual([])
   })
 })
+
+describe('小さなボタンの hover の色（--jimble-icon-button-hover-*）', () => {
+  it('背景なしにして、アイコンの色だけを変えられる。指定しなければ、これまでどおり背景が付く', async () => {
+    const { el } = await make('value="tokyo"')
+    const toggle = el.shadowRoot!.querySelector<HTMLElement>('[part="toggle"]')!
+    await userEvent.hover(toggle)
+    await new Promise((r) => setTimeout(r, 30))
+    expect(getComputedStyle(toggle).backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
+    el.style.setProperty('--jimble-icon-button-hover-bg', 'transparent')
+    el.style.setProperty('--jimble-icon-button-hover-fg', 'rgb(0, 0, 255)')
+    await new Promise((r) => setTimeout(r, 30))
+    expect(getComputedStyle(toggle).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(toggle).color).toBe('rgb(0, 0, 255)')
+  })
+})

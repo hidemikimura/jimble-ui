@@ -294,6 +294,18 @@ export const CATALOG: Group[] = [
       radius('--jimble-date-input-popup-radius', 'カレンダーの角丸'),
       radius('--jimble-color-input-popup-radius', '色選択のポップアップの角丸'),
       radius('--jimble-file-input-radius', 'ファイルのドロップエリアの角丸'),
+      c('--jimble-file-input-button-hover-bg', '「ファイルを選択」ボタンの hover の背景'),
+      c('--jimble-file-input-button-hover-fg', '「ファイルを選択」ボタンの hover の文字'),
+      c(
+        '--jimble-icon-button-hover-bg',
+        '小さなアイコンボタン（コンボボックス・日付・ファイル・カンバン・閉じるボタン）の hover の背景（場所に応じる。transparent で背景なし）',
+        true,
+      ),
+      c(
+        '--jimble-icon-button-hover-fg',
+        '小さなアイコンボタンの hover のアイコンの色（場所に応じる）',
+        true,
+      ),
     ],
   },
   {

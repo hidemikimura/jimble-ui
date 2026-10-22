@@ -14,7 +14,7 @@ const CARD =
   'outline-offset-2 [:host(:focus-visible)_&]:outline-2 [:host(:focus-visible)_&]:outline-focus'
 const MOVE_BUTTON =
   'inline-flex size-6 shrink-0 items-center justify-center rounded-md text-fg-muted cursor-pointer ' +
-  'hover:bg-surface-sunken hover:text-fg outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-focus'
 
 /**

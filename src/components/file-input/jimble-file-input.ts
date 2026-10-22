@@ -47,11 +47,11 @@ const ZONE =
   '[border-radius:var(--jimble-file-input-radius,var(--radius-control))]'
 const BROWSE =
   'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium bg-surface text-fg ' +
-  'ring-1 ring-inset ring-line-control hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-50 ' +
+  'ring-1 ring-inset ring-line-control hover:[background-color:var(--jimble-file-input-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-file-input-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-50 ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
 const ICON_BTN =
   'inline-flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-sunken hover:text-fg outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 
 /** バイト数を読みやすく(1.5 MB など) */
@@ -111,6 +111,10 @@ export function matchesAccept(file: File, accept: string | undefined): boolean {
  * @csspart remove - 削除(アップロード中は中止)ボタン
  * @csspart retry - 再試行ボタン
  *
+ * @cssprop [--jimble-icon-button-hover-bg=var(--jimble-color-surface-sunken)] - ファイルの削除など、アイコンだけの小さなボタンにマウスを重ねた背景（`transparent` で背景なし）。ほかの部品と共通
+ * @cssprop [--jimble-icon-button-hover-fg=var(--jimble-color-text)] - 同じボタンにマウスを重ねたときのアイコンの色
+ * @cssprop [--jimble-file-input-button-hover-bg=var(--jimble-color-surface-sunken)] - 「ファイルを選択」ボタンにマウスを重ねた背景
+ * @cssprop [--jimble-file-input-button-hover-fg=var(--jimble-color-text)] - 「ファイルを選択」ボタンにマウスを重ねた文字の色
  * @cssprop [--jimble-file-input-radius=var(--jimble-radius-control)] - ドロップエリアの角丸
  *
  * @fires input - ファイルが追加・削除された

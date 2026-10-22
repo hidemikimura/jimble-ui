@@ -26,6 +26,7 @@ import {
 } from '../../base/date.js'
 import { getLocale } from '../../i18n/index.js'
 import { calendarDays } from '../../icons/calendarDays.js'
+import { chevronDown } from '../../icons/chevronDown.js'
 import { chevronLeft } from '../../icons/chevronLeft.js'
 import { chevronRight } from '../../icons/chevronRight.js'
 import { renderIcon } from '../../icons/render.js'
@@ -33,7 +34,7 @@ import { AFFIX, TEXT_INNER, textWrapClasses } from '../../base/text-control.js'
 
 const ICON_BUTTON =
   'inline-flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:bg-surface-sunken hover:text-fg disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 ' +
   'outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const POPUP =
   'border-0 bg-surface-overlay p-3 text-fg shadow-lg ring-1 ring-inset ring-line ' +
@@ -96,6 +97,8 @@ type Time = { h: number; m: number }
  * @cssprop [--jimble-input-height=サイズに応じた --jimble-control-height-*] - 高さ
  * @cssprop [--jimble-input-width=100%] - 幅
  * @cssprop [--jimble-input-ring=var(--jimble-color-ring-control)] - 枠の色
+ * @cssprop [--jimble-icon-button-hover-bg=var(--jimble-color-surface-sunken)] - カレンダーを開く・前後の月など、アイコンだけの小さなボタンにマウスを重ねた背景（`transparent` で背景なし）。ほかの部品と共通
+ * @cssprop [--jimble-icon-button-hover-fg=var(--jimble-color-text)] - 同じボタンにマウスを重ねたときのアイコンの色
  * @cssprop [--jimble-date-input-popup-radius=var(--jimble-radius-overlay)] - カレンダーの角丸
  *
  * @fires input - 値が変わった（ネイティブと同じ）
@@ -661,24 +664,28 @@ export class JimbleDateInput extends JimbleFormElement {
     const yearIdx = parts.findIndex((p) => p.type === 'year')
     const yearSuffix =
       parts[yearIdx + 1]?.type === 'literal' ? parts[yearIdx + 1]!.value.trim() : ''
-    const month = html`<select
-      part="month-select"
-      class=${TITLE_CONTROL}
-      aria-label=${this.t('date.month')}
-      @change=${(e: Event) => this.#gotoMonth(first.y, Number((e.target as HTMLSelectElement).value))}
-    >
-      ${Array.from(
-        { length: 12 },
-        (_, n) =>
-          html`<option
-            value=${n + 1}
-            ?selected=${n + 1 === first.m}
-            ?disabled=${monthOutOfRange(n + 1)}
-          >
-            ${monthName(n + 1)}
-          </option>`,
-      )}
-    </select>`
+    const month = html`<span class="relative inline-flex items-center"
+      ><select
+        part="month-select"
+        class="${TITLE_CONTROL} appearance-none pr-6"
+        aria-label=${this.t('date.month')}
+        @change=${(e: Event) => this.#gotoMonth(first.y, Number((e.target as HTMLSelectElement).value))}
+      >
+        ${Array.from(
+          { length: 12 },
+          (_, n) =>
+            html`<option
+              value=${n + 1}
+              ?selected=${n + 1 === first.m}
+              ?disabled=${monthOutOfRange(n + 1)}
+            >
+              ${monthName(n + 1)}
+            </option>`,
+        )}</select
+      ><span class="pointer-events-none absolute end-1.5 text-fg-muted" aria-hidden="true"
+        >${renderIcon(chevronDown, 'size-4')}</span
+      ></span
+    >`
     const year = html`<input
         part="year-input"
         type="number"

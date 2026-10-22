@@ -673,3 +673,26 @@ radiusTests('--jimble-date-input-popup-radius', async () => {
   await tick()
   return { host: el, target: popup(el) }
 })
+
+describe('小さなボタンの hover の色（--jimble-icon-button-hover-*）', () => {
+  it('カレンダーのボタンを、背景なしで、アイコンの色だけ変えられる', async () => {
+    const { el } = await make()
+    const button = el.shadowRoot!.querySelector<HTMLElement>('[part="calendar-button"]')!
+    el.style.setProperty('--jimble-icon-button-hover-bg', 'transparent')
+    el.style.setProperty('--jimble-icon-button-hover-fg', 'rgb(0, 0, 255)')
+    await userEvent.hover(button)
+    await new Promise((r) => setTimeout(r, 30))
+    expect(getComputedStyle(button).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(button).color).toBe('rgb(0, 0, 255)')
+  })
+
+  it('月の選択は、自前の矢印を持ち、文字と重ならない（右に余白がある）', async () => {
+    const { el } = await make()
+    el.shadowRoot!.querySelector<HTMLElement>('[part="calendar-button"]')!.click()
+    await new Promise((r) => setTimeout(r, 50))
+    const select = el.shadowRoot!.querySelector<HTMLSelectElement>('[part="month-select"]')!
+    const style = getComputedStyle(select)
+    expect(style.appearance).toBe('none')
+    expect(Number.parseFloat(style.paddingRight)).toBeGreaterThanOrEqual(20)
+  })
+})
