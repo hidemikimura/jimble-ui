@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import { CATALOG, SHADOW_PRESETS, WEIGHTS, type Entry, type Group } from './catalog.ts'
-import { varHex } from './color.ts'
+import { isTransparentVar, varHex } from './color.ts'
 
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
@@ -134,6 +134,16 @@ export class LabTuner extends LitElement {
       display: grid;
       gap: 0.25rem;
     }
+    .with-clear {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .with-clear > :first-child {
+      flex: 1 1 7rem;
+      min-width: 0;
+    }
     label {
       font-size: 12px;
     }
@@ -212,14 +222,28 @@ export class LabTuner extends LitElement {
     const aria = `${g.title} ${e.label}`
     const onText = (ev: Event) => this.#set(e.name, (ev.target as HTMLInputElement).value)
     switch (e.kind) {
-      case 'color':
-        return html`<jimble-color-input
+      case 'color': {
+        const clear = !!now && isTransparentVar(e.name)
+        const picker = html`<jimble-color-input
           size="sm"
           aria-label=${aria}
-          .value=${now ? varHex(e.name) : ''}
+          .value=${now && !clear ? varHex(e.name) : ''}
           data-tick=${this.tick}
           @change=${onText}
         ></jimble-color-input>`
+        if (!e.transparent) return picker
+        // 色選択は透明度を持たないので、透明にするボタンを添える（すでに透明のときは押せない）
+        return html`<div class="with-clear">
+          ${picker}
+          <jimble-button
+            size="sm"
+            aria-label=${`${aria}を透明にする`}
+            ?disabled=${clear}
+            @click=${() => this.#set(e.name, 'transparent')}
+            >透明</jimble-button
+          >
+        </div>`
+      }
       case 'weight':
         return html`<jimble-select
           size="sm"

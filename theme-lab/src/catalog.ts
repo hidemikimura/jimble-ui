@@ -25,6 +25,8 @@ export interface Entry {
   hint?: string
   /** theme.css ではコメントアウトして載せる(上の説明を参照) */
   opt?: boolean
+  /** 「透明」にすることに意味がある色（hover の背景・ボタンの枠など）。調整パネルに「透明」ボタンを出す */
+  transparent?: boolean
 }
 export interface Group {
   title: string
@@ -38,7 +40,15 @@ const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 const SHORT = [50, 100, 200, 500, 600, 700, 800]
 const scale = (name: string, steps: number[]): Entry[] =>
   steps.map((s) => ({ name: `--jimble-color-${name}-${s}`, label: String(s), kind: 'color' }))
-const c = (name: string, label: string, opt = false): Entry => ({ name, label, kind: 'color', opt })
+/** 「透明」にして使う色の変数（hover の背景・ボタンの背景と枠・項目の hover） */
+const TRANSPARENT_OK = /(hover-bg|bg-hover|button-bg|button-ring|color-item-hover)$/
+const c = (name: string, label: string, opt = false): Entry => ({
+  name,
+  label,
+  kind: 'color',
+  opt,
+  transparent: TRANSPARENT_OK.test(name),
+})
 const len = (name: string, label: string, hint?: string, opt = false): Entry => ({
   name,
   label,

@@ -36,6 +36,11 @@ export function varHex(name: string): string {
   return rgb ? toHex(rgb) : '#000000'
 }
 
+/** 変数の色が、完全な透明か（`transparent`・アルファ 0） */
+export function isTransparentVar(name: string): boolean {
+  return /(?:,|\/)\s*0\)$/.test(resolveVar(name)) || resolveVar(name) === 'transparent'
+}
+
 const linear = (v: number) => {
   const s = v / 255
   return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4

@@ -89,3 +89,23 @@ describe('theme-lab', () => {
     }
   })
 })
+
+describe('theme-lab: 「透明」ボタンを出す変数', () => {
+  const transparentOk = ALL.filter((e) => e.transparent)
+  it('色の変数だけで、hover の背景などが入っている', () => {
+    for (const e of transparentOk) expect(e.kind, e.name).toBe('color')
+    const names = transparentOk.map((e) => e.name)
+    for (const n of [
+      '--jimble-icon-button-hover-bg',
+      '--jimble-button-ghost-bg-hover',
+      '--jimble-table-row-hover-bg',
+      '--jimble-color-item-hover',
+    ])
+      expect(names, n).toContain(n)
+  })
+  it('文字の色や、ふつうの背景には出さない', () => {
+    const names = ALL.filter((e) => e.transparent).map((e) => e.name)
+    for (const n of ['--jimble-color-text', '--jimble-color-surface', '--jimble-button-fg'])
+      expect(names, n).not.toContain(n)
+  })
+})
