@@ -27,6 +27,8 @@ export interface Entry {
   opt?: boolean
   /** 「透明」にすることに意味がある色（hover の背景・ボタンの枠など）。調整パネルに「透明」ボタンを出す */
   transparent?: boolean
+  /** 色を選ぶと、その色に「透けぐあい」の変数をかけて書く（色選択は透明度を持たず、不透明な色で上書きしてしまうため）。変数名 */
+  withOpacity?: string
 }
 export interface Group {
   title: string
@@ -122,7 +124,10 @@ export const CATALOG: Group[] = [
       c('--jimble-color-surface-sunken', '沈んだ背景'),
       c('--jimble-color-item-hover', 'メニュー・セレクトなどの項目にマウスを重ねた背景'),
       c('--jimble-color-surface-overlay', 'ダイアログ・メニューの背景'),
-      c('--jimble-color-backdrop', 'ダイアログの背後の暗幕'),
+      {
+        ...c('--jimble-color-backdrop', 'ダイアログの背後の暗幕（色を選んでも、濃さは保つ）'),
+        withOpacity: '--jimble-backdrop-opacity',
+      },
       c('--jimble-color-text', '本文'),
       c('--jimble-color-text-muted', '補助の文字'),
       c('--jimble-color-text-placeholder', 'プレースホルダー'),

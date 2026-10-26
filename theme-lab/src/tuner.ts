@@ -221,6 +221,16 @@ export class LabTuner extends LitElement {
     const now = current(e.name)
     const aria = `${g.title} ${e.label}`
     const onText = (ev: Event) => this.#set(e.name, (ev.target as HTMLInputElement).value)
+    // 色選択は不透明な色しか返さない。透けぐあいの変数を持つ色は、その変数をかけて書く
+    const onColor = (ev: Event) => {
+      const v = (ev.target as HTMLInputElement).value
+      this.#set(
+        e.name,
+        e.withOpacity && v
+          ? `color-mix(in oklab, ${v} var(${e.withOpacity}, 50%), transparent)`
+          : v,
+      )
+    }
     switch (e.kind) {
       case 'color': {
         const clear = !!now && isTransparentVar(e.name)
@@ -229,7 +239,7 @@ export class LabTuner extends LitElement {
           aria-label=${aria}
           .value=${now && !clear ? varHex(e.name) : ''}
           data-tick=${this.tick}
-          @change=${onText}
+          @change=${onColor}
         ></jimble-color-input>`
         if (!e.transparent) return picker
         // 色選択は透明度を持たないので、透明にするボタンを添える（すでに透明のときは押せない）

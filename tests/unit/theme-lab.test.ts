@@ -109,3 +109,11 @@ describe('theme-lab: 「透明」ボタンを出す変数', () => {
       expect(names, n).not.toContain(n)
   })
 })
+
+describe('theme-lab: 色を選んでも、透けぐあいを保つ変数', () => {
+  it('暗幕は、色を選ぶと、濃さの変数をかけて書く（不透明な色で、透けぐあいを消さない）', () => {
+    const backdrop = ALL.find((e) => e.name === '--jimble-color-backdrop')
+    expect(backdrop?.withOpacity).toBe('--jimble-backdrop-opacity')
+    expect(ALL.some((e) => e.name === '--jimble-backdrop-opacity')).toBe(true)
+  })
+})
