@@ -2,6 +2,8 @@ import { LitElement, css, html, nothing } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import { CATALOG, SHADOW_PRESETS, WEIGHTS, type Entry, type Group } from './catalog.ts'
 import { isTransparentVar, varHex } from './color.ts'
+import { applyOverrides, findDuplicates } from './merge.ts'
+import themeRaw from './theme.css?raw'
 
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
@@ -18,6 +20,14 @@ const MIX: Record<number, [number, 'white' | 'black']> = {
 }
 
 export const THEME_EVENT = 'lab-theme-change'
+
+/** いまの theme.css の中身（保存すると、画面を読み込み直さずに入れ替わる） */
+let themeSource: string = themeRaw
+import.meta.hot?.accept('./theme.css?raw', (mod) => {
+  if (mod) themeSource = mod.default as string
+})
+/** theme.css に同じ変数が複数回あるか（あれば、いちばん下の行だけが効く） */
+const duplicatesNow = () => findDuplicates(themeSource)
 
 const root = () => document.documentElement
 /** いまの値(var() は、解決された値になる)。宣言されていなければ、空 */
@@ -37,6 +47,13 @@ export class LabTuner extends LitElement {
 
   constructor() {
     super()
+    const dup = duplicatesNow()
+    if (dup.length)
+      console.warn(
+        `theme.css に、同じ変数が複数回書かれています（${dup.length} 種類）。いちばん下の行だけが効きます。` +
+          '`npm run tidy` で整理できます。',
+        dup.map((d) => d.name),
+      )
     this.open = false
     this.tick = 0
     this.query = ''
@@ -196,18 +213,34 @@ export class LabTuner extends LitElement {
     })
   }
 
+  /** theme.css 全体を、調整した値で書き換えてコピーする（同じ変数は 1 回だけ。説明のコメントは残る） */
   async #copy() {
-    const lines = [...this.#overrides].map(([n, v]) => `  ${n}: ${v};`)
-    const css = `:root {\n${lines.join('\n')}\n}\n`
+    const css = applyOverrides(themeSource, this.#overrides)
     try {
       await navigator.clipboard.writeText(css)
       JimbleUI.toast({
-        message: `${this.#overrides.size} 件の変更を、CSS としてコピーしました。theme.css に貼り付けてください。`,
+        message: `theme.css 全体をコピーしました（${this.#overrides.size} 件の変更を反映）。theme.css の中身を、これで置き換えてください（末尾に足さない）。`,
         variant: 'success',
       })
     } catch {
       JimbleUI.toast({ message: 'コピーできませんでした。', variant: 'danger' })
     }
+  }
+
+  #duplicateWarning() {
+    const dup = duplicatesNow()
+    if (dup.length === 0) return nothing
+    return html`<p class="warn" role="alert">
+      <strong>theme.css に、同じ変数が複数回書かれています（${dup.length} 種類）。</strong>
+      いちばん下の行だけが効くので、上の行（説明つき）を書き換えても、変わりません。<code
+        >npm run tidy</code
+      >
+      で整理するか、下の「theme.css をコピー」で、整理した全体を取り出せます。例:
+      ${dup
+        .slice(0, 3)
+        .map((d) => d.name.replace('--jimble-', ''))
+        .join('・')}
+    </p>`
   }
 
   /** 検索語に合うか(名前・ラベル) */
@@ -368,10 +401,13 @@ export class LabTuner extends LitElement {
                 ></jimble-input>
               </div>
               <div class="body">
+                ${this.#duplicateWarning()}
                 <p class="warn">
                   ここで変えた値は、<strong>このブラウザの中だけ</strong>で、theme.css
-                  を保存すると破棄されます。決めた値は「CSS をコピー」で、<code>theme.css</code>
-                  に貼り付けてください。入力欄を空にすると、その変更を取り消します。
+                  を保存すると破棄されます。決めた値は「theme.css をコピー」で、<code
+                    >theme.css</code
+                  >
+                  の中身を<strong>置き換えて</strong>ください（末尾に足すと、同じ変数が重なります）。入力欄を空にすると、その変更を取り消します。
                 </p>
                 ${CATALOG.map((g, i) => this.#group(g, i))}
               </div>
@@ -379,9 +415,9 @@ export class LabTuner extends LitElement {
                 <jimble-button
                   size="sm"
                   variant="primary"
-                  ?disabled=${this.#overrides.size === 0}
+                  ?disabled=${this.#overrides.size === 0 && duplicatesNow().length === 0}
                   @click=${() => this.#copy()}
-                  >CSS をコピー</jimble-button
+                  >theme.css をコピー</jimble-button
                 >
                 <jimble-button
                   size="sm"
