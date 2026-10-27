@@ -6,12 +6,12 @@ export type BadgeVariant = 'neutral' | 'primary' | 'success' | 'warning' | 'dang
 export type BadgeSize = 'sm' | 'md'
 
 const VARIANT: Record<BadgeVariant, string> = {
-  neutral: 'bg-neutral-100 text-neutral-700 ring-neutral-500/20',
-  primary: 'bg-primary-50 text-primary-700 ring-primary-600/20',
-  success: 'bg-success-50 text-success-700 ring-success-600/20',
-  warning: 'bg-warning-50 text-warning-700 ring-warning-600/20',
-  danger: 'bg-danger-50 text-danger-700 ring-danger-600/20',
-  info: 'bg-info-50 text-info-700 ring-info-600/20',
+  neutral: 'bg-surface-sunken text-fg-secondary ring-line-control/20',
+  primary: 'bg-surface-accent text-fg-accent ring-icon-accent/20',
+  success: 'bg-surface-success text-fg-success ring-icon-success/20',
+  warning: 'bg-surface-warning text-fg-warning ring-icon-warning/20',
+  danger: 'bg-surface-danger text-fg-danger ring-icon-danger/20',
+  info: 'bg-surface-info text-fg-info ring-icon-info/20',
 }
 const SIZE: Record<BadgeSize, string> = {
   sm: 'px-1.5 py-0.5 text-xs gap-1',

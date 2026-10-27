@@ -24,7 +24,7 @@ const ROW =
   'focus-visible:outline-2 focus-visible:outline-focus'
 const MOVE_BTN =
   'inline-flex h-8 min-w-24 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium cursor-pointer ' +
-  'bg-surface text-primary-700 ring-1 ring-inset ring-line-control hover:bg-primary-50 ' +
+  'bg-surface text-fg-accent ring-1 ring-inset ring-line-control hover:bg-surface-accent ' +
   'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-surface outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
 const PRIMARY_BTN =
@@ -667,7 +667,7 @@ export class JimbleDualListbox extends JimbleFormElement {
       aria-disabled=${r.disabled ? 'true' : nothing}
       tabindex=${r.value === activeValue ? '0' : '-1'}
       draggable=${drag ? 'true' : nothing}
-      class="${ROW} ${isPicked ? 'bg-primary-50' : 'hover:bg-item-hover'} ${r.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${ROW} ${isPicked ? 'bg-surface-accent' : 'hover:bg-item-hover'} ${r.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
       @click=${(e: MouseEvent) => this.#onRowClick(side, r, e)}
       @dblclick=${() => this.#onRowDblClick(side, r)}
       @dragstart=${(e: DragEvent) => this.#onDragStart(e, r.value)}
@@ -687,7 +687,7 @@ export class JimbleDualListbox extends JimbleFormElement {
           : html`<span
               part="move"
               aria-hidden="true"
-              class="inline-flex shrink-0 rounded-full text-fg-muted hover:text-primary-700"
+              class="inline-flex shrink-0 rounded-full text-fg-muted hover:text-fg-accent"
               @click=${(e: Event) => {
                 e.stopPropagation()
                 this.#move(side, [r.value])

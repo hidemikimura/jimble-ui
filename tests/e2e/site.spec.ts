@@ -69,6 +69,19 @@ for (const path of PAGES) {
     ).toEqual([])
     expect(errors).toEqual([])
   })
+
+  // サイトは color-scheme: light dark なので、OS がダークなら部品もダークになる（設計書 §4.8）
+  test(`${path}: ダークモードでも axe 違反が無い`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await page.goto(path)
+    await page.waitForFunction(() => customElements.get('jimble-button') !== undefined)
+    const result = await new AxeBuilder({ page }).withTags(TAGS).exclude('iframe').analyze()
+    expect(
+      result.violations.map(
+        (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`,
+      ),
+    ).toEqual([])
+  })
 }
 
 test('例ブロック: 矢印キーでタブが切り替わり、ソースが表示される', async ({ page }) => {

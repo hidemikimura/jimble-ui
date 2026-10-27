@@ -26,7 +26,7 @@
     background: var(--jimble-table-row-hover-bg, var(--_c-surface-muted));
   }
   :host(jimble-table-row[selected]) {
-    background: var(--_c-primary-50);
+    background: var(--_c-surface-accent);
   }
 
   :host(jimble-table-cell),

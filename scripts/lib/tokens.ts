@@ -10,8 +10,11 @@ export type Token = {
   name: string
   theme?: string
   value: string
+  /** ダークモード（color-scheme: dark）での値。あれば既定値を light-dark(value, dark) にする */
+  dark?: string
   themeExtra?: Record<string, string>
 }
+export type Scheme = 'light' | 'dark'
 type Scale = { from: string; steps: number[] }
 type Source = {
   scales: Record<string, Scale>
@@ -69,18 +72,33 @@ const expand = (
     return replacer(ref, [...seen, ref])
   })
 
+/** トークン自身の既定値。dark があれば light-dark(明, 暗) で包む（設計書 §4.8） */
+const withScheme = (t: Token, resolve: (raw: string) => string): string =>
+  t.dark ? `light-dark(${resolve(t.value)}, ${resolve(t.dark)})` : resolve(t.value)
+
 /** var(--jimble-x, <x の解決済み既定値>) に展開（フォールバックまで含めて完全に展開） */
 export const resolveFull = (raw: string, seen: string[] = []): string =>
-  expand(raw, (ref, s) => `var(--jimble-${ref}, ${resolveFull(byName.get(ref)!.value, s)})`, seen)
+  expand(
+    raw,
+    (ref, s) => `var(--jimble-${ref}, ${withScheme(byName.get(ref)!, (r) => resolveFull(r, s))})`,
+    seen,
+  )
+
+/** トークンの既定値（var() のフォールバックに置く値） */
+export const tokenDefault = (t: Token): string => withScheme(t, (r) => resolveFull(r, [t.name]))
 
 /** tokens.css 用: 参照は var(--jimble-x) のまま（スケールを編集すればロールが追従する） */
 export const resolveRef = (raw: string): string => expand(raw, (ref) => `var(--jimble-${ref})`)
 
-/** 参照を全て既定値のリテラルに解決した値（テスト用） */
-export const defaultValue = (name: string): string => {
+/** tokens.css 用のトークンの値 */
+export const tokenRef = (t: Token): string => withScheme(t, resolveRef)
+
+/** 参照を全て既定値のリテラルに解決した値（テスト用）。scheme でライト・ダークを選ぶ */
+export const defaultValue = (name: string, scheme: Scheme = 'light'): string => {
+  const pick = (t: Token) => (scheme === 'dark' && t.dark ? t.dark : t.value)
   const t = byName.get(name)
   if (!t) throw new Error(`未定義のトークン: ${name}`)
   const walk = (raw: string, seen: string[]): string =>
-    expand(raw, (ref, s) => walk(byName.get(ref)!.value, s), seen)
-  return walk(t.value, [name])
+    expand(raw, (ref, s) => walk(pick(byName.get(ref)!), s), seen)
+  return walk(pick(t), [name])
 }

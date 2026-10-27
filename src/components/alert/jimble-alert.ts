@@ -12,16 +12,16 @@ import type { MessageKey } from '../../i18n/index.js'
 export type AlertVariant = 'info' | 'success' | 'warning' | 'danger'
 
 const VARIANT: Record<AlertVariant, string> = {
-  info: 'bg-info-50 text-info-800 ring-info-600/20',
-  success: 'bg-success-50 text-success-800 ring-success-600/20',
-  warning: 'bg-warning-50 text-warning-800 ring-warning-600/20',
-  danger: 'bg-danger-50 text-danger-800 ring-danger-600/20',
+  info: 'bg-surface-info text-fg-info-strong ring-icon-info/20',
+  success: 'bg-surface-success text-fg-success-strong ring-icon-success/20',
+  warning: 'bg-surface-warning text-fg-warning-strong ring-icon-warning/20',
+  danger: 'bg-surface-danger text-fg-danger-strong ring-icon-danger/20',
 }
 const ICON_COLOR: Record<AlertVariant, string> = {
-  info: 'text-info-600',
-  success: 'text-success-600',
-  warning: 'text-warning-600',
-  danger: 'text-danger-600',
+  info: 'text-icon-info',
+  success: 'text-icon-success',
+  warning: 'text-icon-warning',
+  danger: 'text-icon-danger',
 }
 const ICON: Record<AlertVariant, Icon> = {
   info: informationCircle,

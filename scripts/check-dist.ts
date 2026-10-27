@@ -55,11 +55,11 @@ const kb = (n: number) => (n / 1024).toFixed(1)
 const gz = (f: string) => gzipSync(readFileSync(f)).length
 const BUDGET = {
   /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
-  shared: 15 * 1024,
+  shared: 16 * 1024,
   /** それ以外の JS(部品 1 つぶんなど) */
   each: 9 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
-  cdn: 92 * 1024,
+  cdn: 94 * 1024,
 }
 const sizes = js.map((f) => [f, gz(f)] as const)
 const sharedFile = cssHolder[0]?.[0]

@@ -1,9 +1,17 @@
 /* ドキュメントサイト自体のスタイル。M4 で app-shell / sidebar-nav に置き換える。 */
+/* OS の設定に従って、ライト・ダークを切り替える（部品も同じ color-scheme に従う） */
 :root {
-  --fg: var(--jimble-color-text, #111827);
-  --muted: #4b5563;
-  --line: #e5e7eb;
-  --accent: var(--jimble-color-primary-600, #4f46e5);
+  color-scheme: light dark;
+  --fg: light-dark(#111827, #f3f4f6);
+  --muted: light-dark(#4b5563, #9ca3af);
+  --line: light-dark(#e5e7eb, #374151);
+  --bg: light-dark(#fff, #111827);
+  --bg-subtle: light-dark(#f9fafb, #030712);
+  --bg-code: light-dark(#f3f4f6, #1f2937);
+  --current-bg: light-dark(#e0e7ff, #1e1b4b);
+  --current-fg: light-dark(#3730a3, #c7d2fe);
+  --accent: light-dark(#4f46e5, #818cf8);
+  --warn: light-dark(#b45309, #fbbf24);
   font-family: var(--jimble-font-sans, system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif);
   color: var(--fg);
   line-height: 1.7;
@@ -13,7 +21,7 @@
 }
 body {
   margin: 0;
-  background: #fff;
+  background: var(--bg);
 }
 .skip {
   position: absolute;
@@ -23,7 +31,7 @@ body {
   left: 8px;
   top: 8px;
   z-index: 10;
-  background: #fff;
+  background: var(--bg);
   padding: 8px 12px;
   outline: 2px solid var(--accent);
 }
@@ -36,7 +44,7 @@ body {
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--bg);
   z-index: 5;
 }
 .brand {
@@ -87,11 +95,11 @@ nav a {
   font-size: 0.875rem;
 }
 nav a:hover {
-  background: #f3f4f6;
+  background: var(--bg-code);
 }
 nav a[aria-current='page'] {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: var(--current-bg);
+  color: var(--current-fg);
   font-weight: 600;
 }
 main {
@@ -122,7 +130,7 @@ summary:focus-visible,
 code {
   font-family: var(--jimble-font-mono, ui-monospace, monospace);
   font-size: 0.875em;
-  background: #f3f4f6;
+  background: var(--bg-code);
   padding: 0.1em 0.35em;
   border-radius: 0.25rem;
 }
@@ -159,7 +167,7 @@ td {
   border-bottom: 1px solid var(--line);
 }
 thead th {
-  background: #f9fafb;
+  background: var(--bg-subtle);
   white-space: nowrap;
 }
 td code {
@@ -169,7 +177,7 @@ small {
   color: var(--muted);
 }
 .warn {
-  color: #b45309;
+  color: var(--warn);
 }
 .icon-grid {
   display: grid;

@@ -14,8 +14,8 @@ const IDLE =
   '[color:var(--jimble-sidebar-nav-text,var(--color-fg))] ' +
   'hover:[background-color:var(--jimble-sidebar-nav-hover-bg,var(--color-surface-sunken))]'
 const CURRENT =
-  '[background-color:var(--jimble-sidebar-nav-current-bg,var(--color-primary-50))] ' +
-  '[color:var(--jimble-sidebar-nav-current-text,var(--color-primary-700))]'
+  '[background-color:var(--jimble-sidebar-nav-current-bg,var(--color-surface-accent))] ' +
+  '[color:var(--jimble-sidebar-nav-current-text,var(--color-fg-accent))]'
 /** アイコン。大きさは、中の jimble-icon が読む --jimble-icon-size に渡す(未指定なら、アイコン自身の大きさ) */
 const ICON =
   'inline-flex shrink-0 [color:var(--jimble-sidebar-nav-icon-color,var(--color-fg-muted))] ' +
@@ -54,8 +54,8 @@ const initialOf = (source: HTMLElement | string) =>
  * @cssprop [--jimble-sidebar-nav-current-icon-color=var(--jimble-sidebar-nav-icon-color)] - 現在のページのアイコンの色
  * @cssprop [--jimble-sidebar-nav-icon-size=アイコン自身の大きさ(1.25rem)] - アイコン（`jimble-icon`）の大きさ
  * @cssprop [--jimble-sidebar-nav-hover-bg=var(--jimble-color-surface-sunken)] - マウスを重ねた項目の背景（細い表示の頭文字の背景にも使う）
- * @cssprop [--jimble-sidebar-nav-current-bg=var(--jimble-color-primary-50)] - 現在のページの背景
- * @cssprop [--jimble-sidebar-nav-current-text=var(--jimble-color-primary-700)] - 現在のページの文字色
+ * @cssprop [--jimble-sidebar-nav-current-bg=var(--jimble-color-surface-accent)] - 現在のページの背景
+ * @cssprop [--jimble-sidebar-nav-current-text=var(--jimble-color-text-accent)] - 現在のページの文字色
  * @cssprop [--jimble-sidebar-nav-ring-focus=var(--jimble-color-ring-focus)] - フォーカスの輪郭の色
  */
 export class JimbleSidebarNav extends JimbleElement {

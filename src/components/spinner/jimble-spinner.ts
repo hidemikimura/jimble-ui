@@ -13,7 +13,7 @@ const SIZE: Record<SpinnerSize, string> = {
 }
 const VARIANT: Record<SpinnerVariant, string> = {
   current: '',
-  primary: 'text-primary-600',
+  primary: 'text-icon-accent',
 }
 const ICON = 'block size-(--_size) motion-safe:animate-spin motion-reduce:animate-pulse'
 

@@ -21,9 +21,9 @@ export class DocsExample extends LitElement {
     :host {
       display: block;
       margin: 1.5rem 0;
-      border: 1px solid #d1d5db;
+      border: 1px solid light-dark(#d1d5db, #4b5563);
       border-radius: 0.5rem;
-      background: #fff;
+      background: light-dark(#fff, #111827);
     }
     .bar {
       display: flex;
@@ -31,8 +31,8 @@ export class DocsExample extends LitElement {
       align-items: center;
       gap: 0.5rem 1rem;
       padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid #e5e7eb;
-      background: #f9fafb;
+      border-bottom: 1px solid light-dark(#e5e7eb, #374151);
+      background: light-dark(#f9fafb, #030712);
       border-radius: 0.5rem 0.5rem 0 0;
     }
     h3 {
@@ -53,24 +53,24 @@ export class DocsExample extends LitElement {
       border: 0;
       border-radius: 0.375rem;
       background: transparent;
-      color: #374151;
+      color: light-dark(#374151, #d1d5db);
       cursor: pointer;
     }
     button:hover {
-      background: #e5e7eb;
+      background: light-dark(#e5e7eb, #374151);
     }
     button[aria-selected='true'] {
-      background: #e0e7ff;
-      color: #3730a3;
+      background: light-dark(#e0e7ff, #1e1b4b);
+      color: light-dark(#3730a3, #c7d2fe);
       font-weight: 600;
     }
     button:focus-visible {
-      outline: 2px solid #4f46e5;
+      outline: 2px solid light-dark(#4f46e5, #818cf8);
       outline-offset: 1px;
     }
     .status {
       font-size: 0.75rem;
-      color: #166534;
+      color: light-dark(#166534, #86efac);
       min-width: 5em;
     }
     [role='tabpanel'] {
@@ -84,7 +84,7 @@ export class DocsExample extends LitElement {
       overflow: auto;
     }
     #panel-source:focus-visible {
-      outline: 2px solid #4f46e5;
+      outline: 2px solid light-dark(#4f46e5, #818cf8);
       outline-offset: -2px;
     }
     ::slotted([slot='source']) {

@@ -17,7 +17,7 @@
 
 ### 0.2 決定済み要件（依頼文より）
 
-Lit 3 / Tailwind CSS v4 / TypeScript / Vite（ライブラリモード）、`jimble-` 接頭辞、Shadow DOM + 共有 `CSSStyleSheet`、カスタマイズは CSS 変数 → `::part()` → スロット、内部の Tailwind クラス名は非公開、React ラッパーなし、ダークモードは後回し（ただし色は意味トークン経由）、日本語既定 + 辞書差し替え、IME 変換中の Enter は確定扱いにしない、WCAG 2.2 AA + APG、Chrome/Edge/Firefox/Safari の最新 2 バージョン、自作ドキュメントサイト、外部ライブラリは比較提示 → 了承後に採用。
+Lit 3 / Tailwind CSS v4 / TypeScript / Vite（ライブラリモード）、`jimble-` 接頭辞、Shadow DOM + 共有 `CSSStyleSheet`、カスタマイズは CSS 変数 → `::part()` → スロット、内部の Tailwind クラス名は非公開、React ラッパーなし、ダークモードは後回し（ただし色は意味トークン経由。のちに `color-scheme` で切り替える形で追加した。§4.8）、日本語既定 + 辞書差し替え、IME 変換中の Enter は確定扱いにしない、WCAG 2.2 AA + APG、Chrome/Edge/Firefox/Safari の最新 2 バージョン、自作ドキュメントサイト、外部ライブラリは比較提示 → 了承後に採用。
 
 ### 0.3 調査で分かり、設計に効いている事実（2026-09-29 時点）
 
@@ -504,7 +504,7 @@ LitElement
 .settings jimble-button { --jimble-button-radius: 9999px; }
 ```
 
-将来のダークモード: ロールだけを差し替える（`[data-theme="dark"] { --jimble-color-surface: …; --jimble-color-text: …; }`）。スケールは色相の階調のまま。
+ダークモード: ロールの既定値を `light-dark()` で持ち、利用者の `color-scheme` で切り替える（§4.8）。スケールは色相の階調のまま。
 
 ### 4.6 コントラストの取り決め（F3）
 
@@ -519,6 +519,19 @@ LitElement
 - フォーカスは `:focus-visible` のみ。`ring-2 ring-inset ring-ring-focus`（コンポーネントによっては `outline` のオフセット付き）。フォーカスインジケーターは背景に対し 3:1 以上、かつ 2 px 以上（WCAG 2.4.13 の趣旨）。
 - **強制色モード（F4）**: ring/shadow で枠を描く要素には `outline: 1px solid transparent` を併用する。フォーカス時は `outline-width` を太くする。ホスト CSS に `@media (forced-colors: active)` を用意し、システム色（`ButtonText`, `Highlight` 等）にマップする。
 - **スティッキーヘッダーがフォーカスを隠さない**（WCAG 2.4.11）: app-shell が `scroll-padding-top` を公開変数 `--jimble-app-shell-header-height` から設定する。
+
+### 4.8 ダークモード
+
+> **決定** ロールのトークンは、既定値を `light-dark(ライトの値, ダークの値)` で持つ（`tokens.json` の `dark`）。切り替えは、利用者がページに書く CSS の `color-scheme` に任せる。`:root { color-scheme: light dark }` で OS の設定に従い、`color-scheme: dark` で常にダークになる。要素に書けば、ページの一部だけダークにできる。**何も書かないページは、これまでどおりライト**（互換性を壊さない）。
+> **理由** 既定値を `:root` に宣言しない約束（§4.4）を保ったまま、利用者の変数の上書きが、両方のモードで勝つ。`color-scheme` は継承するので、Shadow DOM の中とトップレイヤー（`<dialog>`・popover）にも届く。スクロールバー・ネイティブの入力など、ブラウザが描く部分も同じ指定でそろう。部品にモードの JS は要らない。
+> **比較した案** `[data-theme="dark"]` の属性 — OS に従わせるには利用者が JS を書く必要があり、ブラウザが描く部分のために `color-scheme` も別に指定させることになる。OS の設定に自動で従う（既定でダーク） — 利用者のページがライトのままだと、部品だけ暗くなる（互換性が壊れる）。スケールを反転する（ダークで 50 と 950 を入れ替える） — 白い文字が乗る塗りつぶし（`primary-600`）のコントラストが崩れ、利用者がブランド色を上書きすると、反転が効かなくなる。
+
+- **スケールは、モードで変わらない**（色相の階調のまま）。白い文字や印が乗る塗りつぶし（主ボタン、チェック済みのチェックボックス・ラジオ・スイッチ、ページ送りの現在のページ、日付の選択中の日）は、両方のモードで同じスケールを使う。
+- それ以外で、部品がスケールを直接使っていた所（選択中の淡い背景、状態の色、アクセントの文字・印、ツールチップ、スイッチの溝）には、ロールを足して置き換えた（`surface-accent`・`text-accent`・`icon-accent`・`surface-{状態}`・`text-{状態}`・`text-{状態}-strong`・`icon-{状態}`・`surface-inverse`・`surface-track`・`text-secondary`）。ライトの値は、置き換える前のスケールと同じなので、ライトの見た目は変わらない。状態のスケールには、ダーク用に 300・400・900・950 の段階を足した。
+- **利用者が色を 1 つの値で上書きすると、その色は両方のモードで同じになる**。モードで変えたいときは、利用者も `light-dark()` で書く。
+- **ビルド**: Vite の CSS の圧縮（lightningcss）は、既定で `light-dark()` を `--lightningcss-light` / `--lightningcss-dark` の変数を使う形に置き換える。この変数は、同じシートの `color-scheme` の宣言からしか設定されず、部品の中では未定義になるので、ライトの色まで効かなくなる。`build/shared.ts` で `Features.LightDark` を除外している（Tailwind 自身も同じものを除外している）。
+- **サイズ**: `@theme inline` なので、ロールの色を使うクラスごとに、ライトとダークの既定値が書かれる。共有チャンクが 14.9 → 15.3 KB、CDN バンドルが 92.0 → 92.4 KB（gz）になったので、予算を共有チャンク 16 KB、CDN 94 KB に上げた。さらに減らすなら、`@theme inline` をやめて、色の既定値を 1 か所にまとめる案がある（§4.4 の仕組みを変えるので、見送った）。
+- **試験**: コントラストの契約（§4.6）は、同じ組み合わせを、ライトとダークの両方で測る。ドキュメントサイトも `color-scheme: light dark` にし、E2E で、全ページを、ダークでも axe にかける。`src/styles/dark-mode.test.ts` が、既定のライト、`color-scheme: dark`、ページの一部だけ、利用者の上書き、トップレイヤーのダイアログを、3 つのブラウザで確かめる。
 
 ---
 

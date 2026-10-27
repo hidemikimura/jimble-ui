@@ -18,10 +18,10 @@ const ICON: Record<ToastVariant, Icon> = {
   danger: xCircle,
 }
 const ICON_COLOR: Record<ToastVariant, string> = {
-  info: 'text-info-600',
-  success: 'text-success-600',
-  warning: 'text-warning-600',
-  danger: 'text-danger-600',
+  info: 'text-icon-info',
+  success: 'text-icon-success',
+  warning: 'text-icon-warning',
+  danger: 'text-icon-danger',
 }
 const LABEL: Record<ToastVariant, MessageKey> = {
   info: 'alert.info',

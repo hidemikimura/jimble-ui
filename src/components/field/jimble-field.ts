@@ -340,7 +340,7 @@ export class JimbleField extends JimbleElement {
         >
         ${
           this.required
-            ? html`<span part="required" class="text-xs text-danger-700" aria-hidden="true"
+            ? html`<span part="required" class="text-xs text-fg-danger" aria-hidden="true"
                 >${this.t('field.required')}</span
               >`
             : nothing
@@ -356,7 +356,7 @@ export class JimbleField extends JimbleElement {
       </p>
       <p
         part="error"
-        class=${error ? 'text-sm text-danger-700' : 'hidden'}
+        class=${error ? 'text-sm text-fg-danger' : 'hidden'}
         aria-hidden=${hide ?? nothing}
       >
         ${this.error}${slot('error')}${this.error || this.#slotText('error') ? nothing : this.#reported}

@@ -96,8 +96,79 @@ jimble-button:state(loading) {
 
 部品ごとの変数は、各ページの「CSS 変数」の表にも載っています。**色を変えるときは、文字 4.5:1、枠・アイコン 3:1 のコントラストを保ってください。**
 
+## ダークモード
+
+部品の色は、ページの CSS の `color-scheme` に従って、ライトとダークが切り替わります。**何も書かなければ、これまでどおりライトです。**
+
+```css
+/* OS の設定に従う */
+:root {
+  color-scheme: light dark;
+}
+/* 常にダーク */
+:root {
+  color-scheme: dark;
+}
+/* ページの一部だけダーク */
+.preview {
+  color-scheme: dark;
+}
+```
+
+ダイアログ・メニュー・ツールチップも、置いた場所の `color-scheme` に従います。スクロールバーなど、ブラウザが描く部分も同じ指定でそろいます。**ページ自体の背景と文字の色は、利用者が指定してください**（部品はページの `body` を塗りません）。
+
+色の変数を 1 つの値で上書きすると、その色は両方のモードで同じになります。モードごとに変えるときは、`light-dark()` で書きます。
+
+```css
+:root {
+  --jimble-color-primary-600: #0f766e; /* 両方のモードで同じ */
+  --jimble-color-surface: light-dark(#ffffff, #0b1220); /* ライト, ダーク */
+}
+```
+
+主ボタンなど、白い文字が乗る塗りつぶしの色（`primary-600` など）は、両方のモードで同じです。ダークで変わるのは、面・文字・枠と、選択中・状態の淡い色です（下の表の「ダークモード」の列）。
+
+### JS で切り替える
+
+ページの `color-scheme` を書き換えると、部品の色がすぐに切り替わります（開いているダイアログやメニューも）。部品の側に、専用の関数はありません。
+
+```js
+document.documentElement.style.colorScheme = 'dark' // 常にダーク
+document.documentElement.style.colorScheme = 'light' // 常にライト
+document.documentElement.style.colorScheme = 'light dark' // OS の設定に従う
+```
+
+切り替えの選択肢を置き、選んだモードを覚えておく例です。
+
+```html
+<jimble-select id="scheme" aria-label="表示モード">
+  <jimble-option value="light dark">OS に従う</jimble-option>
+  <jimble-option value="light">ライト</jimble-option>
+  <jimble-option value="dark">ダーク</jimble-option>
+</jimble-select>
+
+<script type="module">
+  const KEY = 'color-scheme'
+  const select = document.getElementById('scheme')
+  const apply = (v) => (document.documentElement.style.colorScheme = v)
+
+  const saved = localStorage.getItem(KEY) ?? 'light dark'
+  apply(saved)
+  select.value = saved
+
+  select.addEventListener('change', () => {
+    apply(select.value)
+    localStorage.setItem(KEY, select.value)
+  })
+</script>
+```
+
+- 「OS に従う」のときに、いまダークで表示しているかは、`matchMedia('(prefers-color-scheme: dark)').matches` で分かります。
+- ページの一部だけを切り替えるときは、その要素の `style.colorScheme` を書き換えます。
+- 読み込み直後に、ライトで一瞬描かれてから切り替わるのを避けるには、`apply(saved)` までを、`<head>` の中の普通の `<script>`（`type="module"` なし）に書きます。描画の前に実行されます。
+
 ## トークン一覧
 
-色はすべて意味を表すトークンを通して指定されています。ダークモードは将来、ロール（`surface` や `text`）の値を差し替えるだけで追加できる設計です。
+色はすべて意味を表すトークンを通して指定されています。面・文字・枠などのロールは、ダークモードの値を持っています。
 
 ::tokens

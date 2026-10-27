@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/postcss'
+import { Features } from 'lightningcss'
 import type { UserConfig } from 'vite'
 import shadowFix from './postcss-shadow-fix.ts'
 
@@ -8,6 +9,9 @@ export function sharedConfig(mode: string): UserConfig {
     define: { __DEV__: JSON.stringify(mode !== 'production') },
     css: {
       postcss: { plugins: [tailwindcss(), shadowFix()] },
+      // light-dark() を --lightningcss-light/-dark の変数に置き換えさせない（ダークモード。設計書 §4.8）。
+      // Tailwind 自身も同じものを除外している。
+      lightningcss: { exclude: Features.LightDark },
     },
     build: { target: 'es2023', cssMinify: 'lightningcss' },
   }

@@ -859,7 +859,7 @@ export class JimbleCombobox extends JimbleFormElement {
     >
       <span class="min-w-0 flex-1"
         >${r.create ? this.t('combobox.create', { text: r.item.label }) : r.item.label}</span
-      >${selected ? renderIcon(check, 'size-4 shrink-0 text-primary-600') : nothing}
+      >${selected ? renderIcon(check, 'size-4 shrink-0 text-icon-accent') : nothing}
     </div>`
   }
 

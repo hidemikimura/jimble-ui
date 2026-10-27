@@ -2,7 +2,7 @@
 // 実行: node scripts/gen-tokens.ts [--check]   （--check は生成物が最新か確認するだけ）
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { aliases, all, byName, resolveFull, resolveRef, themeRaw } from './lib/tokens.ts'
+import { aliases, all, byName, themeRaw, tokenDefault, tokenRef } from './lib/tokens.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const banner =
@@ -12,14 +12,14 @@ let theme = `${banner}@theme inline {\n  --color-*: initial;\n`
 for (const t of all) {
   if (!t.theme) continue
   // 既定値は :host / :root に置かず var() のフォールバックで持つ（設計書 §4.4 / F2）
-  theme += `  ${t.theme}: var(--jimble-${t.name}, ${resolveFull(t.value)});\n`
+  theme += `  ${t.theme}: var(--jimble-${t.name}, ${tokenDefault(t)});\n`
   for (const [k, v] of Object.entries(t.themeExtra ?? {})) theme += `  ${k}: ${v};\n`
 }
 theme += themeRaw
 theme += '}\n'
 
 let tokensCss = `${banner}:root {\n`
-for (const t of all) tokensCss += `  --jimble-${t.name}: ${resolveRef(t.value)};\n`
+for (const t of all) tokensCss += `  --jimble-${t.name}: ${tokenRef(t)};\n`
 tokensCss += '}\n'
 
 // ホスト用 CSS(*.host.css)から使う色のエイリアス。既定値を二重に書かずに済む。
@@ -27,7 +27,7 @@ tokensCss += '}\n'
 let aliasCss = `${banner}@layer base {\n  :host {\n`
 for (const name of aliases) {
   if (!byName.has(name)) throw new Error(`aliases に未定義のトークン: ${name}`)
-  aliasCss += `    --_c-${name.replace(/^color-/, '')}: var(--jimble-${name}, ${resolveFull(byName.get(name)!.value)});\n`
+  aliasCss += `    --_c-${name.replace(/^color-/, '')}: var(--jimble-${name}, ${tokenDefault(byName.get(name)!)});\n`
 }
 aliasCss += '  }\n}\n'
 

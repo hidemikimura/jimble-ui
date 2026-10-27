@@ -39,7 +39,6 @@ export interface Group {
 }
 
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
-const SHORT = [50, 100, 200, 500, 600, 700, 800]
 const scale = (name: string, steps: number[]): Entry[] =>
   steps.map((s) => ({ name: `--jimble-color-${name}-${s}`, label: String(s), kind: 'color' }))
 /** 「透明」にして使う色の変数（hover の背景・ボタンの背景と枠・項目の hover） */
@@ -95,25 +94,25 @@ export const CATALOG: Group[] = [
     title: '成功 success',
     note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
     scale: 'success',
-    entries: scale('success', SHORT),
+    entries: scale('success', STEPS),
   },
   {
     title: '警告 warning',
     note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
     scale: 'warning',
-    entries: scale('warning', SHORT),
+    entries: scale('warning', STEPS),
   },
   {
     title: 'エラー danger',
     note: '600 = 枠・danger ボタン / 700・800 = 文字',
     scale: 'danger',
-    entries: scale('danger', SHORT),
+    entries: scale('danger', STEPS),
   },
   {
     title: '情報 info',
     note: '50 = 背景 / 600 = アイコン / 700・800 = 文字',
     scale: 'info',
-    entries: scale('info', SHORT),
+    entries: scale('info', STEPS),
   },
   {
     title: '面・文字',
@@ -135,6 +134,36 @@ export const CATALOG: Group[] = [
       c('--jimble-color-text-on-primary', '主ボタンの文字'),
       c('--jimble-color-text-link', 'リンク'),
       c('--jimble-color-primary', '主色（単色の参照）'),
+    ],
+  },
+  {
+    title: '選択中・状態の色',
+    note: '意味を持つ色(通常は、上の段階を参照しています)。ここで 1 つの色を選ぶと、ダークモードでも同じ色になります',
+    entries: [
+      c('--jimble-color-surface-accent', '選択中の行・現在のページの背景'),
+      c('--jimble-color-surface-accent-strong', '日付の範囲の背景'),
+      c('--jimble-color-surface-accent-stronger', '日付の範囲の hover'),
+      c('--jimble-color-text-accent', '選択中の文字・タブ'),
+      c('--jimble-color-icon-accent', 'チェックの印・並べ替えの印'),
+      c('--jimble-color-surface-inverse', 'ツールチップの背景'),
+      c('--jimble-color-surface-track', 'スイッチ(オフ)の溝'),
+      c('--jimble-color-text-secondary', 'neutral バッジの文字'),
+      c('--jimble-color-surface-success', '成功: アラート・バッジの背景'),
+      c('--jimble-color-text-success', '成功: バッジ・エラーの文字'),
+      c('--jimble-color-text-success-strong', '成功: アラートの文字'),
+      c('--jimble-color-icon-success', '成功: アイコン'),
+      c('--jimble-color-surface-warning', '警告: アラート・バッジの背景'),
+      c('--jimble-color-text-warning', '警告: バッジ・エラーの文字'),
+      c('--jimble-color-text-warning-strong', '警告: アラートの文字'),
+      c('--jimble-color-icon-warning', '警告: アイコン'),
+      c('--jimble-color-surface-danger', 'エラー: アラート・バッジの背景'),
+      c('--jimble-color-text-danger', 'エラー: バッジ・エラーの文字'),
+      c('--jimble-color-text-danger-strong', 'エラー: アラートの文字'),
+      c('--jimble-color-icon-danger', 'エラー: アイコン'),
+      c('--jimble-color-surface-info', '情報: アラート・バッジの背景'),
+      c('--jimble-color-text-info', '情報: バッジ・エラーの文字'),
+      c('--jimble-color-text-info-strong', '情報: アラートの文字'),
+      c('--jimble-color-icon-info', '情報: アイコン'),
     ],
   },
   {

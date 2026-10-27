@@ -108,7 +108,7 @@ export class JimbleTable extends JimbleElement {
       ${
         this.loading
           ? html`<div
-              class="pointer-events-none absolute inset-0 grid place-items-center text-primary-600"
+              class="pointer-events-none absolute inset-0 grid place-items-center text-icon-accent"
             >
               <span class="motion-safe:animate-spin">${renderIcon(spinner, 'size-6')}</span>
               <span class="sr-only">${this.t('common.loading')}</span>

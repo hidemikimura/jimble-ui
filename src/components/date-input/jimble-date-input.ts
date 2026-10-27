@@ -44,8 +44,8 @@ const DAY =
   'outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus ' +
   'disabled:cursor-not-allowed disabled:opacity-40'
 const TEXT_BTN =
-  'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-primary-700 cursor-pointer ' +
-  'hover:bg-primary-50 disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 outline-transparent ' +
+  'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-fg-accent cursor-pointer ' +
+  'hover:bg-surface-accent disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const TITLE_CONTROL =
   'h-8 rounded-md bg-surface px-1.5 text-sm font-semibold text-fg ring-1 ring-inset ring-line-control ' +
@@ -814,9 +814,9 @@ export class JimbleDateInput extends JimbleFormElement {
       edge
         ? 'rounded-md bg-primary-600 text-fg-on-primary font-semibold'
         : inRange
-          ? 'rounded-none bg-primary-100 text-fg hover:bg-primary-200'
+          ? 'rounded-none bg-surface-accent-strong text-fg hover:bg-surface-accent-stronger'
           : isToday
-            ? 'rounded-md text-primary-700 font-semibold ring-1 ring-inset ring-primary-600 hover:bg-surface-sunken'
+            ? 'rounded-md text-fg-accent font-semibold ring-1 ring-inset ring-icon-accent hover:bg-surface-sunken'
             : 'rounded-md text-fg hover:bg-surface-sunken'
     }`
     return html`<td role="gridcell" aria-selected=${edge || inRange ? 'true' : 'false'}>

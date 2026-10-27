@@ -1,6 +1,6 @@
 // トークンのコントラスト契約（設計書 §4.6）。既定トークンの組み合わせが WCAG AA を満たすことを保証する。
 import { describe, expect, it } from 'vitest'
-import { defaultValue } from '../../scripts/lib/tokens.ts'
+import { defaultValue, type Scheme } from '../../scripts/lib/tokens.ts'
 
 type RGB = [number, number, number]
 
@@ -37,20 +37,29 @@ export function contrast(fg: string, bg: string): number {
   const [a, b] = [luminance(parse(fg)), luminance(parse(bg))]
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 }
-const c = (token: string) => defaultValue(`color-${token}`)
+const c = (token: string, scheme: Scheme = 'light') => defaultValue(`color-${token}`, scheme)
 
-// [前景, 背景, 必要な比, 用途]
+// [前景, 背景, 必要な比, 用途]。ライトとダークの両方で確かめる（設計書 §4.8）
 const PAIRS: [string, string, number, string][] = [
   ['text', 'surface', 4.5, '本文'],
   ['text', 'surface-muted', 4.5, 'ページ背景上の本文'],
+  ['text', 'surface-overlay', 4.5, 'メニュー・ダイアログの本文'],
   ['text-muted', 'surface', 4.5, '補助文字'],
   ['text-muted', 'surface-muted', 4.5, '補助文字(背景)'],
+  ['text-muted', 'surface-overlay', 4.5, 'メニュー・ダイアログの補助文字'],
   ['text', 'surface-sunken', 4.5, 'カンバンの列の見出し・件数・空の表示'],
   ['text', 'item-hover', 4.5, 'メニュー・セレクトなどの項目の hover'],
-  ['danger-700', 'item-hover', 4.5, 'メニューの危険な項目の hover'],
-  ['primary-700', 'surface', 4.5, 'カンバンの「ここに移動」'],
+  ['text-danger', 'item-hover', 4.5, 'メニューの危険な項目の hover'],
+  ['text-danger', 'surface-overlay', 4.5, 'メニューの危険な項目'],
+  ['text-danger', 'surface', 4.5, 'フィールドのエラー'],
+  ['text-accent', 'surface', 4.5, 'カンバンの「ここに移動」・タブの選択中'],
+  ['text-accent', 'surface-accent', 4.5, 'サイドバーの現在のページ・選択中の行'],
+  ['text', 'surface-accent-strong', 4.5, '日付の範囲'],
+  ['text', 'surface-accent-stronger', 4.5, '日付の範囲の hover'],
+  ['icon-accent', 'surface', 3, 'チェックの印・並べ替えの印'],
+  ['icon-accent', 'surface-overlay', 3, 'セレクトの選択中の印'],
   ['ring-control', 'surface-sunken', 3, 'カンバンの受け口の枠 (1.4.11)'],
-  ['text-on-primary', 'neutral-900', 4.5, 'ツールチップ（濃い背景に白い文字）'],
+  ['text-on-primary', 'surface-inverse', 4.5, 'ツールチップ（濃い背景に白い文字）'],
   ['text-placeholder', 'surface', 4.5, 'プレースホルダー'],
   ['text-link', 'surface', 4.5, 'リンク'],
   ['text-on-primary', 'primary-600', 4.5, 'primary ボタン'],
@@ -59,28 +68,28 @@ const PAIRS: [string, string, number, string][] = [
   ['text-on-primary', 'danger-700', 4.5, 'danger ボタン hover'],
   ['ring-control', 'surface', 3, '入力欄の枠 (1.4.11)'],
   ['ring-focus', 'surface', 3, 'フォーカスリング (2.4.13)'],
+  ['ring-focus', 'surface-muted', 3, 'フォーカスリング(背景)'],
+  ['ring-focus', 'surface-overlay', 3, 'フォーカスリング(メニュー・ダイアログ)'],
   ['ring-invalid', 'surface', 3, 'エラー枠'],
-  ['neutral-700', 'neutral-100', 4.5, 'neutral バッジ'],
-  ['primary-700', 'primary-50', 4.5, 'primary バッジ'],
-  ['success-700', 'success-50', 4.5, 'success バッジ'],
-  ['warning-700', 'warning-50', 4.5, 'warning バッジ'],
-  ['danger-700', 'danger-50', 4.5, 'danger バッジ'],
-  ['info-700', 'info-50', 4.5, 'info バッジ'],
-  ['info-800', 'info-50', 4.5, 'info アラート'],
-  ['success-800', 'success-50', 4.5, 'success アラート'],
-  ['warning-800', 'warning-50', 4.5, 'warning アラート'],
-  ['danger-800', 'danger-50', 4.5, 'danger アラート'],
-  ['info-600', 'info-50', 3, 'info アイコン'],
-  ['success-600', 'success-50', 3, 'success アイコン'],
-  ['warning-600', 'warning-50', 3, 'warning アイコン'],
-  ['danger-600', 'danger-50', 3, 'danger アイコン'],
+  ['text-secondary', 'surface-sunken', 4.5, 'neutral バッジ'],
+  ['text-accent', 'surface-accent', 4.5, 'primary バッジ'],
+  ...(['success', 'warning', 'danger', 'info'] as const).flatMap(
+    (t): [string, string, number, string][] => [
+      [`text-${t}`, `surface-${t}`, 4.5, `${t} バッジ`],
+      [`text-${t}-strong`, `surface-${t}`, 4.5, `${t} アラート`],
+      [`icon-${t}`, `surface-${t}`, 3, `${t} アラートのアイコン`],
+      [`icon-${t}`, 'surface-overlay', 3, `${t} 通知のアイコン`],
+    ],
+  ),
 ]
 
-describe('トークンのコントラスト契約', () => {
+describe.each(['light', 'dark'] as const)('トークンのコントラスト契約（%s）', (scheme) => {
   it.each(PAIRS)('%s / %s は %d:1 以上（%s）', (fg, bg, min) => {
-    expect(contrast(c(fg), c(bg))).toBeGreaterThanOrEqual(min)
+    expect(contrast(c(fg, scheme), c(bg, scheme))).toBeGreaterThanOrEqual(min)
   })
+})
 
+describe('トークンのコントラスト契約', () => {
   it('danger-500 は白文字で 4.5:1 に届かない（だから danger の hover は 700 を使う）', () => {
     expect(contrast(c('text-on-primary'), c('danger-500'))).toBeLessThan(4.5)
   })

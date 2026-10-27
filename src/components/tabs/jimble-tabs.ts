@@ -6,8 +6,8 @@ const TAB =
   'inline-flex items-center whitespace-nowrap px-3 py-2 text-sm font-medium select-none outline outline-1 ' +
   'outline-transparent -outline-offset-2 [:host(:focus-visible)_&]:outline-2 [:host(:focus-visible)_&]:outline-focus'
 const TAB_OFF = 'text-fg-muted hover:text-fg cursor-pointer'
-const TAB_ON_H = 'text-primary-700 shadow-[inset_0_-2px_0_0_var(--color-primary-600)]'
-const TAB_ON_V = 'text-primary-700 shadow-[inset_-2px_0_0_0_var(--color-primary-600)]'
+const TAB_ON_H = 'text-fg-accent shadow-[inset_0_-2px_0_0_var(--color-icon-accent)]'
+const TAB_ON_V = 'text-fg-accent shadow-[inset_-2px_0_0_0_var(--color-icon-accent)]'
 
 let seq = 0
 

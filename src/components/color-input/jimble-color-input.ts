@@ -29,8 +29,8 @@ const PRESET =
   'size-7 rounded-md cursor-pointer ring-1 ring-inset ring-line-control aria-pressed:ring-2 aria-pressed:ring-focus outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const TEXT_BTN =
-  'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-primary-700 cursor-pointer ' +
-  'hover:bg-primary-50 outline outline-1 outline-transparent ' +
+  'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-fg-accent cursor-pointer ' +
+  'hover:bg-surface-accent outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 
 /**

@@ -7,7 +7,7 @@ import { renderIcon } from '../../icons/render.js'
 /** 「ここに移動」の受け口(カードの前と、列の末尾で使う) */
 export const MOVE_TARGET =
   'block w-full rounded-md border border-dashed border-line-control bg-surface px-3 py-1.5 text-center text-sm ' +
-  'font-medium text-primary-700 cursor-pointer hover:bg-primary-50 outline outline-1 outline-transparent ' +
+  'font-medium text-fg-accent cursor-pointer hover:bg-surface-accent outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-focus'
 const CARD =
   'flex items-start gap-2 rounded-md bg-surface p-3 text-sm text-fg outline outline-1 outline-transparent ' +

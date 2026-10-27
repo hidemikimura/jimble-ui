@@ -2,7 +2,7 @@
 @layer base {
   :host {
     font-family: var(--jimble-font-sans, system-ui, sans-serif);
-    color: var(--jimble-color-text, #111827);
+    color: var(--_c-text);
     -webkit-text-size-adjust: 100%;
   }
   :host([hidden]) {

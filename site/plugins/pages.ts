@@ -21,7 +21,8 @@ const siteRoot = resolve(import.meta.dirname, '..')
 const repoRoot = resolve(siteRoot, '..')
 const LANGS = ['html', 'css', 'ts', 'bash', 'json']
 // コントラスト比が高いテーマ（WCAG AA を満たすため）
-const THEME = 'github-light-high-contrast'
+// ライトとダークの両方の色を出し、light-dark() でページの color-scheme に合わせる
+const THEMES = { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' }
 const GENERATED = ['index.html', 'guide', 'components', 'frames']
 
 interface Page {
@@ -41,7 +42,8 @@ let highlighter: Highlighter
 const highlight = (code: string, lang: string) =>
   highlighter.codeToHtml(code.replace(/\n$/, ''), {
     lang: LANGS.includes(lang) ? lang : 'text',
-    theme: THEME,
+    themes: THEMES,
+    defaultColor: 'light-dark()',
   })
 
 function walk(dir: string): string[] {
@@ -181,7 +183,12 @@ function tokensHtml(): string {
   for (const t of all) {
     const m = scaleRe.exec(t.name)
     if (m) scales.set(m[1]!, [...(scales.get(m[1]!) ?? []), m[2]!])
-    else rest.push([code(`--jimble-${t.name}`), code(resolveRef(t.value))])
+    else
+      rest.push([
+        code(`--jimble-${t.name}`),
+        code(resolveRef(t.value)),
+        t.dark ? code(resolveRef(t.dark)) : '同じ',
+      ])
   }
   const scaleRows = [...scales].map(([n, steps]) => [
     code(`--jimble-color-${n}-{step}`),
@@ -191,7 +198,7 @@ function tokensHtml(): string {
     '<h3 id="tokens-scales">カラースケール</h3>' +
     table('カラースケールの表', ['トークン', '段階 {step}'], scaleRows) +
     '<h3 id="tokens-others">その他のトークン</h3>' +
-    table('その他のトークンの表', ['トークン', '既定値'], rest)
+    table('その他のトークンの表', ['トークン', '既定値', 'ダークモード'], rest)
   )
 }
 
@@ -216,12 +223,12 @@ function exampleHtml(id: string, fromDir: string): string {
     const out = `frames/${id}/index.html`
     frames.set(
       out,
-      `<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${esc(title)}</title>\n<script type="module" src="/src/frame.ts"></script>\n<style>body{margin:0;font-family:system-ui,sans-serif}</style>\n</head>\n<body>\n${source}\n</body>\n</html>\n`,
+      `<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${esc(title)}</title>\n<script type="module" src="/src/frame.ts"></script>\n<style>:root{color-scheme:light dark}body{margin:0;font-family:system-ui,sans-serif}</style>\n</head>\n<body>\n${source}\n</body>\n</html>\n`,
     )
     const src = relative(fromDir, dirname(out)).replace(/\\/g, '/') + '/'
     preview =
       `<div slot="preview">` +
-      `<iframe src="${src}" title="${esc(title)}のプレビュー" loading="lazy" style="width:100%;height:${height}px;border:1px solid #d1d5db;border-radius:0.375rem;background:#fff"></iframe>` +
+      `<iframe src="${src}" title="${esc(title)}のプレビュー" loading="lazy" style="width:100%;height:${height}px;border:1px solid light-dark(#d1d5db, #4b5563);border-radius:0.375rem;color-scheme:light dark"></iframe>` +
       `<p style="margin:0.5rem 0 0;font-size:0.8125rem"><a href="${src}" target="_blank" rel="noopener">別のタブで開く</a>（画面の幅を変えて確認できます）</p>` +
       `</div>`
   }
@@ -320,7 +327,7 @@ ${page.description ? `<meta name="description" content="${esc(page.description)}
 
 /** すべてのページを生成して、生成した HTML の絶対パス一覧を返す */
 export async function generatePages(): Promise<string[]> {
-  highlighter ??= await createHighlighter({ themes: [THEME], langs: LANGS })
+  highlighter ??= await createHighlighter({ themes: Object.values(THEMES), langs: LANGS })
   const md = new MarkdownIt({ html: true, highlight: (c, l) => highlight(c, l) })
   const pages = loadPages()
   const manifest = loadManifest()

@@ -62,7 +62,7 @@ export class JimbleSwitch extends JimbleToggleControl {
           <span
             part="track"
             aria-hidden="true"
-            class="absolute inset-0 rounded-full bg-neutral-200 ring-1 ring-inset transition-colors
+            class="absolute inset-0 rounded-full bg-surface-track ring-1 ring-inset transition-colors
               ${invalid ? 'ring-invalid' : 'ring-line-control'}
               peer-checked:bg-primary-600 peer-checked:ring-primary-600
               outline outline-1 outline-transparent peer-focus-visible:outline-2

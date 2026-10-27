@@ -93,10 +93,10 @@ describe('追加と削除', () => {
       new DragEvent('dragenter', { dataTransfer: dt, bubbles: true, cancelable: true }),
     )
     await el.updateComplete
-    expect(zone(el).className).toContain('border-primary-600')
+    expect(zone(el).className).toContain('border-icon-accent')
     zone(el).dispatchEvent(new DragEvent('dragleave', { bubbles: true }))
     await el.updateComplete
-    expect(zone(el).className).not.toContain('border-primary-600')
+    expect(zone(el).className).not.toContain('border-icon-accent')
     drop(el, file('a.txt'))
     await el.updateComplete
     expect(names(el)).toEqual(['a.txt'])

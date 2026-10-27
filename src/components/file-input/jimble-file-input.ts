@@ -464,7 +464,7 @@ export class JimbleFileInput extends JimbleFormElement {
     return html`<li
       part="item"
       data-status=${e.status}
-      class="flex items-center gap-3 rounded-md px-3 py-2 ring-1 ring-inset ${bad ? 'ring-invalid bg-danger-50' : 'ring-line bg-surface'}"
+      class="flex items-center gap-3 rounded-md px-3 py-2 ring-1 ring-inset ${bad ? 'ring-invalid bg-surface-danger' : 'ring-line bg-surface'}"
     >
       ${
         url
@@ -481,10 +481,10 @@ export class JimbleFileInput extends JimbleFormElement {
       }
       <span class="min-w-0 flex-1">
         <span part="name" class="block truncate text-sm font-medium">${name}</span>
-        <span part="status" class="block text-xs ${bad ? 'text-danger-700' : 'text-fg-muted'}"
+        <span part="status" class="block text-xs ${bad ? 'text-fg-danger' : 'text-fg-muted'}"
           >${formatBytes(e.file.size)}${status ? html` · ${status}` : nothing}${
             e.status === 'done'
-              ? renderIcon(check, 'ml-1 inline size-3.5 text-success-700')
+              ? renderIcon(check, 'ml-1 inline size-3.5 text-fg-success')
               : nothing
           }</span
         >
@@ -538,7 +538,7 @@ export class JimbleFileInput extends JimbleFormElement {
     const name = this.accessibleName()
     const hint = this.#hint()
     const zoneState = this.dragging
-      ? 'border-primary-600 bg-primary-50'
+      ? 'border-icon-accent bg-surface-accent'
       : invalid
         ? 'border-invalid'
         : 'border-line-control'
