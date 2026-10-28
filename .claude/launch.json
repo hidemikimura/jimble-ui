@@ -6,6 +6,21 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vite", "--config", "site/vite.config.ts", "--port", "5174", "--strictPort"],
       "port": 5174
+    },
+    {
+      "name": "theme-lab",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "theme-lab",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5175",
+        "--strictPort"
+      ],
+      "port": 5175
     }
   ]
 }

@@ -2,7 +2,8 @@ import { LitElement, css, html, nothing } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import { CATALOG, SHADOW_PRESETS, WEIGHTS, type Entry, type Group } from './catalog.ts'
 import { isTransparentVar, varHex } from './color.ts'
-import { applyOverrides, findDuplicates } from './merge.ts'
+import { applyOverrides, findDuplicates, scanDecls, setForScheme } from './merge.ts'
+import { SCHEME_EVENT, activeScheme } from './scheme.ts'
 import themeRaw from './theme.css?raw'
 
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
@@ -30,6 +31,9 @@ import.meta.hot?.accept('./theme.css?raw', (mod) => {
 const duplicatesNow = () => findDuplicates(themeSource)
 
 const root = () => document.documentElement
+/** theme.css に書いてある値（同じ変数が複数あれば、効いている いちばん下の値）。なければ undefined */
+const declared = (name: string) => scanDecls(themeSource).findLast((d) => d.name === name)?.value
+
 /** いまの値(var() は、解決された値になる)。宣言されていなければ、空 */
 const current = (name: string) => getComputedStyle(root()).getPropertyValue(name).trim()
 
@@ -62,6 +66,8 @@ export class LabTuner extends LitElement {
       if (this.#overrides.size) this.#reset(false)
       this.#changed()
     })
+    // ライト・ダークを切り替えたら、色の入力欄を、そのモードの色にする
+    window.addEventListener(SCHEME_EVENT, () => this.#changed())
   }
 
   static override styles = css`
@@ -187,6 +193,16 @@ export class LabTuner extends LitElement {
     } else this.#apply(name, value.trim())
   }
 
+  /**
+   * 色を、表示中のモード（ライト・ダーク）の側だけ変える。段階（primary-600 など）は、両方のモードで同じ。
+   * 1 つの値の変数は、ダークで選ぶと light-dark(いまの値, 選んだ色) になる。
+   */
+  #setColor(g: Group, e: Entry, value: string) {
+    if (g.scale || value === '') return this.#set(e.name, value)
+    const now = this.#overrides.get(e.name) ?? declared(e.name)
+    this.#set(e.name, setForScheme(now, activeScheme(), value))
+  }
+
   #changed() {
     this.tick++
     window.dispatchEvent(new Event(THEME_EVENT))
@@ -257,8 +273,9 @@ export class LabTuner extends LitElement {
     // 色選択は不透明な色しか返さない。透けぐあいの変数を持つ色は、その変数をかけて書く
     const onColor = (ev: Event) => {
       const v = (ev.target as HTMLInputElement).value
-      this.#set(
-        e.name,
+      this.#setColor(
+        g,
+        e,
         e.withOpacity && v
           ? `color-mix(in oklab, ${v} var(${e.withOpacity}, 50%), transparent)`
           : v,
@@ -282,7 +299,7 @@ export class LabTuner extends LitElement {
             size="sm"
             aria-label=${`${aria}を透明にする`}
             ?disabled=${clear}
-            @click=${() => this.#set(e.name, 'transparent')}
+            @click=${() => this.#setColor(g, e, 'transparent')}
             >透明</jimble-button
           >
         </div>`
@@ -402,6 +419,10 @@ export class LabTuner extends LitElement {
               </div>
               <div class="body">
                 ${this.#duplicateWarning()}
+                <p class="note" role="status">
+                  いまは<strong>${activeScheme() === 'dark' ? 'ダーク' : 'ライト'}</strong>の色を表示しています。色を選ぶと、<strong>このモードの色だけ</strong>が変わります（ヘッダーの右の「OS
+                  に従う・ライト・ダーク」で切り替え）。段階（50〜950）は、両方のモードで同じです。
+                </p>
                 <p class="warn">
                   ここで変えた値は、<strong>このブラウザの中だけ</strong>で、theme.css
                   を保存すると破棄されます。決めた値は「theme.css をコピー」で、<code

@@ -184,3 +184,44 @@ export function applyOverrides(css: string, overrides: ReadonlyMap<string, strin
   }
   return out
 }
+
+/** `light-dark(ライト, ダーク)` を、2 つの値に分ける。そうでなければ null */
+export function splitLightDark(value: string): [light: string, dark: string] | null {
+  const v = value.trim()
+  if (!v.startsWith('light-dark(') || !v.endsWith(')')) return null
+  const inner = v.slice('light-dark('.length, -1)
+  let depth = 0
+  const commas: number[] = [] // かっこの外のカンマ
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i]
+    if (ch === '(') depth++
+    else if (ch === ')' && --depth < 0)
+      return null // light-dark(a, b) c(d) のように、途中で閉じている
+    else if (ch === ',' && depth === 0) commas.push(i)
+  }
+  if (depth !== 0 || commas.length !== 1) return null
+  const light = inner.slice(0, commas[0]).trim()
+  const dark = inner.slice(commas[0]! + 1).trim()
+  return light && dark ? [light, dark] : null
+}
+
+/**
+ * 表示中のモードの色だけを、`value` に変えた値を返す。
+ * - いまの値が light-dark(ライト, ダーク) なら、そのモードの側だけを置き換える
+ * - 1 つの値で、ダークを表示中なら、light-dark(いまの値, value) にする（ライトの色は変えない）
+ * - 1 つの値で、ライトを表示中なら（または、いまの値がなければ）、value そのもの（両方のモードで同じ）
+ */
+export function setForScheme(
+  current: string | undefined,
+  scheme: 'light' | 'dark',
+  value: string,
+): string {
+  const now = current?.trim() ?? ''
+  const pair = splitLightDark(now)
+  if (pair)
+    return scheme === 'dark'
+      ? `light-dark(${pair[0]}, ${value})`
+      : `light-dark(${value}, ${pair[1]})`
+  if (scheme === 'dark' && now) return `light-dark(${now}, ${value})`
+  return value
+}

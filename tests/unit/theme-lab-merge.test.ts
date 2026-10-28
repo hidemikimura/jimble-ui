@@ -2,7 +2,14 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyOverrides, dedupe, findDuplicates, scanDecls } from '../../theme-lab/src/merge.ts'
+import {
+  applyOverrides,
+  dedupe,
+  findDuplicates,
+  scanDecls,
+  setForScheme,
+  splitLightDark,
+} from '../../theme-lab/src/merge.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 const decl = (css: string, name: string) => scanDecls(css).find((d) => d.name === name)?.value
@@ -127,5 +134,49 @@ describe('theme-lab/src/theme.css', () => {
   it('同じ変数が、複数回書かれていない（いちばん下の行だけが効くため）', () => {
     const css = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
     expect(findDuplicates(css).map((d) => d.name)).toEqual([])
+  })
+})
+
+describe('ライト・ダークの色（light-dark）', () => {
+  it('light-dark(ライト, ダーク) を、かっこの中のカンマに惑わされずに分ける', () => {
+    expect(splitLightDark('light-dark(#fff, var(--jimble-color-neutral-900))')).toEqual([
+      '#fff',
+      'var(--jimble-color-neutral-900)',
+    ])
+    expect(
+      splitLightDark('light-dark(color-mix(in oklab, red 50%, transparent), rgb(0, 0, 255))'),
+    ).toEqual(['color-mix(in oklab, red 50%, transparent)', 'rgb(0, 0, 255)'])
+  })
+
+  it('light-dark でない値・形の崩れた値は、分けない', () => {
+    expect(splitLightDark('#ffffff')).toBeNull()
+    expect(splitLightDark('var(--jimble-color-surface)')).toBeNull()
+    expect(splitLightDark('light-dark(#fff)')).toBeNull()
+    expect(splitLightDark('light-dark(#fff, #000, #111)')).toBeNull()
+    expect(splitLightDark('light-dark(#fff, #000) var(--x)')).toBeNull()
+  })
+
+  it('表示中のモードの側だけを置き換える', () => {
+    const now = 'light-dark(#ffffff, var(--jimble-color-neutral-900))'
+    expect(setForScheme(now, 'dark', '#101828')).toBe('light-dark(#ffffff, #101828)')
+    expect(setForScheme(now, 'light', '#f8fafc')).toBe(
+      'light-dark(#f8fafc, var(--jimble-color-neutral-900))',
+    )
+  })
+
+  it('1 つの値の変数は、ダークで選ぶとダークだけ変わり、ライトで選ぶと両方のモードで同じになる', () => {
+    const now = 'var(--jimble-color-surface)'
+    expect(setForScheme(now, 'dark', '#0b1220')).toBe(
+      'light-dark(var(--jimble-color-surface), #0b1220)',
+    )
+    expect(setForScheme(now, 'light', '#ffffff')).toBe('#ffffff')
+    expect(setForScheme(undefined, 'dark', '#0b1220')).toBe('#0b1220') // theme.css にない（上級）
+  })
+
+  it('theme.css のダークの値を持つ変数は、light-dark で書いてあり、分けられる', () => {
+    const css = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
+    const surface = decl(css, '--jimble-color-surface')!
+    expect(splitLightDark(surface)).toEqual(['#ffffff', 'var(--jimble-color-neutral-900)'])
+    expect(splitLightDark(decl(css, '--jimble-color-backdrop')!)).not.toBeNull()
   })
 })

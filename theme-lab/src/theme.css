@@ -5,6 +5,9 @@
  *   - 色は、#rrggbb・rgb()・oklch() など、CSS の色ならどれでも書けます。
  *   - `var(--jimble-…)` と書いてある値は、ほかの変数を参照しています(その変数を変えると、一緒に変わります)。
  *   - 部品の作りを変えなくても、この変数だけで、色・角丸・高さ・フォント・影を変えられます。
+ * ダークモード(jimble-ui 0.12.0 以降): 面・文字・枠などの色は light-dark(ライトの色, ダークの色) で書いてあります。
+ *   ヘッダーの右の選択(OS に従う・ライト・ダーク)で切り替え、それぞれの色を確かめてください。1 つの色だけを書くと、両方のモードで同じ色になります。
+ *   使うページでは、CSS に `:root { color-scheme: light dark; }`(OS に従う)か `color-scheme: dark`(常にダーク)を書きます。
  * 変更したら、「コントラスト」ページで、文字と背景の組み合わせが基準(WCAG AA)を満たしているか確認してください。
  * 画面右下の「テーマ調整」からも、色をその場で試せます(こちらは、ブラウザの中だけの試し用。決めた値は、このファイルに書いてください)。
  */
@@ -106,27 +109,65 @@
      surface = カード・入力欄の背景 / surface-muted = ページの背景 / surface-sunken = hover などの沈んだ背景 / surface-overlay = ダイアログ・メニューの背景
      text = 本文 / text-muted = 補助の文字 / text-placeholder = 入力欄のプレースホルダー / text-on-primary = 主ボタンの文字
      ring = 区切り線 / ring-control = 入力欄の枠 / ring-focus = フォーカスリング / ring-invalid = エラーの枠
+     light-dark(ライト, ダーク) の 2 つの値を持ちます(上の段階は、両方のモードで同じ)
   */
-  --jimble-color-surface: #ffffff;
-  --jimble-color-surface-muted: var(--jimble-color-neutral-50);
-  --jimble-color-surface-sunken: var(--jimble-color-neutral-100);
-  --jimble-color-item-hover: var(--jimble-color-surface-sunken);
-  --jimble-color-surface-overlay: #ffffff;
-  --jimble-color-backdrop: color-mix(
-    in oklab,
-    var(--jimble-color-neutral-900) var(--jimble-backdrop-opacity, 50%),
-    transparent
+  --jimble-color-surface: light-dark(#ffffff, var(--jimble-color-neutral-900));
+  --jimble-color-surface-muted: light-dark(
+    var(--jimble-color-neutral-50),
+    var(--jimble-color-neutral-950)
   );
-  --jimble-color-text: var(--jimble-color-neutral-900);
-  --jimble-color-text-muted: var(--jimble-color-neutral-500);
-  --jimble-color-text-placeholder: var(--jimble-color-neutral-500);
-  --jimble-color-text-disabled: var(--jimble-color-neutral-400);
+  --jimble-color-surface-sunken: light-dark(
+    var(--jimble-color-neutral-100),
+    var(--jimble-color-neutral-800)
+  );
+  --jimble-color-item-hover: light-dark(
+    var(--jimble-color-surface-sunken),
+    var(--jimble-color-neutral-700)
+  );
+  --jimble-color-surface-overlay: light-dark(#ffffff, var(--jimble-color-neutral-800));
+  --jimble-color-backdrop: light-dark(
+    color-mix(
+      in oklab,
+      var(--jimble-color-neutral-900) var(--jimble-backdrop-opacity, 50%),
+      transparent
+    ),
+    color-mix(
+      in oklab,
+      var(--jimble-color-neutral-950) var(--jimble-backdrop-opacity, 70%),
+      transparent
+    )
+  );
+  --jimble-color-text: light-dark(var(--jimble-color-neutral-900), var(--jimble-color-neutral-100));
+  --jimble-color-text-muted: light-dark(
+    var(--jimble-color-neutral-500),
+    var(--jimble-color-neutral-400)
+  );
+  --jimble-color-text-placeholder: light-dark(
+    var(--jimble-color-neutral-500),
+    var(--jimble-color-neutral-400)
+  );
+  --jimble-color-text-disabled: light-dark(
+    var(--jimble-color-neutral-400),
+    var(--jimble-color-neutral-500)
+  );
   --jimble-color-text-on-primary: #ffffff;
-  --jimble-color-text-link: var(--jimble-color-primary-600);
-  --jimble-color-ring: var(--jimble-color-neutral-300);
-  --jimble-color-ring-control: var(--jimble-color-neutral-500);
-  --jimble-color-ring-focus: var(--jimble-color-primary-600);
-  --jimble-color-ring-invalid: var(--jimble-color-danger-600);
+  --jimble-color-text-link: light-dark(
+    var(--jimble-color-primary-600),
+    var(--jimble-color-primary-400)
+  );
+  --jimble-color-ring: light-dark(var(--jimble-color-neutral-300), var(--jimble-color-neutral-700));
+  --jimble-color-ring-control: light-dark(
+    var(--jimble-color-neutral-500),
+    var(--jimble-color-neutral-500)
+  );
+  --jimble-color-ring-focus: light-dark(
+    var(--jimble-color-primary-600),
+    var(--jimble-color-primary-400)
+  );
+  --jimble-color-ring-invalid: light-dark(
+    var(--jimble-color-danger-600),
+    var(--jimble-color-danger-500)
+  );
   --jimble-color-primary: var(--jimble-color-primary-600);
 
   /* ---- 選択中・状態の色(意味を持つ色。上の段階への参照。jimble-ui 0.12.0 以降) ----
@@ -134,37 +175,103 @@
      text-accent = 選択中の文字・タブ / icon-accent = チェックの印・並べ替えの印
      surface-inverse = ツールチップの背景 / surface-track = スイッチ(オフ)の溝 / text-secondary = neutral バッジの文字
      surface-{状態} = アラート・バッジの背景 / text-{状態} = バッジ・エラーの文字 / text-{状態}-strong = アラートの文字 / icon-{状態} = アイコン
-     ※ ここに書いた値は、ダークモードでも同じ色になります。ダークで変えるときは light-dark(ライト, ダーク) で書きます
+     light-dark(ライト, ダーク) の 2 つの値を持ちます
   */
-  --jimble-color-surface-accent: var(--jimble-color-primary-50);
-  --jimble-color-surface-accent-strong: var(--jimble-color-primary-100);
-  --jimble-color-surface-accent-stronger: var(--jimble-color-primary-200);
-  --jimble-color-text-accent: var(--jimble-color-primary-700);
-  --jimble-color-icon-accent: var(--jimble-color-primary-600);
-  --jimble-color-surface-inverse: var(--jimble-color-neutral-900);
-  --jimble-color-surface-track: var(--jimble-color-neutral-200);
-  --jimble-color-text-secondary: var(--jimble-color-neutral-700);
-  --jimble-color-surface-success: var(--jimble-color-success-50);
-  --jimble-color-text-success: var(--jimble-color-success-700);
-  --jimble-color-text-success-strong: var(--jimble-color-success-800);
-  --jimble-color-icon-success: var(--jimble-color-success-600);
-  --jimble-color-surface-warning: var(--jimble-color-warning-50);
-  --jimble-color-text-warning: var(--jimble-color-warning-700);
-  --jimble-color-text-warning-strong: var(--jimble-color-warning-800);
-  --jimble-color-icon-warning: var(--jimble-color-warning-600);
-  --jimble-color-surface-danger: var(--jimble-color-danger-50);
-  --jimble-color-text-danger: var(--jimble-color-danger-700);
-  --jimble-color-text-danger-strong: var(--jimble-color-danger-800);
-  --jimble-color-icon-danger: var(--jimble-color-danger-600);
-  --jimble-color-surface-info: var(--jimble-color-info-50);
-  --jimble-color-text-info: var(--jimble-color-info-700);
-  --jimble-color-text-info-strong: var(--jimble-color-info-800);
-  --jimble-color-icon-info: var(--jimble-color-info-600);
+  --jimble-color-surface-accent: light-dark(
+    var(--jimble-color-primary-50),
+    var(--jimble-color-primary-950)
+  );
+  --jimble-color-surface-accent-strong: light-dark(
+    var(--jimble-color-primary-100),
+    var(--jimble-color-primary-900)
+  );
+  --jimble-color-surface-accent-stronger: light-dark(
+    var(--jimble-color-primary-200),
+    var(--jimble-color-primary-800)
+  );
+  --jimble-color-text-accent: light-dark(
+    var(--jimble-color-primary-700),
+    var(--jimble-color-primary-300)
+  );
+  --jimble-color-icon-accent: light-dark(
+    var(--jimble-color-primary-600),
+    var(--jimble-color-primary-400)
+  );
+  --jimble-color-surface-inverse: light-dark(
+    var(--jimble-color-neutral-900),
+    var(--jimble-color-neutral-700)
+  );
+  --jimble-color-surface-track: light-dark(
+    var(--jimble-color-neutral-200),
+    var(--jimble-color-neutral-700)
+  );
+  --jimble-color-text-secondary: light-dark(
+    var(--jimble-color-neutral-700),
+    var(--jimble-color-neutral-300)
+  );
+  --jimble-color-surface-success: light-dark(
+    var(--jimble-color-success-50),
+    var(--jimble-color-success-950)
+  );
+  --jimble-color-text-success: light-dark(
+    var(--jimble-color-success-700),
+    var(--jimble-color-success-300)
+  );
+  --jimble-color-text-success-strong: light-dark(
+    var(--jimble-color-success-800),
+    var(--jimble-color-success-200)
+  );
+  --jimble-color-icon-success: light-dark(
+    var(--jimble-color-success-600),
+    var(--jimble-color-success-400)
+  );
+  --jimble-color-surface-warning: light-dark(
+    var(--jimble-color-warning-50),
+    var(--jimble-color-warning-950)
+  );
+  --jimble-color-text-warning: light-dark(
+    var(--jimble-color-warning-700),
+    var(--jimble-color-warning-300)
+  );
+  --jimble-color-text-warning-strong: light-dark(
+    var(--jimble-color-warning-800),
+    var(--jimble-color-warning-200)
+  );
+  --jimble-color-icon-warning: light-dark(
+    var(--jimble-color-warning-600),
+    var(--jimble-color-warning-400)
+  );
+  --jimble-color-surface-danger: light-dark(
+    var(--jimble-color-danger-50),
+    var(--jimble-color-danger-950)
+  );
+  --jimble-color-text-danger: light-dark(
+    var(--jimble-color-danger-700),
+    var(--jimble-color-danger-300)
+  );
+  --jimble-color-text-danger-strong: light-dark(
+    var(--jimble-color-danger-800),
+    var(--jimble-color-danger-200)
+  );
+  --jimble-color-icon-danger: light-dark(
+    var(--jimble-color-danger-600),
+    var(--jimble-color-danger-400)
+  );
+  --jimble-color-surface-info: light-dark(
+    var(--jimble-color-info-50),
+    var(--jimble-color-info-950)
+  );
+  --jimble-color-text-info: light-dark(var(--jimble-color-info-700), var(--jimble-color-info-300));
+  --jimble-color-text-info-strong: light-dark(
+    var(--jimble-color-info-800),
+    var(--jimble-color-info-200)
+  );
+  --jimble-color-icon-info: light-dark(var(--jimble-color-info-600), var(--jimble-color-info-400));
 
   /* ---- ヘッダー・サイドバー(jimble-ui 0.6.0 以降) ----
      ヘッダーとサイドバーだけの色・アイコンの大きさ。上の色を参照しているので、変えなければ全体の色に従います。
      背景を暗くするときは、文字・アイコン・hover・現在のページ・フォーカスの色も、一緒に変えてください
-     (文字は 4.5:1、アイコンは 3:1 以上)。下の「ダークの例」を、コピーして使えます。
+     (文字は 4.5:1、アイコンは 3:1 以上)。下の「暗いヘッダーの例」を、コピーして使えます。
      header-* = ヘッダー / sidebar-bg・sidebar-ring = サイドバーの面(ドロワーも同じ)
      sidebar-nav-* = サイドバーの項目(text = 文字 / icon-color・icon-size = アイコン / hover-bg = hover の背景
                      / current-bg・current-text = 現在のページ / ring-focus = フォーカスの輪郭)
@@ -179,11 +286,11 @@
   --jimble-sidebar-nav-icon-color: var(--jimble-color-text-muted);
   --jimble-sidebar-nav-icon-size: 1.25rem;
   --jimble-sidebar-nav-hover-bg: var(--jimble-color-surface-sunken);
-  --jimble-sidebar-nav-current-bg: var(--jimble-color-primary-50);
-  --jimble-sidebar-nav-current-text: var(--jimble-color-primary-700);
+  --jimble-sidebar-nav-current-bg: var(--jimble-color-surface-accent);
+  --jimble-sidebar-nav-current-text: var(--jimble-color-text-accent);
   --jimble-sidebar-nav-ring-focus: var(--jimble-color-ring-focus);
 
-  /* ダークの例(使うときは、上の同じ名前の行を、これに置き換える)
+  /* 暗いヘッダーの例(ライトでもダークでも、この色。使うときは、上の同じ名前の行を、これに置き換える)
   --jimble-app-shell-header-bg: #0f172a;
   --jimble-app-shell-header-text: #f8fafc;
   --jimble-app-shell-header-hover-bg: #1e293b;
@@ -230,10 +337,10 @@
   --jimble-button-shadow: var(--jimble-shadow-sm);
   --jimble-pagination-shadow: var(--jimble-button-shadow);
   --jimble-badge-radius: var(--jimble-radius-md);
-  --jimble-tooltip-bg: var(--jimble-color-neutral-900);
+  --jimble-tooltip-bg: var(--jimble-color-surface-inverse);
   --jimble-tooltip-text: var(--jimble-color-text-on-primary);
   --jimble-switch-thumb-bg: var(--jimble-color-surface);
-  --jimble-switch-thumb-ring: rgb(0 0 0 / 0.12);
+  --jimble-switch-thumb-ring: color-mix(in oklab, var(--jimble-color-text) 12%, transparent);
   --jimble-table-header-bg: var(--jimble-color-surface-muted);
   --jimble-table-header-text: var(--jimble-color-text-muted);
   --jimble-table-row-hover-bg: var(--jimble-color-surface-muted);

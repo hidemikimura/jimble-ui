@@ -4,12 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>jimble-ui テーマ</title>
+    <script>
+      // 表示のモードを、描画の前に戻す(ライトで一瞬描かれてから切り替わらないように。src/scheme.ts と同じキー)
+      try {
+        const s = localStorage.getItem('lab-color-scheme')
+        if (s) document.documentElement.style.colorScheme = s
+        else document.documentElement.style.colorScheme = 'light dark'
+      } catch {
+        document.documentElement.style.colorScheme = 'light dark'
+      }
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
     <jimble-app-shell id="shell" sidebar-collapsible>
       <a slot="header" class="brand" href="/">jimble 管理画面</a>
       <span slot="header" class="header-spacer"></span>
+      <jimble-select
+        slot="header"
+        id="scheme"
+        size="sm"
+        aria-label="表示（ライト・ダーク）"
+      ></jimble-select>
       <jimble-dropdown-menu slot="header" id="user-menu">
         <jimble-button slot="trigger" size="sm" variant="ghost">山田 太郎</jimble-button>
         <jimble-menu-item value="profile">プロフィール</jimble-menu-item>

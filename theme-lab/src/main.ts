@@ -1,6 +1,7 @@
 import { html, render } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import type { JimbleRouter } from '@hidemikimura/jimble-ui'
+import './scheme.ts'
 import './theme.css'
 import './lab.css'
 import './tuner.ts'
@@ -13,6 +14,7 @@ import { login } from './pages/login.ts'
 import { notFound } from './pages/not-found.ts'
 import { orderDetail } from './pages/order-detail.ts'
 import { orders } from './pages/orders.ts'
+import { SCHEME_SETTINGS, schemeSetting, setScheme, type SchemeSetting } from './scheme.ts'
 
 const app = document.getElementById('app') as JimbleRouter
 
@@ -100,3 +102,14 @@ document.getElementById('user-menu')!.addEventListener('jimble-select', (e) => {
   if ((e as CustomEvent<{ value: string }>).detail.value === 'login') void app.navigate('/login')
   else JimbleUI.toast({ message: 'プロフィールは、サンプルでは開けません', variant: 'info' })
 })
+
+// 表示のモード(ライト・ダーク・OS に従う)
+const scheme = document.getElementById('scheme') as HTMLElement & { value: string }
+render(
+  SCHEME_SETTINGS.map(
+    ([label, value]) => html`<jimble-option value=${value}>${label}</jimble-option>`,
+  ),
+  scheme,
+)
+scheme.value = schemeSetting()
+scheme.addEventListener('change', () => setScheme(scheme.value as SchemeSetting))

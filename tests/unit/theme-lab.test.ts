@@ -5,6 +5,8 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { ALL } from '../../theme-lab/src/catalog.ts'
 import { loadElements } from '../../scripts/lib/manifest.ts'
+import { all, tokenRef } from '../../scripts/lib/tokens.ts'
+import { scanDecls } from '../../theme-lab/src/merge.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 
@@ -116,4 +118,19 @@ describe('theme-lab: 色を選んでも、透けぐあいを保つ変数', () =>
     expect(backdrop?.withOpacity).toBe('--jimble-backdrop-opacity')
     expect(ALL.some((e) => e.name === '--jimble-backdrop-opacity')).toBe(true)
   })
+})
+
+describe('theme-lab: ダークモード', () => {
+  const theme = readFileSync(resolve(root, 'theme-lab/src/theme.css'), 'utf8')
+  const decls = new Map(scanDecls(theme).map((d) => [d.name, d.value.replace(/\s+/g, ' ')]))
+  const darkTokens = all.filter((t) => t.dark)
+
+  it.each(darkTokens.map((t) => t.name))(
+    '%s は、theme.css でもライブラリと同じ light-dark(ライト, ダーク) で書いてある',
+    (name) => {
+      const t = darkTokens.find((x) => x.name === name)!
+      const flat = (v: string) => v.replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/ \)/g, ')')
+      expect(flat(decls.get(`--jimble-${name}`) ?? '')).toBe(flat(tokenRef(t)))
+    },
+  )
 })

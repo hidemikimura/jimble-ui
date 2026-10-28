@@ -9,9 +9,15 @@ const ctx = canvas.getContext('2d', { willReadFrequently: true })!
 
 export type RGB = [number, number, number]
 
-/** CSS の変数を、その時点の色の文字列に解決する(例: `--jimble-color-primary-600`) */
-export function resolveVar(name: string): string {
+export type Scheme = 'light' | 'dark'
+
+/**
+ * CSS の変数を、その時点の色の文字列に解決する(例: `--jimble-color-primary-600`)。
+ * scheme を渡すと、そのモードでの色(light-dark の、その側)。省くと、表示中のモードの色
+ */
+export function resolveVar(name: string, scheme?: Scheme): string {
   if (!probe.isConnected) document.body.append(probe)
+  probe.style.colorScheme = scheme ?? ''
   probe.style.color = ''
   probe.style.color = `var(${name})`
   return getComputedStyle(probe).color
@@ -52,8 +58,8 @@ export function contrastRatio(a: RGB, b: RGB): number {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)
 }
 
-/** 変数 2 つのコントラスト比(解決できなければ null) */
-export function contrastOfVars(fg: string, bg: string): number | null {
-  const [a, b] = [toRgb(resolveVar(fg)), toRgb(resolveVar(bg))]
+/** 変数 2 つのコントラスト比(解決できなければ null)。scheme は resolveVar と同じ */
+export function contrastOfVars(fg: string, bg: string, scheme?: Scheme): number | null {
+  const [a, b] = [toRgb(resolveVar(fg, scheme)), toRgb(resolveVar(bg, scheme))]
   return a && b ? contrastRatio(a, b) : null
 }
