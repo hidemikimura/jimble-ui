@@ -12,15 +12,26 @@ export type RGB = [number, number, number]
 export type Scheme = 'light' | 'dark'
 
 /**
- * CSS の変数を、その時点の色の文字列に解決する(例: `--jimble-color-primary-600`)。
- * scheme を渡すと、そのモードでの色(light-dark の、その側)。省くと、表示中のモードの色
+ * CSS の色の値を、その時点の色の文字列に解決する(var() や light-dark() も)。
+ * scheme を渡すと、そのモードでの色。省くと、表示中のモードの色
  */
-export function resolveVar(name: string, scheme?: Scheme): string {
+export function resolveColor(value: string, scheme?: Scheme): string {
   if (!probe.isConnected) document.body.append(probe)
   probe.style.colorScheme = scheme ?? ''
   probe.style.color = ''
-  probe.style.color = `var(${name})`
+  probe.style.color = value
   return getComputedStyle(probe).color
+}
+
+/** CSS の変数を、その時点の色の文字列に解決する(例: `--jimble-color-primary-600`)。scheme は resolveColor と同じ */
+export const resolveVar = (name: string, scheme?: Scheme): string =>
+  resolveColor(`var(${name})`, scheme)
+
+/** 不透明な色だけを RGB にする(透けた色・解決できない値は null) */
+export function opaqueRgb(value: string, scheme?: Scheme): RGB | null {
+  const c = resolveColor(value, scheme)
+  if (/rgba\(|\/\s*0?\.\d|\/\s*0\)|transparent/.test(c)) return null
+  return toRgb(c)
 }
 
 /** 任意の CSS の色を sRGB(0〜255)にする。解釈できなければ null */

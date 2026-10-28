@@ -1,10 +1,13 @@
 import { LitElement, css, html, nothing } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import { CATALOG, SHADOW_PRESETS, WEIGHTS, type Entry, type Group } from './catalog.ts'
-import { isTransparentVar, varHex } from './color.ts'
-import { applyOverrides, findDuplicates, scanDecls, setForScheme } from './merge.ts'
-import { SCHEME_EVENT, activeScheme } from './scheme.ts'
+import { contrastOfVars, isTransparentVar, opaqueRgb, resolveVar, toRgb, varHex } from './color.ts'
+import { deriveDark, liftContrast, normalizeValue } from './darken.ts'
+import { PAIRS, v } from './pairs.ts'
+import { applyOverrides, findDuplicates, scanDecls, setForScheme, splitLightDark } from './merge.ts'
+import { SCHEME_EVENT, activeScheme, setScheme } from './scheme.ts'
 import themeRaw from './theme.css?raw'
+import tokensRaw from '@hidemikimura/jimble-ui/tokens.css?raw'
 
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
@@ -27,6 +30,16 @@ let themeSource: string = themeRaw
 import.meta.hot?.accept('./theme.css?raw', (mod) => {
   if (mod) themeSource = mod.default as string
 })
+/** ライブラリの既定のライト・ダーク(入っている jimble-ui の tokens.css の light-dark)。変数名 → [ライト, ダーク] */
+const DEFAULTS = new Map(
+  scanDecls(tokensRaw).flatMap((d) => {
+    const pair = splitLightDark(d.value)
+    return pair ? [[d.name, pair] as const] : []
+  }),
+)
+/** コントラストを直すとき、組み合わせを見直す回数(1 つ直すと、別の組み合わせが変わることがある) */
+const FIX_PASSES = 3
+
 /** theme.css に同じ変数が複数回あるか（あれば、いちばん下の行だけが効く） */
 const duplicatesNow = () => findDuplicates(themeSource)
 
@@ -48,6 +61,8 @@ export class LabTuner extends LitElement {
   declare tick: number
   declare query: string
   #overrides = new Map<string, string>()
+  /** 「ライトからダークを作る」で作ったダークの値（もう一度押したとき、手で直した色と区別して、作り直す） */
+  #generatedDark = new Map<string, string>()
 
   constructor() {
     super()
@@ -167,6 +182,16 @@ export class LabTuner extends LitElement {
       flex: 1 1 7rem;
       min-width: 0;
     }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .actions .note {
+      margin: 0;
+    }
     label {
       font-size: 12px;
     }
@@ -203,6 +228,81 @@ export class LabTuner extends LitElement {
     this.#set(e.name, setForScheme(now, activeScheme(), value))
   }
 
+  /** いまの値(試し中の値、なければ theme.css の値) */
+  #now(name: string) {
+    return this.#overrides.get(name) ?? declared(name)
+  }
+
+  /**
+   * ライトの色から、ダークの色を作る(darken.ts)。手で直したダークの色は残す。
+   * 作ったあと、ダークで基準に届かない組み合わせは、作った文字・枠の明るさを動かして直す。
+   */
+  #generateDark() {
+    const made = new Set<string>()
+    let kept = 0
+    for (const [name, [defaultLight, defaultDark]] of DEFAULTS) {
+      const now = this.#now(name)
+      if (!now) continue
+      const pair = splitLightDark(now)
+      const isOurs = (dark: string) =>
+        [defaultDark, this.#generatedDark.get(name) ?? defaultDark].some(
+          (d) => normalizeValue(d) === normalizeValue(dark),
+        )
+      if (pair && !isOurs(pair[1])) {
+        kept++ // 手で直したダークの色
+        continue
+      }
+      const light = pair ? pair[0] : now
+      const dark = deriveDark({ light, defaultLight, defaultDark }, opaqueRgb)
+      made.add(name)
+      this.#generatedDark.set(name, dark)
+      const value = `light-dark(${light}, ${dark})`
+      if (normalizeValue(value) !== normalizeValue(now)) this.#apply(name, value)
+    }
+    const { fixed, failed } = this.#fixDarkContrast(made)
+    setScheme('dark') // 作った色を、そのまま見られるように
+    JimbleUI.toast({
+      message:
+        `ライトの色から、ダークの色を作りました（${made.size} 個）。` +
+        (kept ? `手で直したダークの色 ${kept} 個は、そのままです。` : '') +
+        (fixed ? `コントラストのために、${fixed} 個の明るさを直しました。` : '') +
+        (failed
+          ? `${failed} 件の組み合わせが基準に届きません。「コントラスト」ページで確かめてください。`
+          : ''),
+      variant: failed ? 'warning' : 'success',
+    })
+  }
+
+  /** ダークで基準に届かない組み合わせの、前景(names に含まれるものだけ)の明るさを動かす */
+  #fixDarkContrast(names: Set<string>) {
+    const fixedNames = new Set<string>()
+    for (let pass = 0; pass < FIX_PASSES; pass++) {
+      let changed = false
+      for (const [fg, bg, min] of PAIRS) {
+        const [fgName, bgName] = [v(fg), v(bg)]
+        if (!names.has(fgName)) continue
+        const ratio = contrastOfVars(fgName, bgName, 'dark')
+        if (ratio === null || ratio >= min) continue
+        const [fgRgb, bgRgb] = [
+          toRgb(resolveVar(fgName, 'dark')),
+          toRgb(resolveVar(bgName, 'dark')),
+        ]
+        const lifted = fgRgb && bgRgb ? liftContrast(fgRgb, bgRgb, min) : null
+        if (!lifted) continue
+        this.#apply(fgName, setForScheme(this.#now(fgName), 'dark', lifted))
+        this.#generatedDark.set(fgName, lifted)
+        fixedNames.add(fgName)
+        changed = true
+      }
+      if (!changed) break
+    }
+    const failed = PAIRS.filter(([fg, bg, min]) => {
+      const ratio = contrastOfVars(v(fg), v(bg), 'dark')
+      return ratio !== null && ratio < min
+    }).length
+    return { fixed: fixedNames.size, failed }
+  }
+
   #changed() {
     this.tick++
     window.dispatchEvent(new Event(THEME_EVENT))
@@ -211,6 +311,7 @@ export class LabTuner extends LitElement {
   #reset(notify = true) {
     for (const name of this.#overrides.keys()) root().style.removeProperty(name)
     this.#overrides.clear()
+    this.#generatedDark.clear()
     if (notify) this.#changed()
   }
 
@@ -423,6 +524,14 @@ export class LabTuner extends LitElement {
                   いまは<strong>${activeScheme() === 'dark' ? 'ダーク' : 'ライト'}</strong>の色を表示しています。色を選ぶと、<strong>このモードの色だけ</strong>が変わります（ヘッダーの右の「OS
                   に従う・ライト・ダーク」で切り替え）。段階（50〜950）は、両方のモードで同じです。
                 </p>
+                <div class="actions">
+                  <jimble-button size="sm" @click=${() => this.#generateDark()}
+                    >ライトからダークを作る</jimble-button
+                  >
+                  <span class="note"
+                    >ライトで変えた分を、既定のダークに引き継ぎます（手で直したダークの色は残す）</span
+                  >
+                </div>
                 <p class="warn">
                   ここで変えた値は、<strong>このブラウザの中だけ</strong>で、theme.css
                   を保存すると破棄されます。決めた値は「theme.css をコピー」で、<code
