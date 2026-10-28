@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/hidemikimura/jimble-ui/compare/v0.11.0...v0.12.0) (2026-10-28)
+
+
+### 追加
+
+* **theme:** ダークモードに対応する（color-scheme で切り替え） ([bf61a2a](https://github.com/hidemikimura/jimble-ui/commit/bf61a2ac2b460263cd9f6cb89c1473fc3f22c1e7))
+
 ## [0.11.0](https://github.com/hidemikimura/jimble-ui/compare/v0.10.0...v0.11.0) (2026-10-22)
 
 
