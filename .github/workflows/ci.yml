@@ -30,6 +30,8 @@ jobs:
       - run: npm run build
       - run: npm run check-dist
       - run: npm run check-package
+      # pack-smoke は、配布物を実ブラウザ(Chromium)で動かして確かめる
+      - run: npx playwright install --with-deps chromium
       - run: npm run pack-smoke
 
   browser:
