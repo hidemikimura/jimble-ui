@@ -10,7 +10,7 @@
 
 1. **Settings → Actions → General → Workflow permissions**: 「Read and write permissions」を選び、「Allow GitHub Actions to create and approve pull requests」にチェックを入れる（release-please がリリース PR を作るため）。
 2. **Settings → Pages → Build and deployment → Source**: 「GitHub Actions」を選ぶ（ドキュメントサイトのデプロイ用）。
-3. （任意）main ブランチを保護し、`CI` を必須のチェックにする。
+3. （任意）main ブランチを保護し、CI のジョブを必須のチェックにする。ジョブは `check`、`browser (chromium / firefox / webkit)`、`e2e (chromium / firefox / webkit)` の 7 つ。
 
 ### 2. npm
 

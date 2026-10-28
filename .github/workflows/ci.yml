@@ -3,25 +3,58 @@ on:
   push: { branches: [main] }
   pull_request:
 permissions: { contents: read }
+
+# 同じ PR に続けて push したら、古い実行は止める（main は止めない）
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# 時間のかかるブラウザの試験(Vitest)と E2E を、ブラウザごとのジョブに分けて並べて動かす。
+# ブラウザの試験はファイルを直列で動かす約束（Firefox でキー入力が不安定になる）なので、
+# 1 つのジョブの中では速くできない。ジョブを分ければ、3 つのブラウザが同時に進む。
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run gen:tokens:check
       - run: npm run gen:icons:check
       - run: npm run gen:manifest && npm run gen:skill:check
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
-      - run: npm test
+      - run: npx vitest run --project unit
       - run: npm run build
       - run: npm run check-dist
       - run: npm run check-package
       - run: npm run pack-smoke
-      - run: npm run build:site
-      - run: npx playwright test
+
+  browser:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: { browser: [chromium, firefox, webkit] }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npx vitest run --project "browser (${{ matrix.browser }})"
+
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: { browser: [chromium, firefox, webkit] }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      # サイトのビルドは playwright.config.ts の webServer が行う
+      - run: npx playwright test --project ${{ matrix.browser }}
