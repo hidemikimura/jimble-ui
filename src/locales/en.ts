@@ -123,6 +123,8 @@ const en: Locale = {
   'file.rejectType': 'This file type is not accepted',
   'file.rejectSize': 'The file is larger than {size}',
   'file.rejectCount': 'Too many files (up to {count})',
+  'file.rejectFolder': 'Folders cannot be added',
+  'file.folderError': 'Could not read the folder',
   'file.added': 'Added {name}',
   'file.removed': 'Removed {name}',
   'file.uploaded': 'Finished uploading {name}',

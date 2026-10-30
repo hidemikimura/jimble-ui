@@ -7,9 +7,10 @@ import { xMark } from '../../icons/xMark.js'
 import { arrowPath } from '../../icons/arrowPath.js'
 import { arrowUpTray } from '../../icons/arrowUpTray.js'
 import { document as documentIcon } from '../../icons/document.js'
+import { dropItems, readFolder, type DropItem, type DroppedFile } from './folder.js'
 
 export type FileStatus = 'ready' | 'uploading' | 'done' | 'error' | 'rejected'
-export type FileRejectReason = 'type' | 'size' | 'count'
+export type FileRejectReason = 'type' | 'size' | 'count' | 'folder'
 
 /** `upload` に渡す補助 */
 export interface FileUploadContext {
@@ -17,6 +18,8 @@ export interface FileUploadContext {
   onProgress: (fraction: number) => void
   /** 中止されたときに abort される(fetch に渡す) */
   signal: AbortSignal
+  /** フォルダーのドロップで追加したときの、フォルダー名から始まる相対パス(`docs/a.pdf`) */
+  path?: string
 }
 /**
  * ファイルをサーバーへ送る関数。成功したら、フォームに送る値(サーバーが返した ID など)を返す。
@@ -31,6 +34,8 @@ export type FileUploader = (
 export interface FileEntry {
   id: string
   file: File
+  /** フォルダーのドロップで追加したときの、フォルダー名から始まる相対パス(`docs/a.pdf`) */
+  path?: string
   status: FileStatus
   /** 進捗 0〜1(アップロード中) */
   progress: number
@@ -67,6 +72,9 @@ export function formatBytes(bytes: number): string {
   return `${n >= 10 || Number.isInteger(n) ? Math.round(n) : n.toFixed(1)} ${units[i]}`
 }
 
+/** 一覧・読み上げに出す名前(フォルダーから追加したものは相対パス) */
+const entryName = (e: FileEntry) => e.path ?? e.file.name
+
 /** `accept`（`.pdf,image/*` など）にファイルが合うか。`accept` が空なら常に合う */
 export function matchesAccept(file: File, accept: string | undefined): boolean {
   const tokens = (accept ?? '')
@@ -95,7 +103,9 @@ export function matchesAccept(file: File, accept: string | undefined): boolean {
  *   アップロード中・失敗のファイルがあるとフォームの検証が通らない。
  * - 画像は `preview` でサムネイルを出せる(`blob:` の画像を許可する CSP が必要)。
  * - ドラッグ＆ドロップができない利用者のために、ボタンからも選べる(ボタンがキーボードの操作先)。
- * - フォルダーのドロップは未対応。
+ * - `multiple` なら、フォルダーをドロップすると、中のファイル(サブフォルダーも)を追加する。一覧には
+ *   `docs/a.pdf` のような相対パスで出て、フォームにもそのファイル名で送られる(ネイティブのフォルダー選択と同じ)。
+ *   隠しファイル(`.DS_Store` など)は除く。`multiple` でなければ、フォルダーは追加しない(`jimble-reject` の `folder`)。
  *
  * @tag jimble-file-input
  *
@@ -119,7 +129,7 @@ export function matchesAccept(file: File, accept: string | undefined): boolean {
  *
  * @fires input - ファイルが追加・削除された
  * @fires change - ファイルが追加・削除された
- * @fires jimble-reject - 制限に合わず追加されなかった。`detail` は `{ file, reason: 'type' | 'size' | 'count' }`
+ * @fires jimble-reject - 制限に合わず追加されなかった。`detail` は `{ file, reason: 'type' | 'size' | 'count' | 'folder' }`（`folder` はフォルダーを追加できない・読めないとき。`file` はフォルダー名の空のファイル）
  * @fires jimble-upload-start - アップロードを始めた。`detail.file`
  * @fires jimble-upload-complete - アップロードが完了した。`detail` は `{ file, value }`
  * @fires jimble-upload-error - アップロードが失敗した。`detail` は `{ file, error }`
@@ -195,7 +205,8 @@ export class JimbleFileInput extends JimbleFormElement {
         if (e.status !== 'done') continue
         data.append(this.name, e.result ?? e.file.name)
       } else {
-        data.append(this.name, e.file)
+        if (e.path) data.append(this.name, e.file, e.path)
+        else data.append(this.name, e.file)
       }
       any = true
     }
@@ -230,7 +241,7 @@ export class JimbleFileInput extends JimbleFormElement {
     this.requestUpdate()
   }
 
-  #reasonText(reason: FileRejectReason): string {
+  #reasonText(reason: Exclude<FileRejectReason, 'folder'>): string {
     return reason === 'type'
       ? this.t('file.rejectType')
       : reason === 'size'
@@ -240,33 +251,39 @@ export class JimbleFileInput extends JimbleFormElement {
 
   /** ファイルを追加する(ドロップ・選択・プログラムから)。合わないファイルは、理由つきで一覧に出て、追加されない */
   addFiles(files: Iterable<File>): void {
+    this.#add([...files].map((file) => ({ file })))
+  }
+
+  /**
+   * ファイルを追加する。folderRejects は、追加できなかったフォルダー(名前と理由)。
+   * 1 つだけ選べるときは、新しいファイルで置き換える(フォルダーだけなら、選んであるファイルは残す)
+   */
+  #add(incoming: DroppedFile[], folderRejects: { name: string; message: string }[] = []): void {
     if (this.isDisabled || this.readonlyLike) return
-    const incoming = [...files]
-    if (!incoming.length) return
-    let next = [...this.entries]
-    const added: FileEntry[] = []
-    const rejects: FileEntry[] = []
-    // 1 つだけ選べるときは、新しいファイルで置き換える
+    if (!incoming.length && !folderRejects.length) return
     const targets = this.multiple ? incoming : incoming.slice(-1)
-    if (!this.multiple) {
-      for (const e of next.filter((e) => e.status !== 'rejected')) this.#dispose(e)
+    let next = this.entries.filter((e) => e.status !== 'rejected') // 前回の拒否表示は、新しい操作で消す
+    if (!this.multiple && targets.length) {
+      for (const e of next) this.#dispose(e)
       next = []
     }
-    next = next.filter((e) => e.status !== 'rejected') // 前回の拒否表示は、新しい操作で消す
-    for (const file of targets) {
-      let reason: FileRejectReason | undefined
+    const added: FileEntry[] = []
+    const rejects: FileEntry[] = []
+    for (const { file, path } of targets) {
+      let reason: Exclude<FileRejectReason, 'folder'> | undefined
       if (!matchesAccept(file, this.accept)) reason = 'type'
       else if (this.maxSize != null && file.size > this.maxSize) reason = 'size'
       else if (
         this.multiple &&
         this.maxFiles != null &&
-        next.filter((e) => e.status !== 'rejected').length + added.length >= this.maxFiles
+        next.length + added.length >= this.maxFiles
       ) {
         reason = 'count'
       }
       const entry: FileEntry = {
         id: `f${++entryCounter}`,
         file,
+        path,
         status: reason ? 'rejected' : 'ready',
         progress: 0,
         message: reason ? this.#reasonText(reason) : undefined,
@@ -281,10 +298,15 @@ export class JimbleFileInput extends JimbleFormElement {
         }
       }
     }
+    for (const { name, message } of folderRejects) {
+      const file = new File([], name)
+      rejects.push({ id: `f${++entryCounter}`, file, status: 'rejected', progress: 0, message })
+      this.emit('reject', { detail: { file, reason: 'folder' } })
+    }
     this.entries = [...next, ...added, ...rejects]
     if (added.length) {
       this.commit()
-      this.#announce(this.t('file.added', { name: added.map((e) => e.file.name).join('、') }))
+      this.#announce(this.t('file.added', { name: added.map(entryName).join('、') }))
       this.dispatchEvent(new Event('input', { bubbles: true, composed: true }))
       this.dispatchEvent(new Event('change', { bubbles: true, composed: true }))
       for (const e of added) if (this.upload) void this.#startUpload(e)
@@ -292,10 +314,29 @@ export class JimbleFileInput extends JimbleFormElement {
     if (rejects.length) {
       this.#announce(
         rejects
-          .map((e) => this.t('file.rejected', { name: e.file.name, reason: e.message! }))
+          .map((e) => this.t('file.rejected', { name: entryName(e), reason: e.message! }))
           .join('。'),
       )
     }
+  }
+
+  /** ドロップされたフォルダーを読んでから追加する(multiple でなければ、フォルダーは追加しない) */
+  async #addDropped(items: DropItem[]) {
+    const files: DroppedFile[] = []
+    const folderRejects: { name: string; message: string }[] = []
+    for (const item of items) {
+      if (item.kind === 'file') files.push({ file: item.file })
+      else if (!this.multiple)
+        folderRejects.push({ name: item.entry.name, message: this.t('file.rejectFolder') })
+      else {
+        try {
+          files.push(...(await readFolder(item.entry)))
+        } catch {
+          folderRejects.push({ name: item.entry.name, message: this.t('file.folderError') })
+        }
+      }
+    }
+    this.#add(files, folderRejects)
   }
 
   // readonly はこの部品に無いので、常に false(将来の拡張用に分けている)
@@ -322,7 +363,7 @@ export class JimbleFileInput extends JimbleFormElement {
       this.dispatchEvent(new Event('input', { bubbles: true, composed: true }))
       this.dispatchEvent(new Event('change', { bubbles: true, composed: true }))
     }
-    this.#announce(this.t('file.removed', { name: e.file.name }))
+    this.#announce(this.t('file.removed', { name: entryName(e) }))
   }
 
   /** すべて取り除く */
@@ -359,18 +400,19 @@ export class JimbleFileInput extends JimbleFormElement {
             this.#patch(entry.id, { progress: Math.min(Math.max(n, 0), 1) })
         },
         signal: abort.signal,
+        path: entry.path,
       })
       if (abort.signal.aborted) return
       const value = typeof result === 'string' ? result : result?.value
       this.#patch(entry.id, { status: 'done', progress: 1, result: value })
       this.commit()
-      this.#announce(this.t('file.uploaded', { name: entry.file.name }))
+      this.#announce(this.t('file.uploaded', { name: entryName(entry) }))
       this.emit('upload-complete', { detail: { file: entry.file, value } })
     } catch (error) {
       if (abort.signal.aborted) return
       this.#patch(entry.id, { status: 'error', message: this.t('file.error') })
       this.commit()
-      this.#announce(this.t('file.uploadFailed', { name: entry.file.name }))
+      this.#announce(this.t('file.uploadFailed', { name: entryName(entry) }))
       this.emit('upload-error', { detail: { file: entry.file, error } })
     } finally {
       this.#aborts.delete(entry.id)
@@ -412,8 +454,11 @@ export class JimbleFileInput extends JimbleFormElement {
     e.preventDefault()
     this.#dragDepth = 0
     this.dragging = false
-    if (this.isDisabled) return
-    this.addFiles(e.dataTransfer?.files ?? [])
+    if (this.isDisabled || !e.dataTransfer) return
+    // フォルダーの項目は、drop の中で取り出す(イベントのあとでは読めない)
+    const items = dropItems(e.dataTransfer)
+    if (items.some((i) => i.kind === 'folder')) void this.#addDropped(items)
+    else this.#add(items.flatMap((i) => (i.kind === 'file' ? [{ file: i.file }] : [])))
   }
 
   override disconnectedCallback(): void {
@@ -447,7 +492,7 @@ export class JimbleFileInput extends JimbleFormElement {
   }
 
   #renderEntry(e: FileEntry) {
-    const name = e.file.name
+    const name = entryName(e)
     const disabled = this.isDisabled
     const status =
       e.status === 'uploading'

@@ -122,6 +122,8 @@ const ja = {
   'file.rejectType': '対応していないファイル形式です',
   'file.rejectSize': 'サイズが {size} を超えています',
   'file.rejectCount': '上限（{count} ファイル）を超えています',
+  'file.rejectFolder': 'フォルダーは追加できません',
+  'file.folderError': 'フォルダーを読み込めませんでした',
   'file.added': '{name} を追加しました',
   'file.removed': '{name} を削除しました',
   'file.uploaded': '{name} のアップロードが完了しました',

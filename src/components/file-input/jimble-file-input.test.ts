@@ -192,6 +192,136 @@ describe('制限（accept・max-size・max-files）', () => {
   })
 })
 
+describe('フォルダーのドロップ', () => {
+  // FileSystemEntry の偽物(実物は、テストからは作れない)
+  const fileEntry = (path: string, size = 10, type = 'text/plain') => {
+    const name = path.split('/').at(-1)!
+    return {
+      isFile: true,
+      isDirectory: false,
+      name,
+      fullPath: `/${path}`,
+      file: (ok: (f: File) => void) => ok(file(name, size, type)),
+    }
+  }
+  const dirEntry = (path: string, children: object[], fail = false) => ({
+    isFile: false,
+    isDirectory: true,
+    name: path.split('/').at(-1)!,
+    fullPath: `/${path}`,
+    createReader: () => {
+      let done = false
+      return {
+        readEntries: (ok: (e: object[]) => void, ng: (e: unknown) => void) => {
+          if (fail) return ng(new Error('読めない'))
+          ok(done ? [] : children)
+          done = true
+        },
+      }
+    },
+  })
+  /** フォルダー(entry)と、ファイルを混ぜてドロップする */
+  const dropEntries = (el: JimbleFileInput, ...things: (object | File)[]) => {
+    const items = things.map((t) =>
+      t instanceof File
+        ? { kind: 'file', webkitGetAsEntry: () => null, getAsFile: () => t }
+        : { kind: 'file', webkitGetAsEntry: () => t, getAsFile: () => file('folder', 0, '') },
+    )
+    const dt = { types: ['Files'], items, files: [] }
+    for (const type of ['dragenter', 'drop']) {
+      const ev = new Event(type, { bubbles: true, cancelable: true })
+      Object.defineProperty(ev, 'dataTransfer', { value: dt })
+      zone(el).dispatchEvent(ev)
+    }
+  }
+  const settle = async (el: JimbleFileInput) => {
+    await tick()
+    await el.updateComplete
+  }
+
+  it('multiple なら、フォルダーの中のファイルを、相対パスつきで追加する', async () => {
+    const { f, el } = await make('multiple')
+    const onChange = vi.fn()
+    el.addEventListener('change', onChange)
+    dropEntries(
+      el,
+      dirEntry('docs', [
+        fileEntry('docs/b.txt'),
+        dirEntry('docs/sub', [fileEntry('docs/sub/c.txt')]),
+        fileEntry('docs/a.txt'),
+      ]),
+      file('memo.txt'),
+    )
+    await settle(el)
+    expect(names(el)).toEqual(['docs/a.txt', 'docs/b.txt', 'docs/sub/c.txt', 'memo.txt'])
+    expect(el.files.map((x) => x.name)).toEqual(['a.txt', 'b.txt', 'c.txt', 'memo.txt'])
+    // 送信するファイル名は、相対パス(ネイティブのフォルダー選択と同じ)
+    expect(
+      data(f)
+        .getAll('docs')
+        .map((x) => (x as File).name),
+    ).toEqual(['docs/a.txt', 'docs/b.txt', 'docs/sub/c.txt', 'memo.txt'])
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('フォルダーの中のファイルにも accept・max-files がかかる', async () => {
+    const { el } = await make('multiple accept=".txt" max-files="2"')
+    const onReject = vi.fn()
+    el.addEventListener('jimble-reject', onReject)
+    dropEntries(
+      el,
+      dirEntry('p', [
+        fileEntry('p/a.txt'),
+        fileEntry('p/b.png', 10, 'image/png'),
+        fileEntry('p/c.txt'),
+        fileEntry('p/d.txt'),
+      ]),
+    )
+    await settle(el)
+    expect(el.files.map((x) => x.name)).toEqual(['a.txt', 'c.txt'])
+    expect(onReject.mock.calls.map((c) => c[0].detail.reason)).toEqual(['type', 'count'])
+    expect(names(el)).toContain('p/b.png')
+  })
+
+  it('multiple でなければ、フォルダーは追加せず、選んであるファイルも残す', async () => {
+    const { el } = await make()
+    pick(el, file('keep.txt'))
+    await el.updateComplete
+    const onReject = vi.fn()
+    el.addEventListener('jimble-reject', onReject)
+    dropEntries(el, dirEntry('docs', [fileEntry('docs/a.txt')]))
+    await settle(el)
+    expect(el.files.map((x) => x.name)).toEqual(['keep.txt'])
+    expect(onReject).toHaveBeenCalledTimes(1)
+    expect(onReject.mock.calls[0]![0].detail.reason).toBe('folder')
+    const rejected = items(el).find((i) => i.getAttribute('data-status') === 'rejected')!
+    expect(rejected.textContent).toContain('docs')
+    expect(rejected.textContent).toContain('フォルダーは追加できません')
+  })
+
+  it('フォルダーを読めなければ、理由つきで一覧に出す', async () => {
+    const { el } = await make('multiple')
+    dropEntries(el, dirEntry('broken', [], true), file('ok.txt'))
+    await settle(el)
+    expect(el.files.map((x) => x.name)).toEqual(['ok.txt'])
+    const rejected = items(el).find((i) => i.getAttribute('data-status') === 'rejected')!
+    expect(rejected.textContent).toContain('フォルダーを読み込めませんでした')
+  })
+
+  it('upload には、相対パスも渡す', async () => {
+    const paths: (string | undefined)[] = []
+    const { el } = await make('multiple', (el) => {
+      el.upload = async (_file, { path }) => {
+        paths.push(path)
+        return 'id'
+      }
+    })
+    dropEntries(el, dirEntry('docs', [fileEntry('docs/a.txt')]), file('memo.txt'))
+    await settle(el)
+    expect(paths).toEqual(['docs/a.txt', undefined])
+  })
+})
+
 describe('アップロード（upload）', () => {
   it('自動で送信し、進捗を表示し、完了するとサーバーが返した値がフォームに送られる', async () => {
     let progress!: (n: number) => void
