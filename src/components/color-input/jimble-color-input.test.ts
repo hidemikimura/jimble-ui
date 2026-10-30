@@ -173,6 +173,100 @@ describe('ポップアップ', () => {
   })
 })
 
+describe('透明度（alpha）', () => {
+  const type = async (el: JimbleColorInput, text: string) => {
+    input(el).value = text
+    input(el).dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+    await el.updateComplete
+  }
+
+  it('alpha がなければ、不透明度のスライダーはなく、8 桁は不正な入力（これまでどおり）', async () => {
+    const { el } = await make()
+    swatch(el).click()
+    await tick()
+    expect(slider(el, 'a')).toBeNull()
+    await type(el, '#ff000080')
+    expect(el.validity.badInput).toBe(true)
+  })
+
+  it('value 属性の #rrggbbaa を小文字に整えて送信し、スライダーに不透明度（%）を出す', async () => {
+    const { f, el } = await make('alpha value="#FF000080"')
+    expect(input(el).value).toBe('#ff000080')
+    expect(data(f)).toEqual({ c: '#ff000080' })
+    swatch(el).click()
+    await tick()
+    expect(slider(el, 'a').value).toBe('50')
+    expect(swatch(el).style.getPropertyValue('--_swatch')).toBe('#ff000080')
+  })
+
+  it('属性の順序によらず、value の透明度が残る', async () => {
+    const { el } = await make('value="#ff000080" alpha')
+    expect(el.value).toBe('#ff000080')
+  })
+
+  it('#rgba・#rrggbbaa を入力でき、不透明は #rrggbb になる', async () => {
+    const { f, el } = await make('alpha')
+    await type(el, '#f008')
+    expect(data(f)).toEqual({ c: '#ff000088' })
+    await type(el, '#ff0000ff')
+    expect(data(f)).toEqual({ c: '#ff0000' })
+    await type(el, '#ff00008')
+    expect(el.validity.badInput).toBe(true)
+    expect(el.validationMessage).toContain('#RRGGBBAA')
+  })
+
+  it('不透明度のスライダーで値が変わり、色相を動かしても透明度は保たれる', async () => {
+    const { f, el } = await make('alpha value="#ff0000"')
+    const onChange = vi.fn()
+    el.addEventListener('change', onChange)
+    swatch(el).click()
+    await tick()
+    expect(slider(el, 'a').value).toBe('100')
+    setSlider(el, 'a', 50)
+    await el.updateComplete
+    expect(data(f)).toEqual({ c: '#ff000080' })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    setSlider(el, 'h', 120)
+    await el.updateComplete
+    expect(data(f)).toEqual({ c: '#00ff0080' })
+    setSlider(el, 'a', 0)
+    await el.updateComplete
+    expect(data(f)).toEqual({ c: '#00ff0000' })
+  })
+
+  it('不透明度 0 から色の入力に戻ると、入力した透明度になる', async () => {
+    const { el } = await make('alpha value="#ff000000"')
+    await type(el, '#00ff00')
+    expect(el.value).toBe('#00ff00')
+  })
+
+  it('候補に #rrggbbaa を書ける（alpha がなければ、その候補は出さない）', async () => {
+    const withAlpha = (await make('alpha presets="#ff000080 #00ff00"')).el
+    swatch(withAlpha).click()
+    await tick()
+    const presets = [
+      ...withAlpha.shadowRoot!.querySelectorAll<HTMLButtonElement>('[part="preset"]'),
+    ]
+    expect(presets.map((b) => b.dataset.color)).toEqual(['#ff000080', '#00ff00'])
+    presets[0]!.click()
+    await withAlpha.updateComplete
+    expect(withAlpha.value).toBe('#ff000080')
+    expect(slider(withAlpha, 'a').value).toBe('50')
+
+    const without = (await make('presets="#ff000080 #00ff00"')).el
+    expect(without.shadowRoot!.querySelectorAll('[part="preset"]')).toHaveLength(1)
+  })
+
+  it('alpha を外すと、値は #rrggbb になる', async () => {
+    const { f, el } = await make('alpha value="#ff000080"')
+    el.alpha = false
+    await el.updateComplete
+    expect(el.value).toBe('#ff0000')
+    expect(input(el).value).toBe('#ff0000')
+    expect(data(f)).toEqual({ c: '#ff0000' })
+  })
+})
+
 describe('アクセシビリティ', () => {
   it('field の中で名前が付き、閉じた状態・開いた状態とも axe 違反がない', async () => {
     const f = await mount<HTMLElement>(
@@ -186,6 +280,21 @@ describe('アクセシビリティ', () => {
     await expectNoA11yViolations(f)
     swatch(el).click()
     await tick()
+    await expectNoA11yViolations(f)
+  })
+
+  it('alpha のとき、開いた状態で axe 違反がなく、不透明度のスライダーに名前がある', async () => {
+    const f = await mount<HTMLElement>(
+      html`<jimble-field label="背景色"
+        ><jimble-color-input name="c" alpha value="#4f46e580"></jimble-color-input
+      ></jimble-field>`,
+    )
+    const el = f.querySelector('jimble-color-input') as JimbleColorInput
+    await el.updateComplete
+    swatch(el).click()
+    await tick()
+    expect(slider(el, 'a').getAttribute('aria-label')).toBe('不透明度')
+    expect(slider(el, 'a').getAttribute('aria-valuetext')).toBe('50%')
     await expectNoA11yViolations(f)
   })
 })

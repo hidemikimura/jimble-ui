@@ -1482,7 +1482,7 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 
 - **範囲**: `jimble-date-input`、`jimble-color-input`、`jimble-combobox` の 3 部品（41 要素）。外部ライブラリは使っていない（付録 A.2 の「日付は ISO 文字列 + 自前の APG date picker」の方針どおり。dayjs / cally / Floating UI は不要だった）。
 - **日付入力**: 値は `YYYY-MM-DD` の文字列。年月日だけで計算し（`src/base/date.ts`）、`Date` のタイムゾーン問題を避ける。表示・入力は `Intl` の書式（日本語 `2026/09/29`）。入力は全角・`年月日`・8 桁も受け付け、blur / Enter で整える。カレンダーは APG の date picker dialog（グリッド、矢印・Home / End・PageUp / PageDown）。`popover="auto"`、位置は CSS Anchor Positioning。時刻・期間・和暦は対象外。
-- **色選択**: 値は小文字の `#rrggbb`（`src/base/color.ts`）。ポップアップは、HSL のスライダー（ネイティブの `<input type="range">`）と候補の色。色相は内部に持つので、彩度 0 にしても失われない。色は `style` 属性ではなく CSSOM（`style.setProperty`）で渡す（CSP で `style-src` を絞っていても動く）。透明度・他の色空間は対象外。
+- **色選択**: 値は小文字の `#rrggbb`（`src/base/color.ts`）。ポップアップは、HSL のスライダー（ネイティブの `<input type="range">`）と候補の色。色相は内部に持つので、彩度 0 にしても失われない。色は `style` 属性ではなく CSSOM（`style.setProperty`）で渡す（CSP で `style-src` を絞っていても動く）。透明度・他の色空間は対象外（透明度は、のちに `alpha` で対応。下の追補）。
 - **コンボボックス**: APG の combobox（list autocomplete）。フォーカスは入力欄に残し、`aria-activedescendant` で候補を指す。ARIA の参照は Shadow 境界をまたげないため、`jimble-option` は「データ」として使い（`<slot hidden>`）、候補は同じ Shadow root 内に写して描画する。**自由入力は値にしない**（離れると選択中の表示に戻す）。絞り込みは `src/base/text-match.ts`（NFKC・大文字小文字・ひらがな/カタカナ・空白を無視、`keywords` で読みに対応）。`popover="manual"` + 入力欄の blur で閉じる。文字の入力では `input` / `change` を出さず、`jimble-search` を出す（値が変わっていないため）。
 - **共通の整理**: Enter での暗黙の送信を `src/base/implicit-submit.ts` に切り出し（`jimble-input` も使う）。`setCustomValidity` を `computeValidity` を上書きする部品でも効かせた（`commit()` で反映）。
 - **不具合の発見と対処**: (1) 新部品が `src/index.ts`（CDN・ドキュメントサイトの入口）から抜けていた → E2E の axe で発見。全部品の再エクスポートと `hosts.css` の読み込みを検査する単体テスト `tests/unit/entry.test.ts` を追加。(2) **`jimble-field` より先に登録された部品には、field の情報（ラベル・ヒント）が届かない**（コンテキストの提供側が後から現れるため）。アルファベット順の入口では、`checkbox` や `combobox` が `field` より前に来る。→ `base/form-element.ts` が `jimble-field` を先に import するようにした（個別 import でも順序に依存しない）。(3) 日付入力を ↓ で開いたときにカレンダーの表示月を初期化していなかった → 単体テストで開いたあとのフォーカスも確認するようにした。
@@ -1567,6 +1567,14 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **グループ**: `jimble-option` の `group` 属性（combobox と同じ）。同じ名前を最初の出現位置にまとめ、`role=group` + 見出し。表示順と矢印キーの順を一致させるため、行の並びを先にグループ化して作る。`search-group` でグループ名も絞り込み対象。
 - **並べ替え（`reorderable`）**: 右の一覧の順序は `values` の順そのもの。ドラッグは HTML5 DnD（外部ライブラリなし）、ドラッグの代わりに「上へ」「下へ」ボタン（選んだ項目をブロックで 1 つずつ。WCAG 2.5.7）、キーボードは Alt+↑↓。並べ替えできるときの右の一覧は選んだ順を見せるため、グループではまとめず、グループ名を項目の後ろに小さく出す。右の一覧を絞り込んでいる間は、見えない項目との前後が定まらないので並べ替えを無効にする。
 - **対象外**: サーバーからの取得、左の一覧の並べ替え、複数項目のドラッグ。
+
+**追補: 色選択の透明度 `alpha`（2026-10-31）**
+
+- **採用**: `jimble-color-input` に真偽の属性 `alpha` を足す。付けると、ポップアップに不透明度（0〜100%）のスライダーが加わり、値は透けた色なら `#rrggbbaa`、不透明なら `#rrggbb`。入力は `#rgba`・`#rrggbbaa` も受け付ける。付けなければ、これまでと同じ（8 桁は不正な入力）。
+- **理由**: 既存の利用者の値の形を変えない（オプトイン）。属性名は、HTML の `<input type="color" alpha>` に合わせた。値は 16 進数のままにし、CSS にそのまま書け、送信値を受け取る側も扱いやすくした。不透明なら 6 桁に縮めるので、`alpha` を付けても、透けていない色の値は付ける前と同じ。
+- **比較した案**: (1) 常に 8 桁で返す — 形はそろうが、不透明の色まで `#4f46e5ff` になり、`alpha` の有無で同じ色の値が変わる。(2) `rgb(… / 0.5)` や `color(srgb …)` で返す（ネイティブの `alpha` の書式） — 16 進数の値と書式が分かれ、検証も複雑になる。(3) 不透明度を別の入力（別の name）にする — 1 つの色が 2 つの値に分かれる。
+- **作り**: 色（`#rrggbb`）とアルファ（0〜255）を分けて持ち、`value` は `alpha` に応じて組み立てる。`value` 属性は、`alpha` の属性より先に処理されても透明度を失わないよう、常に 8 桁まで受け取る（`alpha` を外すと `#rrggbb` になり、付け直すと戻る）。スライダーは 0〜100% で、`aria-valuetext` に `50%` のように渡す。色見本とスライダーの溝は、透けた色が分かるよう、市松模様の上に描く（未選択の色見本の模様も、これで兼ねる）。
+- **残り**: oklch など他の色空間は対象外のまま。
 
 **追補: CDN バンドルの予算を 92 KB に（2026-10-09）**
 

@@ -19,16 +19,14 @@
     width: 16rem;
     max-width: calc(100vw - 1rem);
   }
-  /* 色見本。--_swatch は updated() が CSSOM で渡す */
+  /* 色見本。--_swatch は updated() が CSSOM で渡す。透けた色（と未選択）が分かるよう、下に市松模様を敷く */
   :host(jimble-color-input) .jimble-swatch {
-    background-color: var(--_swatch, transparent);
-  }
-  :host(jimble-color-input) [part='swatch'][data-empty] {
-    background-image: repeating-conic-gradient(
-      var(--_c-surface-sunken) 0% 25%,
-      var(--_c-surface) 0% 50%
-    );
-    background-size: 8px 8px;
+    background-image:
+      linear-gradient(var(--_swatch, transparent), var(--_swatch, transparent)),
+      repeating-conic-gradient(var(--_c-ring) 0% 25%, var(--_c-surface) 0% 50%);
+    background-size:
+      auto,
+      8px 8px;
   }
   :host(jimble-color-input) .jimble-slider {
     appearance: none;
@@ -79,6 +77,25 @@
   }
   :host(jimble-color-input) [data-slider='l']::-moz-range-track {
     background: linear-gradient(to right, #000, hsl(var(--_h) var(--_s) 50%), #fff);
+  }
+  /* 不透明度: 透明 → いまの色。下に市松模様を敷く */
+  :host(jimble-color-input) [data-slider='a']::-webkit-slider-runnable-track {
+    background:
+      linear-gradient(
+        to right,
+        hsl(var(--_h) var(--_s) var(--_l) / 0),
+        hsl(var(--_h) var(--_s) var(--_l))
+      ),
+      repeating-conic-gradient(var(--_c-ring) 0% 25%, var(--_c-surface) 0% 50%) 0 0 / 0.5rem 0.5rem;
+  }
+  :host(jimble-color-input) [data-slider='a']::-moz-range-track {
+    background:
+      linear-gradient(
+        to right,
+        hsl(var(--_h) var(--_s) var(--_l) / 0),
+        hsl(var(--_h) var(--_s) var(--_l))
+      ),
+      repeating-conic-gradient(var(--_c-ring) 0% 25%, var(--_c-surface) 0% 50%) 0 0 / 0.5rem 0.5rem;
   }
   :host(jimble-color-input) .jimble-slider::-webkit-slider-runnable-track {
     height: 0.75rem;

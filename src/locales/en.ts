@@ -61,6 +61,7 @@ const en: Locale = {
   'color.hue': 'Hue',
   'color.saturation': 'Saturation',
   'color.lightness': 'Lightness',
+  'color.alpha': 'Opacity',
   'color.presets': 'Common colors',
   'color.clear': 'Clear',
   'combobox.noResults': 'No matching options',
@@ -143,6 +144,7 @@ const en: Locale = {
   'validation.badInput': 'Enter a valid value',
   'validation.dateFormat': 'Enter a date like {example}',
   'validation.colorFormat': 'Enter a color like #RRGGBB',
+  'validation.colorFormatAlpha': 'Enter a color like #RRGGBB or #RRGGBBAA',
 }
 
 export default en

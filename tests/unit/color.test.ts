@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { hexToHsl, hexToRgb, hslToHex, normalizeHex, rgbToHex } from '../../src/base/color.ts'
+import {
+  hexToHsl,
+  hexToRgb,
+  hslToHex,
+  normalizeHex,
+  rgbToHex,
+  splitAlpha,
+  withAlpha,
+} from '../../src/base/color.ts'
 
 describe('色の変換', () => {
   it('入力を #rrggbb に正規化する(#rgb・大文字・全角・# なし)', () => {
@@ -68,5 +76,37 @@ describe('色の変換', () => {
       expect(Math.abs(back.g - orig.g), hex).toBeLessThanOrEqual(1)
       expect(Math.abs(back.b - orig.b), hex).toBeLessThanOrEqual(1)
     }
+  })
+})
+
+describe('透明度（アルファ）', () => {
+  it('alpha を許すと、#rgba・#rrggbbaa を受け付け、小文字の #rrggbbaa にする', () => {
+    const a = { alpha: true }
+    expect(normalizeHex('#FF000080', a)).toBe('#ff000080')
+    expect(normalizeHex('f008', a)).toBe('#ff000088')
+    expect(normalizeHex('＃ff000080', a)).toBe('#ff000080')
+    expect(normalizeHex('#ff0000', a)).toBe('#ff0000')
+    expect(normalizeHex('#f00', a)).toBe('#ff0000')
+  })
+
+  it('不透明（アルファが ff）は、#rrggbb に縮める', () => {
+    expect(normalizeHex('#ff0000ff', { alpha: true })).toBe('#ff0000')
+    expect(normalizeHex('#f00f', { alpha: true })).toBe('#ff0000')
+  })
+
+  it('alpha を許さなければ、4 桁・8 桁は null（これまでどおり）', () => {
+    expect(normalizeHex('#ff000080')).toBeNull()
+    expect(normalizeHex('#f008')).toBeNull()
+    for (const t of ['#12345', '#1234567', '#123456789', '#ff0000zz'])
+      expect(normalizeHex(t, { alpha: true }), t).toBeNull()
+  })
+
+  it('#rrggbbaa を、色とアルファ（0〜255）に分け、戻す', () => {
+    expect(splitAlpha('#ff000080')).toEqual({ rgb: '#ff0000', alpha: 128 })
+    expect(splitAlpha('#ff0000')).toEqual({ rgb: '#ff0000', alpha: 255 })
+    expect(withAlpha('#ff0000', 128)).toBe('#ff000080')
+    expect(withAlpha('#ff0000', 0)).toBe('#ff000000')
+    expect(withAlpha('#ff0000', 255)).toBe('#ff0000')
+    expect(withAlpha('#ff0000', 300)).toBe('#ff0000') // 範囲外は丸める
   })
 })

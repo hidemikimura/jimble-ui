@@ -60,6 +60,7 @@ const ja = {
   'color.hue': '色相',
   'color.saturation': '彩度',
   'color.lightness': '明度',
+  'color.alpha': '不透明度',
   'color.presets': 'よく使う色',
   'color.clear': 'クリア',
   'combobox.noResults': '一致する選択肢がありません',
@@ -142,6 +143,7 @@ const ja = {
   'validation.badInput': '有効な値を入力してください',
   'validation.dateFormat': '日付を {example} の形式で入力してください',
   'validation.colorFormat': '色を #RRGGBB の形式で入力してください',
+  'validation.colorFormatAlpha': '色を #RRGGBB または #RRGGBBAA の形式で入力してください',
 } as const
 
 export type MessageKey = Exclude<keyof typeof ja, '$locale'>

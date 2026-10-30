@@ -1,6 +1,14 @@
 import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import { hexToHsl, hslToHex, normalizeHex, type HSL } from '../../base/color.js'
+import {
+  OPAQUE,
+  hexToHsl,
+  hslToHex,
+  normalizeHex,
+  splitAlpha,
+  withAlpha,
+  type HSL,
+} from '../../base/color.js'
 import { JimbleFormElement, type ValidityResult } from '../../base/form-element.js'
 import { handleImplicitSubmit } from '../../base/implicit-submit.js'
 import { renderIcon } from '../../icons/render.js'
@@ -38,8 +46,10 @@ const TEXT_BTN =
  * 値は小文字の `#rrggbb`（例: `#4f46e5`）。フォーム関連カスタム要素。
  *
  * - 入力は `#4F46E5`・`4f46e5`・`#46e`（3 桁）・全角でも受け付ける。
- * - 透明度（アルファ）・他の色空間（oklch など）は未対応。
- * - `presets` に空白またはカンマ区切りの色を渡すと、候補の色を差し替えられる。
+ * - `alpha` を付けると、透明度も選べる（不透明度のスライダーが加わる）。値は、透けた色なら `#rrggbbaa`
+ *   （例: `#4f46e580`）、不透明なら `#rrggbb`。入力は `#rgba`（4 桁）・`#rrggbbaa`（8 桁）も受け付ける。
+ * - 他の色空間（oklch など）は未対応。
+ * - `presets` に空白またはカンマ区切りの色を渡すと、候補の色を差し替えられる（`alpha` なら `#rrggbbaa` も書ける）。
  *
  * @tag jimble-color-input
  *
@@ -47,7 +57,7 @@ const TEXT_BTN =
  * @csspart input - テキスト欄
  * @csspart swatch - 色見本（ポップアップを開くボタン）
  * @csspart popup - ポップアップの面（role="dialog"）
- * @csspart slider - 色相・彩度・明度のスライダー
+ * @csspart slider - 色相・彩度・明度（`alpha` なら不透明度も）のスライダー
  * @csspart presets - 候補の色の並び
  * @csspart preset - 候補の色のボタン
  *
@@ -66,6 +76,7 @@ export class JimbleColorInput extends JimbleFormElement {
     placeholder: {},
     readonly: { type: Boolean, reflect: true },
     presets: {},
+    alpha: { type: Boolean, reflect: true },
     open: { type: Boolean, reflect: true },
   }
 
@@ -73,9 +84,13 @@ export class JimbleColorInput extends JimbleFormElement {
   declare readonly: boolean
   /** 候補の色（空白またはカンマ区切りの `#rrggbb`）。未指定なら既定の 12 色 */
   declare presets: string | undefined
+  /** 透明度も選べるようにする（値が `#rrggbbaa` になることがある） */
+  declare alpha: boolean
   declare open: boolean
 
-  #value = ''
+  /** 色（小文字の `#rrggbb`。未選択は空）と、そのアルファ（0〜255） */
+  #rgb = ''
+  #alpha = OPAQUE
   #text = ''
   #dirty = false
   #fromAttribute = false
@@ -83,13 +98,18 @@ export class JimbleColorInput extends JimbleFormElement {
   #hsl: HSL = { h: 240, s: 60, l: 50 }
   #wasOpenOnPointerDown = false
 
-  /** 現在の色（小文字の `#rrggbb`。未選択は空）。`value` 属性は初期値、プロパティは現在値 */
+  /**
+   * 現在の色（小文字の `#rrggbb`、`alpha` で透けた色なら `#rrggbbaa`。未選択は空）。
+   * `value` 属性は初期値、プロパティは現在値
+   */
   get value(): string {
-    return this.#value
+    if (!this.#rgb) return ''
+    return this.alpha ? withAlpha(this.#rgb, this.#alpha) : this.#rgb
   }
   set value(next: string) {
-    const old = this.#value
-    const hex = normalizeHex(String(next ?? ''))
+    const old = this.value
+    // alpha の属性より先に value が来ても透明度を失わないよう、ここでは常に 8 桁まで受け取る
+    const hex = normalizeHex(String(next ?? ''), { alpha: true })
     this.#applyValue(hex ?? '')
     if (!this.#fromAttribute) this.#dirty = true
     this.requestUpdate('value', old)
@@ -100,7 +120,7 @@ export class JimbleColorInput extends JimbleFormElement {
       this.#fromAttribute = true
       super.attributeChangedCallback(name, old, value)
       this.#fromAttribute = false
-      this.#committed = this.#value
+      this.#committed = this.#full
       return
     }
     super.attributeChangedCallback(name, old, value)
@@ -111,6 +131,7 @@ export class JimbleColorInput extends JimbleFormElement {
     this.placeholder = undefined
     this.readonly = false
     this.presets = undefined
+    this.alpha = false
     this.open = false
   }
 
@@ -124,24 +145,38 @@ export class JimbleColorInput extends JimbleFormElement {
     return this.renderRoot?.querySelector<HTMLButtonElement>('[part="swatch"]') ?? null
   }
 
+  /** 透明度を含めた値（`alpha` によらない。change を出すかどうかの比較に使う） */
+  get #full(): string {
+    return this.#rgb ? withAlpha(this.#rgb, this.#alpha) : ''
+  }
+  get #formatOptions() {
+    return { alpha: this.alpha }
+  }
+
+  /** 正規化した値（`#rrggbb` / `#rrggbbaa` / 空）を、色とアルファに分けて持つ。入力欄の文字は変えない */
+  #setColor(hex: string) {
+    const { rgb, alpha } = splitAlpha(hex)
+    this.#rgb = rgb
+    this.#alpha = alpha
+    if (rgb) this.#hsl = hexToHsl(rgb)
+  }
   #applyValue(hex: string) {
-    this.#value = hex
-    this.#text = hex
-    if (hex) this.#hsl = hexToHsl(hex)
+    this.#setColor(hex)
+    this.#text = this.value
   }
 
   // ---- フォーム ------------------------------------------------------------------------
   protected get formValue(): string | null {
-    return this.#value || null
+    return this.value || null
   }
   protected resetValue(): void {
     this.#dirty = false
-    this.#applyValue(normalizeHex(this.getAttribute('value') ?? '') ?? '')
-    this.#committed = this.#value
+    this.#applyValue(normalizeHex(this.getAttribute('value') ?? '', { alpha: true }) ?? '')
+    this.#committed = this.#full
   }
   protected override restoreValue(state: string): void {
     this.value = state
-    this.#committed = this.#value
+    this.#committed = this.#full
   }
   protected override computeValidity(): ValidityResult {
     const anchor = this.nativeControl ?? undefined
@@ -152,8 +187,9 @@ export class JimbleColorInput extends JimbleFormElement {
         ? { flags: { valueMissing: true }, message: this.t('validation.valueMissing'), anchor }
         : { flags: {}, message: '' }
     }
-    if (!normalizeHex(text)) {
-      return { flags: { badInput: true }, message: this.t('validation.colorFormat'), anchor }
+    if (!normalizeHex(text, this.#formatOptions)) {
+      const key = this.alpha ? 'validation.colorFormatAlpha' : 'validation.colorFormat'
+      return { flags: { badInput: true }, message: this.t(key), anchor }
     }
     return { flags: {}, message: '' }
   }
@@ -163,23 +199,21 @@ export class JimbleColorInput extends JimbleFormElement {
     this.dispatchEvent(new Event(type, { bubbles: true, composed: true }))
   }
   #commitChange() {
-    if (this.#value === this.#committed) return
-    this.#committed = this.#value
+    if (this.#full === this.#committed) return
+    this.#committed = this.#full
     this.#emit('change')
   }
 
   #onInput = (event: Event) => {
     this.#text = (event.target as HTMLInputElement).value
-    const hex = normalizeHex(this.#text)
-    this.#value = hex ?? ''
-    if (hex) this.#hsl = hexToHsl(hex)
+    this.#setColor(normalizeHex(this.#text, this.#formatOptions) ?? '')
     this.#dirty = true
     this.requestUpdate('value')
     this.commit()
   }
 
   #settle() {
-    if (this.#value) this.#text = this.#value
+    if (this.#rgb) this.#text = this.value
     this.requestUpdate()
     this.#commitChange()
   }
@@ -207,8 +241,19 @@ export class JimbleColorInput extends JimbleFormElement {
   #onSlider = (key: keyof HSL) => (event: Event) => {
     const n = Number((event.target as HTMLInputElement).value)
     this.#hsl = { ...this.#hsl, [key]: n }
-    this.#value = hslToHex(this.#hsl)
-    this.#text = this.#value
+    this.#rgb = hslToHex(this.#hsl)
+    this.#sliderMoved()
+  }
+  /** 不透明度のスライダー(0〜100%) */
+  #onAlphaSlider = (event: Event) => {
+    const percent = Number((event.target as HTMLInputElement).value)
+    this.#alpha = Math.round((percent / 100) * OPAQUE)
+    // 未選択から不透明度だけ動かしたときは、いまのスライダーの色を使う
+    if (!this.#rgb) this.#rgb = hslToHex(this.#hsl)
+    this.#sliderMoved()
+  }
+  #sliderMoved() {
+    this.#text = this.value
     this.#dirty = true
     this.requestUpdate('value')
     this.commit()
@@ -219,7 +264,7 @@ export class JimbleColorInput extends JimbleFormElement {
   }
 
   #pick(hex: string) {
-    const changed = hex !== this.#value
+    const changed = hex !== this.value
     this.value = hex
     this.commit()
     if (changed) this.#emit('input')
@@ -265,8 +310,14 @@ export class JimbleColorInput extends JimbleFormElement {
     if (this.presets === undefined) return DEFAULT_PRESETS
     return this.presets
       .split(/[\s,]+/)
-      .map((c) => normalizeHex(c))
+      .map((c) => normalizeHex(c, this.#formatOptions))
       .filter((c): c is string => !!c)
+  }
+
+  protected override willUpdate(changed: PropertyValues): void {
+    super.willUpdate(changed)
+    // alpha を切り替えたら、入力欄の文字も、その形式（#rrggbb / #rrggbbaa）にそろえる
+    if (changed.has('alpha') && this.#rgb) this.#text = this.value
   }
 
   protected override updated(changed: PropertyValues): void {
@@ -280,7 +331,7 @@ export class JimbleColorInput extends JimbleFormElement {
     this.#swatchButton?.setAttribute('aria-expanded', String(this.open))
     // 色は CSSOM で渡す(style 属性は CSP で止められることがあるため)
     const root = this.renderRoot
-    const shown = this.#value || 'transparent'
+    const shown = this.value || 'transparent'
     root.querySelectorAll<HTMLElement>('[data-swatch]').forEach((el) => {
       el.style.setProperty('--_swatch', shown)
     })
@@ -296,9 +347,11 @@ export class JimbleColorInput extends JimbleFormElement {
   }
 
   // ---- 描画 ----------------------------------------------------------------------------
-  #slider(key: keyof HSL, label: string, max: number) {
+  #slider(key: keyof HSL | 'a', label: string, max: number) {
+    const isAlpha = key === 'a'
+    const value = Math.round(isAlpha ? (this.#alpha / OPAQUE) * 100 : this.#hsl[key])
     return html`<label class="flex items-center gap-3 text-sm">
-      <span class="w-10 shrink-0 text-fg-muted">${label}</span>
+      <span class="${this.alpha ? 'w-14' : 'w-10'} shrink-0 text-fg-muted">${label}</span>
       <input
         part="slider"
         type="range"
@@ -308,8 +361,9 @@ export class JimbleColorInput extends JimbleFormElement {
         max=${max}
         step="1"
         aria-label=${label}
-        .value=${String(Math.round(this.#hsl[key]))}
-        @input=${this.#onSlider(key)}
+        aria-valuetext=${isAlpha ? `${value}%` : nothing}
+        .value=${String(value)}
+        @input=${isAlpha ? this.#onAlphaSlider : this.#onSlider(key)}
         @change=${this.#onSliderChange}
       />
     </label>`
@@ -329,7 +383,6 @@ export class JimbleColorInput extends JimbleFormElement {
             type="button"
             class="jimble-swatch inline-flex size-6 shrink-0 cursor-pointer rounded-md ring-1 ring-inset ring-line-control outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus disabled:cursor-not-allowed"
             data-swatch
-            data-empty=${this.#value ? nothing : ''}
             aria-label=${this.t('color.open')}
             aria-haspopup="dialog"
             aria-expanded="false"
@@ -337,7 +390,7 @@ export class JimbleColorInput extends JimbleFormElement {
             @pointerdown=${this.#onSwatchPointerDown}
             @click=${this.#onSwatchClick}
           >
-            ${this.#value ? nothing : renderIcon(swatch, 'size-4 m-auto text-fg-muted')}
+            ${this.#rgb ? nothing : renderIcon(swatch, 'size-4 m-auto text-fg-muted')}
           </button>
         </span>
         <input
@@ -379,6 +432,7 @@ export class JimbleColorInput extends JimbleFormElement {
           ${this.#slider('h', this.t('color.hue'), 360)}
           ${this.#slider('s', this.t('color.saturation'), 100)}
           ${this.#slider('l', this.t('color.lightness'), 100)}
+          ${this.alpha ? this.#slider('a', this.t('color.alpha'), 100) : nothing}
           <div
             role="group"
             aria-label=${this.t('color.presets')}
@@ -393,7 +447,7 @@ export class JimbleColorInput extends JimbleFormElement {
                   class=${PRESET + ' jimble-swatch'}
                   data-color=${c}
                   aria-label=${c}
-                  aria-pressed=${c === this.#value ? 'true' : 'false'}
+                  aria-pressed=${c === this.value ? 'true' : 'false'}
                   @click=${() => this.#pick(c)}
                 ></button>`,
             )}
