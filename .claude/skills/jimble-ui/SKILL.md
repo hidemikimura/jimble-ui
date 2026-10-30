@@ -121,7 +121,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
 - **`jimble-table`** — データテーブル。
-  - 属性: `label=値`, `sticky-header`, `striped`, `loading`, `selectable`
+  - 属性: `label=値`, `sticky-header`, `striped`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
   - スロット: (既定)
   - イベント: `jimble-sort`, `jimble-selection-change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
@@ -136,7 +136,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-head-cell`** — 表の見出しセル（columnheader）。
-  - 属性: `align=start|center|end`, `sortable`, `sort=ascending|descending|none`, `colspan=数値`
+  - 属性: `align=start|center|end`, `sortable`, `sort=ascending|descending|none`, `colspan=数値`, `key=値`
   - スロット: (既定)
   - イベント: `jimble-sort`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
@@ -307,7 +307,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ### 3. 表は `jimble-table` 系で組む（`<table>` を書かない）
 
-`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。横の結合は `colspan`（2 段の見出し・合計の行）。`rowspan` は使えない。列の幅は表の `--jimble-table-columns`（`grid-template-columns` の書き方。セルの `width` は効かない）。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
+`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。横の結合は `colspan`（2 段の見出し・合計の行）。`rowspan` は使えない。列の幅は表の `--jimble-table-columns`（`grid-template-columns` の書き方。セルの `width` は効かない）。表には `label` を付ける。数値の列は `align="end"`。**数千行を超えるときは、HTML に行を書かず**、`table.columns`（`{ key, label, width, align, header, sortable, render }`）と `table.rows`（配列）をプロパティで渡す（見えている行だけ描く。行の高さは `row-height` で固定）。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
 
 ### 4. 部品ごとの使い方（オーバーレイ・選択・通知など）
 

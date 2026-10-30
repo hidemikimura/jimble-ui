@@ -1,0 +1,44 @@
+<!-- title: データから描く（1 万行・仮想スクロール） -->
+<div class="stack">
+  <span id="virtual-count" aria-live="polite">0 件を選択中</span>
+  <jimble-table
+    id="virtual-table"
+    label="注文（1 万件）"
+    selectable
+    style="--jimble-table-max-height: 24rem"
+  ></jimble-table>
+</div>
+<script>
+  {
+    const table = document.getElementById('virtual-table')
+    const names = ['山田', '佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '中村']
+    const all = Array.from({ length: 10000 }, (_, i) => ({
+      id: `#${10001 + i}`,
+      name: `${names[i % names.length]} ${(i % 97) + 1}`,
+      amount: ((i * 7919) % 90000) + 1000,
+    }))
+    table.columns = [
+      { key: 'id', label: '注文番号', header: true, width: '8rem', sortable: true },
+      { key: 'name', label: '顧客', sortable: true },
+      {
+        key: 'amount',
+        label: '金額',
+        align: 'end',
+        width: '8rem',
+        sortable: true,
+        render: (row) => `¥${row.amount.toLocaleString('ja-JP')}`,
+      },
+    ]
+    table.rows = all
+    // 並べ替えはアプリが行う(rows に、並べ替えた配列を渡す)
+    table.addEventListener('jimble-sort', (e) => {
+      const { key, direction } = e.detail
+      const sign = direction === 'ascending' ? 1 : -1
+      table.rows = [...all].sort((a, b) => (a[key] > b[key] ? sign : a[key] < b[key] ? -sign : 0))
+    })
+    table.addEventListener('jimble-selection-change', (e) => {
+      document.getElementById('virtual-count').textContent =
+        `${e.detail.values.length.toLocaleString('ja-JP')} 件を選択中`
+    })
+  }
+</script>

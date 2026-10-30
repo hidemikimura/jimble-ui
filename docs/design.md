@@ -1568,6 +1568,14 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **並べ替え（`reorderable`）**: 右の一覧の順序は `values` の順そのもの。ドラッグは HTML5 DnD（外部ライブラリなし）、ドラッグの代わりに「上へ」「下へ」ボタン（選んだ項目をブロックで 1 つずつ。WCAG 2.5.7）、キーボードは Alt+↑↓。並べ替えできるときの右の一覧は選んだ順を見せるため、グループではまとめず、グループ名を項目の後ろに小さく出す。右の一覧を絞り込んでいる間は、見えない項目との前後が定まらないので並べ替えを無効にする。
 - **対象外**: サーバーからの取得、左の一覧の並べ替え、複数項目のドラッグ。
 
+**追補: 表をデータから描く（仮想スクロール、2026-10-31）**
+
+- **採用**: `jimble-table` の `columns`（列の定義）と `rows`（行のデータの配列）をプロパティで渡すと、表が light DOM に見出し・本文・行・セル（既存の `jimble-table-*`）を描く（Lit の `render`）。描くのは、スクロール位置から見えている行と、上下 5 行（`src/components/table/virtual.ts` の `visibleRange`）。本文の上下の余白（`padding-block`）で、描いていない行の高さを空ける。スクロールは `requestAnimationFrame` でまとめ、範囲が変わったときだけ描き直す。行の高さは `row-height`（既定 40px）で固定し、セルの文字は 1 行に収めて省略する。列の幅は列の `width`（省略すると `minmax(0, 1fr)`）で固定する。表の高さは `--jimble-table-max-height`（既定 24rem）、見出しは固定。`aria-rowcount`（表）・`aria-rowindex`（行）で総数と位置を伝える。
+- **理由**: 既存の行・セルの要素をそのまま使うので、選択・並べ替え・`colspan` の数え方・見た目が、HTML で書いた表と同じになる。行の要素の数が、データの数によらず一定になる。
+- **選択**: 行の要素は描き直すたびに入れ替わるので、選択は表がキー（`row-key`、既定 `id`）で覚える。「すべて選択」と Shift の範囲選択は、描いていない行を含めた、データの並びで選ぶ。`selectedItems`（行のデータ）を足し、`jimble-selection-change` の `detail` に `items` を足した。並べ替えのため、見出しセルに `key` を足し、`jimble-sort` の `detail` に `key` を足した（HTML で書いた表でも使える）。
+- **比較した案**: (1) HTML で書いた行のうち、画面の外の行の描画を省く（`content-visibility`）— 書き方を変えずに済むが、行の要素はすべて残るので、数万行には向かない。利用者の判断で、データから描く方を採った。(2) `@tanstack/virtual-core`（付録 A.3）— 固定の行の高さなら、範囲の計算は数行で済む。行の高さが違う表に対応するときに、改めて検討する。
+- **代償**: ページ内検索は、描いている行だけにかかる。行の中にフォーカスしたまま、マウスでスクロールして行が描かれなくなると、フォーカスが外れる。どちらも部品のページに書いた。
+
 **追補: 表のレイアウトを CSS グリッドにして、横の結合 `colspan` に対応（2026-10-31・見た目の変更）**
 
 - **採用**: 表（`part=grid`）を `display: grid` にし、行のまとまり（header / body）と行を `grid-template-columns: subgrid; grid-column: 1 / -1` にした。セルは行のグリッドの項目になり、`colspan` は `grid-column: span N`。列の数は、表が、行ごとの `colspan` の合計のいちばん大きいものを数え（MutationObserver で、行・セル・`colspan` の変化に追従）、`grid-template-columns` を `repeat(N, auto)`（`selectable` なら先頭に `max-content` の選択の列）にする。`aria-colspan` は ElementInternals で伝える。`span N` の規則は、値ごとに 1 枚の共有シートへ足していく（セルの host に `style` を書かない。CSP の `style-src` にもかからない）。

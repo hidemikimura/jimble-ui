@@ -51,6 +51,30 @@ description: データテーブル
 - 各行のチェックボックスの名前は「(行見出しのセル) を選択」です。行見出し（`header` のセル）を 1 つ置くと、何の行かが伝わります。
 - 表のロールの行には `aria-selected` を使えないため、選択の状態はチェックボックスで伝わります。
 
+## データから描く（仮想スクロール）
+
+行が多い（数千〜数万行）ときは、HTML に行を書かず、`columns`（列の定義）と `rows`（行のデータの配列）を**プロパティ**で渡します。表が自分で行を描き、**見えている行と、その前後だけ**を描くので、数万行でも軽く動きます。
+
+```js
+table.columns = [
+  { key: 'id', label: '注文番号', header: true, width: '8rem', sortable: true },
+  { key: 'name', label: '顧客' },
+  { key: 'amount', label: '金額', align: 'end', render: (row) => `¥${row.amount}` },
+]
+table.rows = orders
+```
+
+::example table/virtual
+
+- 列の定義: `key`（行のデータのキー）・`label`（見出し）・`width`（列の幅。`8rem`・`2fr` など。省略すると均等）・`align`・`header`（行見出しの列）・`sortable`・`render`（セルの中身。文字列か Lit の `html`）。
+- **行の高さは固定**です（`row-height`、既定 40px）。長い文字は 1 行に収めて省略します。**列の幅も固定**です（行が入れ替わっても、列の幅が動かないように）。
+- 表の高さは `--jimble-table-max-height`（既定 24rem）で、見出しは固定されます。
+- 並べ替えは、`jimble-sort` の `detail.key`（列の `key`）と `detail.direction` を受けて、アプリが並べ替えた配列を `rows` に渡します。
+- `selectable` の選択は、行のキー（`row-key`、既定 `id`）で覚えます。スクロールで行が描き直されても残り、「すべて選択」・Shift の範囲選択は、描いていない行も含めたデータの並びで選びます。選んだ行のデータは `selectedItems`、キーは `selectedValues` です。
+- 行の総数と、各行の位置は、`aria-rowcount` / `aria-rowindex` でスクリーンリーダーに伝わります。
+- **ページ内検索（Ctrl+F）は、描いている行だけ**にかかります。検索が必要なら、表の上に絞り込みの入力欄を置いてください。行が数百行までなら、HTML で書く方が向いています。
+- 行の中のボタンなどにフォーカスしたまま、マウスでスクロールして行が描かれなくなると、フォーカスは外れます。
+
 ## 状態
 
 ::example table/states

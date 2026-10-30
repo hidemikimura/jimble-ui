@@ -466,3 +466,169 @@ describe('セルの結合（colspan）', () => {
     await expectNoA11yViolations(el)
   })
 })
+
+describe('データから描く（columns / rows・仮想スクロール）', () => {
+  interface Order {
+    id: string
+    name: string
+    amount: number
+  }
+  const data = (n: number): Order[] =>
+    Array.from({ length: n }, (_, i) => ({
+      id: `o${i + 1}`,
+      name: `顧客 ${i + 1}`,
+      amount: (i + 1) * 100,
+    }))
+  async function virtual(n = 10000, attrs = '') {
+    const c = await mount<HTMLElement>(html`<div style="width: 500px"></div>`)
+    c.innerHTML = `<jimble-table label="注文" ${attrs} style="--jimble-table-max-height: 400px"></jimble-table>`
+    const el = c.querySelector('jimble-table') as JimbleTable
+    el.columns = [
+      { key: 'id', label: '番号', header: true, width: '6rem', sortable: true },
+      { key: 'name', label: '顧客' },
+      { key: 'amount', label: '金額', align: 'end', render: (row) => `¥${(row as Order).amount}` },
+    ]
+    el.rows = data(n)
+    await tick(80)
+    return { c, el }
+  }
+  const scroller = (el: JimbleTable) =>
+    el.shadowRoot!.querySelector<HTMLElement>('[part="scroller"]')!
+  const bodyRows = (el: JimbleTable) =>
+    [...el.querySelectorAll('jimble-table-body > jimble-table-row')] as JimbleTableRow[]
+  const firstCell = (r: Element) => r.querySelector('jimble-table-cell')!.textContent!.trim()
+  const scrollTo = async (el: JimbleTable, top: number) => {
+    scroller(el).scrollTop = top
+    scroller(el).dispatchEvent(new Event('scroll'))
+    await tick(80)
+  }
+  const internals = (e: Element) => (e as unknown as { internals: ElementInternals }).internals
+
+  it('見出しと、見えている行だけを描く（1 万行でも、描く行は少ない）', async () => {
+    const { el } = await virtual()
+    const heads = [...el.querySelectorAll('jimble-table-head-cell')].map((h) =>
+      h.textContent!.trim(),
+    )
+    expect(heads).toEqual(['番号', '顧客', '金額'])
+    const rows = bodyRows(el)
+    expect(rows.length).toBeGreaterThan(5)
+    expect(rows.length).toBeLessThan(30)
+    expect(firstCell(rows[0]!)).toBe('o1')
+    // render の結果・行見出し(header)・align
+    const cells = rows[0]!.querySelectorAll('jimble-table-cell')
+    expect(cells[2]!.textContent!.trim()).toBe('¥100')
+    expect(cells[0]!.hasAttribute('header')).toBe(true)
+    expect(cells[2]!.getAttribute('align')).toBe('end')
+  })
+
+  it('スクロール領域の高さは、すべての行ぶん。スクロールすると、その位置の行を描く', async () => {
+    const { el } = await virtual()
+    const s = scroller(el)
+    expect(s.scrollHeight).toBeGreaterThan(10000 * 40 - 100)
+    await scrollTo(el, 40 * 5000)
+    const rows = bodyRows(el)
+    const ids = rows.map(firstCell)
+    expect(ids).toContain('o5001')
+    // 描いた行は、見えている位置に並ぶ
+    const target = rows.find((r) => firstCell(r) === 'o5001')!
+    const top = target.getBoundingClientRect().top - s.getBoundingClientRect().top
+    expect(top).toBeGreaterThan(-80)
+    expect(top).toBeLessThan(400)
+  })
+
+  it('行の総数と位置を aria-rowcount / aria-rowindex で伝える（見出しの行が 1 行目）', async () => {
+    const { el } = await virtual(200)
+    expect(internals(el).ariaRowCount).toBe('201')
+    await scrollTo(el, 40 * 100)
+    const target = bodyRows(el).find((r) => firstCell(r) === 'o101')!
+    expect(target.getAttribute('aria-rowindex')).toBe('102')
+  })
+
+  it('列の幅は columns の width（無ければ均等）。行の高さは row-height', async () => {
+    const { el } = await virtual(50, 'row-height="48"')
+    const grid = el.shadowRoot!.querySelector<HTMLElement>('[part="grid"]')!
+    const widths = getComputedStyle(grid).gridTemplateColumns.split(' ').map(parseFloat)
+    expect(widths).toHaveLength(3)
+    expect(Math.round(widths[0]!)).toBe(96) // 6rem
+    expect(Math.abs(widths[1]! - widths[2]!)).toBeLessThan(2)
+    expect(Math.round(bodyRows(el)[0]!.getBoundingClientRect().height)).toBe(48)
+  })
+
+  it('長い文字は 1 行に収め、省略する（行の高さを変えない）', async () => {
+    const { el } = await virtual(5)
+    el.rows = [{ id: 'x', name: '長い名前 '.repeat(40), amount: 1 }]
+    await tick(80)
+    const row = bodyRows(el)[0]!
+    expect(Math.round(row.getBoundingClientRect().height)).toBe(40)
+    expect(getComputedStyle(row.querySelectorAll('jimble-table-cell')[1]!).textOverflow).toBe(
+      'ellipsis',
+    )
+  })
+
+  it('rows を差し替えると描き直す。行が減ったら、スクロール位置に合わせて描く', async () => {
+    const { el } = await virtual()
+    await scrollTo(el, 40 * 9000)
+    el.rows = data(20)
+    await tick(80)
+    const ids = bodyRows(el).map(firstCell)
+    expect(ids).toContain('o20')
+    expect(internals(el).ariaRowCount).toBe('21')
+  })
+
+  it('見出しは固定される。並べ替えの jimble-sort に列の key が付く', async () => {
+    const { el } = await virtual()
+    expect(getComputedStyle(el.querySelector('jimble-table-header')!).position).toBe('sticky')
+    const onSort = vi.fn()
+    el.addEventListener('jimble-sort', onSort)
+    const head = el.querySelector('jimble-table-head-cell')!
+    head.shadowRoot!.querySelector('button')!.click()
+    expect((onSort.mock.calls[0]![0] as CustomEvent).detail).toEqual({
+      direction: 'ascending',
+      key: 'id',
+    })
+  })
+
+  it('selectable: 選択は row-key（既定 id）で覚え、スクロールで行が描き直されても残る', async () => {
+    const { el } = await virtual(1000, 'selectable')
+    const onChange = vi.fn()
+    el.addEventListener('jimble-selection-change', onChange)
+    const box = (r: Element) =>
+      r
+        .shadowRoot!.querySelector('jimble-checkbox')!
+        .shadowRoot!.querySelector<HTMLInputElement>('input')!
+    box(bodyRows(el)[1]!).click()
+    await tick()
+    expect(el.selectedValues).toEqual(['o2'])
+    expect(el.selectedItems).toEqual([data(1000)[1]])
+    await scrollTo(el, 40 * 600)
+    await scrollTo(el, 0)
+    const again = bodyRows(el).find((r) => firstCell(r) === 'o2')!
+    expect(again.selected).toBe(true)
+    expect(box(again).checked).toBe(true)
+    // すべて選択は、描いていない行も含めた、すべての行
+    const head = el.querySelector('jimble-table-header > jimble-table-row')!
+    box(head).click()
+    await tick()
+    expect(el.selectedValues).toHaveLength(1000)
+    expect((onChange.mock.calls.at(-1)![0] as CustomEvent).detail.values).toHaveLength(1000)
+  })
+
+  it('selectable の範囲選択（Shift）は、データの並びで選ぶ', async () => {
+    const { el } = await virtual(100, 'selectable')
+    const box = (r: Element) =>
+      r
+        .shadowRoot!.querySelector('jimble-checkbox')!
+        .shadowRoot!.querySelector<HTMLInputElement>('input')!
+    await userEvent.click(box(bodyRows(el)[0]!))
+    await userEvent.keyboard('{Shift>}')
+    await userEvent.click(box(bodyRows(el)[3]!))
+    await userEvent.keyboard('{/Shift}')
+    await tick()
+    expect(el.selectedValues).toEqual(['o1', 'o2', 'o3', 'o4'])
+  })
+
+  it('axe の違反がない', async () => {
+    const { el } = await virtual(100, 'selectable')
+    await expectNoA11yViolations(el)
+  })
+})

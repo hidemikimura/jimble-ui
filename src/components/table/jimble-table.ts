@@ -1,5 +1,7 @@
-import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
+import { html, nothing, render, type PropertyDeclarations, type PropertyValues } from 'lit'
 import { live } from 'lit/directives/live.js'
+import { repeat } from 'lit/directives/repeat.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import { JimbleElement } from '../../base/jimble-element.js'
 import { sharedSheet } from '../../styles/shared-sheet.js'
 import { arrowDown } from '../../icons/arrowDown.js'
@@ -9,15 +11,40 @@ import { renderIcon } from '../../icons/render.js'
 import { spinner } from '../../icons/spinner.js'
 import '../checkbox/jimble-checkbox.js'
 import type { JimbleCheckbox } from '../checkbox/jimble-checkbox.js'
+import { visibleRange } from './virtual.js'
 
 export type SortDirection = 'ascending' | 'descending' | 'none'
 
 export interface TableSelectionDetail {
-  /** 選ばれている行の `value`（`value` の無い行は含まない） */
+  /** 選ばれている行の `value`（`value` の無い行は含まない。データから描くときは row-key の値） */
   values: string[]
-  /** 選ばれている行 */
+  /** 選ばれている行(データから描くときは、描いている行のうち、選ばれているもの) */
   rows: JimbleTableRow[]
+  /** 選ばれている行のデータ(データから描くとき。HTML で書いた表では空) */
+  items: unknown[]
 }
+
+/** データから描くときの列(`columns`) */
+export interface TableColumn {
+  /** 行のデータの、この列の値のキー(並べ替えの `jimble-sort` の `detail.key` にもなる) */
+  key: string
+  /** 見出しの文字 */
+  label: string
+  /** 列の幅(`grid-template-columns` の 1 つぶん。例: `8rem`・`2fr`)。省略すると均等 */
+  width?: string
+  align?: 'start' | 'center' | 'end'
+  /** 行見出し(rowheader)の列にする */
+  header?: boolean
+  /** 並べ替えのボタンにする */
+  sortable?: boolean
+  /** セルの中身を作る(文字列か、Lit の html)。省略すると `row[key]` を文字にする */
+  render?: (row: unknown, index: number) => unknown
+}
+
+/** データから描くときに、上下に余分に描く行の数 */
+const OVERSCAN = 5
+/** データから描くときの、既定の行の高さ(px) */
+const DEFAULT_ROW_HEIGHT = 40
 
 /** 行から、その行が属する表へ伝える窓口(表ごと。部品の外には見せない) */
 interface SelectionHub {
@@ -62,6 +89,12 @@ const isCell = (e: Element) =>
  * 列の数は、セルの数（と `colspan`）から決まる。列の幅は `--jimble-table-columns` で指定できる。
  * 行の区切り線の色は `--jimble-color-ring-divider` で変える。
  *
+ * **データから描く（仮想スクロール）**: `columns`（列の定義）と `rows`（行のデータの配列）をプロパティで渡すと、
+ * 表が自分で行を描く。描くのは見えている行と、その前後だけなので、数万行でも軽い。行の高さは `row-height`
+ * で固定（長い文字は省略）、列の幅は列の `width`、表の高さは `--jimble-table-max-height`（既定 24rem）で、
+ * 見出しは固定される。行の総数と位置は `aria-rowcount` / `aria-rowindex` で伝わる。ページ内検索は、
+ * 描いている行だけにかかる。
+ *
  * `selectable` を付けると、行頭にチェックボックスの列が出て、行を選べる（見出しに「すべて選択」。
  * 一部だけ選ぶと中間の状態。Shift を押しながらクリックすると範囲を選ぶ）。選んだ行は `selected` になり、
  * `jimble-selection-change` が出る。`table` のロールの行には `aria-selected` を使えないため、
@@ -74,7 +107,7 @@ const isCell = (e: Element) =>
  * @csspart scroller - 横・縦にスクロールする領域（はみ出すときだけキーボードで操作できる）
  * @csspart grid - 表のレイアウトを持つ領域
  *
- * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）
+ * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）。データから描くときは表の高さ（既定 24rem）
  * @cssprop [--jimble-table-columns=列の数だけ auto] - 列の幅（`grid-template-columns` の書き方。例: `12rem 1fr auto`）。`selectable` の選択の列は含めない
  * @cssprop [--jimble-table-cell-padding-x=3 単位] - セルの左右の余白
  * @cssprop [--jimble-table-cell-padding-y=2 単位] - セルの上下の余白
@@ -83,7 +116,7 @@ const isCell = (e: Element) =>
  * @cssprop [--jimble-table-header-text=var(--jimble-color-text-muted)] - 見出しの文字色
  *
  * @fires jimble-sort - 並べ替え可能な見出しが押された(direction)。preventDefault() すると見出しの状態を変えない
- * @fires jimble-selection-change - 利用者の操作で、行の選択が変わった。`detail` は `{ values, rows }`（選ばれている行の `value` と行）
+ * @fires jimble-selection-change - 利用者の操作で、行の選択が変わった。`detail` は `{ values, rows, items }`（選ばれている行の `value`・行・データから描くときは行のデータ）
  */
 export class JimbleTable extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -92,6 +125,10 @@ export class JimbleTable extends JimbleElement {
     striped: { type: Boolean, reflect: true },
     loading: { type: Boolean, reflect: true },
     selectable: { type: Boolean, reflect: true },
+    columns: { attribute: false },
+    rows: { attribute: false },
+    rowHeight: { type: Number, attribute: 'row-height' },
+    rowKey: { attribute: 'row-key' },
   }
 
   /** 表の名前（aria-label） */
@@ -104,6 +141,20 @@ export class JimbleTable extends JimbleElement {
   declare loading: boolean
   /** 行頭にチェックボックスを出して、行を選べるようにする */
   declare selectable: boolean
+  /** データから描くときの列の定義。指定すると、表が `rows` から行を描く（仮想スクロール） */
+  declare columns: TableColumn[] | undefined
+  /** データから描くときの、行のデータの配列 */
+  declare rows: readonly object[]
+  /** データから描くときの、1 行の高さ(px)。すべての行で同じ */
+  declare rowHeight: number
+  /** データから描くときの、行を見分けるキー(選択の `values` になる) */
+  declare rowKey: string
+
+  /** データから描くときに、描いている範囲 */
+  #range = { start: 0, end: 0 }
+  #frame = 0
+  /** データから描くときの、選ばれている行のキー(描き直しても残るように、表が持つ) */
+  #selectedKeys = new Set<string>()
 
   #resizer?: ResizeObserver
   #mutations?: MutationObserver
@@ -117,6 +168,10 @@ export class JimbleTable extends JimbleElement {
     this.striped = false
     this.loading = false
     this.selectable = false
+    this.columns = undefined
+    this.rows = []
+    this.rowHeight = DEFAULT_ROW_HEIGHT
+    this.rowKey = 'id'
     hubs.set(this, { toggle: this.#onRowToggle, refresh: this.#refreshSelectAll })
     // 見出しセルの jimble-sort は、表で受ける(セルがバブルさせる)。入れ子の表や外側のリスナーには漏らさず、
     // この表で止める(同じ表に付けた、アプリのリスナーには、これまでどおり届く)
@@ -141,6 +196,13 @@ export class JimbleTable extends JimbleElement {
   #updateColumns() {
     const grid = this.renderRoot?.querySelector<HTMLElement>('[part="grid"]')
     if (!grid) return
+    const select = this.selectable ? 'max-content ' : ''
+    if (this.#dataMode) {
+      // 行が入れ替わっても列の幅が動かないよう、列の定義の幅で決める
+      const widths = this.columns!.map((c) => c.width ?? 'minmax(0, 1fr)').join(' ')
+      grid.style.gridTemplateColumns = `${select}var(--jimble-table-columns, ${widths})`
+      return
+    }
     let columns = 1
     for (const row of this.querySelectorAll('jimble-table-row')) {
       if (row.closest('jimble-table') !== this) continue
@@ -148,7 +210,6 @@ export class JimbleTable extends JimbleElement {
       for (const cell of row.children) if (isCell(cell)) n += spanOf(cell)
       columns = Math.max(columns, n)
     }
-    const select = this.selectable ? 'max-content ' : ''
     grid.style.gridTemplateColumns = `${select}var(--jimble-table-columns, repeat(${columns}, auto))`
   }
 
@@ -159,22 +220,42 @@ export class JimbleTable extends JimbleElement {
       ...this.querySelectorAll<JimbleTableRow>('jimble-table-body > jimble-table-row'),
     ].filter((r) => r.closest('jimble-table') === this)
   }
-  /** 選ばれている行 */
+  /** 選ばれている行(データから描くときは、描いている行のうち、選ばれているもの) */
   get selectedRows(): JimbleTableRow[] {
     return this.#bodyRows.filter((r) => r.selected)
   }
-  /** 選ばれている行の `value`（`value` の無い行は含まない） */
+  /** 選ばれている行の `value`（`value` の無い行は含まない。データから描くときは、すべての行の row-key の値） */
   get selectedValues(): string[] {
+    if (this.#dataMode) return this.#selectedData.map((item, i) => this.#keyOf(item, i))
     return this.selectedRows.map((r) => r.value).filter((v) => v !== '')
+  }
+  /** 選ばれている行のデータ(データから描くとき。HTML で書いた表では空) */
+  get selectedItems(): unknown[] {
+    return this.#dataMode ? this.#selectedData : []
   }
   /** 「すべて選択」の状態 */
   get selectAllState(): 'all' | 'some' | 'none' {
-    const rows = this.#bodyRows
-    const n = rows.filter((r) => r.selected).length
-    return n === 0 ? 'none' : n === rows.length ? 'all' : 'some'
+    const [n, total] = this.#dataMode
+      ? [this.#selectedData.length, this.rows.length]
+      : [this.selectedRows.length, this.#bodyRows.length]
+    return n === 0 ? 'none' : n === total ? 'all' : 'some'
+  }
+  get #selectedData(): object[] {
+    if (!this.#selectedKeys.size) return []
+    return this.rows.filter((item, i) => this.#selectedKeys.has(this.#keyOf(item, i)))
+  }
+
+  #emitSelection() {
+    this.emit<TableSelectionDetail>('selection-change', {
+      detail: { values: this.selectedValues, rows: this.selectedRows, items: this.selectedItems },
+    })
   }
 
   #onRowToggle = (row: JimbleTableRow, selected: boolean, range: boolean) => {
+    if (this.#dataMode) {
+      this.#toggleData(row, selected, range)
+      return
+    }
     const rows = this.#bodyRows
     let targets = [row]
     if (
@@ -188,9 +269,26 @@ export class JimbleTable extends JimbleElement {
     }
     if (targets !== rows) this.#anchor = row
     for (const r of targets) r.selected = selected
-    this.emit<TableSelectionDetail>('selection-change', {
-      detail: { values: this.selectedValues, rows: this.selectedRows },
-    })
+    this.#emitSelection()
+  }
+
+  /** データから描くときの選択。キーで覚えるので、描いていない行も選べる(すべて選択・範囲選択) */
+  #anchorKey: string | undefined
+  #toggleData(row: JimbleTableRow, selected: boolean, range: boolean) {
+    const keys = this.rows.map((item, i) => this.#keyOf(item, i))
+    let targets = [row.value]
+    if (row.parentElement?.localName === 'jimble-table-header') targets = keys
+    else if (range && this.#anchorKey !== undefined && keys.includes(this.#anchorKey)) {
+      const [a, b] = [keys.indexOf(this.#anchorKey), keys.indexOf(row.value)].sort((x, y) => x - y)
+      targets = keys.slice(a!, b! + 1)
+    }
+    if (targets !== keys) this.#anchorKey = row.value
+    for (const k of targets) {
+      if (selected) this.#selectedKeys.add(k)
+      else this.#selectedKeys.delete(k)
+    }
+    this.#renderData()
+    this.#emitSelection()
   }
 
   #refreshSelectAll = () => {
@@ -213,11 +311,107 @@ export class JimbleTable extends JimbleElement {
     else s.removeAttribute('tabindex')
   }
 
+  // ---- データから描く(仮想スクロール) ---------------------------------------------------
+  get #dataMode(): boolean {
+    return !!this.columns?.length
+  }
+  #keyOf(item: object, index: number): string {
+    const key = (item as Record<string, unknown>)?.[this.rowKey]
+    return key === undefined || key === null ? String(index) : String(key)
+  }
+  get #scroller(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>('[part="scroller"]') ?? null
+  }
+
+  get #rowHeightPx(): number {
+    return this.rowHeight > 0 ? this.rowHeight : DEFAULT_ROW_HEIGHT
+  }
+  /** スクロール位置から決まる、描く行の範囲 */
+  #nextRange(s: HTMLElement) {
+    const h = this.#rowHeightPx
+    return visibleRange({
+      scrollTop: s.scrollTop,
+      viewport: s.clientHeight,
+      headerHeight:
+        this.querySelector<HTMLElement>(':scope > jimble-table-header')?.offsetHeight ?? h,
+      rowHeight: h,
+      total: this.rows.length,
+      overscan: OVERSCAN,
+    })
+  }
+
+  /** 描く行の範囲を決めて、行を描く(light DOM に、見出し・本文・行を作る) */
+  #renderData() {
+    const s = this.#scroller
+    if (!s || !this.#dataMode) return
+    this.#range = this.#nextRange(s)
+    render(this.#dataTemplate(this.#rowHeightPx), this, { host: this })
+  }
+
+  #dataTemplate(h: number) {
+    const cols = this.columns!
+    const { start, end } = this.#range
+    const rows = this.rows
+    const visible = rows.slice(start, end)
+    return html`<jimble-table-header
+        ><jimble-table-row
+          >${cols.map(
+            (c) =>
+              html`<jimble-table-head-cell
+                key=${c.key}
+                align=${c.align ?? 'start'}
+                ?sortable=${!!c.sortable}
+                >${c.label}</jimble-table-head-cell
+              >`,
+          )}</jimble-table-row
+        ></jimble-table-header
+      ><jimble-table-body
+        style=${styleMap({
+          paddingBlockStart: `${start * h}px`,
+          paddingBlockEnd: `${(rows.length - end) * h}px`,
+        })}
+        >${repeat(
+          visible,
+          (item, i) => this.#keyOf(item, start + i),
+          (item, i) => {
+            const key = this.#keyOf(item, start + i)
+            return html`<jimble-table-row
+              .value=${key}
+              .selected=${this.#selectedKeys.has(key)}
+              aria-rowindex=${start + i + 2}
+              style=${styleMap({ height: `${h}px` })}
+              >${cols.map(
+                (c) =>
+                  html`<jimble-table-cell ?header=${!!c.header} align=${c.align ?? 'start'}
+                    >${c.render ? c.render(item, start + i) : String((item as Record<string, unknown>)[c.key] ?? '')}</jimble-table-cell
+                  >`,
+              )}</jimble-table-row
+            >`
+          },
+        )}</jimble-table-body
+      >`
+  }
+
+  // スクロールごとではなく、描画の前に 1 回だけ。範囲が変わったときだけ描き直す
+  #onScroll = () => {
+    if (!this.#dataMode || this.#frame) return
+    this.#frame = requestAnimationFrame(() => {
+      this.#frame = 0
+      const s = this.#scroller
+      if (!s) return
+      const next = this.#nextRange(s)
+      if (next.start !== this.#range.start || next.end !== this.#range.end) this.#renderData()
+    })
+  }
+
   protected override firstUpdated(): void {
     this.#updateColumns()
     const scroller = this.renderRoot.querySelector<HTMLElement>('[part="scroller"]')
     const grid = this.renderRoot.querySelector<HTMLElement>('[part="grid"]')
-    this.#resizer = new ResizeObserver(this.#updateScrollable)
+    this.#resizer = new ResizeObserver(() => {
+      this.#updateScrollable()
+      this.#renderData()
+    })
     if (scroller) this.#resizer.observe(scroller)
     if (grid) this.#resizer.observe(grid)
   }
@@ -229,6 +423,17 @@ export class JimbleTable extends JimbleElement {
         if (r instanceof JimbleTableRow && r.closest('jimble-table') === this) r.requestUpdate()
       this.#updateColumns()
     }
+    if (
+      changed.has('columns') ||
+      changed.has('rows') ||
+      changed.has('rowHeight') ||
+      changed.has('rowKey')
+    ) {
+      this.setState('virtual', this.#dataMode)
+      this.internals.ariaRowCount = this.#dataMode ? String(this.rows.length + 1) : null
+      this.#updateColumns()
+      this.#renderData()
+    }
     this.internals.role = 'table'
     this.internals.ariaLabel = this.label ?? null
     this.internals.ariaBusy = this.loading ? 'true' : null
@@ -238,6 +443,7 @@ export class JimbleTable extends JimbleElement {
   protected override render() {
     return html`<div
       part="scroller"
+      @scroll=${this.#onScroll}
       class="relative overflow-auto [max-height:var(--jimble-table-max-height,none)] outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
     >
       <div part="grid" class="grid w-full ${this.loading ? 'opacity-60' : ''}"><slot></slot></div>
@@ -440,7 +646,7 @@ JimbleTableCell.define('jimble-table-cell')
  *
  * @csspart button - sortable のときのボタン
  *
- * @fires jimble-sort - 押された(direction: 次の並び順)。preventDefault() すると sort を変えない
+ * @fires jimble-sort - 押された(direction: 次の並び順、key: 列の名前)。preventDefault() すると sort を変えない
  */
 export class JimbleTableHeadCell extends JimbleElement {
   static override styles = [sharedSheet, spanSheet]
@@ -449,10 +655,13 @@ export class JimbleTableHeadCell extends JimbleElement {
     sortable: { type: Boolean, reflect: true },
     sort: { reflect: true },
     colspan: { type: Number, reflect: true },
+    key: { reflect: true },
   }
   declare align: 'start' | 'center' | 'end'
   /** 横に結合する列の数（2 段の見出しなど） */
   declare colspan: number
+  /** 列の名前。`jimble-sort` の `detail.key` になる（データから描くときは、列の `key`） */
+  declare key: string | undefined
   /** 並べ替えのボタンにする */
   declare sortable: boolean
   /** 現在の並び順（sortable のとき） */
@@ -464,12 +673,17 @@ export class JimbleTableHeadCell extends JimbleElement {
     this.sortable = false
     this.sort = 'none'
     this.colspan = 1
+    this.key = undefined
   }
 
   #toggle = () => {
     const direction: SortDirection = this.sort === 'ascending' ? 'descending' : 'ascending'
     // 表(jimble-table)で受ける通知なので、表までバブルさせる(表の中で止まる)
-    const event = this.emit('sort', { detail: { direction }, cancelable: true, bubbles: true })
+    const event = this.emit('sort', {
+      detail: { direction, key: this.key },
+      cancelable: true,
+      bubbles: true,
+    })
     if (event.defaultPrevented) return
     // 同じ表の中の、ほかの見出しの並び順を解除する
     this.closest('jimble-table')
@@ -516,6 +730,7 @@ declare global {
     'jimble-table-head-cell': JimbleTableHeadCell
   }
   interface HTMLElementEventMap {
-    'jimble-sort': CustomEvent<{ direction: SortDirection }>
+    'jimble-sort': CustomEvent<{ direction: SortDirection; key?: string }>
+    'jimble-selection-change': CustomEvent<TableSelectionDetail>
   }
 }

@@ -7,6 +7,15 @@
   :host(jimble-table[sticky-header]) {
     --jimble-table-head-position: sticky;
   }
+  /* データから描く(仮想スクロール): 表の高さを決め、見出しを固定し、セルの文字を 1 行に収める(行の高さを固定するため) */
+  :host(jimble-table:state(virtual)) {
+    --jimble-table-head-position: sticky;
+    --_jimble-table-cell-wrap: nowrap;
+    --_jimble-table-cell-overflow: hidden;
+  }
+  :host(jimble-table:state(virtual)) [part='scroller'] {
+    height: var(--jimble-table-max-height, 24rem);
+  }
   :host(jimble-table[striped]) {
     --jimble-table-stripe: var(--_c-surface-muted);
   }
@@ -48,6 +57,9 @@
     line-height: 1.25rem;
     color: var(--_c-text);
     box-shadow: inset 0 -1px 0 var(--_c-ring-divider);
+    white-space: var(--_jimble-table-cell-wrap, normal);
+    overflow: var(--_jimble-table-cell-overflow, visible);
+    text-overflow: ellipsis;
   }
   :host(jimble-table-head-cell) {
     background: var(--jimble-table-header-bg, var(--_c-surface-muted));
