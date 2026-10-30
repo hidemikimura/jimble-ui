@@ -2,6 +2,8 @@
 const ja = {
   $locale: 'ja',
   'common.loading': '読み込み中',
+  'table.selectAll': 'すべての行を選択',
+  'table.selectRow': '{name} を選択',
   'alert.dismiss': '閉じる',
   'alert.info': '情報',
   'alert.success': '成功',

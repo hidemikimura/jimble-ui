@@ -16,7 +16,7 @@ description: 未対応のことと、仕組み上の制約
 | Dual Listbox  | サーバーからの取得、左の一覧の並べ替え、複数項目のドラッグ                                               |
 | Dropdown Menu | チェック付きの項目                                                                                       |
 | Input         | 日付・色の `type`（`jimble-date-input` / `jimble-color-input` を使う）、`spellcheck` / `autofocus` 属性  |
-| Table         | セルの結合（`colspan` / `rowspan`）、行の選択（チェックボックス列）、仮想スクロール                      |
+| Table         | セルの結合（`colspan` / `rowspan`）、仮想スクロール                                                      |
 | Tabs          | タブの追加・削除・並べ替え                                                                               |
 | Pagination    | ページ番号を入力して移動                                                                                 |
 | 全体          | 右から左の言語(RTL)                                                                                      |

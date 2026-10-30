@@ -9,3 +9,7 @@
 ### 並べ替えできる表
 
 {{example:table/basic}}
+
+### 行を選べる表（一括操作）
+
+{{example:table/selectable}}

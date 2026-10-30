@@ -79,7 +79,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ### 3. 表は `jimble-table` 系で組む（`<table>` を書かない）
 
-`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。`colspan` / `rowspan` は使えない。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。
+`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。`colspan` / `rowspan` は使えない。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
 
 ### 4. 部品ごとの使い方（オーバーレイ・選択・通知など）
 

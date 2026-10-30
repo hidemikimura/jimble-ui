@@ -3,7 +3,7 @@ import { userEvent } from 'vitest/browser'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
-import type { JimbleTable, JimbleTableHeadCell } from './jimble-table.js'
+import type { JimbleTable, JimbleTableHeadCell, JimbleTableRow } from './jimble-table.js'
 import './jimble-table.js'
 
 afterEach(cleanup)
@@ -213,5 +213,157 @@ describe('jimble-sort の伝わり方', () => {
     sortBtn(heads[2]!).click()
     await tick()
     expect(heads[2]!.sort).toBe('none')
+  })
+})
+
+describe('行の選択（selectable）', () => {
+  async function selectable(n = 4, attrs = 'selectable') {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    const body = Array.from(
+      { length: n },
+      (_, i) =>
+        `<jimble-table-row value="r${i + 1}"><jimble-table-cell header>#${i + 1}</jimble-table-cell><jimble-table-cell>顧客 ${i + 1}</jimble-table-cell></jimble-table-row>`,
+    ).join('')
+    c.innerHTML = `<jimble-table label="注文" ${attrs}>
+      <jimble-table-header><jimble-table-row>
+        <jimble-table-head-cell>番号</jimble-table-head-cell>
+        <jimble-table-head-cell>顧客</jimble-table-head-cell>
+      </jimble-table-row></jimble-table-header>
+      <jimble-table-body>${body}</jimble-table-body>
+    </jimble-table>`
+    await tick()
+    const el = c.querySelector('jimble-table') as JimbleTable
+    const bodyRows = [
+      ...el.querySelectorAll('jimble-table-body jimble-table-row'),
+    ] as JimbleTableRow[]
+    const headRow = el.querySelector('jimble-table-header jimble-table-row') as JimbleTableRow
+    return { c, el, bodyRows, headRow }
+  }
+  // 行頭のチェックボックス（jimble-checkbox）と、その中の input
+  const box = (row: Element) => row.shadowRoot!.querySelector('jimble-checkbox')!
+  const input = (row: Element) => box(row).shadowRoot!.querySelector<HTMLInputElement>('input')!
+  const settle = async (el: JimbleTable) => {
+    await tick()
+    await el.updateComplete
+  }
+
+  it('selectable がなければ、チェックボックスの列は出ない', async () => {
+    const { headRow, bodyRows } = await selectable(2, '')
+    expect(headRow.shadowRoot!.querySelector('jimble-checkbox')).toBeNull()
+    expect(bodyRows[0]!.shadowRoot!.querySelector('jimble-checkbox')).toBeNull()
+  })
+
+  it('見出しに「すべての行を選択」、各行に「(行見出し) を選択」のチェックボックスが出る', async () => {
+    const { headRow, bodyRows } = await selectable()
+    expect(input(headRow).getAttribute('aria-label')).toBe('すべての行を選択')
+    expect(input(bodyRows[0]!).getAttribute('aria-label')).toBe('#1 を選択')
+    // 見出しの列・本文のセルとして並ぶ（列の位置がそろう）
+    const sel = (row: Element) => row.shadowRoot!.querySelector<HTMLElement>('[part="select"]')!
+    expect(getComputedStyle(sel(headRow)).display).toBe('table-cell')
+    expect(Math.round(sel(headRow).getBoundingClientRect().width)).toBe(
+      Math.round(sel(bodyRows[0]!).getBoundingClientRect().width),
+    )
+  })
+
+  it('行のチェックで selected になり、jimble-selection-change が選ばれた行の value を渡す', async () => {
+    const { el, bodyRows } = await selectable()
+    const onChange = vi.fn()
+    el.addEventListener('jimble-selection-change', onChange)
+    await userEvent.click(input(bodyRows[1]!))
+    await settle(el)
+    expect(bodyRows[1]!.selected).toBe(true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    const detail = (onChange.mock.calls[0]![0] as CustomEvent).detail
+    expect(detail.values).toEqual(['r2'])
+    expect(detail.rows).toEqual([bodyRows[1]])
+    expect(el.selectedValues).toEqual(['r2'])
+    expect(el.selectedRows).toEqual([bodyRows[1]])
+  })
+
+  it('すべて選択: 一部なら中間の状態、押すとすべて選択、もう一度で解除', async () => {
+    const { el, headRow, bodyRows } = await selectable()
+    await userEvent.click(input(bodyRows[0]!))
+    await settle(el)
+    expect(input(headRow).indeterminate).toBe(true)
+    expect(input(headRow).checked).toBe(false)
+    await userEvent.click(input(headRow))
+    await settle(el)
+    expect(bodyRows.every((r) => r.selected)).toBe(true)
+    expect(input(headRow).checked).toBe(true)
+    expect(input(headRow).indeterminate).toBe(false)
+    expect(el.selectedValues).toEqual(['r1', 'r2', 'r3', 'r4'])
+    await userEvent.click(input(headRow))
+    await settle(el)
+    expect(bodyRows.some((r) => r.selected)).toBe(false)
+    expect(input(headRow).checked).toBe(false)
+  })
+
+  it('Shift を押しながらクリックすると、前にクリックした行からの範囲を、同じ状態にする', async () => {
+    const { el, bodyRows } = await selectable(5)
+    const onChange = vi.fn()
+    el.addEventListener('jimble-selection-change', onChange)
+    await userEvent.click(input(bodyRows[0]!))
+    await userEvent.keyboard('{Shift>}')
+    await userEvent.click(input(bodyRows[3]!))
+    await userEvent.keyboard('{/Shift}')
+    await settle(el)
+    expect(bodyRows.map((r) => r.selected)).toEqual([true, true, true, true, false])
+    expect(onChange).toHaveBeenCalledTimes(2)
+  })
+
+  it('プログラムから selected を変えると、チェックボックスと「すべて選択」が追従する（イベントは出ない）', async () => {
+    const { el, headRow, bodyRows } = await selectable(2)
+    const onChange = vi.fn()
+    el.addEventListener('jimble-selection-change', onChange)
+    bodyRows[0]!.selected = true
+    await settle(el)
+    expect(input(bodyRows[0]!).checked).toBe(true)
+    expect(input(headRow).indeterminate).toBe(true)
+    bodyRows[1]!.selected = true
+    await settle(el)
+    expect(input(headRow).checked).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('行を足す・消すと「すべて選択」の状態が追従する', async () => {
+    const { el, headRow, bodyRows } = await selectable(2)
+    bodyRows.forEach((r) => (r.selected = true))
+    await settle(el)
+    expect(input(headRow).checked).toBe(true)
+    const extra = document.createElement('jimble-table-row')
+    extra.innerHTML =
+      '<jimble-table-cell header>#9</jimble-table-cell><jimble-table-cell>追加</jimble-table-cell>'
+    el.querySelector('jimble-table-body')!.append(extra)
+    await settle(el)
+    expect(input(headRow).indeterminate).toBe(true)
+    extra.remove()
+    await settle(el)
+    expect(input(headRow).checked).toBe(true)
+  })
+
+  it('チェックボックスの change は、表の外に漏れない', async () => {
+    const { c, el, bodyRows } = await selectable(2)
+    const onNativeChange = vi.fn()
+    c.addEventListener('change', onNativeChange)
+    await userEvent.click(input(bodyRows[0]!))
+    await settle(el)
+    expect(onNativeChange).not.toHaveBeenCalled()
+  })
+
+  it('selectable を後から付け外しできる', async () => {
+    const { el, bodyRows } = await selectable(2, '')
+    el.selectable = true
+    await settle(el)
+    expect(box(bodyRows[0]!)).toBeTruthy()
+    el.selectable = false
+    await settle(el)
+    expect(bodyRows[0]!.shadowRoot!.querySelector('jimble-checkbox')).toBeNull()
+  })
+
+  it('axe の違反がない', async () => {
+    const { el, bodyRows } = await selectable(3)
+    await userEvent.click(input(bodyRows[0]!))
+    await settle(el)
+    await expectNoA11yViolations(el)
   })
 })

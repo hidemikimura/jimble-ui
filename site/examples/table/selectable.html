@@ -1,0 +1,57 @@
+<!-- title: 行の選択（selectable） -->
+<div class="stack">
+  <div class="row">
+    <span id="selection-count" aria-live="polite">0 件を選択中</span>
+    <jimble-button id="selection-delete" size="sm" variant="danger" disabled
+      >選んだ行を削除</jimble-button
+    >
+  </div>
+  <jimble-table id="selectable-table" label="ユーザー" selectable>
+    <jimble-table-header>
+      <jimble-table-row>
+        <jimble-table-head-cell>氏名</jimble-table-head-cell>
+        <jimble-table-head-cell>権限</jimble-table-head-cell>
+        <jimble-table-head-cell>最終ログイン</jimble-table-head-cell>
+      </jimble-table-row>
+    </jimble-table-header>
+    <jimble-table-body>
+      <jimble-table-row value="u1">
+        <jimble-table-cell header>山田 太郎</jimble-table-cell>
+        <jimble-table-cell>管理者</jimble-table-cell>
+        <jimble-table-cell>2026/10/30</jimble-table-cell>
+      </jimble-table-row>
+      <jimble-table-row value="u2">
+        <jimble-table-cell header>佐藤 花子</jimble-table-cell>
+        <jimble-table-cell>編集者</jimble-table-cell>
+        <jimble-table-cell>2026/10/28</jimble-table-cell>
+      </jimble-table-row>
+      <jimble-table-row value="u3">
+        <jimble-table-cell header>鈴木 一郎</jimble-table-cell>
+        <jimble-table-cell>閲覧者</jimble-table-cell>
+        <jimble-table-cell>2026/09/12</jimble-table-cell>
+      </jimble-table-row>
+      <jimble-table-row value="u4">
+        <jimble-table-cell header>高橋 美咲</jimble-table-cell>
+        <jimble-table-cell>編集者</jimble-table-cell>
+        <jimble-table-cell>2026/10/01</jimble-table-cell>
+      </jimble-table-row>
+    </jimble-table-body>
+  </jimble-table>
+</div>
+<script>
+  {
+    const table = document.getElementById('selectable-table')
+    const count = document.getElementById('selection-count')
+    const remove = document.getElementById('selection-delete')
+    table.addEventListener('jimble-selection-change', (e) => {
+      count.textContent = `${e.detail.values.length} 件を選択中`
+      remove.disabled = e.detail.values.length === 0
+    })
+    remove.addEventListener('click', () => {
+      for (const row of table.selectedRows) row.remove()
+      count.textContent = '0 件を選択中'
+      remove.disabled = true
+      JimbleUI.toast('選んだ行を削除しました')
+    })
+  }
+</script>

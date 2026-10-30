@@ -1,12 +1,34 @@
 import { html, nothing, type PropertyDeclarations, type PropertyValues } from 'lit'
+import { live } from 'lit/directives/live.js'
 import { JimbleElement } from '../../base/jimble-element.js'
 import { arrowDown } from '../../icons/arrowDown.js'
 import { arrowUp } from '../../icons/arrowUp.js'
 import { chevronUpDown } from '../../icons/chevronUpDown.js'
 import { renderIcon } from '../../icons/render.js'
 import { spinner } from '../../icons/spinner.js'
+import '../checkbox/jimble-checkbox.js'
+import type { JimbleCheckbox } from '../checkbox/jimble-checkbox.js'
 
 export type SortDirection = 'ascending' | 'descending' | 'none'
+
+export interface TableSelectionDetail {
+  /** 選ばれている行の `value`（`value` の無い行は含まない） */
+  values: string[]
+  /** 選ばれている行 */
+  rows: JimbleTableRow[]
+}
+
+/** 行から、その行が属する表へ伝える窓口(表ごと。部品の外には見せない) */
+interface SelectionHub {
+  /** 利用者がチェックボックスを操作した(range は Shift) */
+  toggle(row: JimbleTableRow, selected: boolean, range: boolean): void
+  /** 行の選択・行の数が変わった(「すべて選択」を描き直す) */
+  refresh(): void
+}
+const hubs = new WeakMap<JimbleTable, SelectionHub>()
+
+/** 行頭の選択の列(見出しと本文で、同じ幅・余白) */
+const SELECT_CELL = 'jimble-select-cell'
 
 /**
  * データテーブル。`jimble-table-header` / `jimble-table-body` / `jimble-table-row` /
@@ -17,6 +39,11 @@ export type SortDirection = 'ascending' | 'descending' | 'none'
  * 表のレイアウトになる（スクリーンリーダーには本物の表として伝わる）。
  * `colspan` / `rowspan` は使えない。
  * 行の区切り線の色は `--jimble-color-ring-divider` で変える。
+ *
+ * `selectable` を付けると、行頭にチェックボックスの列が出て、行を選べる（見出しに「すべて選択」。
+ * 一部だけ選ぶと中間の状態。Shift を押しながらクリックすると範囲を選ぶ）。選んだ行は `selected` になり、
+ * `jimble-selection-change` が出る。`table` のロールの行には `aria-selected` を使えないため、
+ * 選択の状態はチェックボックスで伝わる。
  *
  * @tag jimble-table
  *
@@ -33,6 +60,7 @@ export type SortDirection = 'ascending' | 'descending' | 'none'
  * @cssprop [--jimble-table-header-text=var(--jimble-color-text-muted)] - 見出しの文字色
  *
  * @fires jimble-sort - 並べ替え可能な見出しが押された(direction)。preventDefault() すると見出しの状態を変えない
+ * @fires jimble-selection-change - 利用者の操作で、行の選択が変わった。`detail` は `{ values, rows }`（選ばれている行の `value` と行）
  */
 export class JimbleTable extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -40,6 +68,7 @@ export class JimbleTable extends JimbleElement {
     stickyHeader: { type: Boolean, reflect: true, attribute: 'sticky-header' },
     striped: { type: Boolean, reflect: true },
     loading: { type: Boolean, reflect: true },
+    selectable: { type: Boolean, reflect: true },
   }
 
   /** 表の名前（aria-label） */
@@ -50,8 +79,12 @@ export class JimbleTable extends JimbleElement {
   declare striped: boolean
   /** 読み込み中。表を薄くして、`aria-busy` を付ける */
   declare loading: boolean
+  /** 行頭にチェックボックスを出して、行を選べるようにする */
+  declare selectable: boolean
 
   #resizer?: ResizeObserver
+  /** Shift を押しながらの範囲選択の起点(最後にクリックした行) */
+  #anchor: JimbleTableRow | undefined
 
   constructor() {
     super()
@@ -59,6 +92,8 @@ export class JimbleTable extends JimbleElement {
     this.stickyHeader = false
     this.striped = false
     this.loading = false
+    this.selectable = false
+    hubs.set(this, { toggle: this.#onRowToggle, refresh: this.#refreshSelectAll })
     // 見出しセルの jimble-sort は、表で受ける(セルがバブルさせる)。入れ子の表や外側のリスナーには漏らさず、
     // この表で止める(同じ表に付けた、アプリのリスナーには、これまでどおり届く)
     this.addEventListener('jimble-sort', (e) => e.stopPropagation())
@@ -67,6 +102,52 @@ export class JimbleTable extends JimbleElement {
   override connectedCallback(): void {
     super.connectedCallback()
     this.internals.role = 'table'
+  }
+
+  // ---- 行の選択 --------------------------------------------------------------------------
+  /** 本文の行(この表の jimble-table-body の行。入れ子の表の行は含まない) */
+  get #bodyRows(): JimbleTableRow[] {
+    return [
+      ...this.querySelectorAll<JimbleTableRow>('jimble-table-body > jimble-table-row'),
+    ].filter((r) => r.closest('jimble-table') === this)
+  }
+  /** 選ばれている行 */
+  get selectedRows(): JimbleTableRow[] {
+    return this.#bodyRows.filter((r) => r.selected)
+  }
+  /** 選ばれている行の `value`（`value` の無い行は含まない） */
+  get selectedValues(): string[] {
+    return this.selectedRows.map((r) => r.value).filter((v) => v !== '')
+  }
+  /** 「すべて選択」の状態 */
+  get selectAllState(): 'all' | 'some' | 'none' {
+    const rows = this.#bodyRows
+    const n = rows.filter((r) => r.selected).length
+    return n === 0 ? 'none' : n === rows.length ? 'all' : 'some'
+  }
+
+  #onRowToggle = (row: JimbleTableRow, selected: boolean, range: boolean) => {
+    const rows = this.#bodyRows
+    let targets = [row]
+    if (
+      row.localName === 'jimble-table-row' &&
+      row.parentElement?.localName === 'jimble-table-header'
+    ) {
+      targets = rows // 「すべて選択」
+    } else if (range && this.#anchor && rows.includes(this.#anchor)) {
+      const [a, b] = [rows.indexOf(this.#anchor), rows.indexOf(row)].sort((x, y) => x - y)
+      targets = rows.slice(a!, b! + 1)
+    }
+    if (targets !== rows) this.#anchor = row
+    for (const r of targets) r.selected = selected
+    this.emit<TableSelectionDetail>('selection-change', {
+      detail: { values: this.selectedValues, rows: this.selectedRows },
+    })
+  }
+
+  #refreshSelectAll = () => {
+    for (const r of this.querySelectorAll<JimbleTableRow>('jimble-table-header > jimble-table-row'))
+      if (r.closest('jimble-table') === this) r.requestUpdate()
   }
 
   override disconnectedCallback(): void {
@@ -93,6 +174,10 @@ export class JimbleTable extends JimbleElement {
 
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
+    if (changed.has('selectable')) {
+      for (const r of this.querySelectorAll<JimbleTableRow>('jimble-table-row'))
+        if (r.closest('jimble-table') === this) r.requestUpdate()
+    }
     this.internals.role = 'table'
     this.internals.ariaLabel = this.label ?? null
     this.internals.ariaBusy = this.loading ? 'true' : null
@@ -153,18 +238,94 @@ export class JimbleTableBody extends TableStructure {
 JimbleTableBody.define('jimble-table-body')
 
 /**
- * 表の行（row）。`selected` を付けると選択中の背景になる（意味づけは行頭のチェックボックスなどで行う）。
+ * 表の行（row）。`selected` を付けると選択中の背景になる。表が `selectable` なら、行頭のチェックボックスが
+ * `selected` と連動する（チェックボックスの名前は「(行見出しのセル) を選択」）。
  * @tag jimble-table-row
  * @slot - jimble-table-head-cell / jimble-table-cell
+ * @csspart select - 行頭の選択の列（`selectable` のとき）
  */
 export class JimbleTableRow extends TableStructure {
-  static override properties: PropertyDeclarations = { selected: { type: Boolean, reflect: true } }
+  static override properties: PropertyDeclarations = {
+    selected: { type: Boolean, reflect: true },
+    value: { reflect: true },
+  }
   protected readonly tableRole = 'row'
-  /** 選択中の背景にする */
+  /** 選択中にする（表が `selectable` なら、チェックボックスと連動する） */
   declare selected: boolean
+  /** `jimble-selection-change` の `values`・表の `selectedValues` に入る値 */
+  declare value: string
+  /** 選択の状態を知らせる表(外されたあとも、知らせるために覚えておく) */
+  #table: JimbleTable | null = null
+  /** クリックで Shift が押されていたか(change には修飾キーが無い) */
+  #shift = false
+
   constructor() {
     super()
     this.selected = false
+    this.value = ''
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback()
+    this.#table = this.closest('jimble-table')
+    if (this.#table) hubs.get(this.#table)?.refresh()
+  }
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    if (this.#table) hubs.get(this.#table)?.refresh()
+    this.#table = null
+  }
+
+  /** 行頭の選択の列の種類(表が selectable でなければ none) */
+  get #selectKind(): 'none' | 'all' | 'row' {
+    const table = this.closest('jimble-table')
+    if (!table?.selectable) return 'none'
+    const group = this.parentElement?.localName
+    return group === 'jimble-table-header' ? 'all' : group === 'jimble-table-body' ? 'row' : 'none'
+  }
+  /** チェックボックスの名前に使う、行の名前(行見出しのセル、なければ最初のセル) */
+  get #name(): string {
+    const cell =
+      this.querySelector('jimble-table-cell[header]') ?? this.querySelector('jimble-table-cell')
+    return cell?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+  }
+
+  protected override updated(changed: PropertyValues): void {
+    super.updated(changed)
+    if (changed.has('selected') && this.#table) hubs.get(this.#table)?.refresh()
+  }
+
+  #onClick = (e: MouseEvent) => {
+    this.#shift = e.shiftKey
+  }
+  #onChange = (e: Event) => {
+    e.stopPropagation() // チェックボックスの change は、表の外に出さない(jimble-selection-change を使う)
+    const table = this.closest('jimble-table')
+    if (!table) return
+    hubs.get(table)?.toggle(this, (e.target as JimbleCheckbox).checked, this.#shift)
+    this.#shift = false
+  }
+
+  protected override render() {
+    const kind = this.#selectKind
+    if (kind === 'none') return html`<slot></slot>`
+    const table = this.closest('jimble-table')!
+    const state = kind === 'all' ? table.selectAllState : undefined
+    return html`<div
+        part="select"
+        class=${SELECT_CELL}
+        role=${kind === 'all' ? 'columnheader' : 'cell'}
+      >
+        <jimble-checkbox
+          size="sm"
+          aria-label=${kind === 'all' ? this.t('table.selectAll') : this.t('table.selectRow', { name: this.#name })}
+          .checked=${live(kind === 'all' ? state === 'all' : this.selected)}
+          .indeterminate=${live(state === 'some')}
+          @click=${this.#onClick}
+          @change=${this.#onChange}
+        ></jimble-checkbox>
+      </div>
+      <slot></slot>`
   }
 }
 JimbleTableRow.define('jimble-table-row')

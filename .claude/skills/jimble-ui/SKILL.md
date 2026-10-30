@@ -121,9 +121,9 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
 - **`jimble-table`** — データテーブル。
-  - 属性: `label=値`, `sticky-header`, `striped`, `loading`
+  - 属性: `label=値`, `sticky-header`, `striped`, `loading`, `selectable`
   - スロット: (既定)
-  - イベント: `jimble-sort`
+  - イベント: `jimble-sort`, `jimble-selection-change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-header`** — 表の見出し行のまとまり（rowgroup）。
   - スロット: (既定)
@@ -132,7 +132,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-row`** — 表の行（row）。
-  - 属性: `selected`
+  - 属性: `selected`, `value=値`
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-head-cell`** — 表の見出しセル（columnheader）。
@@ -307,7 +307,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ### 3. 表は `jimble-table` 系で組む（`<table>` を書かない）
 
-`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。`colspan` / `rowspan` は使えない。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。
+`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。`colspan` / `rowspan` は使えない。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
 
 ### 4. 部品ごとの使い方（オーバーレイ・選択・通知など）
 
