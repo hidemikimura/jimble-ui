@@ -287,6 +287,254 @@ describe('位置(CSS Anchor Positioning)', () => {
   })
 })
 
+describe('サブメニュー', () => {
+  async function nested(wrapperStyle = '') {
+    const c = await mount<HTMLElement>(html`<div style=${wrapperStyle}></div>`)
+    c.innerHTML = `<jimble-dropdown-menu>
+        <jimble-button slot="trigger" id="trigger">操作</jimble-button>
+        <jimble-menu-item value="edit">編集</jimble-menu-item>
+        <jimble-menu-item id="share">
+          共有
+          <jimble-menu-item slot="submenu" value="mail">メール</jimble-menu-item>
+          <jimble-menu-item slot="submenu" value="off" disabled>チャット（無効）</jimble-menu-item>
+          <jimble-menu-item slot="submenu" id="export">
+            書き出し
+            <jimble-menu-item slot="submenu" value="pdf">PDF</jimble-menu-item>
+            <jimble-menu-item slot="submenu" value="csv">CSV</jimble-menu-item>
+          </jimble-menu-item>
+          <jimble-menu-item slot="submenu" value="link">リンクをコピー</jimble-menu-item>
+        </jimble-menu-item>
+        <jimble-menu-item value="delete" variant="danger">削除</jimble-menu-item>
+      </jimble-dropdown-menu><input id="after" aria-label="次">`
+    const el = c.querySelector('jimble-dropdown-menu') as JimbleDropdownMenu
+    await el.updateComplete
+    await tick()
+    const q = (sel: string) => c.querySelector(sel) as JimbleMenuItem
+    return {
+      c,
+      el,
+      trigger: c.querySelector<HTMLElement>('#trigger')!,
+      share: q('#share'),
+      exp: q('#export'),
+      item: (v: string) => q(`[value="${v}"]`),
+      after: c.querySelector<HTMLElement>('#after')!,
+    }
+  }
+  const sub = (item: JimbleMenuItem) =>
+    item.shadowRoot!.querySelector<HTMLElement>('[part="submenu"]')!
+  const subOpen = (item: JimbleMenuItem) => sub(item).matches(':popover-open')
+  const openMenu = async (trigger: HTMLElement) => {
+    await userEvent.click(trigger)
+    await tick()
+  }
+
+  it('サブメニューを持つ項目は、aria-haspopup="menu" と aria-expanded を持つ', async () => {
+    const { share } = await nested()
+    const internals = (share as unknown as { internals: ElementInternals }).internals
+    expect(internals.ariaHasPopup).toBe('menu')
+    expect(internals.ariaExpanded).toBe('false')
+    expect(share.text).toBe('共有')
+    expect(sub(share).getAttribute('role')).toBe('menu')
+  })
+
+  it('→ で開いて最初の有効な項目へ、← で閉じて親の項目へ戻る', async () => {
+    const { trigger, share, item } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    expect(subOpen(share)).toBe(true)
+    expect((share as unknown as { internals: ElementInternals }).internals.ariaExpanded).toBe(
+      'true',
+    )
+    expect(document.activeElement).toBe(item('mail'))
+    await userEvent.keyboard('{ArrowLeft}')
+    await tick()
+    expect(subOpen(share)).toBe(false)
+    expect(document.activeElement).toBe(share)
+  })
+
+  it('Enter・Space でも開く。親の項目では jimble-select は出ない', async () => {
+    const { el, trigger, share, item } = await nested()
+    const onSelect = vi.fn()
+    el.addEventListener('jimble-select', onSelect)
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    await tick()
+    expect(subOpen(share)).toBe(true)
+    expect(document.activeElement).toBe(item('mail'))
+    await userEvent.keyboard('{ArrowLeft} ')
+    await tick()
+    expect(subOpen(share)).toBe(true)
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
+  it('サブメニューの中の矢印キーは、その中だけを移動する（無効は飛ばす・端は循環）', async () => {
+    const { trigger, exp, item } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    await userEvent.keyboard('{ArrowDown}')
+    expect(document.activeElement).toBe(exp)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(document.activeElement).toBe(item('link'))
+    await userEvent.keyboard('{ArrowDown}')
+    expect(document.activeElement).toBe(item('mail'))
+    await userEvent.keyboard('{End}')
+    expect(document.activeElement).toBe(item('link'))
+    await userEvent.keyboard('{Home}')
+    expect(document.activeElement).toBe(item('mail'))
+  })
+
+  it('サブメニューの項目を選ぶと、jimble-select が出て、すべて閉じ、トリガーに戻る', async () => {
+    const { el, trigger, share, item } = await nested()
+    const onSelect = vi.fn()
+    el.addEventListener('jimble-select', onSelect)
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}{Enter}')
+    await tick()
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect((onSelect.mock.calls[0]![0] as CustomEvent).detail.value).toBe('mail')
+    expect((onSelect.mock.calls[0]![0] as CustomEvent).detail.item).toBe(item('mail'))
+    expect(isOpen(el)).toBe(false)
+    expect(subOpen(share)).toBe(false)
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it('入れ子のサブメニューも開ける', async () => {
+    const { el, trigger, exp, item } = await nested()
+    const onSelect = vi.fn()
+    el.addEventListener('jimble-select', onSelect)
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}{ArrowDown}{ArrowRight}')
+    await tick()
+    expect(subOpen(exp)).toBe(true)
+    expect(document.activeElement).toBe(item('pdf'))
+    await userEvent.keyboard('{ArrowDown}{Enter}')
+    await tick()
+    expect((onSelect.mock.calls[0]![0] as CustomEvent).detail.value).toBe('csv')
+    expect(isOpen(el)).toBe(false)
+  })
+
+  it('Esc はサブメニューだけを閉じて親に戻る。もう一度 Esc でメニューが閉じる', async () => {
+    const { el, trigger, share } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    await userEvent.keyboard('{Escape}')
+    await tick()
+    expect(subOpen(share)).toBe(false)
+    expect(isOpen(el)).toBe(true)
+    expect(document.activeElement).toBe(share)
+    await userEvent.keyboard('{Escape}')
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it('サブメニューの中で Tab を押すと、すべて閉じて、トリガーの次へ進む', async () => {
+    const { el, trigger, share, after } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    await userEvent.tab()
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    expect(subOpen(share)).toBe(false)
+    expect(document.activeElement).toBe(after)
+  })
+
+  it('クリックで開き、サブメニューの項目のクリックで選ぶ', async () => {
+    const { el, trigger, share, item } = await nested()
+    const onSelect = vi.fn()
+    el.addEventListener('jimble-select', onSelect)
+    await openMenu(trigger)
+    await userEvent.click(share)
+    await tick()
+    expect(subOpen(share)).toBe(true)
+    expect(isOpen(el)).toBe(true)
+    await userEvent.click(item('link'))
+    await tick()
+    expect((onSelect.mock.calls[0]![0] as CustomEvent).detail.value).toBe('link')
+    expect(isOpen(el)).toBe(false)
+  })
+
+  it('マウスを重ねると開き、ほかの項目に移ると閉じる', async () => {
+    const { trigger, share, item } = await nested()
+    await openMenu(trigger)
+    await userEvent.hover(share)
+    await tick(300)
+    expect(subOpen(share)).toBe(true)
+    await userEvent.hover(item('edit'))
+    await tick(300)
+    expect(subOpen(share)).toBe(false)
+  })
+
+  it('メニューの外をクリックすると、サブメニューも閉じる', async () => {
+    const { el, trigger, share, after } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    await userEvent.click(after)
+    await tick()
+    expect(isOpen(el)).toBe(false)
+    expect(subOpen(share)).toBe(false)
+  })
+
+  it('サブメニューは、親の項目の右に、上端をそろえて出る。右端では左に反転する', async () => {
+    const left = await nested('padding: 40px 0 0 20px')
+    await openMenu(left.trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    const p = left.share.getBoundingClientRect()
+    const s = sub(left.share).getBoundingClientRect()
+    expect(s.left).toBeGreaterThanOrEqual(p.right - 8)
+    expect(Math.abs(s.top - p.top)).toBeLessThan(12)
+    cleanup()
+
+    const right = await nested('position: fixed; top: 40px; right: 4px')
+    await openMenu(right.trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    const p2 = right.share.getBoundingClientRect()
+    const s2 = sub(right.share).getBoundingClientRect()
+    expect(s2.right).toBeLessThanOrEqual(p2.left + 8)
+  })
+
+  it('先頭文字検索は、項目の文字だけを見る（サブメニューの中の文字は見ない）', async () => {
+    const { trigger, share, item } = await nested()
+    await openMenu(trigger)
+    const key = (k: string) =>
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: k, bubbles: true, composed: true }),
+      )
+    // サブメニューの中の「メール」には移らない(最上位の項目の文字に「メ」は無い)
+    key('メ')
+    expect(document.activeElement).toBe(item('edit'))
+    await tick(700) // 先頭文字検索の入力をリセットする
+    key('共')
+    expect(document.activeElement).toBe(share)
+  })
+
+  it('無効な親の項目は開かない', async () => {
+    const { trigger, share } = await nested()
+    share.disabled = true
+    await share.updateComplete
+    await openMenu(trigger)
+    share.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await tick()
+    expect(subOpen(share)).toBe(false)
+  })
+
+  it('サブメニューを開いた状態で axe の違反がない', async () => {
+    const { el, trigger } = await nested()
+    await openMenu(trigger)
+    await userEvent.keyboard('{ArrowDown}{ArrowRight}')
+    await tick()
+    await expectNoA11yViolations(el)
+  })
+})
+
 describe('アクセシビリティ(axe)', () => {
   it('閉じた状態・開いた状態で違反なし', async () => {
     const { el, c, trigger } = await menu()

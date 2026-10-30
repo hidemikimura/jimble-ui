@@ -338,6 +338,86 @@ test.describe('ドロップダウンメニュー(実操作)', () => {
   })
 })
 
+test.describe('サブメニュー(実操作)', () => {
+  const example = (page: import('@playwright/test').Page) =>
+    page.locator('docs-example', { hasText: 'サブメニュー' })
+  const open = async (page: import('@playwright/test').Page) => {
+    await page.goto('/components/dropdown-menu/')
+    const trigger = example(page).getByRole('button', { name: 'ファイル' })
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    // 開いて、最初の項目にフォーカスが移ってから、次のキーを押す
+    await expect(example(page).locator('jimble-menu-item[value="new"]')).toBeFocused()
+    return { example: example(page), trigger }
+  }
+
+  test('→ でサブメニューを開き、入れ子の項目を選ぶと通知が出て、トリガーに戻る', async ({
+    page,
+  }) => {
+    const { example, trigger } = await open(page)
+    for (const key of ['End', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowRight']) {
+      await page.keyboard.press(key)
+    }
+    await expect(example.locator('jimble-menu-item[value="csv"]')).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('jimble-toast', { hasText: '選ばれた項目: csv' })).toBeVisible()
+    await expect(trigger).toBeFocused()
+  })
+
+  test('サブメニューは、親の項目の右に出る。マウスを重ねても開く', async ({ page }) => {
+    const { example } = await open(page)
+    const share = example.locator('jimble-menu-item', { hasText: '共有' }).first()
+    await share.hover()
+    const mail = example.locator('jimble-menu-item[value="mail"]')
+    await expect(mail).toBeVisible()
+    const p = await share.boundingBox()
+    const m = await mail.boundingBox()
+    expect(m!.x).toBeGreaterThan(p!.x + p!.width - 8)
+    expect(Math.abs(m!.y - p!.y)).toBeLessThan(16)
+  })
+
+  // menuitem の role・名前は ElementInternals で付けている。Chromium の実際のアクセシビリティツリーで確認する
+  test('親の項目は menuitem（名前は項目の文字のまま・展開の状態つき）、サブメニューは menu（Chromium）', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== 'chromium', 'CDP は Chromium のみ')
+    await open(page)
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('ArrowDown')
+    const cdp = await page.context().newCDPSession(page)
+    const tree = async () =>
+      (await cdp.send('Accessibility.getFullAXTree')).nodes.filter((n) => !n.ignored)
+    const prop = (
+      n: { properties?: { name: string; value: { value?: unknown } }[] },
+      name: string,
+    ) => n.properties?.find((x) => x.name === name)?.value.value
+    const closed = (await tree()).find(
+      (n) => n.role?.value === 'menuitem' && n.name?.value === '共有',
+    )
+    expect(closed, 'menuitem "共有"').toBeTruthy()
+    expect(prop(closed!, 'hasPopup')).toBe('menu')
+    expect(prop(closed!, 'expanded')).toBe(false)
+
+    await page.keyboard.press('ArrowRight')
+    await expect(example(page).locator('jimble-menu-item[value="mail"]')).toBeFocused()
+    // aria-expanded は描画のあとに変わるので、ツリーに出るまで待つ。開いている間も、名前に
+    // サブメニューの中身が混ざらない
+    await expect
+      .poll(async () =>
+        (await tree())
+          .filter((n) => n.role?.value === 'menuitem' && prop(n, 'expanded') === true)
+          .map((n) => n.name?.value),
+      )
+      .toEqual(['共有'])
+    const nodes = await tree()
+    expect(nodes.filter((n) => n.role?.value === 'menu')).toHaveLength(2)
+    expect(
+      nodes.some((n) => n.role?.value === 'menuitem' && n.name?.value === 'メールで送る'),
+    ).toBe(true)
+  })
+})
+
 test.describe('セレクト(実操作)', () => {
   test('キーボードで開いて選ぶと、フォームの値が変わる', async ({ page }) => {
     await page.goto('/components/select/')

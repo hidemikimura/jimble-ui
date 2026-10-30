@@ -1,0 +1,27 @@
+<!-- title: サブメニュー -->
+<jimble-dropdown-menu id="menu-submenu">
+  <jimble-button slot="trigger">ファイル</jimble-button>
+  <jimble-menu-item value="new">新規作成</jimble-menu-item>
+  <jimble-menu-item value="open">開く</jimble-menu-item>
+  <jimble-menu-item>
+    共有
+    <jimble-menu-item slot="submenu" value="mail">メールで送る</jimble-menu-item>
+    <jimble-menu-item slot="submenu" value="link">リンクをコピー</jimble-menu-item>
+  </jimble-menu-item>
+  <jimble-menu-item>
+    書き出し
+    <jimble-menu-item slot="submenu" value="pdf">PDF</jimble-menu-item>
+    <jimble-menu-item slot="submenu">
+      表計算
+      <jimble-menu-item slot="submenu" value="csv">CSV</jimble-menu-item>
+      <jimble-menu-item slot="submenu" value="xlsx">Excel（.xlsx）</jimble-menu-item>
+    </jimble-menu-item>
+  </jimble-menu-item>
+  <jimble-menu-separator></jimble-menu-separator>
+  <jimble-menu-item value="delete" variant="danger">削除</jimble-menu-item>
+</jimble-dropdown-menu>
+<script>
+  document.getElementById('menu-submenu').addEventListener('jimble-select', (e) => {
+    JimbleUI.toast('選ばれた項目: ' + e.detail.value)
+  })
+</script>

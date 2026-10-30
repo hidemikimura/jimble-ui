@@ -4,16 +4,14 @@ import { ImeController } from '../../base/ime-controller.js'
 import { JimbleElement } from '../../base/jimble-element.js'
 import { Typeahead } from '../../base/typeahead.js'
 import type { JimbleButton } from '../button/jimble-button.js'
-import { JimbleMenuItem } from './jimble-menu-item.js'
+import { JimbleMenuItem, MENU } from './jimble-menu-item.js'
 import './jimble-menu-item.js'
 
 export type MenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end'
 export type MenuCloseReason = 'escape' | 'action' | 'outside' | 'tab' | 'api'
 
-const MENU =
-  'max-h-[min(24rem,50dvh)] min-w-40 overflow-auto border-0 bg-surface-overlay p-1 text-fg ' +
-  'shadow-lg ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
-  '[border-radius:var(--jimble-menu-radius,var(--radius-overlay))]'
+/** マウスを重ねてから、サブメニューを開く(ほかのサブメニューを閉じる)までの時間。斜めに横切った項目では開かない */
+const HOVER_DELAY = 150
 
 /** トリガーがポップアップを開くことを支援技術へ伝える。jimble-button は内部のボタンへ渡す */
 export function applyPopupAria(
@@ -37,7 +35,9 @@ export function applyPopupAria(
  * メニューは Popover API のトップレイヤーに表示され、位置は CSS Anchor Positioning で決まる
  * （画面の端では反転する）。
  *
- * サブメニュー・チェック付き項目は未対応。
+ * 項目の子に `slot="submenu"` の `jimble-menu-item` を置くと、サブメニューになる（→ / Enter / Space・
+ * クリック・マウスを重ねると開き、← / Esc で閉じて親の項目に戻る）。サブメニューの項目を選んでも、
+ * このメニューから `jimble-select` が出る。チェック付き項目は未対応。
  *
  * @tag jimble-dropdown-menu
  *
@@ -52,7 +52,7 @@ export function applyPopupAria(
  *
  * @fires jimble-open - 開いた
  * @fires jimble-close - 閉じた(reason)
- * @fires jimble-select - 項目が選ばれた(value, item)。preventDefault() するとメニューを閉じない
+ * @fires jimble-select - 項目が選ばれた(value, item)。サブメニューの項目も含む。preventDefault() するとメニューを閉じない
  */
 export class JimbleDropdownMenu extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -73,6 +73,8 @@ export class JimbleDropdownMenu extends JimbleElement {
   #reason: MenuCloseReason = 'outside'
   #wasOpenOnPointerDown = false
   #notified = false
+  #hoverItem: JimbleMenuItem | undefined
+  #hoverTimer: ReturnType<typeof setTimeout> | undefined
 
   constructor() {
     super()
@@ -97,6 +99,21 @@ export class JimbleDropdownMenu extends JimbleElement {
     ).filter((e): e is JimbleMenuItem => e.localName === 'jimble-menu-item')
   }
   #enabled = () => this.items.filter((i) => !i.disabled)
+  /** 項目と同じ階層の項目(最上位なら items、サブメニューなら親の項目の submenuItems) */
+  #siblings(item: JimbleMenuItem): JimbleMenuItem[] {
+    const parent = item.parentElement
+    return parent instanceof JimbleMenuItem ? parent.submenuItems : this.items
+  }
+  /** サブメニューの中の項目なら、その親の項目 */
+  #ownerOf(item: JimbleMenuItem): JimbleMenuItem | undefined {
+    const parent = item.parentElement
+    return parent instanceof JimbleMenuItem ? parent : undefined
+  }
+  #hideSubmenus() {
+    clearTimeout(this.#hoverTimer)
+    this.#hoverItem = undefined
+    for (const i of this.items) i.hideSubmenu()
+  }
 
   show(focus: 'first' | 'last' = 'first'): void {
     this.#focusOnOpen = focus
@@ -113,6 +130,7 @@ export class JimbleDropdownMenu extends JimbleElement {
 
   #close(reason: MenuCloseReason, returnFocus: boolean) {
     this.#reason = reason
+    this.#hideSubmenus()
     if (returnFocus) this.#trigger?.focus()
     // 同期的に隠す。描画を待つと、Tab の既定動作が「まだ表示中の項目(tabindex=0)」へ移ってしまう
     const menu = this.#menu
@@ -142,14 +160,28 @@ export class JimbleDropdownMenu extends JimbleElement {
   // ---- メニュー ---------------------------------------------------------------------------
   #focusItem(item: JimbleMenuItem | undefined) {
     if (!item) return
-    for (const i of this.items) i.tabIndex = i === item ? 0 : -1
+    for (const i of this.#siblings(item)) i.tabIndex = i === item ? 0 : -1
     item.focus()
+  }
+
+  /** サブメニューを開いて、最初の有効な項目にフォーカスする(同じ階層のほかのサブメニューは閉じる) */
+  #openSubmenu(item: JimbleMenuItem) {
+    if (item.disabled || !item.hasSubmenu) return
+    for (const i of this.#siblings(item)) if (i !== item) i.hideSubmenu()
+    item.showSubmenu()
+    this.#focusItem(item.submenuItems.find((i) => !i.disabled))
+  }
+  /** サブメニューを閉じて、親の項目にフォーカスを戻す */
+  #closeSubmenu(owner: JimbleMenuItem) {
+    owner.hideSubmenu()
+    this.#focusItem(owner)
   }
 
   #onMenuKeydown = (e: KeyboardEvent) => {
     if (e.altKey || e.ctrlKey || e.metaKey) return
-    const enabled = this.#enabled()
     const current = (e.target as Element).closest?.('jimble-menu-item') as JimbleMenuItem | null
+    const enabled = (current ? this.#siblings(current) : this.items).filter((i) => !i.disabled)
+    const owner = current ? this.#ownerOf(current) : undefined
     const at = current ? enabled.indexOf(current) : -1
     switch (e.key) {
       case 'ArrowDown':
@@ -168,14 +200,26 @@ export class JimbleDropdownMenu extends JimbleElement {
         e.preventDefault()
         this.#focusItem(enabled[enabled.length - 1])
         return
+      case 'ArrowRight':
+        if (!current?.hasSubmenu) return
+        e.preventDefault()
+        this.#openSubmenu(current)
+        return
+      case 'ArrowLeft':
+        if (!owner) return
+        e.preventDefault()
+        this.#closeSubmenu(owner)
+        return
       case 'Enter':
       case ' ':
         e.preventDefault()
         if (current) this.#activate(current)
         return
       case 'Escape':
+        // サブメニューの中では、そのサブメニューだけを閉じる(APG)
         e.preventDefault()
-        this.#close('escape', true)
+        if (owner) this.#closeSubmenu(owner)
+        else this.#close('escape', true)
         return
       case 'Tab':
         // トリガーの次へ進む（APG）。フォーカスをトリガーに戻してから、既定の Tab に任せる
@@ -183,36 +227,49 @@ export class JimbleDropdownMenu extends JimbleElement {
         return
     }
     if (Typeahead.isChar(e) && !this.#ime.isComposing(e)) {
-      const hit = this.#typeahead.match(
-        e.key,
-        enabled,
-        current ?? undefined,
-        (i) => i.textContent ?? '',
-      )
+      const hit = this.#typeahead.match(e.key, enabled, current ?? undefined, (i) => i.text)
       if (hit) this.#focusItem(hit)
     }
   }
 
-  #onMenuClick = (e: Event) => {
-    const item = (e.target as Element).closest?.('jimble-menu-item') as JimbleMenuItem | null
-    if (item && item.parentElement === this) this.#activate(item)
+  /** このメニューの項目か(最上位の項目か、そのサブメニューの中の項目) */
+  #owns(item: JimbleMenuItem): boolean {
+    return (
+      item.parentElement === this || (!!this.#ownerOf(item) && this.#owns(this.#ownerOf(item)!))
+    )
   }
 
-  // マウスで指した項目にフォーカスを移す（ネイティブのメニューと同じ）
+  #onMenuClick = (e: Event) => {
+    const item = (e.target as Element).closest?.('jimble-menu-item') as JimbleMenuItem | null
+    if (!item || !this.#owns(item)) return
+    // サブメニューを開いている項目を、もう一度押すと閉じる
+    if (item.hasSubmenu && item.submenuOpen) this.#closeSubmenu(item)
+    else this.#activate(item)
+  }
+
+  // マウスで指した項目にフォーカスを移す（ネイティブのメニューと同じ）。少し止まったら、
+  // その項目のサブメニューを開き、同じ階層のほかのサブメニューを閉じる
   #onPointerMove = (e: PointerEvent) => {
     const item = (e.target as Element).closest?.('jimble-menu-item') as JimbleMenuItem | null
-    if (
-      item &&
-      !item.disabled &&
-      this.shadowRoot?.activeElement !== item &&
-      document.activeElement !== item
-    ) {
+    if (!item || item.disabled || !this.#owns(item)) return
+    if (this.shadowRoot?.activeElement !== item && document.activeElement !== item) {
       this.#focusItem(item)
     }
+    if (item === this.#hoverItem) return
+    this.#hoverItem = item
+    clearTimeout(this.#hoverTimer)
+    this.#hoverTimer = setTimeout(() => {
+      for (const i of this.#siblings(item)) if (i !== item) i.hideSubmenu()
+      item.showSubmenu()
+    }, HOVER_DELAY)
   }
 
   #activate(item: JimbleMenuItem) {
     if (item.disabled) return
+    if (item.hasSubmenu) {
+      this.#openSubmenu(item)
+      return
+    }
     const event = this.emit('select', { detail: { value: item.value, item }, cancelable: true })
     item.activate()
     if (!event.defaultPrevented) this.#close('action', !item.href)
@@ -234,6 +291,7 @@ export class JimbleDropdownMenu extends JimbleElement {
       this.#focusItem(this.#focusOnOpen === 'last' ? enabled[enabled.length - 1] : enabled[0])
       this.emit('open')
     } else {
+      this.#hideSubmenus()
       this.emit('close', { detail: { reason: this.#reason } })
       this.#reason = 'outside'
     }
@@ -250,7 +308,8 @@ export class JimbleDropdownMenu extends JimbleElement {
       else this.#afterToggle(this.open)
     }
     // 項目は roving tabindex（フォーカスは矢印キーで移す）
-    for (const i of this.items) if (!i.hasAttribute('tabindex')) i.tabIndex = -1
+    for (const i of this.querySelectorAll('jimble-menu-item'))
+      if (!i.hasAttribute('tabindex')) i.tabIndex = -1
     applyPopupAria(this.#trigger, 'menu', this.open)
   }
 

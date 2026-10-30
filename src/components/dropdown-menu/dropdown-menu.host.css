@@ -37,12 +37,32 @@
     position-area: top span-left;
   }
 
+  /* サブメニュー: 親の項目(part=base)の右に、上端をそろえて出す(メニューの内側の余白ぶん上げる)。
+     右に収まらなければ左に、下に収まらなければ上に反転する */
+  :host(jimble-menu-item) [part~='base'] {
+    anchor-name: --jimble-anchor;
+  }
+  :host(jimble-menu-item) [part='submenu'] {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    margin-block-start: -0.25rem;
+    margin-inline: 0.25rem;
+    position-anchor: --jimble-anchor;
+    position-area: right span-bottom;
+    position-try-fallbacks:
+      flip-inline,
+      flip-block,
+      flip-block flip-inline;
+  }
+
   @media (forced-colors: active) {
     :host(jimble-menu-item:focus) [part~='base'] {
       outline: 2px solid Highlight;
       outline-offset: -2px;
     }
-    :host(jimble-dropdown-menu) [part='menu'] {
+    :host(jimble-dropdown-menu) [part='menu'],
+    :host(jimble-menu-item) [part='submenu'] {
       outline: 1px solid CanvasText;
     }
   }
