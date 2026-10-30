@@ -12,10 +12,11 @@ description: データテーブル
 
 ## 仕組みと制約
 
-ネイティブの `<table>` は、Shadow DOM を使う部品からは、セルのスタイルを整えられません。そのため、各要素が `ElementInternals` で表の**ロール**（`table` / `rowgroup` / `row` / `columnheader` / `cell` / `rowheader`）を持ち、CSS の `display: table*` で表のレイアウトにしています。スクリーンリーダーには本物の表として伝わります。
+ネイティブの `<table>` は、Shadow DOM を使う部品からは、セルのスタイルを整えられません。そのため、各要素が `ElementInternals` で表の**ロール**（`table` / `rowgroup` / `row` / `columnheader` / `cell` / `rowheader`）を持ち、CSS グリッド（行のまとまりと行は `subgrid`）で表のレイアウトにしています。スクリーンリーダーには本物の表として伝わります。
 
-- `colspan` / `rowspan`（セルの結合）は使えません。
-- 列の幅は、ネイティブの表と同じく内容から決まります。幅を指定するには、見出しセルに `style="width: 12rem"` のように指定します。
+- 横の結合（`colspan`）はできます（下の「セルの結合」）。縦の結合（`rowspan`）は使えません。
+- 列の数は、行ごとのセルの数（`colspan` を含む）のうち、いちばん多いものです。
+- 列の幅は、内容から決まります。幅を指定するには、表に `--jimble-table-columns` を、CSS グリッドの `grid-template-columns` の書き方で指定します（例: `style="--jimble-table-columns: 12rem 1fr auto"`。`selectable` の選択の列は含めません）。セルに `width` を指定しても、列の幅は決まりません。
 - 表の名前は `label` で付けます。
 - 並べ替え・絞り込みは、アプリが行います。部品は状態の表示と、イベントの通知だけを担当します。
 
@@ -28,6 +29,14 @@ description: データテーブル
 ## 並べ替え
 
 見出しセルに `sortable` を付けると、ボタンになります。押すと `jimble-sort`（`detail.direction`）が発火し、見出しの `sort`（`aria-sort`）が変わって、同じ表の他の見出しは解除されます。実際に行を並べ替えるのはアプリの仕事です（上の基本の例を参照）。`preventDefault()` すると見出しの状態を変えません。
+
+## セルの結合
+
+見出しセル・セルに `colspan` を付けると、その数の列ぶんに広がります。2 段の見出しや、合計の行に使います。結合は `aria-colspan` として伝わります。
+
+::example table/colspan
+
+- 縦の結合（`rowspan`）は使えません。2 段の見出しで、上の段に置く見出しが無い列にも、見出しセルを置いてください（空の見出しは、スクリーンリーダーで分かりにくくなります）。
 
 ## 行の選択
 

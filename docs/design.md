@@ -1568,6 +1568,14 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **並べ替え（`reorderable`）**: 右の一覧の順序は `values` の順そのもの。ドラッグは HTML5 DnD（外部ライブラリなし）、ドラッグの代わりに「上へ」「下へ」ボタン（選んだ項目をブロックで 1 つずつ。WCAG 2.5.7）、キーボードは Alt+↑↓。並べ替えできるときの右の一覧は選んだ順を見せるため、グループではまとめず、グループ名を項目の後ろに小さく出す。右の一覧を絞り込んでいる間は、見えない項目との前後が定まらないので並べ替えを無効にする。
 - **対象外**: サーバーからの取得、左の一覧の並べ替え、複数項目のドラッグ。
 
+**追補: 表のレイアウトを CSS グリッドにして、横の結合 `colspan` に対応（2026-10-31・見た目の変更）**
+
+- **採用**: 表（`part=grid`）を `display: grid` にし、行のまとまり（header / body）と行を `grid-template-columns: subgrid; grid-column: 1 / -1` にした。セルは行のグリッドの項目になり、`colspan` は `grid-column: span N`。列の数は、表が、行ごとの `colspan` の合計のいちばん大きいものを数え（MutationObserver で、行・セル・`colspan` の変化に追従）、`grid-template-columns` を `repeat(N, auto)`（`selectable` なら先頭に `max-content` の選択の列）にする。`aria-colspan` は ElementInternals で伝える。`span N` の規則は、値ごとに 1 枚の共有シートへ足していく（セルの host に `style` を書かない。CSP の `style-src` にもかからない）。
+- **理由**: `display: table*` は、CSS で `colspan` を表せない（HTML の属性でしか結合できない）。`subgrid` なら、行の箱が残るので、行の背景・hover・選択・縞と、行のロールが、これまでどおり効く。
+- **変わったこと**: (1) 固定ヘッダーは、見出しセルではなく、見出しの行のまとまり（`jimble-table-header`）を `sticky` にする（グリッドでは、セルは自分の行の中でしか動けない）。(2) セルの縦の中央は `vertical-align: middle` ではなく `align-content: center`。(3) **セルの `width` では列の幅が決まらなくなった**（列の幅はグリッドの列が持つ）。代わりに、表の `--jimble-table-columns`（`grid-template-columns` の書き方）で指定する。これまでの「見出しセルに `style="width: 12rem"`」は効かなくなるので、0.x の見た目の変更として扱う。(4) 余った幅は、列に均等に配る（ネイティブの表は、内容の幅に比例して配る）。
+- **比較した案**: (1) 行を `display: contents` にして、縦の結合（`rowspan`）にも対応する — 行の箱が無くなり、行の背景をセルで塗る必要があり、行のロールが支援技術に伝わるかをエンジンごとに確かめる必要がある。利用者の判断で、横の結合だけにした。(2) 表ごとに `<style>` を描く — CSP の `style-src` で止められることがある。
+- **確かめたこと**: 3 エンジンで、結合したセルの幅が、結合した列の幅の合計になる・`selectable` と組み合わせても列がそろう・`colspan` の変更と列の増減に追従する・固定ヘッダーがスクロールしても残る・背の高いセルがあっても同じ行のセルが縦の中央にそろう。
+
 **追補: 表の行の選択 `selectable`（2026-10-31）**
 
 - **採用**: `jimble-table` の `selectable` で、各行の Shadow の先頭に、選択の列（`display: table-cell`。見出しの行は `role="columnheader"`、本文の行は `role="cell"`）を描き、`jimble-checkbox` を置く。見出しは「すべての行を選択」（一部なら中間の状態）、本文は「(行見出しのセル) を選択」。Shift を押しながらのクリックで、前にクリックした行からの範囲を同じ状態にする。行の `selected` がチェックと連動し、利用者の操作で `jimble-selection-change`（`values`・`rows`）が出る。行に `value` を足し、表に `selectedRows`・`selectedValues` を足した。

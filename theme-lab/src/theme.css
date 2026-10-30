@@ -459,6 +459,7 @@
   --jimble-input-width: 100%;
   --jimble-icon-size: 1.25rem;
   --jimble-spinner-size: 1.5rem;
+  --jimble-table-columns: 12rem 1fr auto;
   --jimble-description-label-width: 8rem;
   --jimble-app-shell-main-padding: 1.5rem;
   */

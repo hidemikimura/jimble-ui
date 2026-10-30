@@ -136,12 +136,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-head-cell`** — 表の見出しセル（columnheader）。
-  - 属性: `align=start|center|end`, `sortable`, `sort=ascending|descending|none`
+  - 属性: `align=start|center|end`, `sortable`, `sort=ascending|descending|none`, `colspan=数値`
   - スロット: (既定)
   - イベント: `jimble-sort`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-cell`** — 表のセル（cell）。
-  - 属性: `align=start|center|end`, `header`
+  - 属性: `align=start|center|end`, `header`, `colspan=数値`
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-description-list`** — 項目名と値の一覧（詳細画面など）。
@@ -307,7 +307,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ### 3. 表は `jimble-table` 系で組む（`<table>` を書かない）
 
-`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。`colspan` / `rowspan` は使えない。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
+`jimble-table` > `jimble-table-header` / `jimble-table-body` > `jimble-table-row` > `jimble-table-head-cell` / `jimble-table-cell`。横の結合は `colspan`（2 段の見出し・合計の行）。`rowspan` は使えない。列の幅は表の `--jimble-table-columns`（`grid-template-columns` の書き方。セルの `width` は効かない）。表には `label` を付ける。数値の列は `align="end"`。並べ替えは `sortable` を付け、`jimble-sort`（`detail.direction`）を受けて**アプリが行を並べ替える**（部品は並べ替えない）。行を選ぶなら表に `selectable`（行頭にチェックボックス。行に `value` を付け、`jimble-selection-change` の `detail.values` か `selectedValues` で読む。自前でチェックボックスの列を作らない）。
 
 ### 4. 部品ごとの使い方（オーバーレイ・選択・通知など）
 
@@ -378,7 +378,7 @@ app-shell・サイドバー・一覧ページの骨格・テーマの CSS 変数
 
 ## 対応ブラウザと既知の制約
 
-Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: 非モーダルのパネル、Select の複数選択・絞り込み（Combobox を使う）、メニューのチェック付き項目、表のセル結合、日付の秒・タイムゾーン、色の oklch などの色空間、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
+Chrome / Edge / Firefox / Safari の最新 2 バージョン。Popover API、`<dialog>`、CSS Anchor Positioning（Chrome/Edge 125+、Firefox 147+、Safari 26+）を使う。未対応: 非モーダルのパネル、Select の複数選択・絞り込み（Combobox を使う）、メニューのチェック付き項目、表の縦のセル結合（rowspan）、日付の秒・タイムゾーン、色の oklch などの色空間、SSR。一覧: <https://hidemikimura.github.io/jimble-ui/guide/limitations/>
 
 ## 動作の確かめ方
 

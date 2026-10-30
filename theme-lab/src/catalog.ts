@@ -382,6 +382,13 @@ export const CATALOG: Group[] = [
       num('--jimble-table-cell-padding-x', 'セルの左右の余白（余白の単位の数）', '例: 3'),
       num('--jimble-table-cell-padding-y', 'セルの上下の余白（余白の単位の数）', '例: 2'),
       len('--jimble-table-max-height', '表の最大の高さ（超えるとスクロール）', '例: 24rem'),
+      {
+        name: '--jimble-table-columns',
+        label: '表の列の幅（表ごとに列の数が違う）',
+        kind: 'text',
+        hint: '例: 12rem 1fr auto',
+        opt: true,
+      },
       len('--jimble-description-label-width', '説明リストの項目名の幅', '例: 8rem', true),
     ],
   },

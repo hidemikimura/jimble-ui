@@ -10,14 +10,20 @@
   :host(jimble-table[striped]) {
     --jimble-table-stripe: var(--_c-surface-muted);
   }
-  :host(jimble-table-header) {
-    display: table-header-group;
-  }
-  :host(jimble-table-body) {
-    display: table-row-group;
-  }
+  /* 表のレイアウトは CSS グリッド。列は表(part=grid)が決め、行のまとまりと行は subgrid で共有する
+     (display: table* では、colspan を CSS で表せない) */
+  :host(jimble-table-header),
+  :host(jimble-table-body),
   :host(jimble-table-row) {
-    display: table-row;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+  }
+  /* 固定ヘッダーは、見出しの行のまとまりごと固定する(グリッドでは、セルは行の中でしか動けない) */
+  :host(jimble-table-header) {
+    position: var(--jimble-table-head-position, static);
+    top: 0;
+    z-index: 1;
   }
   :host(jimble-table-row:nth-child(even)) {
     background: var(--jimble-table-stripe, transparent);
@@ -31,20 +37,19 @@
 
   :host(jimble-table-cell),
   :host(jimble-table-head-cell) {
-    display: table-cell;
+    display: block;
+    min-width: 0;
+    /* 縦の中央(表の vertical-align: middle と同じ) */
+    align-content: center;
     padding: calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-y, 2))
       calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-x, 3));
     text-align: start;
-    vertical-align: middle;
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--_c-text);
     box-shadow: inset 0 -1px 0 var(--_c-ring-divider);
   }
   :host(jimble-table-head-cell) {
-    position: var(--jimble-table-head-position, static);
-    top: 0;
-    z-index: 1;
     background: var(--jimble-table-header-bg, var(--_c-surface-muted));
     color: var(--jimble-table-header-text, var(--_c-text-muted));
     font-weight: 600;
@@ -52,19 +57,16 @@
   }
   /* 行頭の選択の列(selectable)。本文のセルと同じ余白・区切り線。見出しは見出しセルと同じ背景・固定 */
   :host(jimble-table-row) .jimble-select-cell {
-    display: table-cell;
-    width: 1%;
+    display: block;
+    align-content: center;
     padding: calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-y, 2))
       calc(var(--jimble-spacing, 0.25rem) * var(--jimble-table-cell-padding-x, 3));
     padding-inline-end: 0;
-    vertical-align: middle;
     line-height: 0;
     box-shadow: inset 0 -1px 0 var(--_c-ring-divider);
   }
+  :host(jimble-table-header) .jimble-select-cell,
   :host(jimble-table-row) .jimble-select-cell[role='columnheader'] {
-    position: var(--jimble-table-head-position, static);
-    top: 0;
-    z-index: 1;
     background: var(--jimble-table-header-bg, var(--_c-surface-muted));
   }
 

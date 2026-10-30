@@ -36,15 +36,18 @@ async function table(attrs = '', n = 5, style = '') {
 }
 const sortBtn = (h: Element) => h.shadowRoot!.querySelector<HTMLButtonElement>('button')!
 
-describe('レイアウト(R5: カスタム要素 + display: table*)', () => {
-  it('各要素が表の display になる', async () => {
+describe('レイアウト(CSS グリッド + subgrid)', () => {
+  it('表はグリッド、行のまとまりと行は subgrid（列を共有する）', async () => {
     const { el } = await table()
-    const d = (sel: string) => getComputedStyle(el.querySelector(sel)!).display
-    expect(d('jimble-table-header')).toBe('table-header-group')
-    expect(d('jimble-table-body')).toBe('table-row-group')
-    expect(d('jimble-table-row')).toBe('table-row')
-    expect(d('jimble-table-head-cell')).toBe('table-cell')
-    expect(d('jimble-table-cell')).toBe('table-cell')
+    const grid = el.shadowRoot!.querySelector<HTMLElement>('[part="grid"]')!
+    expect(getComputedStyle(grid).display).toBe('grid')
+    for (const sel of ['jimble-table-header', 'jimble-table-body', 'jimble-table-row']) {
+      const style = getComputedStyle(el.querySelector(sel)!)
+      expect(style.display, sel).toBe('grid')
+      expect(style.gridTemplateColumns, sel).not.toBe('none')
+    }
+    // 列の数は、セルの数から決まる
+    expect(getComputedStyle(grid).gridTemplateColumns.split(' ')).toHaveLength(3)
   })
 
   it('見出しと本文で列の位置がそろう(列幅が行をまたいで共有される)', async () => {
@@ -107,12 +110,34 @@ describe('固定ヘッダーとスクロール', () => {
     await tick()
     const top1 = Math.round(head.getBoundingClientRect().top - scroller.getBoundingClientRect().top)
     expect(top1).toBe(top0)
-    expect(getComputedStyle(head).position).toBe('sticky')
+    // 固定するのは、見出しの行のまとまり(グリッドでは、セルは行の中でしか固定できない)
+    expect(getComputedStyle(el.querySelector('jimble-table-header')!).position).toBe('sticky')
   })
 
   it('sticky-header が無ければ固定しない', async () => {
     const { el } = await table()
-    expect(getComputedStyle(el.querySelector('jimble-table-head-cell')!).position).toBe('static')
+    expect(getComputedStyle(el.querySelector('jimble-table-header')!).position).toBe('static')
+  })
+
+  it('縦に長いセルがあっても、同じ行のほかのセルは縦の中央にそろう', async () => {
+    const { el } = await table('', 2)
+    const cells = [
+      ...el.querySelectorAll('jimble-table-body jimble-table-row:first-child jimble-table-cell'),
+    ]
+    cells[1]!.innerHTML = '1 行目<br>2 行目<br>3 行目'
+    await tick()
+    const mid = (c: Element) => {
+      const r = c.getBoundingClientRect()
+      return Math.round(r.top + r.height / 2)
+    }
+    // セルの箱は行の高さいっぱい、文字は中央
+    expect(Math.round(cells[0]!.getBoundingClientRect().height)).toBe(
+      Math.round(cells[1]!.getBoundingClientRect().height),
+    )
+    const range = document.createRange()
+    range.selectNodeContents(cells[0]!)
+    const text = range.getBoundingClientRect()
+    expect(Math.abs(text.top + text.height / 2 - mid(cells[0]!))).toBeLessThan(3)
   })
 
   it('はみ出すときだけ、スクロール領域がキーボードで操作できる(tabindex=0)', async () => {
@@ -259,7 +284,6 @@ describe('行の選択（selectable）', () => {
     expect(input(bodyRows[0]!).getAttribute('aria-label')).toBe('#1 を選択')
     // 見出しの列・本文のセルとして並ぶ（列の位置がそろう）
     const sel = (row: Element) => row.shadowRoot!.querySelector<HTMLElement>('[part="select"]')!
-    expect(getComputedStyle(sel(headRow)).display).toBe('table-cell')
     expect(Math.round(sel(headRow).getBoundingClientRect().width)).toBe(
       Math.round(sel(bodyRows[0]!).getBoundingClientRect().width),
     )
@@ -364,6 +388,81 @@ describe('行の選択（selectable）', () => {
     const { el, bodyRows } = await selectable(3)
     await userEvent.click(input(bodyRows[0]!))
     await settle(el)
+    await expectNoA11yViolations(el)
+  })
+})
+
+describe('セルの結合（colspan）', () => {
+  async function spanned(attrs = '') {
+    const c = await mount<HTMLElement>(html`<div style="width: 600px"></div>`)
+    c.innerHTML = `<jimble-table label="売上" ${attrs}>
+      <jimble-table-header>
+        <jimble-table-row>
+          <jimble-table-head-cell>店舗</jimble-table-head-cell>
+          <jimble-table-head-cell colspan="2" align="center" id="h-period">上期</jimble-table-head-cell>
+        </jimble-table-row>
+        <jimble-table-row>
+          <jimble-table-head-cell></jimble-table-head-cell>
+          <jimble-table-head-cell align="end" id="h-q1">1Q</jimble-table-head-cell>
+          <jimble-table-head-cell align="end" id="h-q2">2Q</jimble-table-head-cell>
+        </jimble-table-row>
+      </jimble-table-header>
+      <jimble-table-body>
+        <jimble-table-row value="a"><jimble-table-cell header>渋谷</jimble-table-cell><jimble-table-cell align="end">120</jimble-table-cell><jimble-table-cell align="end">140</jimble-table-cell></jimble-table-row>
+        <jimble-table-row value="b"><jimble-table-cell header>新宿</jimble-table-cell><jimble-table-cell align="end">90</jimble-table-cell><jimble-table-cell align="end">110</jimble-table-cell></jimble-table-row>
+        <jimble-table-row id="total"><jimble-table-cell header>合計</jimble-table-cell><jimble-table-cell colspan="2" align="end" id="sum">460</jimble-table-cell></jimble-table-row>
+      </jimble-table-body>
+    </jimble-table>`
+    await tick()
+    const el = c.querySelector('jimble-table') as JimbleTable
+    const q = (sel: string) => el.querySelector<HTMLElement>(sel)!
+    return { el, q }
+  }
+  const rect = (e: Element) => e.getBoundingClientRect()
+  const internals = (e: Element) => (e as unknown as { internals: ElementInternals }).internals
+
+  it('colspan="2" のセルは、2 列ぶんの幅になる（見出しも本文も）', async () => {
+    const { q } = await spanned()
+    const [q1, q2, period, sum] = [q('#h-q1'), q('#h-q2'), q('#h-period'), q('#sum')]
+    expect(Math.round(rect(period).left)).toBe(Math.round(rect(q1).left))
+    expect(Math.round(rect(period).right)).toBe(Math.round(rect(q2).right))
+    expect(Math.round(rect(sum).left)).toBe(Math.round(rect(q1).left))
+    expect(Math.round(rect(sum).right)).toBe(Math.round(rect(q2).right))
+  })
+
+  it('aria-colspan として伝わる', async () => {
+    const { q } = await spanned()
+    expect(internals(q('#h-period')).ariaColSpan).toBe('2')
+    expect(internals(q('#sum')).ariaColSpan).toBe('2')
+    expect(internals(q('#h-q1')).ariaColSpan).toBeNull()
+  })
+
+  it('selectable と組み合わせても、列がそろう', async () => {
+    const { q } = await spanned('selectable')
+    expect(Math.round(rect(q('#sum')).left)).toBe(Math.round(rect(q('#h-q1')).left))
+    expect(Math.round(rect(q('#sum')).right)).toBe(Math.round(rect(q('#h-q2')).right))
+  })
+
+  it('colspan を後から変えると、幅が変わる。列の数はセルの増減に追従する', async () => {
+    const { el, q } = await spanned()
+    const sum = q('#sum')
+    sum.setAttribute('colspan', '1')
+    await tick()
+    expect(Math.round(rect(sum).right)).toBe(Math.round(rect(q('#h-q1')).right))
+    const extra = document.createElement('jimble-table-cell')
+    extra.textContent = '追加の列'
+    q('#total').append(extra)
+    await tick()
+    const grid = el.shadowRoot!.querySelector<HTMLElement>('[part="grid"]')!
+    expect(getComputedStyle(grid).gridTemplateColumns.split(' ')).toHaveLength(3)
+    extra.setAttribute('colspan', '3')
+    await tick()
+    // 合計の行 = 1 + 1 + 3 列。いちばん多い行に合わせて、列が増える
+    expect(getComputedStyle(grid).gridTemplateColumns.split(' ')).toHaveLength(5)
+  })
+
+  it('axe の違反がない', async () => {
+    const { el } = await spanned()
     await expectNoA11yViolations(el)
   })
 })
