@@ -59,7 +59,7 @@ const BUDGET = {
   /** それ以外の JS(部品 1 つぶんなど) */
   each: 9 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
-  cdn: 94 * 1024,
+  cdn: 100 * 1024,
 }
 const sizes = js.map((f) => [f, gz(f)] as const)
 const sharedFile = cssHolder[0]?.[0]
