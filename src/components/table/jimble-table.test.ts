@@ -384,6 +384,18 @@ describe('行の選択（selectable）', () => {
     expect(bodyRows[0]!.shadowRoot!.querySelector('jimble-checkbox')).toBeNull()
   })
 
+  it('行を描いても、選んでも、描画の直後に描き直しを予約しない（Lit の change-in-update の警告が出ない）', async () => {
+    const warn = vi.spyOn(console, 'warn')
+    const { el, bodyRows } = await selectable(3)
+    await userEvent.click(input(bodyRows[0]!))
+    await settle(el)
+    const changeInUpdate = warn.mock.calls.filter((args) =>
+      String(args[0]).includes('change-in-update'),
+    )
+    warn.mockRestore()
+    expect(changeInUpdate).toEqual([])
+  })
+
   it('axe の違反がない', async () => {
     const { el, bodyRows } = await selectable(3)
     await userEvent.click(input(bodyRows[0]!))

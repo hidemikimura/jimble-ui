@@ -291,9 +291,17 @@ export class JimbleTable extends JimbleElement {
     this.#emitSelection()
   }
 
+  // 行の updated() から呼ばれるので、その場では描き直さず、マイクロタスクで 1 回にまとめる
+  // (描画の直後に、同じ行へ描き直しを予約しない。多くの行が同時に変わっても 1 回で済む)
+  #refreshQueued = false
   #refreshSelectAll = () => {
-    for (const r of this.querySelectorAll('jimble-table-header > jimble-table-row'))
-      if (r instanceof JimbleTableRow && r.closest('jimble-table') === this) r.requestUpdate()
+    if (this.#refreshQueued) return
+    this.#refreshQueued = true
+    queueMicrotask(() => {
+      this.#refreshQueued = false
+      for (const r of this.querySelectorAll('jimble-table-header > jimble-table-row'))
+        if (r instanceof JimbleTableRow && r.closest('jimble-table') === this) r.requestUpdate()
+    })
   }
 
   override disconnectedCallback(): void {
