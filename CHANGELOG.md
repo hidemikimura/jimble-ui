@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.13.0](https://github.com/hidemikimura/jimble-ui/compare/v0.12.0...v0.13.0) (2026-10-31)
+
+
+### 追加
+
+* **color-input:** alpha 属性で透明度を選べるようにする ([acfc105](https://github.com/hidemikimura/jimble-ui/commit/acfc105f36fac7a33b62562a684fec2b8510e0cb))
+* **dropdown-menu:** サブメニューに対応する ([a3db9e6](https://github.com/hidemikimura/jimble-ui/commit/a3db9e6a2fcdc46a39e3a6bee842407714b9fd9b))
+* **file-input:** multiple のとき、フォルダーのドロップで中のファイルを追加する ([446d3ad](https://github.com/hidemikimura/jimble-ui/commit/446d3ad98322529460d02b5a495e6180225d2a12))
+* **table:** columns と rows を渡すと、データから描く仮想スクロールの表にする ([0273a99](https://github.com/hidemikimura/jimble-ui/commit/0273a9981764811aa4ef0e3f3b106845f791681b))
+* **table:** selectable で行頭のチェックボックスから行を選べるようにする ([e7ac9f6](https://github.com/hidemikimura/jimble-ui/commit/e7ac9f628c05890661ae676ac8487c213db5cd86))
+* **table:** レイアウトを CSS グリッドにして、colspan で横にセルを結合できるようにする ([e650cb8](https://github.com/hidemikimura/jimble-ui/commit/e650cb82fb1b9944c81cfc9420f363e4fc344b18))
+
+
+### 修正
+
+* **table:** 行の選択の状態を、描画の直後ではなくまとめて「すべて選択」に写す ([6afc4e8](https://github.com/hidemikimura/jimble-ui/commit/6afc4e8566efd30c7350954bda5db5be4e52144c))
+
+
+### ドキュメント
+
+* コンボボックスの複数選択とタグ入力を、既知の制約から外す ([a98601c](https://github.com/hidemikimura/jimble-ui/commit/a98601c144bfdb84d051618e690a3f805a77ee89))
+
 ## [0.12.0](https://github.com/hidemikimura/jimble-ui/compare/v0.11.0...v0.12.0) (2026-10-28)
 
 
