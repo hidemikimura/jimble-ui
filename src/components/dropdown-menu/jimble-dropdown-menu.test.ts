@@ -491,12 +491,17 @@ describe('サブメニュー', () => {
     expect(Math.abs(s.top - p.top)).toBeLessThan(12)
     cleanup()
 
-    const right = await nested('position: fixed; top: 40px; right: 4px')
+    // 後ろの入力欄は下の行に回し、メニューのボタンだけを右端に置く(横に並ぶと、入力欄の幅が
+    // フォントで変わり、Linux ではメニューが中ほどに開いて、サブメニューが左右どちらにも収まらない)
+    const right = await nested(
+      'position: fixed; top: 40px; right: 4px; display: grid; justify-items: end',
+    )
     await openMenu(right.trigger)
     await userEvent.keyboard('{ArrowDown}{ArrowRight}')
     await tick()
     const p2 = right.share.getBoundingClientRect()
     const s2 = sub(right.share).getBoundingClientRect()
+    expect(p2.right).toBeGreaterThan(window.innerWidth - 16)
     expect(s2.right).toBeLessThanOrEqual(p2.left + 8)
   })
 
