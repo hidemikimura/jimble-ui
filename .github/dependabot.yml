@@ -7,6 +7,11 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore(deps)'
+    ignore:
+      # 型は、前提にする Node の版（.nvmrc・engines）に合わせる。メジャー版は Node を上げるときに一緒に上げる
+      # （先に上げると、Node 22 に無い API でも型の検査が通ってしまう）
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       # Tailwind・Lit・Vite・Vitest の更新は、Shadow DOM 用の補正(build/postcss-shadow-fix.ts)のテストが
       # 落ちないことを条件にする。関連するものは 1 つの PR にまとめて検証する。
