@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/hidemikimura/jimble-ui/compare/v0.13.0...v0.14.0) (2026-11-04)
+
+
+### 追加
+
+* **button:** 種類ごとの背景の変数で、secondary などの背景だけを変えられるようにする ([8eead49](https://github.com/hidemikimura/jimble-ui/commit/8eead4945cd5ada6474e841708cc6b11682fb482))
+
 ## [0.13.0](https://github.com/hidemikimura/jimble-ui/compare/v0.12.0...v0.13.0) (2026-10-31)
 
 
