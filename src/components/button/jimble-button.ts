@@ -12,25 +12,25 @@ export type ButtonSize = 'sm' | 'md' | 'lg'
 // 公開 CSS 変数 → 内部変数(--_x) → ユーティリティ、の順に受ける（設計書 §13.3）。
 const VARIANT: Record<ButtonVariant, string> = {
   primary:
-    '[--_bg:var(--jimble-button-bg,var(--color-primary-600))] ' +
+    '[--_bg:var(--jimble-button-primary-bg,var(--jimble-button-bg,var(--color-primary-600)))] ' +
     '[--_bg-hover:var(--jimble-button-primary-bg-hover,var(--jimble-button-bg-hover,var(--color-primary-500)))] ' +
     '[--_fg-hover:var(--jimble-button-primary-fg-hover,var(--jimble-button-fg-hover,var(--_fg)))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg-on-primary))] ' +
     '[--_ring:var(--jimble-button-ring,transparent)] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   secondary:
-    '[--_bg:var(--jimble-button-bg,var(--color-surface))] ' +
+    '[--_bg:var(--jimble-button-secondary-bg,var(--jimble-button-bg,var(--color-surface)))] ' +
     '[--_bg-hover:var(--jimble-button-secondary-bg-hover,var(--jimble-button-bg-hover,var(--color-surface-muted)))] ' +
     '[--_fg-hover:var(--jimble-button-secondary-fg-hover,var(--jimble-button-fg-hover,var(--_fg)))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg))] ' +
     '[--_ring:var(--jimble-button-ring,var(--color-line-button))] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   danger:
-    '[--_bg:var(--jimble-button-bg,var(--color-danger-600))] ' +
+    '[--_bg:var(--jimble-button-danger-bg,var(--jimble-button-bg,var(--color-danger-600)))] ' +
     '[--_bg-hover:var(--jimble-button-danger-bg-hover,var(--jimble-button-bg-hover,var(--color-danger-700)))] ' +
     '[--_fg-hover:var(--jimble-button-danger-fg-hover,var(--jimble-button-fg-hover,var(--_fg)))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg-on-primary))] ' +
     '[--_ring:var(--jimble-button-ring,transparent)] [--_shadow:var(--jimble-button-shadow,var(--shadow-sm))]',
   ghost:
-    '[--_bg:var(--jimble-button-bg,transparent)] ' +
+    '[--_bg:var(--jimble-button-ghost-bg,var(--jimble-button-bg,transparent))] ' +
     '[--_bg-hover:var(--jimble-button-ghost-bg-hover,var(--jimble-button-bg-hover,var(--color-surface-sunken)))] ' +
     '[--_fg-hover:var(--jimble-button-ghost-fg-hover,var(--jimble-button-fg-hover,var(--_fg)))] ' +
     '[--_fg:var(--jimble-button-fg,var(--color-fg))] ' +
@@ -90,6 +90,10 @@ const ICON_ONLY = 'w-(--_h) p-0'
  * @cssprop [--jimble-button-bg-hover=variant に応じる] - hover 時の背景色
  * @cssprop [--jimble-button-fg=variant に応じる] - 文字色
  * @cssprop [--jimble-button-fg-hover=hover 前の文字色] - hover 時の文字色（背景は変えず、文字だけ変えるときは `--jimble-button-bg-hover` も合わせる）
+ * @cssprop [--jimble-button-primary-bg=var(--jimble-color-primary-600)] - primary の背景色（全 variant 共通の `--jimble-button-bg` より優先）
+ * @cssprop [--jimble-button-secondary-bg=var(--jimble-color-surface)] - secondary の背景色（`transparent` で、置いた場所の背景が透ける）
+ * @cssprop [--jimble-button-danger-bg=var(--jimble-color-danger-600)] - danger の背景色
+ * @cssprop [--jimble-button-ghost-bg=transparent] - ghost の背景色
  * @cssprop [--jimble-button-primary-bg-hover=variant に応じる] - primary の hover 時の背景色（全 variant 共通の `--jimble-button-bg-hover` より優先）
  * @cssprop [--jimble-button-secondary-bg-hover=variant に応じる] - secondary の hover 時の背景色
  * @cssprop [--jimble-button-danger-bg-hover=variant に応じる] - danger の hover 時の背景色

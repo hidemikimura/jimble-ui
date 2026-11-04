@@ -42,7 +42,7 @@ const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 const scale = (name: string, steps: number[]): Entry[] =>
   steps.map((s) => ({ name: `--jimble-color-${name}-${s}`, label: String(s), kind: 'color' }))
 /** 「透明」にして使う色の変数（hover の背景・ボタンの背景と枠・項目の hover） */
-const TRANSPARENT_OK = /(hover-bg|bg-hover|button-bg|button-ring|color-item-hover)$/
+const TRANSPARENT_OK = /(hover-bg|bg-hover|button(-[a-z]+)?-bg|button-ring|color-item-hover)$/
 const c = (name: string, label: string, opt = false): Entry => ({
   name,
   label,
@@ -263,6 +263,10 @@ export const CATALOG: Group[] = [
       c('--jimble-button-bg-hover', 'hover の背景（種類に応じる）', true),
       c('--jimble-button-fg', '文字（種類に応じる）', true),
       c('--jimble-button-fg-hover', 'hover の文字（種類に応じる）', true),
+      c('--jimble-button-primary-bg', '主ボタンの背景'),
+      c('--jimble-button-secondary-bg', '白ボタンの背景'),
+      c('--jimble-button-danger-bg', '危険ボタンの背景'),
+      c('--jimble-button-ghost-bg', 'ghost ボタンの背景'),
       c('--jimble-button-primary-bg-hover', '主ボタンの hover の背景'),
       c('--jimble-button-primary-fg-hover', '主ボタンの hover の文字'),
       c('--jimble-button-secondary-bg-hover', '白ボタンの hover の背景'),

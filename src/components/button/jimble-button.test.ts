@@ -326,6 +326,30 @@ describe('hover の色（種類ごとの CSS 変数）', () => {
     expect(bg(danger)).toBe('rgb(1, 2, 3)')
   })
 
+  it('種類ごとの bg は、その種類にだけ効く（共通の bg より優先する）。secondary を透明にできる', async () => {
+    document.documentElement.style.setProperty('--jimble-button-bg', 'rgb(1, 2, 3)')
+    document.documentElement.style.setProperty('--jimble-button-secondary-bg', 'transparent')
+    const secondary = await mount<JimbleButton>(html`<jimble-button>操作</jimble-button>`)
+    expect(bg(secondary)).toBe('rgba(0, 0, 0, 0)')
+    cleanup()
+    const primary = await mount<JimbleButton>(
+      html`<jimble-button variant="primary">保存</jimble-button>`,
+    )
+    expect(bg(primary)).toBe('rgb(1, 2, 3)')
+  })
+
+  it('種類ごとの bg は、4 種類すべてにある', async () => {
+    for (const variant of ['primary', 'secondary', 'danger', 'ghost']) {
+      document.documentElement.style.setProperty(`--jimble-button-${variant}-bg`, 'rgb(7, 8, 9)')
+      const el = await mount<JimbleButton>(
+        html`<jimble-button variant=${variant}>操作</jimble-button>`,
+      )
+      expect(bg(el), variant).toBe('rgb(7, 8, 9)')
+      cleanup()
+      document.documentElement.style.removeProperty(`--jimble-button-${variant}-bg`)
+    }
+  })
+
   it('fg-hover を指定すると、背景はそのままで、文字の色だけが hover で変わる（secondary）', async () => {
     document.documentElement.style.setProperty(
       '--jimble-button-secondary-fg-hover',

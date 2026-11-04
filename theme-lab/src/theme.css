@@ -407,6 +407,10 @@
   --jimble-card-padding: calc(var(--jimble-spacing) * 4);
   --jimble-alert-radius: var(--jimble-radius-card);
   --jimble-alert-padding: calc(var(--jimble-spacing) * 4);
+  --jimble-button-primary-bg: var(--jimble-color-primary-600);
+  --jimble-button-secondary-bg: var(--jimble-color-surface);
+  --jimble-button-danger-bg: var(--jimble-color-danger-600);
+  --jimble-button-ghost-bg: transparent;
   --jimble-button-primary-bg-hover: var(--jimble-color-primary-500);
   --jimble-button-primary-fg-hover: var(--jimble-color-text-on-primary);
   --jimble-button-secondary-bg-hover: var(--jimble-color-surface-muted);
