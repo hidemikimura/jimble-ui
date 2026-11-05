@@ -428,3 +428,168 @@ describe('動的 import（load）と、古くなった画面の復旧', () => {
     expect(text()).toBe('止めた 2')
   })
 })
+
+describe('離脱前の確認（addLeaveGuard）', () => {
+  const settle = () => tick(80)
+
+  it('false を返すと、遷移しない（URL も表示も変わらない）。true なら遷移する', async () => {
+    await mountRouter([home, user])
+    let allow = false
+    const guard = vi.fn(() => allow)
+    router.addLeaveGuard(guard)
+    await go(() => router.navigate(`${P}/users/1`))
+    expect(location.pathname).toBe(`${P}/`)
+    expect(text()).toBe('ホーム')
+    expect(guard).toHaveBeenCalledOnce()
+    const arg = (
+      guard.mock.calls[0] as unknown as [{ from: URL; to: URL; navigationType: string }]
+    )[0]
+    expect(arg.from.pathname).toBe(`${P}/`)
+    expect(arg.to.pathname).toBe(`${P}/users/1`)
+    expect(arg.navigationType).toBe('push')
+    allow = true
+    await go(() => router.navigate(`${P}/users/1`))
+    expect(location.pathname).toBe(`${P}/users/1`)
+    expect(text()).toContain('ユーザー1')
+  })
+
+  it('Promise を返すガード: 待っている間は遷移せず、true になったら同じ遷移をする（data も渡る）', async () => {
+    await mountRouter([home, user])
+    let answer!: (ok: boolean) => void
+    router.addLeaveGuard(() => new Promise<boolean>((r) => (answer = r)))
+    void router.navigate(`${P}/users/2`, { data: { flash: 'やあ' } })
+    await settle()
+    expect(text()).toBe('ホーム')
+    answer(true)
+    await settle()
+    expect(text()).toBe('ユーザー2:-:やあ')
+  })
+
+  it('Promise が false なら、そのまま。答えを待つ間の別の遷移は受け付けず、ガードは 1 回だけ呼ばれる', async () => {
+    await mountRouter([home, user])
+    let answer!: (ok: boolean) => void
+    const guard = vi.fn(() => new Promise<boolean>((r) => (answer = r)))
+    router.addLeaveGuard(guard)
+    void router.navigate(`${P}/users/2`)
+    await settle()
+    void router.navigate(`${P}/users/3`)
+    await settle()
+    expect(guard).toHaveBeenCalledOnce()
+    answer(false)
+    await settle()
+    expect(location.pathname).toBe(`${P}/`)
+    expect(text()).toBe('ホーム')
+  })
+
+  it('ガードが例外を投げたときは、離れない', async () => {
+    await mountRouter([home, user])
+    router.addLeaveGuard(() => Promise.reject(new Error('失敗')))
+    await go(() => router.navigate(`${P}/users/1`))
+    expect(text()).toBe('ホーム')
+  })
+
+  it('外す(解除の関数)と、確認されない。setQuery（同じページ）は確認しない', async () => {
+    await mountRouter([home, user])
+    const guard = vi.fn(() => false)
+    const remove = router.addLeaveGuard(guard)
+    await go(() => router.setQuery({ page: 2 }))
+    expect(guard).not.toHaveBeenCalled()
+    expect(location.search).toBe('?page=2')
+    remove()
+    await go(() => router.navigate(`${P}/users/1`))
+    expect(text()).toContain('ユーザー1')
+    expect(guard).not.toHaveBeenCalled()
+  })
+
+  it('リダイレクトするルートでも、ガードは 1 回だけ', async () => {
+    await mountRouter([home, user, { path: `${P}/old`, redirect: `${P}/users/9` }])
+    const guard = vi.fn(() => true)
+    router.addLeaveGuard(guard)
+    await go(() => router.navigate(`${P}/old`))
+    expect(text()).toContain('ユーザー9')
+    expect(guard).toHaveBeenCalledOnce()
+  })
+
+  it('ルートにない URL（ブラウザの通常の遷移）と、data-router-ignore のリンクは、ガードを呼ばない', async () => {
+    await mountRouter([home, user])
+    const guard = vi.fn(() => false)
+    router.addLeaveGuard(guard)
+    const a = document.createElement('a')
+    a.href = `${P}/users/1#x`
+    a.dataset.routerIgnore = ''
+    a.addEventListener('click', (e) => e.preventDefault())
+    document.body.append(a)
+    a.click()
+    a.remove()
+    await settle()
+    expect(guard).not.toHaveBeenCalled()
+  })
+
+  it('beforeunload: dirty のガードがあるときだけ、離脱を止める。外す・dirty=false で止めない', async () => {
+    await mountRouter([home])
+    const leave = () => {
+      const e = new Event('beforeunload', { cancelable: true })
+      window.dispatchEvent(e)
+      return e.defaultPrevented
+    }
+    expect(leave()).toBe(false)
+    const handle = router.addLeaveGuard(() => true)
+    expect(handle.dirty).toBe(true)
+    expect(leave()).toBe(true)
+    handle.dirty = false
+    expect(leave()).toBe(false)
+    handle.dirty = true
+    expect(leave()).toBe(true)
+    handle()
+    expect(leave()).toBe(false)
+  })
+
+  it('動的 import の復旧（通常のページ遷移）では、beforeunload の確認を出さない', async () => {
+    const hard = vi.spyOn(JimbleRouter, 'hardNavigate').mockImplementation(() => {})
+    sessionStorage.removeItem('jimble-router.chunk-reload')
+    await mountRouter([
+      home,
+      {
+        path: `${P}/lazy`,
+        load: () => Promise.reject(new Error('Failed to fetch dynamically imported module: x')),
+        render: () => html`<p>遅延</p>`,
+      },
+    ])
+    router.addLeaveGuard(() => true)
+    await go(() => router.navigate(`${P}/lazy`))
+    expect(hard).toHaveBeenCalledOnce()
+    const e = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(e)
+    expect(e.defaultPrevented).toBe(false)
+    hard.mockRestore()
+    sessionStorage.removeItem('jimble-router.chunk-reload')
+  })
+
+  it('ルーターを外すと、beforeunload も外れる', async () => {
+    await mountRouter([home])
+    router.addLeaveGuard(() => true)
+    router.remove()
+    const e = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(e)
+    expect(e.defaultPrevented).toBe(false)
+  })
+})
+
+describe('離脱前の確認: 戻る', () => {
+  it('戻る(traverse)でも、止められる場面では、ガードが効く。止められないときは、遷移する', async () => {
+    await mountRouter([home, user])
+    await go(() => router.navigate(`${P}/users/1`))
+    const guard = vi.fn(() => false)
+    router.addLeaveGuard(guard)
+    let cancelable: boolean | undefined
+    navigation.addEventListener('navigate', (e) => (cancelable = e.cancelable), { once: true })
+    await go(() => router.back())
+    if (cancelable) {
+      expect(location.pathname).toBe(`${P}/users/1`)
+      expect(guard).toHaveBeenCalledOnce()
+    } else {
+      expect(location.pathname).toBe(`${P}/`)
+      expect(guard).not.toHaveBeenCalled()
+    }
+  })
+})

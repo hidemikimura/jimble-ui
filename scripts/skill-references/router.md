@@ -25,4 +25,5 @@ router.setQuery({ page: 2 }) // URL の検索文字列だけ差し替える(再�
 - リンクの `<a href>` は、そのまま SPA の遷移になる(除外は `data-router-ignore`)。
 - `data` は遷移先に **1 回だけ**渡る値(戻る・進む・リロードでは `undefined`)。`state` は履歴に保存され、戻る・進むで復元される。
 - スクロール位置は、戻る・進む・リロードで復元される。内側の要素がスクロールするレイアウトは `scroll-container="#main"`。
-- **`title` を必ず付ける**(遷移のたびに読み上げる)。サーバーは、どのパスでも同じ HTML を返す必要がある。離脱前の確認・ルートのネストは未対応。
+- **`title` を必ず付ける**(遷移のたびに読み上げる)。サーバーは、どのパスでも同じ HTML を返す必要がある。ルートのネストは未対応。
+- **離脱前の確認**: `const leave = router.addLeaveGuard(({ from, to, navigationType }) => boolean | Promise<boolean>)`。`false` なら遷移しない。確認のダイアログは、ガードの中で `jimble-dialog` を出して答えを返す(ルーターは出さない)。保存したら・ページの部品が外れたら `leave()` で外す(外し忘れると、ほかの画面でも確認が出る)。リロード・タブを閉じる・外部リンク・`data-router-ignore` のリンクは、ブラウザ標準の確認(`beforeunload`。`dirty` が `true` のガードがあるときだけ。`leave.dirty = false` で止められる)。ブラウザが止めさせない戻る・進みは、ガードを呼ばずに遷移する。

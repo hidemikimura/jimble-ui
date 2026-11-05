@@ -62,6 +62,24 @@ export interface NavigateOptions {
   history?: 'push' | 'replace'
 }
 
+/** `addLeaveGuard` に渡す関数の引数 */
+export interface LeaveContext {
+  /** いまのページの URL */
+  from: URL
+  /** 遷移先の URL */
+  to: URL
+  navigationType: NavigationType
+}
+
+/** 離れてよいかを返す。`false` なら遷移しない（URL も履歴も変えない）。確認のダイアログは、この中で出す */
+export type LeaveGuard = (context: LeaveContext) => boolean | Promise<boolean>
+
+/** `addLeaveGuard` の戻り値。呼ぶとガードを外す。`dirty` で、ページを閉じる・リロードの確認（`beforeunload`）を切り替える */
+export type LeaveGuardHandle = (() => void) & {
+  /** 保存していない変更がある（既定 `true`）。`true` のガードが 1 つでもあるときだけ、ブラウザ標準の離脱の確認が出る */
+  dirty: boolean
+}
+
 interface Compiled {
   route: RouteConfig
   pattern: URLPattern
@@ -69,7 +87,7 @@ interface Compiled {
 
 // navigation.navigate() の info に入れる、このルーター用の値(ほかの遷移と区別するため、名前空間を付ける)
 interface RouterInfo {
-  jimble?: { data?: Record<string, unknown>; queryOnly?: boolean }
+  jimble?: { data?: Record<string, unknown>; queryOnly?: boolean; approved?: boolean }
 }
 const SCROLL_PREFIX = 'jimble-router.scroll.'
 const CHUNK_RELOAD_KEY = 'jimble-router.chunk-reload'
@@ -105,6 +123,12 @@ const compile = (route: RouteConfig): Compiled => {
  * - 遷移のたびに、ページタイトルを読み上げ、フォーカスをページの先頭へ移す（ページの中の `autofocus` を優先）。
  * - **ページの部品を動的 `import()` するのは `load` の中で行う**（終わるまで画面が切り替わらないので、`render` の時点で要素は定義済み）。
  *   デプロイで古くなった画面で、その取得に失敗したときは、自動で通常のページ遷移に切り替えて復旧する（`no-chunk-reload` で止められる）。
+ * - **離脱前の確認**: `addLeaveGuard(({ from, to, navigationType }) => boolean | Promise<boolean>)` で、保存していない画面から離れてよいかを確かめる
+ *   （解除の関数を返す。ページの部品の `disconnectedCallback` で外す）。`false` なら、遷移しない（URL・履歴も変えない）。
+ *   SPA の中の遷移（リンク・`navigate()`・`back()`・戻る・進む）が対象で、確認のダイアログは利用者が出す（`jimble-dialog` など）。
+ *   リロード・タブを閉じる・外部へのリンク・`data-router-ignore` のリンクは、ブラウザ標準の確認（`beforeunload`。文言は変えられない）になる。
+ *   これは、`dirty` が `true` のガードがあるときだけ登録する（常に登録すると、bfcache が使えなくなる）。
+ *   ブラウザが戻る・進むを止めさせない場面（利用者がまだページを操作していないときなど）では、ガードは呼ばれず、遷移する。
  * - 1 つのドキュメントに 1 つだけ置ける。Navigation API がないブラウザでは、現在の URL のページを表示するだけで、
  *   リンクは通常のページ遷移になる（サーバーが、すべてのパスでアプリを返す必要がある）。
  *
@@ -173,6 +197,11 @@ export class JimbleRouter extends JimbleElement {
   #abort: AbortController | undefined
   #key = 0
   #started = false
+  #guards = new Set<{ fn: LeaveGuard; dirty: boolean }>()
+  /** ガードの答えを待っている間(確認のダイアログが出ている間)は、ほかの遷移を受け付けない */
+  #deciding = false
+  /** 動的 import の復旧など、すでに離れると決めた遷移では、`beforeunload` の確認を出さない */
+  #leaving = false
   #announceTimer: ReturnType<typeof setTimeout> | undefined
 
   constructor() {
@@ -213,6 +242,7 @@ export class JimbleRouter extends JimbleElement {
       navigation.removeEventListener('navigatesuccess', this.#gcScroll)
     }
     window.removeEventListener('pagehide', this.#saveScroll)
+    window.removeEventListener('beforeunload', this.#onBeforeUnload)
     render(null, this.#outlet)
     this.#started = false
   }
@@ -284,6 +314,8 @@ export class JimbleRouter extends JimbleElement {
       return
     }
 
+    if (this.#guards.size && !info?.approved && !this.#guard(e, url)) return
+
     this.#saveScroll()
     this.#abort?.abort()
     const abort = new AbortController()
@@ -305,6 +337,91 @@ export class JimbleRouter extends JimbleElement {
         })
       },
     })
+  }
+
+  // ---- 離脱前の確認 ----------------------------------------------------------------------
+  /**
+   * ガードに確かめる。このイベントでそのまま遷移してよいときだけ `true`。
+   * 同期で決まる `false` は、その場で止める。答えが Promise のときは、いったん止めて、`true` になったら、
+   * 同じ遷移をもう一度行う（`approved` を付けて、ガードを飛ばす）。
+   */
+  #guard(e: NavigateEvent, url: URL): boolean {
+    // 止められない遷移(ブラウザが、戻る・進むを止めさせない場面)は、ガードを呼べない
+    if (!e.cancelable) return true
+    if (this.#deciding) {
+      e.preventDefault()
+      return false
+    }
+    const context: LeaveContext = {
+      from: new URL(
+        this.current.url.href === 'about:blank' ? location.href : this.current.url.href,
+      ),
+      to: url,
+      navigationType: e.navigationType,
+    }
+    const result = this.#askGuards(context)
+    if (result === true) return true
+    e.preventDefault()
+    if (result === false) return false
+    this.#deciding = true
+    const { destination, info, navigationType } = e
+    void result
+      .then((ok) => {
+        if (ok) this.#proceed(destination, info, navigationType)
+      })
+      .catch((error: unknown) => {
+        // ガードが例外を投げたときは、離れない(保存されていない変更を失わせない)
+        if (__DEV__) this.warn(`離脱のガードが失敗しました: ${String(error)}`)
+      })
+      .finally(() => (this.#deciding = false))
+    return false
+  }
+
+  /** ガードを登録順に確かめる。同期で決まれば boolean、Promise を返すガードがあれば Promise */
+  #askGuards(context: LeaveContext): boolean | Promise<boolean> {
+    const guards = [...this.#guards]
+    const step = (i: number): boolean | Promise<boolean> => {
+      for (let n = i; n < guards.length; n++) {
+        const answer = guards[n]!.fn(context)
+        if (answer === false) return false
+        if (answer !== true)
+          return Promise.resolve(answer).then((ok) => ok !== false && step(n + 1))
+      }
+      return true
+    }
+    return step(0)
+  }
+
+  /** 止めていた遷移を、ガードを飛ばして行う */
+  #proceed(destination: NavigationDestination, info: unknown, type: NavigationType) {
+    const approved: RouterInfo = {
+      jimble: { ...(info as RouterInfo | undefined)?.jimble, approved: true },
+    }
+    if (type === 'traverse') {
+      void this.#silence(navigation.traverseTo(destination.key!, { info: approved }))
+    } else if (type === 'reload') {
+      void this.#silence(navigation.reload({ info: approved }))
+    } else {
+      void this.#silence(
+        navigation.navigate(destination.url, {
+          history: type === 'replace' ? 'replace' : 'push',
+          info: approved,
+          state: destination.getState(),
+        }),
+      )
+    }
+  }
+
+  #onBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (this.#leaving || ![...this.#guards].some((g) => g.dirty)) return
+    e.preventDefault()
+    e.returnValue = '' // 古いブラウザ用。文言は、ブラウザ標準で変えられない
+  }
+
+  /** `dirty` のガードがあるときだけ、`beforeunload` を登録する */
+  #syncBeforeUnload() {
+    const dirty = [...this.#guards].some((g) => g.dirty)
+    window[dirty ? 'addEventListener' : 'removeEventListener']('beforeunload', this.#onBeforeUnload)
   }
 
   #entryState(): Record<string, unknown> | undefined {
@@ -501,6 +618,7 @@ export class JimbleRouter extends JimbleElement {
       /* 保存できないときは、繰り返しの判定ができないので、復旧しない */
       return false
     }
+    this.#leaving = true // すでに離れると決めた遷移なので、`beforeunload` の確認は出さない
     JimbleRouter.hardNavigate(url)
     return true
   }
@@ -550,6 +668,35 @@ export class JimbleRouter extends JimbleElement {
         state: options.state,
       }),
     )
+  }
+
+  /**
+   * 離れてよいかを確かめるガードを登録する（保存していないフォームがあるときなど）。解除の関数を返す。
+   * ガードが 1 つでもあって `dirty`（既定 `true`）のあいだは、リロード・タブを閉じるときに、ブラウザ標準の確認も出る。
+   * 保存したら、`handle.dirty = false` にするか、`handle()` で外す。
+   *
+   * ```js
+   * const leave = router.addLeaveGuard(async ({ to }) => (await confirmDialog.ask()) === 'leave')
+   * // 保存したら
+   * leave()
+   * ```
+   */
+  addLeaveGuard(fn: LeaveGuard): LeaveGuardHandle {
+    const entry = { fn, dirty: true }
+    this.#guards.add(entry)
+    this.#syncBeforeUnload()
+    const handle = (() => {
+      this.#guards.delete(entry)
+      this.#syncBeforeUnload()
+    }) as LeaveGuardHandle
+    Object.defineProperty(handle, 'dirty', {
+      get: () => entry.dirty,
+      set: (value: boolean) => {
+        entry.dirty = !!value
+        this.#syncBeforeUnload()
+      },
+    })
+    return handle
   }
 
   /** ルートの名前から、URL を組み立てる（`:id` などのパスの値と、検索文字列） */

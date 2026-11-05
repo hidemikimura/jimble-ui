@@ -104,6 +104,54 @@ app.setQuery({ only: 1 }, { merge: false }) // ほかのキーも消す
 - **スクロールが window ではなく、内側の要素で起きるレイアウト**では、`scroll-container` にその要素のセレクターを指定します（`<jimble-router scroll-container="#main">`）。位置は、履歴のエントリごとに保存されます。[App Shell](../app-shell/) は、本文が window でスクロールするので、指定は要りません。
 - ダイアログの表示状態などの復元はしません。
 
+## 離脱前の確認（未保存の警告）
+
+保存していないフォームがある画面から離れるときは、`addLeaveGuard` で確かめます。ガードは、`({ from, to, navigationType })` を受け取り、離れてよければ `true`、止めるなら `false`（または、そのどちらかになる Promise）を返します。**`false` なら、遷移しません（URL も履歴も変わりません）。** 解除の関数が返るので、保存したとき・ページの部品が外れたときに呼びます。
+
+確認のダイアログは、ルーターは出しません。ガードの中で、[Dialog](../dialog/) などを出して、利用者の答えを返します。
+
+```js
+class PagePlanEdit extends LitElement {
+  #leave
+  connectedCallback() {
+    super.connectedCallback()
+    this.#leave = router.addLeaveGuard(() => this.#confirmLeave())
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this.#leave?.() // 外し忘れると、ほかの画面でも確認が出る
+  }
+  #confirmLeave() {
+    const dialog = this.renderRoot.querySelector('jimble-dialog')
+    return new Promise((resolve) => {
+      let leave = false
+      // 「離れる」ボタン（`data-leave`）なら true。「キャンセル」・Esc・背景のクリックで閉じたら false
+      const onClick = (e) => {
+        if (!e.target.closest('[data-leave]')) return
+        leave = true
+        dialog.hide()
+      }
+      dialog.addEventListener('click', onClick)
+      dialog.addEventListener(
+        'jimble-close',
+        () => {
+          dialog.removeEventListener('click', onClick)
+          resolve(leave)
+        },
+        { once: true },
+      )
+      dialog.show()
+    })
+  }
+}
+```
+
+- **対象**は、SPA の中の遷移（リンク・`navigate()`・`navigateTo()`・`back()`・戻る・進む）です。`setQuery` は同じページなので対象外です。リダイレクトするルートでも、ガードは 1 回だけ呼ばれます。ガードが複数あるときは、登録順に確かめ、1 つでも `false` なら止めます。
+- 答えを待っている間（ダイアログが出ている間）の、ほかの遷移は受け付けません。ガードが例外を投げたとき・Promise が拒否されたときは、離れません（未保存の変更を失わせないため）。
+- **リロード・タブを閉じる・外部へのリンク・`data-router-ignore` のリンク**は、ブラウザ標準の確認（`beforeunload`）になります。文言は変えられません。このリスナーは、`dirty` が `true` のガードがあるときだけ登録します（`handle.dirty = false` で、ガードは残したまま、ブラウザの確認だけ止められます）。常には登録しないので、bfcache（戻るの高速化）を妨げません。
+- **ブラウザの戻る・進むは、止められない場面があります**。ブラウザは、利用者がそのページを一度も操作していないときなど、戻る・進むを止めさせません（`navigate` イベントが `cancelable: false`）。その場合、ガードは呼ばれず、遷移します（ページを離れる「リロード・閉じる」のほうは `beforeunload` が確認します）。フォームを編集した画面なら、通常は操作済みなので止められます。
+- 動的 `import()` の失敗からの自動復旧（通常のページ遷移）は、すでに離れると決めた遷移なので、`beforeunload` の確認を出しません。
+
 ## アクセシビリティ
 
 - 遷移のたびに、ページのタイトルを読み上げ（`role="status"`）、フォーカスを**ページの先頭**へ移します（ページの中の `autofocus` があれば、そちら）。SPA では、ブラウザがページの切り替わりを知らせないためです。**`title` を必ず指定してください。**
@@ -115,7 +163,7 @@ app.setQuery({ only: 1 }, { merge: false }) // ほかのキーも消す
 - **1 つのドキュメントに、1 つだけ**置けます（Navigation API がドキュメントに 1 つだけのため）。
 - Navigation API があるブラウザ（Chrome / Edge / Firefox / Safari の最新）で動きます。ない場合は、現在の URL のページを表示するだけで、リンクは通常のページ遷移になります（`data`・`state` は渡らず、サーバーが、すべてのパスでアプリを返す必要があります）。
 - 直接 URL を開く・リロードのために、**サーバーは、ルートのパスでも、同じ HTML を返す**必要があります（一般的な SPA と同じです）。
-- 未対応: 離脱前の確認（未保存の警告）、ルートのネスト（`children`）。
+- 未対応: ルートのネスト（`children`）。
 
 ## キーボード・API
 
