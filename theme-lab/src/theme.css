@@ -405,6 +405,11 @@
   --jimble-input-placeholder: var(--jimble-color-text-placeholder);
   --jimble-card-radius: var(--jimble-radius-card);
   --jimble-card-padding: calc(var(--jimble-spacing) * 4);
+  /* sticky-footer / sticky-header（jimble-ui 0.15.0 以降）
+  --jimble-card-sticky-offset: 0;
+  --jimble-card-sticky-bg: var(--jimble-color-surface);
+  --jimble-card-sticky-shadow: 0 -4px 6px -4px rgb(0 0 0 / 0.15);
+  */
   --jimble-alert-radius: var(--jimble-radius-card);
   --jimble-alert-padding: calc(var(--jimble-spacing) * 4);
   --jimble-button-primary-bg: var(--jimble-color-primary-600);

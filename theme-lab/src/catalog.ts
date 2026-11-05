@@ -302,6 +302,14 @@ export const CATALOG: Group[] = [
       radius('--jimble-card-radius', '角丸'),
       shadow('--jimble-card-shadow', '影'),
       len('--jimble-card-padding', '内側の余白', '例: calc(var(--jimble-spacing) * 4)'),
+      len('--jimble-card-sticky-offset', '貼り付くときの、端からの距離', '例: 0・3.5rem', true),
+      c('--jimble-card-sticky-bg', '貼り付くヘッダー・フッターの背景', true),
+      len(
+        '--jimble-card-sticky-shadow',
+        '貼り付いている間の影',
+        '例: 0 -4px 6px -4px rgb(0 0 0 / 0.15)',
+        true,
+      ),
     ],
   },
   {

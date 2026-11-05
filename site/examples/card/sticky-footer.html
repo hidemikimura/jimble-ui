@@ -1,0 +1,15 @@
+<!-- title: 下部を固定するフッター -->
+<div style="height: 280px; overflow: auto">
+  <jimble-card sticky-footer>
+    <h2 slot="header" style="margin: 0; font-size: 1rem">プランの編集</h2>
+    <div style="height: 520px">
+      <p style="margin: 0">
+        長いフォームの本文。スクロールしても、保存・取り消しのボタンは下に見えたままです。
+      </p>
+    </div>
+    <div slot="footer" class="row" style="justify-content: flex-end">
+      <jimble-button>キャンセル</jimble-button>
+      <jimble-button variant="primary">保存</jimble-button>
+    </div>
+  </jimble-card>
+</div>

@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { expectNoA11yViolations } from '../../test/a11y.js'
 import { cleanup, mount } from '../../test/mount.js'
 import './jimble-card.js'
@@ -46,6 +46,40 @@ describe('jimble-card', () => {
     const el = await mount<JimbleCard>(html`<jimble-card>本文</jimble-card>`)
     el.style.setProperty('--jimble-card-padding', '2rem')
     expect(getComputedStyle(part(el, 'body')).paddingTop).toBe('32px')
+  })
+
+  it('sticky-footer: スクロールの途中ではフッターが下端に貼り付き、末尾までスクロールすると解ける', async () => {
+    const el = await mount<JimbleCard>(
+      html`<div style="height: 200px; overflow: auto">
+        <jimble-card sticky-footer
+          ><div style="height: 600px">長い本文</div>
+          <div slot="footer">操作</div></jimble-card
+        >
+      </div>`,
+    )
+    const card = el.querySelector<JimbleCard>('jimble-card')!
+    const scroller = el as unknown as HTMLElement
+    await card.updateComplete
+    const footer = part(card, 'footer')
+    const wrap = footer.parentElement!
+    await vi.waitFor(() => expect(card.matches(':state(stuck-footer)')).toBe(true))
+    expect(getComputedStyle(wrap).position).toBe('sticky')
+    expect(footer.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      scroller.getBoundingClientRect().bottom + 1,
+    )
+    scroller.scrollTop = scroller.scrollHeight
+    await vi.waitFor(() => expect(card.matches(':state(stuck-footer)')).toBe(false))
+  })
+
+  it('sticky-footer を付けないときは貼り付かない', async () => {
+    const el = await mount<JimbleCard>(
+      html`<jimble-card
+        ><div slot="footer">操作</div>
+        本文</jimble-card
+      >`,
+    )
+    expect(getComputedStyle(part(el, 'footer').parentElement!).position).not.toBe('sticky')
+    expect(el.matches(':state(stuck-footer)')).toBe(false)
   })
 
   it('axe 違反なし', async () => {
