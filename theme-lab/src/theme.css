@@ -403,6 +403,12 @@
   --jimble-input-ring-focus: var(--jimble-color-ring-focus);
   --jimble-input-ring-invalid: var(--jimble-color-ring-invalid);
   --jimble-input-placeholder: var(--jimble-color-text-placeholder);
+  /* バッジの色（jimble-ui 0.15.0 以降。種類ごとの既定があるので、必要なときだけ）
+  --jimble-badge-bg: var(--jimble-color-surface-sunken);
+  --jimble-badge-text: var(--jimble-color-text-secondary);
+  --jimble-badge-border: var(--jimble-color-ring-control);
+  --jimble-badge-dot-color: currentColor;
+  */
   --jimble-card-radius: var(--jimble-radius-card);
   --jimble-card-padding: calc(var(--jimble-spacing) * 4);
   /* sticky-footer / sticky-header（jimble-ui 0.15.0 以降）

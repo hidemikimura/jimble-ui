@@ -317,6 +317,10 @@ export const CATALOG: Group[] = [
     note: '',
     entries: [
       radius('--jimble-badge-radius', 'バッジの角丸'),
+      c('--jimble-badge-bg', 'バッジの背景（種類に応じる）', true),
+      c('--jimble-badge-text', 'バッジの文字（種類に応じる）', true),
+      c('--jimble-badge-border', 'バッジの枠（種類に応じる）', true),
+      c('--jimble-badge-dot-color', 'バッジの丸（dot。文字色に応じる）', true),
       radius('--jimble-alert-radius', 'アラートの角丸'),
       len('--jimble-alert-padding', 'アラートの内側の余白', '例: calc(var(--jimble-spacing) * 4)'),
     ],

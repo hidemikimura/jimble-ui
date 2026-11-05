@@ -107,7 +107,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定), `header`, `footer`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/card/
 - **`jimble-badge`** — 状態やカテゴリを示す小さなラベル。
-  - 属性: `variant=neutral|primary|success|warning|danger|info`, `size=sm|md`
+  - 属性: `variant=neutral|primary|success|warning|danger|info`, `size=sm|md`, `dot`
   - スロット: (既定), `prefix`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/badge/
 - **`jimble-alert`** — ページ内の通知。
