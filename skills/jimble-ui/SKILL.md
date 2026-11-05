@@ -122,8 +122,8 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
 - **`jimble-table`** — データテーブル。
-  - 属性: `label=値`, `sticky-header`, `striped`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
-  - スロット: (既定)
+  - 属性: `label=値`, `sticky-header`, `striped`, `no-empty`, `_empty`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
+  - スロット: (既定), `empty`
   - イベント: `jimble-sort`, `jimble-selection-change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-header`** — 表の見出し行のまとまり（rowgroup）。

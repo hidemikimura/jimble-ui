@@ -644,3 +644,76 @@ describe('データから描く（columns / rows・仮想スクロール）', ()
     await expectNoA11yViolations(el)
   })
 })
+
+describe('空の状態（empty スロット）', () => {
+  const emptyCell = (el: JimbleTable) => el.shadowRoot!.querySelector<HTMLElement>('[part="empty"]')
+  const body = (el: JimbleTable) => el.querySelector('jimble-table-body')!
+
+  it('本文の行が 0 件のときだけ、既定の文言を、全列をまたいで出す', async () => {
+    const { el } = await table('', 0)
+    const cell = emptyCell(el)!
+    expect(cell.textContent).toContain('データがありません')
+    const grid = el.shadowRoot!.querySelector<HTMLElement>('[part="grid"]')!
+    expect(cell.parentElement!.getBoundingClientRect().width).toBeCloseTo(
+      grid.getBoundingClientRect().width,
+      0,
+    )
+    expect(el.matches(':state(empty)')).toBe(true)
+  })
+
+  it('行があれば出さない。行を足す・消すと、出入りする', async () => {
+    const { el } = await table('', 2)
+    expect(emptyCell(el)).toBeNull()
+    body(el).replaceChildren()
+    await tick()
+    expect(emptyCell(el)).not.toBeNull()
+    body(el).innerHTML = rows(1)
+    await tick()
+    expect(emptyCell(el)).toBeNull()
+    expect(el.matches(':state(empty)')).toBe(false)
+  })
+
+  it('loading の間は出さない', async () => {
+    const { el } = await table('loading', 0)
+    expect(emptyCell(el)).toBeNull()
+    el.loading = false
+    await tick()
+    expect(emptyCell(el)).not.toBeNull()
+  })
+
+  it('no-empty を付けると出さない', async () => {
+    const { el } = await table('no-empty', 0)
+    expect(emptyCell(el)).toBeNull()
+  })
+
+  it('empty スロットで、文言とボタンを差し替えられる', async () => {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.innerHTML = `<jimble-table label="予約"><jimble-table-header><jimble-table-row>
+      <jimble-table-head-cell>番号</jimble-table-head-cell></jimble-table-row></jimble-table-header>
+      <jimble-table-body></jimble-table-body>
+      <div slot="empty" id="x">該当する予約はありません</div></jimble-table>`
+    await tick()
+    const el = c.querySelector('jimble-table') as JimbleTable
+    const slot = emptyCell(el)!.querySelector('slot')!
+    expect(slot.assignedElements()[0]!.id).toBe('x')
+  })
+
+  it('データから描くとき（rows が 空）も出る。見出しは残る', async () => {
+    const c = await mount<HTMLElement>(html`<div style="width: 500px"></div>`)
+    c.innerHTML = `<jimble-table label="注文"></jimble-table>`
+    const el = c.querySelector('jimble-table') as JimbleTable
+    el.columns = [{ key: 'id', label: '番号' }]
+    el.rows = []
+    await tick(80)
+    expect(emptyCell(el)).not.toBeNull()
+    expect(el.querySelectorAll('jimble-table-head-cell').length).toBe(1)
+    el.rows = [{ id: 'a' }]
+    await tick(80)
+    expect(emptyCell(el)).toBeNull()
+  })
+
+  it('axe の違反がない', async () => {
+    const { el } = await table('', 0)
+    await expectNoA11yViolations(el)
+  })
+})

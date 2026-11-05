@@ -102,10 +102,15 @@ const isCell = (e: Element) =>
  *
  * @tag jimble-table
  *
- * @slot - jimble-table-header / jimble-table-body
+ * **空の状態**: 本文の行が 0 件で、`loading` でないときだけ、見出しの下に全列をまたいで `empty` スロット
+ * （既定は「データがありません」）を出す。見出しは残り、空の表示は 1 つのセルとして読まれる。出したくないときは `no-empty`。
+ * 出入りには `:state(empty)` が付く。
  *
+ * @slot - jimble-table-header / jimble-table-body
+ * @slot empty - 行が 0 件のときの表示（既定は「データがありません」。「絞り込みを解除」のボタンなどを置ける）
  * @csspart scroller - 横・縦にスクロールする領域（はみ出すときだけキーボードで操作できる）
  * @csspart grid - 表のレイアウトを持つ領域
+ * @csspart empty - 行が 0 件のときの表示を包むセル
  *
  * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）。データから描くときは表の高さ（既定 24rem）
  * @cssprop [--jimble-table-columns=列の数だけ auto] - 列の幅（`grid-template-columns` の書き方。例: `12rem 1fr auto`）。`selectable` の選択の列は含めない
@@ -123,6 +128,8 @@ export class JimbleTable extends JimbleElement {
     label: {},
     stickyHeader: { type: Boolean, reflect: true, attribute: 'sticky-header' },
     striped: { type: Boolean, reflect: true },
+    noEmpty: { type: Boolean, reflect: true, attribute: 'no-empty' },
+    _empty: { state: true },
     loading: { type: Boolean, reflect: true },
     selectable: { type: Boolean, reflect: true },
     columns: { attribute: false },
@@ -137,6 +144,10 @@ export class JimbleTable extends JimbleElement {
   declare stickyHeader: boolean
   /** 1 行おきに背景を付ける */
   declare striped: boolean
+  /** 行が 0 件のときの表示を出さない */
+  declare noEmpty: boolean
+  /** 本文の行が 0 件（`empty` スロットを出す条件のうち、loading 以外） */
+  declare _empty: boolean
   /** 読み込み中。表を薄くして、`aria-busy` を付ける */
   declare loading: boolean
   /** 行頭にチェックボックスを出して、行を選べるようにする */
@@ -166,6 +177,8 @@ export class JimbleTable extends JimbleElement {
     this.label = undefined
     this.stickyHeader = false
     this.striped = false
+    this.noEmpty = false
+    this._empty = false
     this.loading = false
     this.selectable = false
     this.columns = undefined
@@ -182,7 +195,10 @@ export class JimbleTable extends JimbleElement {
     super.connectedCallback()
     this.internals.role = 'table'
     // 行・セル・colspan が変わったら、列の数を数え直す
-    this.#mutations ??= new MutationObserver(() => this.#updateColumns())
+    this.#mutations ??= new MutationObserver(() => {
+      this.#updateColumns()
+      this.#updateEmpty()
+    })
     this.#mutations.observe(this, {
       childList: true,
       subtree: true,
@@ -190,6 +206,13 @@ export class JimbleTable extends JimbleElement {
       attributeFilter: ['colspan'],
     })
     this.#updateColumns()
+    this.#updateEmpty()
+  }
+
+  /** 本文の行が 0 件か調べる(データから描くときは `rows` の数) */
+  #updateEmpty() {
+    const empty = this.#dataMode ? this.rows.length === 0 : this.#bodyRows.length === 0
+    if (empty !== this._empty) this._empty = empty
   }
 
   /** 列の数(行ごとの colspan の合計の、いちばん大きいもの)から、グリッドの列を決める */
@@ -441,11 +464,17 @@ export class JimbleTable extends JimbleElement {
       this.internals.ariaRowCount = this.#dataMode ? String(this.rows.length + 1) : null
       this.#updateColumns()
       this.#renderData()
+      this.#updateEmpty()
     }
+    this.setState('empty', this.#showEmpty)
     this.internals.role = 'table'
     this.internals.ariaLabel = this.label ?? null
     this.internals.ariaBusy = this.loading ? 'true' : null
     this.#updateScrollable()
+  }
+
+  get #showEmpty(): boolean {
+    return this._empty && !this.loading && !this.noEmpty
   }
 
   protected override render() {
@@ -454,7 +483,17 @@ export class JimbleTable extends JimbleElement {
       @scroll=${this.#onScroll}
       class="relative overflow-auto [max-height:var(--jimble-table-max-height,none)] outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
     >
-      <div part="grid" class="grid w-full ${this.loading ? 'opacity-60' : ''}"><slot></slot></div>
+      <div part="grid" class="grid w-full ${this.loading ? 'opacity-60' : ''}">
+        <slot></slot>${
+          this.#showEmpty
+            ? html`<div role="row" class="[grid-column:1/-1]">
+                <div part="empty" role="cell" class="px-4 py-8 text-center text-sm text-fg-muted">
+                  <slot name="empty">${this.t('table.empty')}</slot>
+                </div>
+              </div>`
+            : nothing
+        }
+      </div>
       ${
         this.loading
           ? html`<div
