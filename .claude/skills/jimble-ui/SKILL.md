@@ -118,6 +118,15 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
+- **`jimble-stepper`** — 段階を踏む入力（予約の登録など）の、今の位置と進み具合を見せる。
+  - 属性: `value=値`, `orientation=horizontal|vertical`, `size=sm|md`, `navigable`, `label=値`, `_narrow`
+  - スロット: (既定)
+  - イベント: `jimble-step-change`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/stepper/
+- **`jimble-step`** — ステッパーの 1 段階。
+  - 属性: `value=値`, `error`, `disabled`, `_state=値`
+  - スロット: (既定), `description`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/step/
 - **`jimble-icon`** — アイコン。
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
@@ -324,6 +333,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 5. ナビゲーション
 
 - 現在のページの項目に `current` を付ける（`jimble-nav-item`、`jimble-breadcrumb-item`）。判定はアプリの仕事。
+- 段階を踏む入力の進み具合は `jimble-stepper`（`value` = 今の `jimble-step` の `value`。前は済・後は未。`navigable` で済の段階を選べて `jimble-step-change`。`value` はアプリが変える）。
 - 1 ページに `nav` の部品（パンくず・サイドバー・ページネーション）を複数置くときは、`label` で名前を変える。
 - `jimble-tabs` の `jimble-tab` と `jimble-tab-panel` は `value` で対応させる。`slot` 属性は不要。
 

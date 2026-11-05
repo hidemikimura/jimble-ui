@@ -177,6 +177,14 @@ export function components() {
             <jimble-tab-panel value="b">未処理の内容です。</jimble-tab-panel>
           </jimble-tabs>
           <jimble-pagination page="7" total="243" page-size="20" size="sm"></jimble-pagination>
+          <jimble-stepper label="予約の登録の見本" value="plan">
+            <jimble-step value="shop">店舗<span slot="description">渋谷店</span></jimble-step>
+            <jimble-step value="plan" error
+              >プラン<span slot="description">カット 60 分</span></jimble-step
+            >
+            <jimble-step value="date">日時</jimble-step>
+            <jimble-step value="confirm">確認</jimble-step>
+          </jimble-stepper>
         </div>
       </jimble-card>
       <jimble-card id="sec-data">

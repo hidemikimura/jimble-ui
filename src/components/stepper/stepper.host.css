@@ -1,0 +1,14 @@
+@layer components {
+  :host(jimble-stepper) {
+    display: block;
+  }
+  /* 横に並べるときは、段階が幅を等分する(つなぎ線がその中の残りを埋める)。縦のときは、中身の高さ */
+  :host(jimble-step) {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  :host(jimble-step:state(vertical)) {
+    flex: none;
+  }
+}

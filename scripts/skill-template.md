@@ -95,6 +95,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 5. ナビゲーション
 
 - 現在のページの項目に `current` を付ける（`jimble-nav-item`、`jimble-breadcrumb-item`）。判定はアプリの仕事。
+- 段階を踏む入力の進み具合は `jimble-stepper`（`value` = 今の `jimble-step` の `value`。前は済・後は未。`navigable` で済の段階を選べて `jimble-step-change`。`value` はアプリが変える）。
 - 1 ページに `nav` の部品（パンくず・サイドバー・ページネーション）を複数置くときは、`label` で名前を変える。
 - `jimble-tabs` の `jimble-tab` と `jimble-tab-panel` は `value` で対応させる。`slot` 属性は不要。
 

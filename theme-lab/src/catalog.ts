@@ -379,6 +379,16 @@ export const CATALOG: Group[] = [
     ],
   },
   {
+    title: 'ステッパー',
+    note: '',
+    entries: [
+      c('--jimble-stepper-complete-color', '済の丸・つなぎ線', true),
+      c('--jimble-stepper-current-color', '現在の枠・番号', true),
+      c('--jimble-stepper-upcoming-color', '未の枠', true),
+      c('--jimble-stepper-connector-color', '済でないつなぎ線', true),
+    ],
+  },
+  {
     title: 'スイッチ・アイコン・スピナー',
     note: '',
     entries: [

@@ -474,6 +474,10 @@
   --jimble-input-width: 100%;
   --jimble-icon-size: 1.25rem;
   --jimble-spinner-size: 1.5rem;
+  --jimble-stepper-complete-color: var(--jimble-color-primary-600);
+  --jimble-stepper-current-color: var(--jimble-color-primary-600);
+  --jimble-stepper-upcoming-color: var(--jimble-color-ring-control);
+  --jimble-stepper-connector-color: var(--jimble-color-ring-divider);
   --jimble-table-columns: 12rem 1fr auto;
   --jimble-description-label-width: 8rem;
   --jimble-app-shell-main-padding: 1.5rem;

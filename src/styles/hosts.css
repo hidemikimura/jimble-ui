@@ -26,6 +26,7 @@
 @import '../components/select/select.host.css';
 @import '../components/sidebar-nav/sidebar-nav.host.css';
 @import '../components/spinner/spinner.host.css';
+@import '../components/stepper/stepper.host.css';
 @import '../components/switch/switch.host.css';
 @import '../components/table/table.host.css';
 @import '../components/tabs/tabs.host.css';

@@ -1791,6 +1791,17 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 
 ---
 
+**追補: 予約管理 SaaS の管理画面のための 5 つの追加（2026-11-06）**
+
+- **要件**: 予約管理 SaaS の管理画面（Claude Design のモック）を 0.14.0 で組むために調べて、足りなかった汎用の部品・機能（card の下部の固定、table の空の状態、badge の色、router の離脱前の確認、stepper）。
+- **`jimble-card` の `sticky-footer` / `sticky-header`**: フッター（ヘッダー）を、区切り線と一緒に包んで `position: sticky` にする。背景を不透明にしないと本文が透けるので、`--jimble-card-sticky-bg`（既定は面の色）。下端（上端）からの距離は `--jimble-card-sticky-offset`。貼り付き判定は `:state(stuck-footer)` / `:state(stuck-header)`（`stuck` 1 つではなく、ヘッダーとフッターを分けた）。本来の位置に高さ 1px の目印を置き、`IntersectionObserver` が出入りに気づくたびに、目印と実際の位置のずれを測る。見える範囲の端との比較は、内側の要素がスクロールするとき、ウィンドウの端と比べてしまい誤るので採らなかった（テストで発見）。dialog / drawer の `footer` は、常にパネルの下にある（スクロールするのは本文だけ）ので、この属性は要らない。
+- **`jimble-table` の `empty` スロット**: 本文の行が 0 件で `loading` でないときだけ、見出しの下に全列をまたいで出す（Shadow 内の `role="row"` > `role="cell"` 1 つ。axe は通る）。既定は「データがありません」（`table.empty`）。出さない選択は `no-empty`。データから描くとき（`rows` が空）も同じ。行数は、すでにあった `MutationObserver` で数え直す。
+- **`jimble-badge` の色の変数**: `--jimble-badge-bg` / `-text` / `-border`。各 `variant` は、既定の色を private 変数（`--_bg` など）に持ち、公開変数が書かれていればそちらが勝つ（書かなければ見た目は同じ）。**`variant` は足さなかった**: 予約の状態や、テナントが選ぶ顧客のラベルの色は、変数で決められる。色の段階（purple など）をトークンに足すと、ライト・ダークの対、コントラストの検査、theme-lab の変数が、色の数だけ増える。必要になったら足す。`dot`（文字色の丸。`--jimble-badge-dot-color` で変更）は足した。
+- **`jimble-router` の `addLeaveGuard(fn)`**: 解除の関数を返す（`dirty` プロパティ付き）。ルートの定義に `canLeave` を足す案は、ページの部品が自分で登録・解除する形のほうが、フォームの状態（保存したら外す）に合うので採らなかった。`navigate` イベントで、同期の `false` はその場で `preventDefault`、Promise は、いったん止めて、`true` なら `info.approved` を付けて同じ遷移をやり直す（`traverseTo` / `reload` も）。答えを待つ間の別の遷移は受け付けない。例外・拒否は「離れない」。**止められない遷移**（`cancelable: false` の戻る・進む）は、ガードを呼ばずに遷移する。ブラウザ標準の確認（`beforeunload`）は、`dirty` のガードがあるときだけ登録する（bfcache を壊さないため）。ガードは、ルートにマッチする SPA の遷移だけに効かせた（外部リンク・`data-router-ignore`・ルートにない URL は、通常のページ遷移で、`beforeunload` に任せる。両方で確認すると二重になる）。動的 import の失敗からの復旧（`hardNavigate`）は、すでに離れると決めた遷移なので、確認を出さない。
+- **`jimble-stepper` / `jimble-step`**: `value`（今の段階）から、済・現在・未を決める（部品は `value` を変えない）。`navigable` で、済の段階だけが `<button>` になり、`jimble-step-change` を出す。親が `apply()` で、番号・総数・状態を子へ伝える（表と同じ、窓口を `WeakMap` で持つ。子の `value` / `disabled` の変更は、マイクロタスクで 1 回にまとめて数え直す）。読み上げは「3/8 プラン：済」の順に、`sr-only` の文字を、名前の前後に置いて作る（スロットの中身は、名前に使えないため。文言は辞書の `stepper.*`）。横並びで幅が約 32rem より狭いときは、`ResizeObserver` で縦にする（コンテナクエリは、スロットされた子の Shadow 内から、親の Shadow の容器を探せるか不確かなので、使わなかった）。
+- **サイズ**: 共有チャンクが 16.3 KB（予算 16 → 17 KB）、CDN バンドルが 101.8 KB（予算 100 → 104 KB）。新しい部品と、そのクラスが増えたため。
+- **テストが見つけた不具合**: card の貼り付き判定が、内側の要素がスクロールするときにだけ誤っていた（上に書いた判定の方式）。ほかは、最初の実装で通った。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。
