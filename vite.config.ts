@@ -27,13 +27,15 @@ export default defineConfig(({ mode }) =>
       lib: { entry: entries, formats: ['es'] },
       rollupOptions: {
         // 利用者側の依存解決に任せる（CDN 用ビルドだけが全部を同梱する）
-        external: [/^lit(\/|$)/, /^@lit\//, /^@floating-ui\//],
+        external: [/^lit(\/|$)/, /^@lit\//, /^@floating-ui\//, /^@codemirror\//, /^@lezer\//],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: 'chunks/[name]-[hash].js',
         },
       },
     },
+    // 動的 import する言語(コードエディタ)を先に最適化しておく(試験の途中で作り直すと、読み込みに失敗する)
+    optimizeDeps: { include: ['@codemirror/lang-html', '@codemirror/lang-json'] },
     test: {
       projects: [
         {

@@ -1,6 +1,8 @@
 // ドキュメントの「例」を全部描画して axe にかける（設計書 §11.3）。例を足せば自動でテストが付く。
 import { afterEach, describe, expect, it } from 'vitest'
 import '../../src/index.js'
+// 全部入りに含めない部品(別の入口)
+import '../../src/components/code-editor/index.js'
 import { expectNoA11yViolations } from '../../src/test/a11y.js'
 
 const examples = import.meta.glob<string>('../../site/examples/**/*.html', {

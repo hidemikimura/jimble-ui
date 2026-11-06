@@ -46,7 +46,8 @@ describe('skill(AI 向けの使い方)', () => {
   })
 
   it('展開されていないプレースホルダーが無い', () => {
-    expect(skill).not.toMatch(/\{\{|\}\}/)
+    // 目印の形だけを見る(コードエディタの例などの {{customer_name}} は、ふつうの文字)
+    expect(skill).not.toMatch(/\{\{(?:components|icons)\}\}|\{\{[a-z]+:/)
   })
 
   it('コード例に出てくる jimble-* タグは、すべて実在する', () => {

@@ -1,0 +1,16 @@
+<!-- title: HTML の色分けと行番号 -->
+<jimble-field label="メールの HTML">
+  <jimble-code-editor
+    id="mail-html"
+    language="html"
+    line-numbers
+    rows="6"
+    value='<p>{{customer_name}} 様</p>&#10;<p>ご注文ありがとうございます。</p>&#10;<a href="{{shop_url}}">ショップを開く</a>'
+  ></jimble-code-editor>
+</jimble-field>
+<script>
+  document.getElementById('mail-html').variables = [
+    { name: 'customer_name', label: '顧客名' },
+    { name: 'shop_url', label: 'ショップの URL' },
+  ]
+</script>

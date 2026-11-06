@@ -379,6 +379,22 @@ export const CATALOG: Group[] = [
     ],
   },
   {
+    title: 'コードエディタ',
+    note: 'code-editor は別の入口（@hidemikimura/jimble-ui/code-editor）。枠・背景・文字は「入力欄」の変数が効きます',
+    entries: [
+      len('--jimble-code-editor-max-height', '高さの上限（超えるとスクロール）', '例: 20rem・none'),
+      {
+        name: '--jimble-code-editor-font-family',
+        label: 'HTML・JSON の字体（text は本文の字体）',
+        kind: 'text',
+        opt: true,
+      },
+      c('--jimble-code-editor-variable-bg', '変数のチップの背景'),
+      c('--jimble-code-editor-variable-fg', '変数のチップの文字'),
+      radius('--jimble-code-editor-variable-radius', '変数のチップの角丸'),
+    ],
+  },
+  {
     title: 'ステッパー',
     note: '',
     entries: [

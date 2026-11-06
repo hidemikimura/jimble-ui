@@ -63,6 +63,7 @@ const GROUPS: [string, string[]][] = [
       'field',
       'input',
       'textarea',
+      'code-editor',
       'select',
       'option',
       'combobox',
@@ -219,8 +220,9 @@ function generate(): Map<string, string> {
     .filter((n) => n.endsWith('.md'))
     .sort())
     files.set(`references/${f}`, NOTICE + '\n' + expand(readFileSync(resolve(refDir, f), 'utf8')))
+  // 目印の形だけを見る(コードエディタの例などの {{customer_name}} は、ふつうの文字)
   for (const [name, text] of files)
-    if (/\{\{/.test(text))
+    if (/\{\{(?:components|icons)\}\}|\{\{[a-z]+:/.test(text))
       throw new Error(`展開されていないプレースホルダーが残っています: ${name}`)
   return files
 }

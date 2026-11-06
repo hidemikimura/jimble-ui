@@ -66,6 +66,8 @@ const en: Locale = {
   'color.alpha': 'Opacity',
   'color.presets': 'Common colors',
   'color.clear': 'Clear',
+  'codeEditor.completions': 'Variables',
+  'codeEditor.unknownVariable': 'Undefined variable: {name}',
   'combobox.noResults': 'No matching options',
   'combobox.results': '{count} options available',
   'combobox.clear': 'Clear selection',

@@ -1803,6 +1803,21 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **テストが見つけた不具合**: card の貼り付き判定が、内側の要素がスクロールするときにだけ誤っていた（上に書いた判定の方式）。ほかは、最初の実装で通った。
 - **公開後の指摘（0.15.0）**: `custom-elements.json` と skill の属性の一覧に、内部の状態（`state: true` のプロパティ。今回の `_stuckFooter` などのほか、以前からの date-input の `view`、file-input の `entries`、router の `announcement` なども）が載っていた。解析ツールの Lit 対応が `state: true` を見ないため。`custom-elements-manifest.config.mjs` のプラグインで、属性から外し、メンバーを private にした。逆に、説明にだけ書いた `:state(stuck-header)` などは、状態の一覧（`cssStates`）に無かった。`@cssstate` で書き、ドキュメントの API の表と skill に「状態」を出す。`tests/unit/manifest.test.ts` が、内部の状態が属性に載らないこと、説明の `:state()` が一覧にあること、一覧の状態を部品が実際に付けることを検査する。続けて、ほかの部品が付けるすべての状態も `@cssstate` で書いた（付けているクラスに書く。フォームの基底 `JimbleFormElement` の `invalid` / `touched` / `disabled` と、`JimbleTextControl` の `readonly` は、解析ツールが継承先へ写す）。内部の作業用で外す状態は無かった（kanban の `moving` / `dragging` / `over` はプロパティとしては内部だが、ドラッグ中の見た目を変える手がかりなので公開する）。試験は、基底クラスを含むすべてのクラスで、`setState` で付ける状態と一覧が両方向に一致することを見る。skill では、フォーム部品に共通の 3 つを部品ごとに並べず、「見た目のカスタマイズ」に 1 度だけ書く。なお §13.2 の input の状態に挙げた `focused` は、実装に無い（フォーカスは `:focus-within` で選べる）。
 
+**追補: コードエディタ `jimble-code-editor`（CodeMirror 6、2026-11-06）**
+
+- **要件**: 管理画面で、メールの文面や HTML・JSON のテンプレートを編集し、`{{customer_name}}` のような変数を挿入・補完したい（利用者の依頼）。
+- **採用**: CodeMirror 6 を土台にした、フォーム関連カスタム要素。初めての大きな外部依存なので、付録 A の方針どおり、利用者の了承を得て採用した（比較は付録 A.4）。
+  - **変数**: `variables` プロパティ（`{ name, label, description }`）。文書の `{{name}}` を `MatchDecorator` で探し、ラベルのチップ（`Decoration.replace` の widget、`part="variable"`）に置き換える。`atomicRanges` で 1 文字として扱い、カーソルが中に入らず、Backspace 1 回で消える。`{{` を入力したとき、または Ctrl+Space で、補完の候補を出す。絞り込みは CodeMirror のあいまい一致ではなく、コンボボックスと同じ自前の一致（`text-match.ts`。全角半角・かなの違いを無視し、日本語のラベルでも探せる）。区切りは `variable-prefix` / `variable-suffix`。書式の関数は CodeMirror に依存しない `variables.ts` に分け、単体テストする。
+  - **フォーム・名前**: 値の扱いは `jimble-textarea` と同じ（属性は初期値、プロパティは現在値）。`required` の検証は自前（ネイティブの部品が無いため）。ラベル・ヒント・エラーは、編集領域（`role="textbox"`、`aria-multiline`）の `aria-label` / `aria-describedby` に、`contentAttributes` で写す（説明の要素は同じ Shadow ツリーにある）。
+  - **キー**: Tab を割り当てない（`indentWithTab` を使わない）。キーボードの利用者がエディタから抜けられるようにするため（WCAG 2.1.2）。インデントの代償は、部品のページに書いた。
+  - **イベント**: 編集領域（contenteditable）のネイティブの `input` は止め、文書が変わったときに host から `input` を出す（補完・チップの削除・`insertVariable()` は、ネイティブの `input` を出さないため）。`value` プロパティからの変更では出さない。`change` は、値を変えてフォーカスが外れたとき。
+  - **見た目**: 枠・背景・文字は入力欄と同じ（`textWrapClasses`、`--jimble-input-*`）。CodeMirror のテーマ（`EditorView.theme`）と色分け（`HighlightStyle`）は、すべて CSS 変数で書く。構文の色は既存のトークン（`text-accent`・`text-info-strong`・`text-success-strong`・`text-warning-strong`・`text-danger`）を使い、コントラストを `contrast.test.ts` に足した（ライト・ダークで 4.5:1）。選択中の候補の名前は、補助の色ではコントラストが足りない（4.39:1、axe が検出）ので、本文の色にする。
+- **配布**: CodeMirror を含むと gzip で約 100 KB 増える（全部入りの CDN バンドルと同じくらい）ので、**全部入り（`src/index.ts`）と共有シート（`hosts.css`）に入れない**。`import '@hidemikimura/jimble-ui/code-editor'`（既存の `./*` の exports）で読み込む。npm 版は CodeMirror を external にして、`dependencies` に入れる（利用者側で解決し、重複を避ける）。CDN は別のファイル `dist/cdn/code-editor.js`（Lit なども同梱。言語の設定と共有シートは `Symbol.for` のグローバルで `jimble-ui.js` と共有する）。HTML・JSON の色分けは、その言語を使うときに動的 import する。`entry.test.ts` に「別の入口の部品」の例外（`SEPARATE`）を足し、`check-dist` に、CDN のコードエディタの初回の読み込み（入口 + 静的に import するチャンク）の予算 165 KB と、全部入りに入っていないことの検査を足した。
+- **サイズ**（gzip）: npm の部品のファイル 4.5 KB（CodeMirror を除く）。CDN の初回 150.3 KB（3 ファイル）、HTML の色分けを使うと +約 66 KB、JSON は +約 11 KB（HTML と共有する部分を含む）。全部入りの CDN バンドルは変わらない（101.9 KB）。
+- **比較した案**: (1) 全部入りに含める — 使わないページでも約 2 倍になる。(2) CodeMirror を `peerDependencies` にする — 利用者が 8 つのパッケージを自分で入れる必要があり、入れ忘れると壊れる。(3) 区切りの文字を色付けするだけ（チップにしない） — 単純だが、Backspace で 1 文字ずつ消え、変数が壊れやすい。
+- **テストが見つけた不具合**: (1) メニューの `jimble-select` から `insertVariable()` を呼ぶと、メニューが閉じたあとでトリガーへフォーカスを戻すので、エディタからフォーカスが外れた。フォーカスを戻すのを、マイクロタスクで遅らせた（試験を足した）。(2) skill の生成器が、例の中の `{{customer_name}}` を「展開されていない目印」と誤って判定した。目印の形だけを見るようにした。(3) 試験の途中で Vite が動的 import の依存を作り直し、言語の読み込みに失敗した。試験の設定で `optimizeDeps.include` に入れた。
+- **見直し（別のエージェント）が見つけた不具合**（すべて試験を足して直した）: (1) `readonly` でも、Ctrl+Space で開いた候補をクリックすると書き換わった（CodeMirror の候補のクリックは `readOnly` を見ない。補完の元で、読み取り専用なら候補を出さない）。(2) エディタの外（メニュー）から `insertVariable()` で挿入すると、`change` が出なかった。(3) 要素を付け直すと、検証のフォーカス先が、捨てたエディタを指したままだった。(4) `value` プロパティ・reset の変更が、元に戻す（Ctrl+Z）の履歴に入った。(5) `disabled` かつ `required` で、エラーになった。(6) Lit の描画のたびに、空の更新を CodeMirror に送り、入力中の DOM の変更の検出を捨てるおそれがあった。ほかに、開きと閉じが同じ区切り記号を拒む、言語の文言を別の区画にする（変数を変えるたびに全体を描き直さない）、`input` を CodeMirror の更新の後で発火する、を直した。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。
@@ -1839,6 +1854,21 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 | 性格 | フレームワーク非依存のヘッドレス | Lit ネイティブ、レイアウトも提供 | 可変高さ非対応 |
 
 **提案**: 採用が必要になったら `@tanstack/virtual-core`。ただし仮想化は「ページ内検索が効かない」「スクリーンリーダーの行数が不正確」（`aria-rowcount` / `aria-rowindex` で補う）という a11y の代償があり、**P1 の答えはページネーション**。仮想化は 500 行を超える表など、必要が明確なときだけ。
+
+### A.4 コードエディタ（採用: CodeMirror 6、2026-11-06）
+
+数値は 2026-11-06 に、esbuild で minify して gzip で測った。
+
+| 観点 | **CodeMirror 6**（@codemirror/view 6.43.15） | prism-code-editor 5.4.0 | Monaco Editor | 自前（textarea + 重ね描き） |
+|------|------|------|------|------|
+| サイズ | 本体 + 補完 98.6 KB、+ JSON 108.6 KB、+ HTML 165.2 KB | HTML + 補完 11.0 KB | 数 MB（Web Worker が必要） | 数 KB〜 |
+| ライセンス | MIT | MIT | MIT | — |
+| 変数のチップ | できる（置き換えの装飾 + atomicRanges） | できない（textarea の文字だけ。色付けまで） | できる（重い） | できない |
+| Shadow DOM | 公式に対応（`root` オプション） | 要確認 | 不得意 | — |
+| IME・スクリーンリーダー | contenteditable で実績が多い | textarea なのでブラウザ標準 | 実績はあるが重い | textarea なのでブラウザ標準 |
+| 大きな文書 | 速い（見えている部分だけ描く） | 数千行で重くなる | 速い | 重い |
+
+**採用**: CodeMirror 6。変数をチップで扱える（Backspace で壊れない）ことを、利用者が選んだ。重さは、別の入口にして、使うページだけで読み込むことで補う。
 
 ---
 

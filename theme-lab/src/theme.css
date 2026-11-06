@@ -444,6 +444,10 @@
   --jimble-file-input-button-hover-bg: var(--jimble-color-surface-sunken);
   --jimble-file-input-button-hover-fg: var(--jimble-color-text);
   --jimble-tooltip-radius: var(--jimble-radius-md);
+  --jimble-code-editor-max-height: 20rem;
+  --jimble-code-editor-variable-bg: var(--jimble-color-surface-accent);
+  --jimble-code-editor-variable-fg: var(--jimble-color-text-accent);
+  --jimble-code-editor-variable-radius: var(--jimble-radius-sm);
   --jimble-tooltip-max-width: 20rem;
   --jimble-table-cell-padding-x: 3;
   --jimble-table-cell-padding-y: 2;
@@ -479,6 +483,7 @@
   --jimble-stepper-upcoming-color: var(--jimble-color-ring-control);
   --jimble-stepper-connector-color: var(--jimble-color-ring-divider);
   --jimble-table-columns: 12rem 1fr auto;
+  --jimble-code-editor-font-family: var(--jimble-font-mono);
   --jimble-description-label-width: 8rem;
   --jimble-app-shell-main-padding: 1.5rem;
   */

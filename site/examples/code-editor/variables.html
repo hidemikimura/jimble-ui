@@ -1,0 +1,34 @@
+<!-- title: 変数の挿入と補完 -->
+<div class="stack">
+  <jimble-field label="通知メールの本文" hint="{{ を入力するか Ctrl+Space で、変数を補完できます">
+    <jimble-code-editor
+      id="mail-body"
+      name="body"
+      rows="5"
+      value="{{customer_name}} 様&#10;&#10;ご注文（{{order_id}}）を承りました。&#10;お届け予定日: {{delivery_date}}"
+    ></jimble-code-editor>
+  </jimble-field>
+  <jimble-dropdown-menu id="mail-insert">
+    <jimble-button slot="trigger" size="sm">変数を挿入</jimble-button>
+    <jimble-menu-item value="customer_name">顧客名</jimble-menu-item>
+    <jimble-menu-item value="order_id">注文番号</jimble-menu-item>
+    <jimble-menu-item value="delivery_date">お届け予定日</jimble-menu-item>
+    <jimble-menu-item value="shop_url">ショップの URL</jimble-menu-item>
+  </jimble-dropdown-menu>
+</div>
+<script>
+  {
+    const editor = document.getElementById('mail-body')
+    // 変数はプロパティで渡す(name は文書に書く名前、label はチップと候補に出す名前)
+    editor.variables = [
+      { name: 'customer_name', label: '顧客名' },
+      { name: 'order_id', label: '注文番号', description: '#10001 の形式' },
+      { name: 'delivery_date', label: 'お届け予定日' },
+      { name: 'shop_url', label: 'ショップの URL' },
+    ]
+    // メニューで選んだ変数を、カーソルの位置に挿入する
+    document.getElementById('mail-insert').addEventListener('jimble-select', (e) => {
+      editor.insertVariable(e.detail.value)
+    })
+  }
+</script>

@@ -26,7 +26,7 @@
     "gen:skill": "node scripts/gen-skill.ts",
     "gen:skill:check": "node scripts/gen-skill.ts --check",
     "prebuild": "npm run gen:tokens && npm run gen:icons && npm run gen:manifest && npm run gen:skill",
-    "build": "vite build && vite build --config vite.cdn.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
+    "build": "vite build && vite build --config vite.cdn.config.ts && vite build --config vite.cdn-code-editor.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
     "check-dist": "node scripts/check-dist.ts",
     "check-package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./tokens.css ./cloak.css",
     "pack-smoke": "node scripts/pack-smoke.ts",
@@ -45,6 +45,14 @@
     "prepublishOnly": "npm run lint && npm run typecheck && npm run build && npm run check-dist && npm run check-package"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-html": "^6.4.12",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
     "@lit/context": "^1.1.6",
     "lit": "^3.3.3"
   },

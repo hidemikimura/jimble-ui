@@ -79,6 +79,20 @@ export function forms() {
         <jimble-field label="備考" hint="社内メモ（顧客には見えません）" style="margin-top: 1rem">
           <jimble-textarea name="note" rows="3" autosize></jimble-textarea>
         </jimble-field>
+        <!-- コードエディタは別の入口。公開版の jimble-ui に入ったら、main.ts で
+             '@hidemikimura/jimble-ui/code-editor' を import する(それまでは何も表示されない) -->
+        <jimble-field
+          label="通知メールの本文"
+          hint="{{ で変数を補完できます"
+          style="margin-top: 1rem"
+        >
+          <jimble-code-editor
+            id="lab-code-editor"
+            name="mail"
+            rows="4"
+            value="{{customer_name}} 様&#10;ご注文（{{order_id}}）を承りました。"
+          ></jimble-code-editor>
+        </jimble-field>
       </jimble-card>
 
       <jimble-card>
@@ -164,5 +178,13 @@ export function forms() {
     </form>
   `
   render(view, root)
+  // コードエディタの変数は、プロパティで渡す(登録の前に入れても、登録のときに引き継がれる)
+  const mail = root.querySelector<HTMLElement & { variables: unknown }>('#lab-code-editor')
+  if (mail)
+    mail.variables = [
+      { name: 'customer_name', label: '顧客名' },
+      { name: 'order_id', label: '注文番号', description: '#10001 の形式' },
+      { name: 'shop_url', label: 'ショップの URL' },
+    ]
   return root
 }

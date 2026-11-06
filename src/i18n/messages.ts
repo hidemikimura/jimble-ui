@@ -66,6 +66,8 @@ const ja = {
   'color.alpha': '不透明度',
   'color.presets': 'よく使う色',
   'color.clear': 'クリア',
+  'codeEditor.completions': '変数の候補',
+  'codeEditor.unknownVariable': '未定義の変数: {name}',
   'combobox.noResults': '一致する選択肢がありません',
   'combobox.results': '{count} 件の候補があります',
   'combobox.clear': '選択を解除',

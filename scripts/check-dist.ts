@@ -60,6 +60,8 @@ const BUDGET = {
   each: 9 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
   cdn: 104 * 1024,
+  /** CDN のコードエディタを、言語なしで開くまでに読み込む分(本体 + CodeMirror + Lit。2026-11-06 の実測 153 KB) */
+  codeEditor: 165 * 1024,
 }
 const sizes = js.map((f) => [f, gz(f)] as const)
 const sharedFile = cssHolder[0]?.[0]
@@ -84,6 +86,36 @@ if (largest)
   console.log(
     `最大の部品チャンク: ${kb(largest[1])} KB gz (予算 ${kb(BUDGET.each)} KB) ${largest[0].replace(dist + '/', '')}`,
   )
+
+// (c2) CDN のコードエディタ(全部入りとは別のファイル)。初めに読み込む分 = 入口 + 静的に import するチャンク。
+// 言語(HTML・JSON)は、使うときに動的 import で読み込むので、ここに含めない
+{
+  const entry = join(dist, 'cdn', 'code-editor.js')
+  if (!existsSync(entry)) fail('dist/cdn/code-editor.js がありません')
+  else {
+    const seen = new Set<string>()
+    const visit = (file: string) => {
+      if (seen.has(file)) return
+      seen.add(file)
+      const text = readFileSync(file, 'utf8')
+      // import … from "./x.js"・export … from "./x.js"・副作用だけの import "./x.js"(動的な import() は除く)
+      for (const m of text.matchAll(
+        /(?:^|[;}\s/])(?:(?:import|export)[^"'()]*?from\s*|import\s*)["'](\.[^"']+)["']/g,
+      ))
+        visit(join(file, '..', m[1]!))
+    }
+    visit(entry)
+    const size = [...seen].reduce((sum, f) => sum + gz(f), 0)
+    console.log(
+      `CDN のコードエディタ(初回): ${kb(size)} KB gz (予算 ${kb(BUDGET.codeEditor)} KB、${seen.size} ファイル)`,
+    )
+    if (size > BUDGET.codeEditor)
+      fail(`CDN のコードエディタが予算超過: ${kb(size)} KB > ${kb(BUDGET.codeEditor)} KB`)
+    // 共有の CSS には、コードエディタのクラスが入る(Tailwind が src 全体から作る)。登録の文字列で見る
+    if (/define\(["']jimble-code-editor["']\)/.test(readFileSync(cdn, 'utf8')))
+      fail('全部入りの CDN バンドルに、コードエディタが入っています(別のファイルにする)')
+  }
+}
 
 // (e) src の Tailwind クラスが、すべて CSS に出ている。
 // Tailwind は、定義のないクラス(theme に無い色・太さ・z-index、空白のない calc など)の CSS を、エラーも出さずに捨てる。

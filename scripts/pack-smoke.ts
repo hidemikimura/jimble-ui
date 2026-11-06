@@ -51,7 +51,8 @@ async function main() {
     join(work, 'index.html'),
     `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="@hidemikimura/jimble-ui/cloak.css"><script type="module" src="./main.js"></script>
 <jimble-button id="b" variant="primary">保存</jimble-button>
-<jimble-table label="t"><jimble-table-header><jimble-table-row><jimble-table-head-cell>a</jimble-table-head-cell></jimble-table-row></jimble-table-header></jimble-table>`,
+<jimble-table label="t"><jimble-table-header><jimble-table-row><jimble-table-head-cell>a</jimble-table-head-cell></jimble-table-row></jimble-table-header></jimble-table>
+<jimble-code-editor id="ce" aria-label="本文" language="json" value='{"a": 1} {{x}}'></jimble-code-editor>`,
   )
   writeFileSync(
     join(work, 'main.js'),
@@ -67,6 +68,9 @@ import en from '@hidemikimura/jimble-ui/locales/en'
 import { toast } from '@hidemikimura/jimble-ui/toast'
 import * as all from '@hidemikimura/jimble-ui'
 import '@hidemikimura/jimble-ui/tokens.css'
+// 全部入りに含まれない部品(CodeMirror を利用者の側で解決する)
+import '@hidemikimura/jimble-ui/code-editor'
+document.getElementById('ce').variables = [{ name: 'x', label: '変数' }]
 window.__smoke = { setLocale, getLocale, en, toast, all, ICON_NAMES }
 `,
   )
@@ -85,6 +89,10 @@ import { JimbleUI } from '@hidemikimura/jimble-ui'
 import { registerIcon } from '@hidemikimura/jimble-ui/icon'
 import '@hidemikimura/jimble-ui/icons/check'
 import { ICON_NAMES, type IconName } from '@hidemikimura/jimble-ui/icons/names'
+import {
+  JimbleCodeEditor,
+  type CodeEditorVariable,
+} from '@hidemikimura/jimble-ui/code-editor'
 
 const b: JimbleButton = document.createElement('jimble-button')
 b.variant = 'primary'
@@ -101,6 +109,13 @@ const bad: IconName = 'no-such-icon'
 void [n, bad, ICON_NAMES, registerIcon]
 void t
 void JimbleUI
+const ce: JimbleCodeEditor = document.createElement('jimble-code-editor')
+const v: CodeEditorVariable = { name: 'customer_name', label: '顧客名' }
+ce.variables = [v]
+ce.language = 'html'
+// @ts-expect-error language は決まった値だけ
+ce.language = 'sql'
+ce.insertVariable('customer_name')
 `,
   )
   writeFileSync(
@@ -133,7 +148,10 @@ void JimbleUI
   writeFileSync(
     join(cdnDir, 'index.html'),
     `<!doctype html><meta charset="utf-8"><script type="module" src="./jimble-ui.js"></script>
-<jimble-button id="b" variant="primary" onclick="JimbleUI.toast.success('ok')">通知</jimble-button>`,
+<script type="module" src="./code-editor.js"></script>
+<jimble-button id="b" variant="primary" onclick="JimbleUI.toast.success('ok')">通知</jimble-button>
+<jimble-code-editor id="ce" aria-label="本文" language="html" value="<b>{{x}}</b>"></jimble-code-editor>
+<script>document.getElementById('ce').variables = [{ name: 'x', label: '変数' }]</script>`,
   )
   const types: Record<string, string> = {
     '.html': 'text/html',
@@ -189,6 +207,11 @@ void JimbleUI
         tokensCss: [...document.styleSheets].length >= 1,
       }
     })
+    // コードエディタ: CodeMirror が解決され、変数がチップになり、JSON の色分け(動的 import)が読み込まれる
+    await p1.waitForFunction(() => {
+      const root = document.getElementById('ce')?.shadowRoot
+      return root?.querySelector('[part~="variable"]') && root.querySelector('.cm-line span[class]')
+    })
     app.close()
     if (
       !r1.shadow ||
@@ -205,6 +228,11 @@ void JimbleUI
     const p2 = await check(cdn.url)
     await p2.click('#b')
     await p2.waitForSelector('jimble-toast')
+    // CDN のコードエディタ(別のファイル)と、HTML の色分け(chunks/ から動的 import)
+    await p2.waitForFunction(() => {
+      const root = document.getElementById('ce')?.shadowRoot
+      return root?.querySelector('[part~="variable"]') && root.querySelector('.cm-line span[class]')
+    })
     const r2 = await p2.evaluate(() => ({
       global: typeof (window as unknown as { JimbleUI: { toast: unknown } }).JimbleUI.toast,
       tags: ['jimble-app-shell', 'jimble-table', 'jimble-select', 'jimble-toast-region'].every(

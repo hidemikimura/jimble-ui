@@ -1,6 +1,6 @@
 # jimble-ui（開発者・AI 向けのメモ）
 
-管理画面向けの UI コンポーネントライブラリ（Lit 3 + Tailwind CSS v4 + TypeScript + Vite）。素の HTML で使う Web Components で、npm パッケージは `@hidemikimura/jimble-ui`。P1 の 22 コンポーネントに、date-input・color-input・combobox・drawer・spinner・stepper・icon・tooltip・file-input・dual-listbox・router・kanban を加えた 34 コンポーネントがそろい、0.1.0 を公開済み。
+管理画面向けの UI コンポーネントライブラリ（Lit 3 + Tailwind CSS v4 + TypeScript + Vite）。素の HTML で使う Web Components で、npm パッケージは `@hidemikimura/jimble-ui`。P1 の 22 コンポーネントに、date-input・color-input・combobox・drawer・spinner・stepper・icon・tooltip・file-input・dual-listbox・router・kanban・code-editor を加えた 35 コンポーネントがそろい、0.1.0 を公開済み。**code-editor は CodeMirror 6 を使うので、全部入り（`src/index.ts`・`hosts.css`）に入れず、別の入口（`@hidemikimura/jimble-ui/code-editor`、CDN は `dist/cdn/code-editor.js`）にしている**（`tests/unit/entry.test.ts` の `SEPARATE`）。
 
 ## 最初に読むもの
 

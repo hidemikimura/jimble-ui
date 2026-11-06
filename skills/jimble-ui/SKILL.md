@@ -210,6 +210,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `input`, `change`
   - 状態: `:state(readonly)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/textarea/
+- **`jimble-code-editor`** — コード・テンプレートの編集欄(CodeMirror 6)。
+  - 属性: `value=値`, `placeholder=値`, `readonly`, `language=text|html|json`, `rows=数値`, `line-numbers`, `variable-prefix=値`, `variable-suffix=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - イベント: `input`, `change`
+  - 状態: `:state(readonly)`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/code-editor/
 - **`jimble-select`** — セレクト(WAI-ARIA の collapsible dropdown listbox パターン)。
   - 属性: `value=値`, `placeholder=値`, `open`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
@@ -338,7 +343,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 **使う部品の参照ファイルを、書き始める前に読む**（`SKILL.md` と同じフォルダの `references/`）。注意書きと、そのまま使える例がある。
 
 - **ダイアログ・ドロワー・ツールチップ・メニュー・通知** → `references/overlays.md`。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
-- **セレクト・コンボボックス・左右分割の選択・日付・色・ファイル添付** → `references/inputs.md`。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
+- **セレクト・コンボボックス・左右分割の選択・日付・色・ファイル添付・コードエディタ** → `references/inputs.md`。コードエディタは全部入りに含まれず、別に import する。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
 - **表（並べ替え）・アイコン・スピナー・カンバン** → `references/display.md`。**アイコンの `name` は、そこにある一覧のものだけ**（推測しない）。
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。
 - **ルーター（SPA）** → `references/router.md`。`title` を必ず付ける。

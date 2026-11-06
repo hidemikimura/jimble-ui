@@ -72,6 +72,14 @@ const PAIRS: [string, string, number, string][] = [
   ['ring-focus', 'surface-overlay', 3, 'フォーカスリング(メニュー・ダイアログ)'],
   ['ring-invalid', 'surface', 3, 'エラー枠'],
   ['text-secondary', 'surface-sunken', 4.5, 'neutral バッジ'],
+  // コードエディタの色分け(タグ・キーワード / 属性名・キー / 文字列 / 数値 / 誤り)と、変数のチップ
+  ['text-accent', 'surface', 4.5, 'コードのタグ・キーワード'],
+  ['text-info-strong', 'surface', 4.5, 'コードの属性名・キー'],
+  ['text-success-strong', 'surface', 4.5, 'コードの文字列'],
+  ['text-warning-strong', 'surface', 4.5, 'コードの数値・真偽値'],
+  ['text-danger', 'surface', 4.5, 'コードの誤り'],
+  ['text-accent', 'surface-accent', 4.5, '変数のチップ'],
+  ['text-warning-strong', 'surface-warning', 4.5, '未定義の変数のチップ'],
   ['text-accent', 'surface-accent', 4.5, 'primary バッジ'],
   ...(['success', 'warning', 'danger', 'info'] as const).flatMap(
     (t): [string, string, number, string][] => [
