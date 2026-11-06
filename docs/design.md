@@ -1826,6 +1826,14 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **比較した案**: (1) 制限時間と再試行だけを付ける — 止まる時間は短くなるが、遅い回は失敗になる。(2) apt のパッケージを `actions/cache` で持つ — 権限と鍵の管理が増え、初回と期限切れのあとは同じく遅い。(3) コンテナ — 依存の取得がなくなる。WebKit の不具合の再現で、同じイメージが CI と同じ結果になることを確かめてある（同じフォントが入っている）。
 - **残り**: `release.yml` の `publish` も同じ手順を持つ。公開（provenance）の手順を変えるおそれがあるので、今回は変えていない。
 
+**追補: 役割と状態を host の属性にも書く（試行: タブ、2026-11-07）**
+
+- **背景**: 利用者が jimble-ui で作った画面を Playwright で試すと、`ElementInternals` で役割を付けた部品（ラジオ・セレクトの選択肢・メニューの項目・タブ・表など）が `getByRole` で見つからない。`ElementInternals` の役割は属性ではないので、試験の道具が見ない（スクリーンリーダーには伝わる）。注意は skill の `references/testing.md` に書いたが、道具で探せるほうが、利用者の試験が分かりやすい。
+- **採用（試行）**: `JimbleElement.reflectAria(name, value)` を足し、役割と状態を、`ElementInternals` に加えて host の属性にも書く。**利用者が書いた属性は上書きも削除もしない**（部品が書いた属性だけを覚え、変えたり消したりする）。まず `jimble-tab`（`role`・`aria-selected`・`aria-disabled`）と `jimble-tab-panel`（`role`）で試す。タブは、もともと `id`・`aria-controls`・`aria-labelledby`・`tabindex`・`hidden` を host に書いていたので、約束 5 の例外を広げる影響が小さい。
+- **確かめたこと**: Playwright の `getByRole('tab', { name, selected })`・`getByRole('tabpanel', { name })` が、Chromium・Firefox・WebKit で効く。Chromium の実際のアクセシビリティツリーで、タブが二重にならず、選択の状態が属性と同じ（`tests/e2e/testing-guide.spec.ts`）。axe の違反なし。
+- **代償**: 約束 5（host に属性を書き込まない）の例外が増える。利用者が後から同じ属性を書くと、部品が上書きしうる（最初に書かれていた属性だけを、利用者のものとして扱う）。サーバーで描いた HTML とのずれ（ハイドレーション）が起こりうる。
+- **広げるとき**: ラジオ（`role`・`aria-checked`）、セレクトの選択肢（`role`・`aria-selected`）、メニューの項目（`role`）、表（`role`）。スクリーンリーダーの実機（VoiceOver・NVDA）で、二重の読み上げがないことを確かめてから。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

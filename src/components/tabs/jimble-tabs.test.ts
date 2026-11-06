@@ -62,6 +62,41 @@ describe('構造と ARIA', () => {
   })
 })
 
+describe('役割と状態を属性にも書く(Playwright などの getByRole で見つかるように)', () => {
+  it('タブは role="tab" と aria-selected、無効なタブは aria-disabled。パネルは role="tabpanel"', async () => {
+    const { tabs: t, panels } = await tabs()
+    expect(t.map((x) => x.getAttribute('role'))).toEqual(['tab', 'tab', 'tab', 'tab'])
+    expect(t.map((x) => x.getAttribute('aria-selected'))).toEqual([
+      'true',
+      'false',
+      'false',
+      'false',
+    ])
+    expect(t.map((x) => x.getAttribute('aria-disabled'))).toEqual([null, null, 'true', null])
+    expect(panels.map((p) => p.getAttribute('role'))).toEqual([
+      'tabpanel',
+      'tabpanel',
+      'tabpanel',
+      'tabpanel',
+    ])
+  })
+
+  it('選択を変えると aria-selected が追従する。無効を外すと aria-disabled が消える', async () => {
+    const { tabs: t } = await tabs()
+    t[1]!.click()
+    await tick()
+    expect(t.map((x) => x.getAttribute('aria-selected'))).toEqual([
+      'false',
+      'true',
+      'false',
+      'false',
+    ])
+    t[2]!.disabled = false
+    await tick()
+    expect(t[2]!.hasAttribute('aria-disabled')).toBe(false)
+  })
+})
+
 describe('操作', () => {
   it('クリックで切り替わり、jimble-tab-change が出る。無効なタブは選べない', async () => {
     const { el, tabs: t, panels } = await tabs()

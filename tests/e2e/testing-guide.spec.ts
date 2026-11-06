@@ -49,7 +49,7 @@ test('入力欄: getByRole(textbox) は 1 つ。部品に aria-label を書く�
 test('役割を ElementInternals で持つ部品は、getByRole で見つからない。文字で探す', async ({
   page,
 }) => {
-  for (const role of ['radio', 'menuitem', 'tab', 'tabpanel', 'table', 'row'] as const)
+  for (const role of ['radio', 'menuitem', 'table', 'row'] as const)
     await expect(page.getByRole(role), role).toHaveCount(0)
   await expect(page.locator('jimble-select').getByRole('option')).toHaveCount(0)
   // 見えるもの
@@ -59,10 +59,29 @@ test('役割を ElementInternals で持つ部品は、getByRole で見つから�
 
   await page.locator('jimble-radio', { hasText: 'B' }).click()
   await expect(page.locator('jimble-radio-group')).toHaveJSProperty('value', 'b')
-  await page.locator('jimble-tab', { hasText: '未処理' }).click()
-  await expect(page.locator('jimble-tabs')).toHaveJSProperty('value', 'b')
   await page.getByRole('button', { name: '操作' }).click()
   await page.locator('jimble-menu-item', { hasText: '削除' }).click()
+})
+
+test('タブは、役割と状態を属性にも書くので、getByRole で探せる', async ({ page, browserName }) => {
+  const tab = page.getByRole('tab', { name: '未処理' })
+  await expect(page.getByRole('tab', { selected: true })).toHaveText('すべて')
+  await tab.click()
+  await expect(tab).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('tab', { selected: true })).toHaveText('未処理')
+  await expect(page.getByRole('tabpanel', { name: '未処理' })).toBeVisible()
+  await expect(page.locator('jimble-tabs')).toHaveJSProperty('value', 'b')
+  if (browserName !== 'chromium') return
+  // 実際のアクセシビリティツリー: タブが二重にならず、選択の状態が属性と同じ
+  const cdp = await page.context().newCDPSession(page)
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+  const tabs = nodes.filter((n) => !n.ignored && n.role?.value === 'tab')
+  expect(
+    tabs.map((n) => [n.name?.value, n.properties?.find((p) => p.name === 'selected')?.value.value]),
+  ).toEqual([
+    ['すべて', false],
+    ['未処理', true],
+  ])
 })
 
 test(':state() で、部品の状態を CSS ロケーターから探せる', async ({ page }) => {

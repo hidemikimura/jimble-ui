@@ -163,7 +163,7 @@ export class JimbleTabs extends JimbleElement {
 JimbleTabs.define('jimble-tabs')
 
 /**
- * タブ 1 つ。`jimble-tabs` の直接の子。ロール(tab)と選択状態は host が持つ。
+ * タブ 1 つ。`jimble-tabs` の直接の子。ロール(tab)と選択状態は host が持つ(属性 `role`・`aria-selected`・`aria-disabled` にも書く。利用者が書いた属性は上書きしない)。
  *
  * @tag jimble-tab
  * @slot - タブの文字
@@ -203,6 +203,10 @@ export class JimbleTab extends JimbleElement {
     this.internals.role = 'tab'
     this.internals.ariaSelected = String(this.selected)
     this.internals.ariaDisabled = this.disabled ? 'true' : null
+    // 試験の道具(Playwright の getByRole)からも見えるよう、属性にも書く
+    this.reflectAria('role', 'tab')
+    this.reflectAria('aria-selected', String(this.selected))
+    this.reflectAria('aria-disabled', this.disabled ? 'true' : null)
     this.setState('selected', this.selected)
   }
 
@@ -233,6 +237,7 @@ export class JimbleTabPanel extends JimbleElement {
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
     this.internals.role = 'tabpanel'
+    this.reflectAria('role', 'tabpanel')
   }
 
   protected override render() {

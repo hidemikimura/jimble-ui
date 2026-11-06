@@ -13,13 +13,13 @@ jimble-ui で作った画面を Playwright で操作・検証するときの注�
 | セレクト（`jimble-select`）              | 開くボタンは `getByRole('button', { name: 'ラベル' })`（combobox ではない）。選択肢は `page.locator('jimble-option', { hasText: '編集者' })`                                                                                                                                       |
 | コンボボックス（`jimble-combobox`）      | `getByRole('combobox', { name })` に `fill()`。候補は `getByRole('option', { name })`（こちらは役割が見える）                                                                                                                                                                      |
 | メニューの項目（`jimble-menu-item`）     | `getByRole('menuitem')` は**見つからない**。`page.locator('jimble-menu-item', { hasText: '削除' })`                                                                                                                                                                                |
-| タブ（`jimble-tab`・`jimble-tab-panel`） | `getByRole('tab' \| 'tabpanel')` は**見つからない**。`page.locator('jimble-tab', { hasText: '未処理' })`                                                                                                                                                                           |
+| タブ（`jimble-tab`・`jimble-tab-panel`） | `getByRole('tab', { name: '未処理' })`・`getByRole('tab', { selected: true })`・`getByRole('tabpanel', { name: '未処理' })`（タブは役割と状態を属性にも書くので、見つかる）                                                                                                        |
 | 表（`jimble-table` の表・行・セル）      | `getByRole('table' \| 'row' \| 'cell')` は**見つからない**。`page.locator('jimble-table-row', { hasText: '#10001' })`                                                                                                                                                              |
 | ダイアログ・ドロワー                     | `getByRole('dialog', { name: '見出し' })` で開閉を確かめる。**中身はダイアログで絞らない**（下の「ダイアログ」）                                                                                                                                                                   |
 | 通知（`JimbleUI.toast()`）               | `page.locator('jimble-toast', { hasText: '保存しました' })` に `toBeVisible()`、種別は `toHaveAttribute('variant', 'danger')`。表示時間で消えるので、すぐに確かめる。`getByRole('status')` は、ほかの読み上げ用の領域にも当たり、文はスロットで入るので `toContainText` も効かない |
 | コードエディタ（`jimble-code-editor`）   | 編集領域は `getByRole('textbox', { name })`。入力は下の「コードエディタ」                                                                                                                                                                                                          |
 
-**理由**: ラジオ・セレクトの選択肢・メニューの項目・タブ・表などは、役割（role）を `ElementInternals` で部品の要素自身に付けている。属性ではないので、Playwright の `getByRole` は見ない（スクリーンリーダーには正しく伝わる）。役割で確かめたいときは、Chromium の CDP（`Accessibility.getFullAXTree`）を使う。
+**理由**: ラジオ・セレクトの選択肢・メニューの項目・表などは、役割（role）を `ElementInternals` で部品の要素自身に付けている。属性ではないので、Playwright の `getByRole` は見ない（スクリーンリーダーには正しく伝わる）。役割で確かめたいときは、Chromium の CDP（`Accessibility.getFullAXTree`）を使う。
 
 ## 値を確かめる
 

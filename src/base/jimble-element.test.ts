@@ -19,6 +19,36 @@ class EmitProbe extends JimbleElement {
 }
 customElements.define('x-emit-probe', EmitProbe)
 
+class AriaProbe extends JimbleElement {
+  set(name: string, value: string | null) {
+    this.reflectAria(name, value)
+  }
+}
+customElements.define('x-aria-probe', AriaProbe)
+
+describe('reflectAria（役割・状態を host の属性にも写す）', () => {
+  it('属性を書き、値を変え、null で消す', async () => {
+    const el = await mount<AriaProbe>(html`<x-aria-probe></x-aria-probe>`)
+    el.set('role', 'tab')
+    el.set('aria-selected', 'false')
+    expect(el.getAttribute('role')).toBe('tab')
+    el.set('aria-selected', 'true')
+    expect(el.getAttribute('aria-selected')).toBe('true')
+    el.set('aria-selected', null)
+    expect(el.hasAttribute('aria-selected')).toBe(false)
+  })
+
+  it('利用者が書いた属性は、上書きも削除もしない', async () => {
+    const el = await mount<AriaProbe>(
+      html`<x-aria-probe role="presentation" aria-disabled="false"></x-aria-probe>`,
+    )
+    el.set('role', 'tab')
+    el.set('aria-disabled', null)
+    expect(el.getAttribute('role')).toBe('presentation')
+    expect(el.getAttribute('aria-disabled')).toBe('false')
+  })
+})
+
 describe('emit（jimble-* のイベントの伝わり方）', () => {
   it('既定ではバブルしない。発火した部品自身のリスナーには届く', async () => {
     const outer = await mount<HTMLElement>(html`<div><x-emit-probe></x-emit-probe></div>`)

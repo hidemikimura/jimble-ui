@@ -38,6 +38,26 @@ export class JimbleElement extends LitElement {
     else this.internals.states.delete(name)
   }
 
+  // reflectAria が書いた属性(利用者が書いた属性と区別する)
+  readonly #reflected = new Set<string>()
+
+  /**
+   * 役割・状態を host の属性にも書く(`ElementInternals` と同じ値)。`ElementInternals` の役割は、
+   * Playwright の `getByRole` などの試験の道具から見えないため。**利用者が書いた属性は上書きも削除もしない**。
+   * `null` で、自分が書いた属性を消す。
+   */
+  protected reflectAria(name: string, value: string | null): void {
+    const mine = this.#reflected.has(name)
+    if (!mine && this.hasAttribute(name)) return
+    if (value === null) {
+      if (mine) this.removeAttribute(name)
+      this.#reflected.delete(name)
+      return
+    }
+    if (this.getAttribute(name) !== value) this.setAttribute(name, value)
+    this.#reflected.add(name)
+  }
+
   /** 画面に出す文言を現在の言語で返す */
   protected t(key: MessageKey, params?: MessageParams): string {
     void this.#localize

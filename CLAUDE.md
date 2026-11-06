@@ -44,7 +44,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 2. **トークンの既定値を `:host` / `:root` に宣言しない**（利用者の `:root` での上書きが負ける）。`var(--jimble-x, 既定値)` のフォールバックで持つ。`*.host.css` から使う色は、生成される `--_c-*`（`aliases.generated.css`）を参照する。
 3. **Shadow DOM 内では Tailwind v4 の `@property` が効かない**。`build/postcss-shadow-fix.ts` が補正している。`shadow-*` / `ring-*` を触るときは、ブラウザテストで `box-shadow` が効くことを確認する。
 4. **リアクティブプロパティは `static properties: PropertyDeclarations` + `declare` フィールド**。デコレーターは使わない。`value` / `checked` は「属性=初期値、プロパティ=現在値」（利用者が触ったら属性で上書きしない）。
-5. **host 自身が意味を持つときは `ElementInternals` の role / aria\*** を使う（`JimbleElement.internals`。`attachInternals` はここでだけ呼ぶ）。host に属性を書き込まない（`tabindex` などの例外あり）。
+5. **host 自身が意味を持つときは `ElementInternals` の role / aria\*** を使う（`JimbleElement.internals`。`attachInternals` はここでだけ呼ぶ）。host に属性を書き込まない（`tabindex` などの例外あり）。**例外（試行中・タブだけ）**: 試験の道具（Playwright の `getByRole`）が `ElementInternals` の役割を見ないので、`reflectAria()` で `role`・`aria-selected`・`aria-disabled` を属性にも書く（利用者が書いた属性は上書きしない）。
 6. **Shadow DOM の境界**:
    - ARIA の IDREF は境界をまたげない。ラベル・ヒント・エラーは**文字列で渡して、部品側の root に写す**（`jimble-field`）。anchor 名（CSS Anchor Positioning）も同じツリー内でだけ有効。
    - リスナーから見た `event.target` は host に再ターゲットされる。内側の要素を探すときは `event.composedPath()`。
