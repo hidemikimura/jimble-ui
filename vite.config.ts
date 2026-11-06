@@ -17,6 +17,8 @@ for (const file of globSync('src/icons/register/*.ts')) {
 }
 entries['icons/names'] = resolve('src/icons/names.ts')
 entries.i18n = resolve('src/i18n/index.ts')
+// Playwright 用の操作の関数(@hidemikimura/jimble-ui/testing)。Playwright は型だけを使う
+entries.testing = resolve('src/testing/index.ts')
 for (const file of globSync('src/locales/*.ts')) {
   entries[`locales/${file.split('/')[2]!.replace(/\.ts$/, '')}`] = resolve(file)
 }
@@ -27,7 +29,14 @@ export default defineConfig(({ mode }) =>
       lib: { entry: entries, formats: ['es'] },
       rollupOptions: {
         // 利用者側の依存解決に任せる（CDN 用ビルドだけが全部を同梱する）
-        external: [/^lit(\/|$)/, /^@lit\//, /^@floating-ui\//, /^@codemirror\//, /^@lezer\//],
+        external: [
+          /^lit(\/|$)/,
+          /^@lit\//,
+          /^@floating-ui\//,
+          /^@codemirror\//,
+          /^@lezer\//,
+          /^@playwright\//,
+        ],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: 'chunks/[name]-[hash].js',

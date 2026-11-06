@@ -1836,6 +1836,13 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **確かめたこと**: `getByRole` で、タブ・ラジオ・ラジオグループ・選択肢・メニューの項目・表が見つかる（Chromium・Firefox・WebKit。`tests/e2e/testing-guide.spec.ts`）。Chromium の実際のアクセシビリティツリーで、二重にならず、表は名前付きで行・見出し・セルを持つ。axe の違反なし。
 - **代償**: 約束 5（host に属性を書き込まない）の例外が増える。利用者が後から同じ属性を書くと、部品が上書きしうる（最初に書かれていた属性だけを、利用者のものとして扱う）。サーバーで描いた HTML とのずれ（ハイドレーション）が起こりうる。残り（パンくずの項目・カンバン・サイドバーの項目・ステッパー・アイコン・スピナー）は、必要が出たら同じ方法で広げる。
 
+**追補: Playwright 用の操作の関数 `@hidemikimura/jimble-ui/testing`（2026-11-07）**
+
+- **背景**: 役割を属性にも書いたあとも、Playwright の普通の書き方では書きにくい操作が残る（`selectOption` が使えないセレクト、入力して候補を押すコンボボックス、Tab で確定する日付、WebKit で `fill` が効かないコードエディタ、サブメニュー、スロットで入るのでダイアログ・表で絞ると見つからない中身、ほかの読み上げ用の領域にも当たる通知、バブルしない `jimble-*` イベント）。利用者のプロジェクトごとに、同じ関数（`choose()` など）を書いていた。
+- **採用**: `jimble(page)` が、`ready`・`select`・`combobox`・`dateInput`・`codeEditor`・`menu`・`dialog`・`table`・`toast`・`waitForEvent` を返す。部品の中の作りが変わっても、この関数を直せば、利用者の試験は壊れない。Playwright は**型だけ**を使う（`import type`。実行時に読み込まない）。`@playwright/test` は任意の peerDependency（`>=1.45`。`ControlOrMeta` を使う）。npm のビルドの入口 `testing` に足し、`exports` の `./testing` を `./*`（部品）より前に置く。全部入りと CDN には含めない。
+- **関数にしなかったもの**: 入力欄・ボタン・チェックボックス・ラジオ・タブは、`getByRole` で直接書ける（役割を属性にも書いたため）。関数を増やすと、覚えることが増える（YAGNI）。
+- **確かめたこと**: すべての関数を、Chromium・Firefox・WebKit で試験する（`tests/e2e/testing-helpers.spec.ts`）。pack-smoke で、Playwright を入れていない環境でも、入口を読み込めること（型だけを使っていること）を確かめる。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

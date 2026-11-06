@@ -56,6 +56,14 @@
     "@lit/context": "^1.1.6",
     "lit": "^3.3.3"
   },
+  "peerDependencies": {
+    "@playwright/test": ">=1.45"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@axe-core/playwright": "^4.13.0",
@@ -127,6 +135,10 @@
     "./custom-elements.json": "./custom-elements.json",
     "./vscode.html-data.json": "./dist/vscode.html-data.json",
     "./package.json": "./package.json",
+    "./testing": {
+      "types": "./dist/types/testing/index.d.ts",
+      "default": "./dist/testing.js"
+    },
     "./*": {
       "types": "./dist/types/components/*/index.d.ts",
       "default": "./dist/components/*.js"

@@ -91,6 +91,22 @@ import en from '@hidemikimura/jimble-ui/locales/en'
 setLocale(en)
 ```
 
+## E2E テスト（Playwright）
+
+書きにくい操作（セレクト・コンボボックス・日付・コードエディタ・メニュー・ダイアログの中身・表の行・通知・バブルしないイベント）を、関数でまとめて書けます。Playwright は型だけを使います（`@playwright/test` 1.45 以上）。
+
+```ts
+import { jimble } from '@hidemikimura/jimble-ui/testing'
+
+const ui = jimble(page)
+await ui.ready()
+await ui.select('役割').choose('編集者')
+await ui.dialog('保存しますか？').getByRole('button', { name: 'はい' }).click()
+await expect(ui.toast('保存しました')).toBeVisible()
+```
+
+注意点と関数の一覧は、skill の `references/testing.md` にあります。
+
 ## 開発
 
 ```sh

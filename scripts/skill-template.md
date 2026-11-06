@@ -91,7 +91,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。
 - **ルーター（SPA）** → `references/router.md`。`title` を必ず付ける。
 - **app-shell（サイドバー・ヘッダー）・一覧ページの骨格・テーマの CSS 変数** → `references/layout-theme.md`。
-- **Playwright での E2E テスト** → `references/testing.md`。入力欄は `getByRole('textbox', { name })`。ラジオ・選択肢・メニューの項目・タブ・表も `getByRole` で見つかる。ダイアログ・表の中身は、ダイアログ・表で絞らない（スロットで入るので見つからない）。
+- **Playwright での E2E テスト** → `references/testing.md`。操作の関数 `import { jimble } from '@hidemikimura/jimble-ui/testing'`（`ui.select('役割').choose('編集者')`・`ui.dialog('見出し')` など）を使う。入力欄は `getByRole('textbox', { name })`。ラジオ・選択肢・メニューの項目・タブ・表も `getByRole` で見つかる。ダイアログ・表の中身は、ダイアログ・表で絞らない（スロットで入るので見つからない）。
 
 ### 5. ナビゲーション
 

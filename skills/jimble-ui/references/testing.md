@@ -4,6 +4,55 @@
 
 jimble-ui で作った画面を Playwright で操作・検証するときの注意。部品は Shadow DOM を持つ。Playwright の CSS ロケーターと `getByRole` は**開いた Shadow DOM を貫通する**ので、たいていは普通に書けるが、次の点だけ違う（Chromium・Firefox・WebKit で確かめた結果。jimble-ui の `tests/e2e/testing-guide.spec.ts` が保証する）。
 
+## まず、操作の関数を使う（`@hidemikimura/jimble-ui/testing`）
+
+書きにくい操作は、jimble-ui が配る関数でまとめて書ける（Playwright は型だけを使う。`@playwright/test` 1.45 以上）。下の注意の多くを、この関数が吸収している。
+
+```ts
+import { expect, test } from '@playwright/test'
+import { jimble } from '@hidemikimura/jimble-ui/testing'
+
+test('注文を登録する', async ({ page }) => {
+  await page.goto('/orders/new')
+  const ui = jimble(page)
+  await ui.ready() // ページの jimble-* が登録されるまで待つ(読み込み忘れなら、部品名を出して失敗する)
+
+  await page.getByRole('textbox', { name: '氏名' }).fill('山田')
+  await ui.select('役割').choose('編集者')
+  await ui.combobox('都道府県').choose('大阪府', { search: '大阪' })
+  await ui.dateInput('配達日').fill('2026-09-12')
+  await ui.codeEditor('本文').type('こんにちは ')
+  await ui.codeEditor('本文').chooseVariable('顧客名') // {{ を入力して、候補をクリックで選ぶ
+  await expect(ui.select('役割').host).toHaveJSProperty('value', 'editor')
+
+  const detail = await ui.waitForEvent<{ value: string }>(
+    ui.menu('操作').host,
+    'jimble-select',
+    () => ui.menu('操作').choose('共有', 'メールで送る'), // サブメニューは道順で
+  )
+  expect(detail.value).toBe('mail')
+
+  await page.getByRole('button', { name: '保存' }).click()
+  await ui.dialog('保存しますか？').getByRole('button', { name: 'はい' }).click() // 中身はこれで絞る
+  await expect(ui.toast('保存しました')).toBeVisible()
+  await expect(ui.table('注文').getByRole('row', { name: /#10001/ })).toBeVisible() // 行はこれで絞る
+})
+```
+
+| 関数                                              | 返すもの・すること                                                                                                |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `ready({ timeout })`                              | ページの `jimble-*` がすべて登録されるまで待つ                                                                    |
+| `select(label)`                                   | `.host`・`.trigger`・`.option(name)`・`.choose(name)`                                                             |
+| `combobox(label)`                                 | `.host`・`.input`・`.option(name)`・`.choose(name, { search })`                                                   |
+| `dateInput(label)`                                | `.host`・`.input`・`.fill('2026-09-12')`（入力して Tab で確定）                                                   |
+| `codeEditor(label)`                               | `.host`・`.editor`・`.type(text)`（末尾に入力）・`.chooseVariable(label)`・`.setValue(value)`                     |
+| `menu(trigger)`                                   | `.host`・`.trigger`・`.item(name)`・`.choose(...path)`                                                            |
+| `dialog(heading)`・`table(label)`                 | 部品の要素の Locator。中身・行は、これで絞って探す                                                                |
+| `toast(text)`                                     | 通知の Locator（`toHaveAttribute('variant', 'danger')` で種別）                                                   |
+| `waitForEvent(target, name, action, { timeout })` | `action` の間に `target` で起きたイベントの `detail`（`jimble-*` イベントはバブルしないので、部品の要素で受ける） |
+
+ラベルは `jimble-field` の `label` か `aria-label`。入力欄・ボタン・チェックボックス・ラジオ・タブは、`getByRole` で直接書く（関数は無い）。
+
 ## 探し方の早見表
 
 | 部品                                     | 探し方                                                                                                                                                                                                                                                                             |

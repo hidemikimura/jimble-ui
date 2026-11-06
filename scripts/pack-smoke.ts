@@ -45,6 +45,14 @@ async function main() {
   )
   run('npm', ['install', '--no-audit', '--no-fund', '--silent', tarball])
 
+  // ---- 0. Playwright 用の操作の関数は、Playwright を入れていなくても読み込める(型だけを使う) ----
+  step('testing の入口を、Playwright なしで読み込める')
+  run('node', [
+    '--input-type=module',
+    '-e',
+    "const m = await import('@hidemikimura/jimble-ui/testing'); if (typeof m.jimble !== 'function') throw new Error('jimble がありません')",
+  ])
+
   // ---- 1. サブパス import をバンドルできる ----
   step('サブパスの import を Vite でバンドル')
   writeFileSync(
