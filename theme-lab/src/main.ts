@@ -1,6 +1,8 @@
 import { html, render } from 'lit'
 import { JimbleUI } from '@hidemikimura/jimble-ui'
 import type { JimbleRouter } from '@hidemikimura/jimble-ui'
+// コードエディタは全部入りに含まれない(CodeMirror を使うので、別の入口)
+import '@hidemikimura/jimble-ui/code-editor'
 import './scheme.ts'
 import './theme.css'
 import './lab.css'

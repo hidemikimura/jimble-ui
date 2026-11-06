@@ -79,8 +79,7 @@ export function forms() {
         <jimble-field label="備考" hint="社内メモ（顧客には見えません）" style="margin-top: 1rem">
           <jimble-textarea name="note" rows="3" autosize></jimble-textarea>
         </jimble-field>
-        <!-- コードエディタは別の入口。公開版の jimble-ui に入ったら、main.ts で
-             '@hidemikimura/jimble-ui/code-editor' を import する(それまでは何も表示されない) -->
+        <!-- コードエディタは別の入口(main.ts で '@hidemikimura/jimble-ui/code-editor' を読み込む) -->
         <jimble-field
           label="通知メールの本文"
           hint="{{ で変数を補完できます"
