@@ -61,6 +61,12 @@ export class JimbleOption extends JimbleElement {
     this.internals.role = 'option'
     this.internals.ariaSelected = String(this.selected)
     this.internals.ariaDisabled = this.disabled ? 'true' : null
+    // 試験の道具(Playwright の getByRole)からも見えるよう、属性にも書く。セレクトの選択肢のときだけ
+    // (コンボボックス・左右分割の選択では、選択肢のデータの元で、表示する選択肢は部品が別に描く)
+    const inSelect = this.parentElement?.localName === 'jimble-select'
+    this.reflectAria('role', inSelect ? 'option' : null)
+    this.reflectAria('aria-selected', inSelect ? String(this.selected) : null)
+    this.reflectAria('aria-disabled', inSelect && this.disabled ? 'true' : null)
     this.setState('selected', this.selected)
   }
 

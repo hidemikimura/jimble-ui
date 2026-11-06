@@ -1,4 +1,5 @@
 import { html, nothing, render, type PropertyDeclarations, type PropertyValues } from 'lit'
+import { ifDefined } from 'lit/directives/if-defined.js'
 import { live } from 'lit/directives/live.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { styleMap } from 'lit/directives/style-map.js'
@@ -196,7 +197,6 @@ export class JimbleTable extends JimbleElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this.internals.role = 'table'
     // 行・セル・colspan が変わったら、列の数を数え直す
     this.#mutations ??= new MutationObserver(() => {
       this.#updateColumns()
@@ -464,15 +464,11 @@ export class JimbleTable extends JimbleElement {
       changed.has('rowKey')
     ) {
       this.setState('virtual', this.#dataMode)
-      this.internals.ariaRowCount = this.#dataMode ? String(this.rows.length + 1) : null
       this.#updateColumns()
       this.#renderData()
       this.#updateEmpty()
     }
     this.setState('empty', this.#showEmpty)
-    this.internals.role = 'table'
-    this.internals.ariaLabel = this.label ?? null
-    this.internals.ariaBusy = this.loading ? 'true' : null
     this.#updateScrollable()
   }
 
@@ -481,8 +477,15 @@ export class JimbleTable extends JimbleElement {
   }
 
   protected override render() {
+    // 表の役割は、host ではなくスクロール領域に付ける。はみ出すとフォーカスできる(キーボードで
+    // スクロールする)ので、表と行のまとまりの間に、フォーカスできる要素を挟まないため。
+    // 属性なので、Playwright の getByRole('table', { name }) でも見つかる
     return html`<div
       part="scroller"
+      role="table"
+      aria-label=${ifDefined(this.label)}
+      aria-rowcount=${ifDefined(this.#dataMode ? this.rows.length + 1 : undefined)}
+      aria-busy=${this.loading ? 'true' : nothing}
       @scroll=${this.#onScroll}
       class="relative overflow-auto [max-height:var(--jimble-table-max-height,none)] outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
     >
@@ -518,6 +521,7 @@ abstract class TableStructure extends JimbleElement {
   override connectedCallback(): void {
     super.connectedCallback()
     this.internals.role = this.tableRole
+    this.reflectAria('role', this.tableRole)
   }
   protected override render() {
     return html`<slot></slot>`
@@ -642,11 +646,16 @@ export class JimbleTableRow extends TableStructure {
 }
 JimbleTableRow.define('jimble-table-row')
 
-/** colspan をグリッドの配置(共有シートの規則)と aria-colspan に反映する */
-function applySpan(cell: Element, internals: ElementInternals) {
+/** colspan をグリッドの配置(共有シートの規則)と aria-colspan(internals と属性)に反映する */
+function applySpan(
+  cell: Element,
+  internals: ElementInternals,
+  reflect: (name: string, value: string | null) => void,
+) {
   const n = spanOf(cell)
   ensureSpan(n)
   internals.ariaColSpan = n > 1 ? String(n) : null
+  reflect('aria-colspan', internals.ariaColSpan)
 }
 
 /**
@@ -678,7 +687,8 @@ export class JimbleTableCell extends JimbleElement {
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
     this.internals.role = this.header ? 'rowheader' : 'cell'
-    applySpan(this, this.internals)
+    this.reflectAria('role', this.internals.role)
+    applySpan(this, this.internals, (n, v) => this.reflectAria(n, v))
   }
   protected override render() {
     return html`<slot></slot>`
@@ -748,7 +758,9 @@ export class JimbleTableHeadCell extends JimbleElement {
     super.updated(changed)
     this.internals.role = 'columnheader'
     this.internals.ariaSort = this.sortable ? this.sort : null
-    applySpan(this, this.internals)
+    this.reflectAria('role', 'columnheader')
+    this.reflectAria('aria-sort', this.internals.ariaSort)
+    applySpan(this, this.internals, (n, v) => this.reflectAria(n, v))
   }
 
   protected override render() {

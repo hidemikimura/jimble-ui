@@ -95,7 +95,8 @@ describe('jimble-radio-group', () => {
 
   it('無効なラジオは選べない。グループが disabled なら全部選べず送信もされない', async () => {
     const { f, g, radios } = await group()
-    await userEvent.click(radios[2]!)
+    // 無効なラジオは aria-disabled="true" なので、Playwright の click は押せるまで待つ。プログラムから押す
+    radios[2]!.click()
     expect(g.value).toBe('')
     g.value = 'pro'
     g.disabled = true
@@ -103,7 +104,7 @@ describe('jimble-radio-group', () => {
     await tick()
     expect(radios.every((r) => r.tabIndex === -1)).toBe(true)
     expect(data(f)).toEqual({})
-    await userEvent.click(radios[0]!)
+    radios[0]!.click()
     expect(g.value).toBe('pro')
   })
 
@@ -170,4 +171,22 @@ describe('jimble-radio-group', () => {
       await expectNoA11yViolations(g.parentElement!)
     })
   }
+})
+
+describe('役割と状態を属性にも書く(Playwright などの getByRole で見つかるように)', () => {
+  it('ラジオは role="radio"・aria-checked・aria-disabled。選択に追従する', async () => {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.innerHTML = `<jimble-radio-group aria-label="サイズ" value="m">
+      <jimble-radio value="s">S</jimble-radio><jimble-radio value="m">M</jimble-radio>
+      <jimble-radio value="x" disabled>X</jimble-radio></jimble-radio-group>`
+    await tick()
+    const radios = [...c.querySelectorAll('jimble-radio')] as JimbleRadio[]
+    const attrs = (n: string) => radios.map((r) => r.getAttribute(n))
+    expect(attrs('role')).toEqual(['radio', 'radio', 'radio'])
+    expect(attrs('aria-checked')).toEqual(['false', 'true', 'false'])
+    expect(attrs('aria-disabled')).toEqual(['false', 'false', 'true'])
+    radios[0]!.click()
+    await tick()
+    expect(attrs('aria-checked')).toEqual(['true', 'false', 'false'])
+  })
 })

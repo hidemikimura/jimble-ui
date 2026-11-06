@@ -63,6 +63,10 @@ export class JimbleRadio extends JimbleElement {
     this.internals.role = 'radio'
     this.internals.ariaChecked = String(this.checked)
     this.internals.ariaDisabled = this.isDisabled ? 'true' : 'false'
+    // 試験の道具(Playwright の getByRole)からも見えるよう、属性にも書く
+    this.reflectAria('role', 'radio')
+    this.reflectAria('aria-checked', String(this.checked))
+    this.reflectAria('aria-disabled', this.isDisabled ? 'true' : 'false')
     this.setState('checked', this.checked)
     this.setState('disabled', this.isDisabled)
   }

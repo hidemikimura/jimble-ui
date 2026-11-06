@@ -1826,13 +1826,15 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **比較した案**: (1) 制限時間と再試行だけを付ける — 止まる時間は短くなるが、遅い回は失敗になる。(2) apt のパッケージを `actions/cache` で持つ — 権限と鍵の管理が増え、初回と期限切れのあとは同じく遅い。(3) コンテナ — 依存の取得がなくなる。WebKit の不具合の再現で、同じイメージが CI と同じ結果になることを確かめてある（同じフォントが入っている）。
 - **残り**: `release.yml` の `publish` も同じ手順を持つ。公開（provenance）の手順を変えるおそれがあるので、今回は変えていない。
 
-**追補: 役割と状態を host の属性にも書く（試行: タブ、2026-11-07）**
+**追補: 役割と状態を host の属性にも書く（2026-11-07）**
 
-- **背景**: 利用者が jimble-ui で作った画面を Playwright で試すと、`ElementInternals` で役割を付けた部品（ラジオ・セレクトの選択肢・メニューの項目・タブ・表など）が `getByRole` で見つからない。`ElementInternals` の役割は属性ではないので、試験の道具が見ない（スクリーンリーダーには伝わる）。注意は skill の `references/testing.md` に書いたが、道具で探せるほうが、利用者の試験が分かりやすい。
-- **採用（試行）**: `JimbleElement.reflectAria(name, value)` を足し、役割と状態を、`ElementInternals` に加えて host の属性にも書く。**利用者が書いた属性は上書きも削除もしない**（部品が書いた属性だけを覚え、変えたり消したりする）。まず `jimble-tab`（`role`・`aria-selected`・`aria-disabled`）と `jimble-tab-panel`（`role`）で試す。タブは、もともと `id`・`aria-controls`・`aria-labelledby`・`tabindex`・`hidden` を host に書いていたので、約束 5 の例外を広げる影響が小さい。
-- **確かめたこと**: Playwright の `getByRole('tab', { name, selected })`・`getByRole('tabpanel', { name })` が、Chromium・Firefox・WebKit で効く。Chromium の実際のアクセシビリティツリーで、タブが二重にならず、選択の状態が属性と同じ（`tests/e2e/testing-guide.spec.ts`）。axe の違反なし。
-- **代償**: 約束 5（host に属性を書き込まない）の例外が増える。利用者が後から同じ属性を書くと、部品が上書きしうる（最初に書かれていた属性だけを、利用者のものとして扱う）。サーバーで描いた HTML とのずれ（ハイドレーション）が起こりうる。
-- **広げるとき**: ラジオ（`role`・`aria-checked`）、セレクトの選択肢（`role`・`aria-selected`）、メニューの項目（`role`）、表（`role`）。スクリーンリーダーの実機（VoiceOver・NVDA）で、二重の読み上げがないことを確かめてから。
+- **背景**: 利用者が jimble-ui で作った画面を Playwright で試すと、`ElementInternals` で役割を付けた部品（ラジオ・セレクトの選択肢・メニューの項目・タブ・表など）が `getByRole` で見つからない。`ElementInternals` の役割は属性ではないので、試験の道具が見ない（スクリーンリーダーには伝わる）。
+- **採用**: `JimbleElement.reflectAria(name, value)` を足し、役割と状態を、`ElementInternals` に加えて host の属性にも書く。**利用者が書いた属性は上書きも削除もしない**（部品が書いた属性だけを覚え、変えたり消したりする）。対象: `jimble-tab`（`role`・`aria-selected`・`aria-disabled`）・`jimble-tab-panel`（`role`）、`jimble-radio`（`role`・`aria-checked`・`aria-disabled`）、`jimble-option`（`role`・`aria-selected`・`aria-disabled`。`jimble-select` の子のときだけ）、`jimble-menu-item`（`role`・`aria-disabled`・`aria-haspopup`・`aria-expanded`）・`jimble-menu-separator`（`role`）、表の行のまとまり・行・セル・見出しセル（`role`・`aria-sort`・`aria-colspan`）。まずタブで試し、`getByRole` が 3 つのブラウザで効き、Chromium のアクセシビリティツリーで二重にならないことを確かめてから広げた。
+- **表の `role="table"` の場所を変えた**: 属性にすると、axe が初めて表の構造を検査できるようになり、「表と行のまとまりの間に、フォーカスできる要素（はみ出したときにキーボードでスクロールするための、Shadow DOM の中のスクロール領域 `div[tabindex]`）がある」（aria-required-children、critical）を指摘した。`ElementInternals` のときから同じ構造で、axe が気付けなかっただけ。表の役割・名前・行数・`aria-busy` を、host ではなくスクロール領域そのものに付けた（表はフォーカスできてよい）。代わりに、Playwright の `getByRole('table')` は Shadow DOM の中の要素を指すので、それで絞ると行・セル（スロットで入る）が見つからない（ダイアログと同じ）。部品の要素で絞る（`references/testing.md`）。host を表にしたまま直すには、スクロール領域を host に移す必要があり、仮想スクロールの処理に及ぶので見送った。
+- **`jimble-option` は `jimble-select` の子のときだけ**: コンボボックス・左右分割の選択では、`jimble-option` は選択肢のデータの元で、表示する選択肢は部品が別に描く。属性を書くと、axe が「listbox の外の option」（aria-required-parent）を指摘した。
+- **試験の変化**: 無効なラジオ（`aria-disabled="true"`）は、Playwright の `click` が押せるまで待つようになった（意図した変化。試験はプログラムから `click()` する）。空の見出しセル（試験のための表）を、axe が初めて指摘した（empty-table-header）。
+- **確かめたこと**: `getByRole` で、タブ・ラジオ・ラジオグループ・選択肢・メニューの項目・表が見つかる（Chromium・Firefox・WebKit。`tests/e2e/testing-guide.spec.ts`）。Chromium の実際のアクセシビリティツリーで、二重にならず、表は名前付きで行・見出し・セルを持つ。axe の違反なし。
+- **代償**: 約束 5（host に属性を書き込まない）の例外が増える。利用者が後から同じ属性を書くと、部品が上書きしうる（最初に書かれていた属性だけを、利用者のものとして扱う）。サーバーで描いた HTML とのずれ（ハイドレーション）が起こりうる。残り（パンくずの項目・カンバン・サイドバーの項目・ステッパー・アイコン・スピナー）は、必要が出たら同じ方法で広げる。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

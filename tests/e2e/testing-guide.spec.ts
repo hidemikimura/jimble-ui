@@ -6,7 +6,7 @@ const FIXTURE = `<main>
 <jimble-field label="氏名"><jimble-input name="name"></jimble-input></jimble-field>
 <jimble-input aria-label="検索"></jimble-input>
 <jimble-checkbox name="agree">同意する</jimble-checkbox>
-<jimble-radio-group label="プラン" name="plan"><jimble-radio value="a">A</jimble-radio><jimble-radio value="b">B</jimble-radio></jimble-radio-group>
+<jimble-radio-group aria-label="プラン" name="plan"><jimble-radio value="a">A</jimble-radio><jimble-radio value="b">B</jimble-radio></jimble-radio-group>
 <jimble-field label="役割"><jimble-select name="role" placeholder="選択してください"><jimble-option value="admin">管理者</jimble-option><jimble-option value="editor">編集者</jimble-option></jimble-select></jimble-field>
 <jimble-field label="都道府県"><jimble-combobox name="pref"><jimble-option value="tokyo">東京都</jimble-option><jimble-option value="osaka">大阪府</jimble-option></jimble-combobox></jimble-field>
 <jimble-field label="日付"><jimble-date-input name="date"></jimble-date-input></jimble-field>
@@ -46,21 +46,42 @@ test('入力欄: getByRole(textbox) は 1 つ。部品に aria-label を書く�
   ).rejects.toThrow()
 })
 
-test('役割を ElementInternals で持つ部品は、getByRole で見つからない。文字で探す', async ({
+test('ラジオ・メニューの項目・表は、役割と状態を属性にも書くので、getByRole で探せる', async ({
   page,
 }) => {
-  for (const role of ['radio', 'menuitem', 'table', 'row'] as const)
-    await expect(page.getByRole(role), role).toHaveCount(0)
-  await expect(page.locator('jimble-select').getByRole('option')).toHaveCount(0)
-  // 見えるもの
-  // ラジオグループは、役割はあるが、名前では探せない
-  await expect(page.getByRole('radiogroup', { name: 'プラン' })).toHaveCount(0)
-  await expect(page.getByRole('checkbox', { name: '同意する' })).toHaveCount(1)
-
-  await page.locator('jimble-radio', { hasText: 'B' }).click()
+  await expect(page.getByRole('radiogroup', { name: 'プラン' })).toHaveCount(1)
+  await page.getByRole('radio', { name: 'B' }).click()
+  await expect(page.getByRole('radio', { name: 'B' })).toBeChecked()
   await expect(page.locator('jimble-radio-group')).toHaveJSProperty('value', 'b')
+
   await page.getByRole('button', { name: '操作' }).click()
-  await page.locator('jimble-menu-item', { hasText: '削除' }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+
+  // 表はある。ただし行・セルはスロットで入るので、表(Shadow DOM の中の要素)で絞ると見つからない
+  await expect(page.getByRole('table', { name: '注文' })).toHaveCount(1)
+  await expect(page.getByRole('table', { name: '注文' }).getByRole('row')).toHaveCount(0)
+  // 部品の要素で絞る(ページ全体から探してもよい)
+  const table = page.locator('jimble-table[label="注文"]')
+  await expect(table.getByRole('columnheader', { name: '番号' })).toHaveCount(1)
+  await expect(table.getByRole('row')).toHaveCount(2)
+  await expect(table.getByRole('cell', { name: '#1' })).toHaveCount(1)
+})
+
+test('実際のアクセシビリティツリー: 表は名前付きで行を持ち、ラジオは二重にならない(Chromium)', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'CDP は Chromium のみ')
+  const cdp = await page.context().newCDPSession(page)
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree')
+  const live = nodes.filter((n) => !n.ignored)
+  const byRole = (role: string) => live.filter((n) => n.role?.value === role)
+  expect(byRole('table').map((n) => n.name?.value)).toEqual(['注文'])
+  expect(byRole('row')).toHaveLength(2)
+  expect(byRole('columnheader').map((n) => n.name?.value)).toEqual(['番号'])
+  expect(byRole('cell').map((n) => n.name?.value)).toEqual(['#1'])
+  expect(byRole('radio').map((n) => n.name?.value)).toEqual(['A', 'B'])
+  expect(byRole('radiogroup').map((n) => n.name?.value)).toEqual(['プラン'])
 })
 
 test('タブは、役割と状態を属性にも書くので、getByRole で探せる', async ({ page, browserName }) => {
@@ -95,14 +116,20 @@ test(':state() で、部品の状態を CSS ロケーターから探せる', asy
   await expect(page.locator('jimble-checkbox:state(disabled)')).toHaveCount(0)
 })
 
-test('セレクトは「ボタン → jimble-option」。selectOption は使えない', async ({ page }) => {
+test('セレクトは「ボタン → 選択肢(option)」。selectOption は使えない', async ({ page }) => {
   await expect(page.getByRole('combobox', { name: '役割' })).toHaveCount(0)
   await expect(
     page.locator('jimble-select').selectOption('editor', { timeout: 1000 }),
   ).rejects.toThrow()
   await page.getByRole('button', { name: '役割' }).click()
-  await page.locator('jimble-option', { hasText: '編集者' }).click()
+  await page.getByRole('option', { name: '編集者' }).click()
   await expect(page.locator('jimble-select')).toHaveJSProperty('value', 'editor')
+  await page.getByRole('button', { name: '役割' }).click()
+  await expect(page.getByRole('option', { name: '編集者' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
+  await page.keyboard.press('Escape')
 })
 
 test('コンボボックスの候補と、日付の入力', async ({ page }) => {

@@ -118,6 +118,11 @@ export class JimbleMenuItem extends JimbleElement {
     this.internals.ariaDisabled = this.disabled ? 'true' : null
     this.internals.ariaHasPopup = sub ? 'menu' : null
     this.internals.ariaExpanded = sub ? String(this.submenuOpen) : null
+    // 試験の道具(Playwright の getByRole)からも見えるよう、属性にも書く
+    this.reflectAria('role', 'menuitem')
+    this.reflectAria('aria-disabled', this.disabled ? 'true' : null)
+    this.reflectAria('aria-haspopup', sub ? 'menu' : null)
+    this.reflectAria('aria-expanded', sub ? String(this.submenuOpen) : null)
     if (!sub && this.submenuOpen) this.#submenu!.hidePopover()
   }
 
@@ -167,6 +172,7 @@ export class JimbleMenuSeparator extends JimbleElement {
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
     this.internals.role = 'separator'
+    this.reflectAria('role', 'separator')
   }
   protected override render() {
     return html`<div part="base" class="my-1 h-px bg-line-divider" aria-hidden="true"></div>`

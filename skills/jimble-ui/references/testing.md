@@ -11,17 +11,17 @@ jimble-ui で作った画面を Playwright で操作・検証するときの注�
 | 入力欄（input・textarea・date-input）    | **`getByRole('textbox', { name: 'ラベル' })`**。`getByLabel` は、部品に `aria-label` を直接書いたとき、部品と中の入力欄の 2 つに当たる                                                                                                                                             |
 | ボタン（`jimble-button`）                | `getByRole('button', { name: '保存' })`                                                                                                                                                                                                                                            |
 | チェックボックス・スイッチ               | `getByRole('checkbox' \| 'switch', { name })`。`check()` / `toBeChecked()` が使える                                                                                                                                                                                                |
-| ラジオ（`jimble-radio`）                 | `getByRole('radio')` は**見つからない**。`page.locator('jimble-radio', { hasText: 'B' })`。グループも名前では探せない（`page.locator('jimble-radio-group[name="plan"]')`）                                                                                                         |
-| セレクト（`jimble-select`）              | 開くボタンは `getByRole('button', { name: 'ラベル' })`（combobox ではない）。選択肢は `page.locator('jimble-option', { hasText: '編集者' })`                                                                                                                                       |
+| ラジオ（`jimble-radio`）                 | `getByRole('radio', { name: 'B' })`（`check()` / `toBeChecked()` が使える）。グループは `getByRole('radiogroup', { name })`（名前は `aria-label` か `jimble-field` のラベル）                                                                                                      |
+| セレクト（`jimble-select`）              | 開くボタンは `getByRole('button', { name: 'ラベル' })`（combobox ではない）。選択肢は `getByRole('option', { name: '編集者' })`                                                                                                                                                    |
 | コンボボックス（`jimble-combobox`）      | `getByRole('combobox', { name })` に `fill()`。候補は `getByRole('option', { name })`（こちらは役割が見える）                                                                                                                                                                      |
-| メニューの項目（`jimble-menu-item`）     | `getByRole('menuitem')` は**見つからない**。`page.locator('jimble-menu-item', { hasText: '削除' })`                                                                                                                                                                                |
+| メニューの項目（`jimble-menu-item`）     | `getByRole('menuitem', { name: '削除' })`                                                                                                                                                                                                                                          |
 | タブ（`jimble-tab`・`jimble-tab-panel`） | `getByRole('tab', { name: '未処理' })`・`getByRole('tab', { selected: true })`・`getByRole('tabpanel', { name: '未処理' })`（タブは役割と状態を属性にも書くので、見つかる）                                                                                                        |
-| 表（`jimble-table` の表・行・セル）      | `getByRole('table' \| 'row' \| 'cell')` は**見つからない**。`page.locator('jimble-table-row', { hasText: '#10001' })`                                                                                                                                                              |
+| 表（`jimble-table`）                     | 表は `getByRole('table', { name: 'ラベル' })` で見つかるが、**行・セルは表で絞らない**（スロットで入るので見つからない）。部品の要素で絞る: `page.locator('jimble-table[label="注文"]').getByRole('row', { name: /#10001/ })`                                                      |
 | ダイアログ・ドロワー                     | `getByRole('dialog', { name: '見出し' })` で開閉を確かめる。**中身はダイアログで絞らない**（下の「ダイアログ」）                                                                                                                                                                   |
 | 通知（`JimbleUI.toast()`）               | `page.locator('jimble-toast', { hasText: '保存しました' })` に `toBeVisible()`、種別は `toHaveAttribute('variant', 'danger')`。表示時間で消えるので、すぐに確かめる。`getByRole('status')` は、ほかの読み上げ用の領域にも当たり、文はスロットで入るので `toContainText` も効かない |
 | コードエディタ（`jimble-code-editor`）   | 編集領域は `getByRole('textbox', { name })`。入力は下の「コードエディタ」                                                                                                                                                                                                          |
 
-**理由**: ラジオ・セレクトの選択肢・メニューの項目・表などは、役割（role）を `ElementInternals` で部品の要素自身に付けている。属性ではないので、Playwright の `getByRole` は見ない（スクリーンリーダーには正しく伝わる）。役割で確かめたいときは、Chromium の CDP（`Accessibility.getFullAXTree`）を使う。
+**理由**: 役割（role）は `ElementInternals` で部品の要素に付けているが、Playwright の `getByRole` は `ElementInternals` を見ない。そのため、ラジオ・セレクトの選択肢・メニューの項目・タブ・表は、役割と状態（`aria-checked`・`aria-selected` など）を**属性にも書いている**（利用者が書いた属性は上書きしない）。ほかの部品（パンくずの項目・カンバン・アイコンなど）は、役割を属性に書いていないので、`getByRole` で見つからない。文字か `:state()` で探す。役割で確かめたいときは、Chromium の CDP（`Accessibility.getFullAXTree`）を使う。
 
 ## 値を確かめる
 
@@ -51,6 +51,7 @@ await expect(page.locator('jimble-input:state(invalid)')).toHaveCount(1) // 誤�
 ## ダイアログ
 
 - `jimble-dialog` の中身（本文・`slot="footer"` のボタン）は、Shadow DOM の `<dialog>` に**スロットで入る**だけで、`<dialog>` の DOM の子ではない。そのため `page.getByRole('dialog').getByRole('button', …)` は**見つからない**。
+- **表**も同じ: `getByRole('table')` は Shadow DOM の中の要素を指すので、それで絞ると、行・セルが見つからない。
 - 同じ理由で、**Shadow DOM の中の要素に `toContainText` しても、スロットで入った文は含まれない**（ダイアログの `<dialog>`、通知の領域など）。文は、部品の要素か、利用者が書いた要素で確かめる。
 - ページ全体から探す（`page.getByRole('button', { name: 'はい' })`。開いているモーダルの外は操作できないので、取り違えにくい）か、部品の要素で絞る（`page.locator('jimble-dialog#confirm').getByRole('button', { name: 'はい' })`）。
 

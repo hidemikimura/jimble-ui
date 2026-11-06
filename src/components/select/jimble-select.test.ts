@@ -344,3 +344,22 @@ radiusTests('--jimble-select-radius', async () => {
   await tick()
   return { host: el, target: list(el) }
 })
+
+describe('役割と状態を属性にも書く(Playwright などの getByRole で見つかるように)', () => {
+  it('選択肢は role="option"・aria-selected・aria-disabled。選択に追従する', async () => {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.innerHTML = `<jimble-select aria-label="役割" value="a">
+      <jimble-option value="a">A</jimble-option><jimble-option value="b">B</jimble-option>
+      <jimble-option value="c" disabled>C</jimble-option></jimble-select>`
+    await tick()
+    const el = c.querySelector('jimble-select') as JimbleSelect
+    const options = [...c.querySelectorAll('jimble-option')] as JimbleOption[]
+    const attrs = (n: string) => options.map((o) => o.getAttribute(n))
+    expect(attrs('role')).toEqual(['option', 'option', 'option'])
+    expect(attrs('aria-selected')).toEqual(['true', 'false', 'false'])
+    expect(attrs('aria-disabled')).toEqual([null, null, 'true'])
+    el.value = 'b'
+    await tick()
+    expect(attrs('aria-selected')).toEqual(['false', 'true', 'false'])
+  })
+})

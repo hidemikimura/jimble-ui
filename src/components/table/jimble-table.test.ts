@@ -414,7 +414,7 @@ describe('セルの結合（colspan）', () => {
           <jimble-table-head-cell colspan="2" align="center" id="h-period">上期</jimble-table-head-cell>
         </jimble-table-row>
         <jimble-table-row>
-          <jimble-table-head-cell></jimble-table-head-cell>
+          <jimble-table-head-cell>区分</jimble-table-head-cell>
           <jimble-table-head-cell align="end" id="h-q1">1Q</jimble-table-head-cell>
           <jimble-table-head-cell align="end" id="h-q2">2Q</jimble-table-head-cell>
         </jimble-table-row>
@@ -514,7 +514,6 @@ describe('データから描く（columns / rows・仮想スクロール）', ()
     scroller(el).dispatchEvent(new Event('scroll'))
     await tick(80)
   }
-  const internals = (e: Element) => (e as unknown as { internals: ElementInternals }).internals
 
   it('見出しと、見えている行だけを描く（1 万行でも、描く行は少ない）', async () => {
     const { el } = await virtual()
@@ -550,7 +549,7 @@ describe('データから描く（columns / rows・仮想スクロール）', ()
 
   it('行の総数と位置を aria-rowcount / aria-rowindex で伝える（見出しの行が 1 行目）', async () => {
     const { el } = await virtual(200)
-    expect(internals(el).ariaRowCount).toBe('201')
+    expect(scroller(el).getAttribute('aria-rowcount')).toBe('201')
     await scrollTo(el, 40 * 100)
     const target = bodyRows(el).find((r) => firstCell(r) === 'o101')!
     expect(target.getAttribute('aria-rowindex')).toBe('102')
@@ -584,7 +583,7 @@ describe('データから描く（columns / rows・仮想スクロール）', ()
     await tick(80)
     const ids = bodyRows(el).map(firstCell)
     expect(ids).toContain('o20')
-    expect(internals(el).ariaRowCount).toBe('21')
+    expect(scroller(el).getAttribute('aria-rowcount')).toBe('21')
   })
 
   it('見出しは固定される。並べ替えの jimble-sort に列の key が付く', async () => {
@@ -715,5 +714,42 @@ describe('空の状態（empty スロット）', () => {
   it('axe の違反がない', async () => {
     const { el } = await table('', 0)
     await expectNoA11yViolations(el)
+  })
+})
+
+describe('役割と状態を属性にも書く(Playwright などの getByRole で見つかるように)', () => {
+  it('表・行のまとまり・行・見出しセル・セルに role。名前・並べ替え・結合も属性に書く', async () => {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.innerHTML = `<jimble-table label="注文">
+      <jimble-table-header><jimble-table-row>
+        <jimble-table-head-cell sortable sort="ascending">番号</jimble-table-head-cell>
+        <jimble-table-head-cell>顧客</jimble-table-head-cell>
+      </jimble-table-row></jimble-table-header>
+      <jimble-table-body>
+        <jimble-table-row><jimble-table-cell header>#1</jimble-table-cell><jimble-table-cell>山田</jimble-table-cell></jimble-table-row>
+        <jimble-table-row><jimble-table-cell colspan="2">合計</jimble-table-cell></jimble-table-row>
+      </jimble-table-body></jimble-table>`
+    await tick()
+    const role = (sel: string) => [...c.querySelectorAll(sel)].map((e) => e.getAttribute('role'))
+    const table = c.querySelector('jimble-table')!
+    // 表の役割は、スクロール領域(はみ出すとフォーカスできる)に付く。host には付けない
+    const scroller = table.shadowRoot!.querySelector('[part="scroller"]')!
+    expect(table.hasAttribute('role')).toBe(false)
+    expect(scroller.getAttribute('role')).toBe('table')
+    expect(scroller.getAttribute('aria-label')).toBe('注文')
+    expect(role('jimble-table-header, jimble-table-body')).toEqual(['rowgroup', 'rowgroup'])
+    expect(role('jimble-table-row')).toEqual(['row', 'row', 'row'])
+    expect(role('jimble-table-head-cell')).toEqual(['columnheader', 'columnheader'])
+    expect(role('jimble-table-cell')).toEqual(['rowheader', 'cell', 'cell'])
+    const head = c.querySelector('jimble-table-head-cell') as JimbleTableHeadCell
+    expect(head.getAttribute('aria-sort')).toBe('ascending')
+    expect(c.querySelector('jimble-table-cell[colspan="2"]')!.getAttribute('aria-colspan')).toBe(
+      '2',
+    )
+    head.sort = 'descending'
+    table.setAttribute('loading', '')
+    await tick()
+    expect(head.getAttribute('aria-sort')).toBe('descending')
+    expect(scroller.getAttribute('aria-busy')).toBe('true')
   })
 })

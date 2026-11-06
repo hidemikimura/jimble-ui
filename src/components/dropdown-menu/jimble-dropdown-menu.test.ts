@@ -574,3 +574,29 @@ describe('項目の hover の色（--jimble-color-item-hover）', () => {
     expect(bg()).toBe('rgb(1, 2, 3)')
   })
 })
+
+describe('役割と状態を属性にも書く(Playwright などの getByRole で見つかるように)', () => {
+  it('項目は role="menuitem"(無効は aria-disabled)、区切りは role="separator"', async () => {
+    const { c } = await menu()
+    const items = [...c.querySelectorAll('jimble-menu-item')]
+    expect(items.map((i) => i.getAttribute('role'))).toEqual(Array(4).fill('menuitem'))
+    expect(items.map((i) => i.getAttribute('aria-disabled'))).toEqual([null, null, 'true', null])
+    expect(c.querySelector('jimble-menu-separator')!.getAttribute('role')).toBe('separator')
+  })
+
+  it('サブメニューを持つ項目は aria-haspopup="menu" と aria-expanded。開閉に追従する', async () => {
+    const c = await mount<HTMLElement>(html`<div></div>`)
+    c.innerHTML = `<jimble-dropdown-menu><jimble-button slot="trigger">操作</jimble-button>
+      <jimble-menu-item id="share">共有<jimble-menu-item slot="submenu" value="mail">メール</jimble-menu-item></jimble-menu-item>
+      </jimble-dropdown-menu>`
+    await tick()
+    const share = c.querySelector('#share') as JimbleMenuItem
+    expect(share.getAttribute('aria-haspopup')).toBe('menu')
+    expect(share.getAttribute('aria-expanded')).toBe('false')
+    await userEvent.click(c.querySelector('jimble-button')!)
+    await tick()
+    share.showSubmenu()
+    await tick()
+    expect(share.getAttribute('aria-expanded')).toBe('true')
+  })
+})
