@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.15.0](https://github.com/hidemikimura/jimble-ui/compare/v0.14.0...v0.15.0) (2026-11-05)
+
+
+### 追加
+
+* **badge:** 背景・文字・枠の色を CSS 変数で決められるようにし、dot を追加する ([a525847](https://github.com/hidemikimura/jimble-ui/commit/a525847302ece7e30d4630f774cd4ce67a008fc1))
+* **card:** sticky-footer と sticky-header を追加する ([2729917](https://github.com/hidemikimura/jimble-ui/commit/27299170c9bf4b067d3a1fac54334083056e2211))
+* **router:** 離脱前の確認 addLeaveGuard を追加する ([af43daa](https://github.com/hidemikimura/jimble-ui/commit/af43daa1802b2b89b6667c94fac5649e19ff8c46))
+* **stepper:** 段階を踏む入力の進み具合を見せる jimble-stepper と jimble-step を追加する ([0f9de16](https://github.com/hidemikimura/jimble-ui/commit/0f9de1670cd688a508df4398fa316079a4202944))
+* **table:** 行が 0 件のときの empty スロットを追加する ([f32b110](https://github.com/hidemikimura/jimble-ui/commit/f32b110ff83b8bfa2e76050413e15fbd750c0de8))
+
+
+### 修正
+
+* **stepper:** ドキュメントの例の nav の名前が重ならないようにする ([760e1dc](https://github.com/hidemikimura/jimble-ui/commit/760e1dc23c62de12ab6217286df400c997f3741f))
+
 ## [0.14.0](https://github.com/hidemikimura/jimble-ui/compare/v0.13.0...v0.14.0) (2026-11-04)
 
 
