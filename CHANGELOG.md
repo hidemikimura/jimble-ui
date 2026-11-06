@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.15.1](https://github.com/hidemikimura/jimble-ui/compare/v0.15.0...v0.15.1) (2026-11-06)
+
+
+### 修正
+
+* **manifest:** 内部の状態を属性の一覧から外し、:state を状態の一覧に載せる ([f33b774](https://github.com/hidemikimura/jimble-ui/commit/f33b774febe1831faf0dc2a4eb48a56f81a15de4))
+
+
+### ドキュメント
+
+* すべての部品の :state() を cssstate で書き、状態の一覧に載せる ([b7b0444](https://github.com/hidemikimura/jimble-ui/commit/b7b0444da9071df12cb85501cfb25d92d58200b8))
+
 ## [0.15.0](https://github.com/hidemikimura/jimble-ui/compare/v0.14.0...v0.15.0) (2026-11-05)
 
 
