@@ -44,7 +44,7 @@ export interface CodeEditorHandle {
   readonly host: Locator
   /** 編集領域(role=textbox) */
   readonly editor: Locator
-  /** 文書の末尾に入力する(`fill` は WebKit で入らないので、キーで入力する) */
+  /** 文書の末尾に入力する(`fill` は WebKit で入らないので、クリックしてからまとめて挿入する) */
   type(text: string): Promise<void>
   /** 文書の末尾で、変数の候補を開き、ラベルで選ぶ(Enter ではなくクリックで選ぶ) */
   chooseVariable(label: string): Promise<void>
@@ -181,7 +181,9 @@ export function jimble(page: Page): Jimble {
         editor,
         async type(text) {
           await toEnd()
-          await page.keyboard.type(text)
+          // まとめて挿入する。keyboard.type で日本語を 1 文字ずつ送ると、WebKit では、空の欄の 1 文字目のあとで
+          // カーソルが進まないことがある(Linux の CI で再現。「こんにちは」が「んにちはこ」になる)
+          await page.keyboard.insertText(text)
         },
         async chooseVariable(name) {
           const prefix = (await host.getAttribute('variable-prefix')) ?? '{{'

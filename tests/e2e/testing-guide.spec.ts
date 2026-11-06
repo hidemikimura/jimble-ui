@@ -163,12 +163,14 @@ test('ダイアログの中身は、ダイアログで絞ると見つからな�
   await expect(page.locator('#dlg').getByRole('button', { name: 'はい' })).toHaveCount(1)
 })
 
-test('コードエディタ: クリックして keyboard.type で入力できる。{{ で候補が開く', async ({
+test('コードエディタ: クリックして、日本語は insertText、{{ は keyboard.type で入力する', async ({
   page,
 }) => {
   const editor = page.getByRole('textbox', { name: '本文' })
   await editor.click()
-  await page.keyboard.type('こんにちは {{cust')
+  // 日本語を keyboard.type で 1 文字ずつ送ると、WebKit で 1 文字目のあとカーソルが進まないことがある
+  await page.keyboard.insertText('こんにちは ')
+  await page.keyboard.type('{{cust') // 候補を開くには、キーで打つ
   // Enter で選ぶと、重いときに候補が閉じた後に届いて改行になることがある。候補をクリックする
   await page.locator('#ce').getByRole('option', { name: '顧客名' }).click()
   await expect(page.locator('#ce')).toHaveJSProperty('value', 'こんにちは {{customer_name}}')

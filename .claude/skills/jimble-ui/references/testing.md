@@ -106,7 +106,7 @@ await expect(page.locator('jimble-input:state(invalid)')).toHaveCount(1) // 誤�
 
 ## コードエディタ
 
-- `fill()` と `pressSequentially()` は、**WebKit では入力されない**（Chromium・Firefox では入る）。`await editor.click()` のあと `await page.keyboard.type('本文')` で入力する。中身をまとめて入れるなら、`value` プロパティを設定する（`locator.evaluate((e) => (e.value = '…'))`。このときは `input` が発火しない）。
+- `fill()` と `pressSequentially()` は、**WebKit では入力されない**（Chromium・Firefox では入る）。`await editor.click()` のあと、**日本語は `await page.keyboard.insertText('本文')`** で入力する（`keyboard.type` で日本語を 1 文字ずつ送ると、WebKit では、空の欄の 1 文字目のあとでカーソルが進まず、「こんにちは」が「んにちはこ」になることがある）。英数字や `{{` は `keyboard.type` でよい。中身をまとめて入れるなら、`value` プロパティを設定する（`locator.evaluate((e) => (e.value = '…'))`。このときは `input` が発火しない）。
 - `page.keyboard.type('{{cust')` で変数の候補が開き、`getByRole('option')` で見つかる。候補は `getByRole('option', { name: '顧客名' }).click()` で選ぶ（`Enter` は、重いときに候補が閉じた後に届いて、改行になることがある）。値は `toHaveJSProperty('value', '… {{customer_name}}')` で確かめる。
 
 ## イベント・待ち方

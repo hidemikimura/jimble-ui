@@ -1841,7 +1841,8 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **背景**: 役割を属性にも書いたあとも、Playwright の普通の書き方では書きにくい操作が残る（`selectOption` が使えないセレクト、入力して候補を押すコンボボックス、Tab で確定する日付、WebKit で `fill` が効かないコードエディタ、サブメニュー、スロットで入るのでダイアログ・表で絞ると見つからない中身、ほかの読み上げ用の領域にも当たる通知、バブルしない `jimble-*` イベント）。利用者のプロジェクトごとに、同じ関数（`choose()` など）を書いていた。
 - **採用**: `jimble(page)` が、`ready`・`select`・`combobox`・`dateInput`・`codeEditor`・`menu`・`dialog`・`table`・`toast`・`waitForEvent` を返す。部品の中の作りが変わっても、この関数を直せば、利用者の試験は壊れない。Playwright は**型だけ**を使う（`import type`。実行時に読み込まない）。`@playwright/test` は任意の peerDependency（`>=1.45`。`ControlOrMeta` を使う）。npm のビルドの入口 `testing` に足し、`exports` の `./testing` を `./*`（部品）より前に置く。全部入りと CDN には含めない。
 - **関数にしなかったもの**: 入力欄・ボタン・チェックボックス・ラジオ・タブは、`getByRole` で直接書ける（役割を属性にも書いたため）。関数を増やすと、覚えることが増える（YAGNI）。
-- **確かめたこと**: すべての関数を、Chromium・Firefox・WebKit で試験する（`tests/e2e/testing-helpers.spec.ts`）。pack-smoke で、Playwright を入れていない環境でも、入口を読み込めること（型だけを使っていること）を確かめる。
+- **確かめたこと**: すべての関数を、Chromium・Firefox・WebKit で試験する（`tests/e2e/testing-helpers.spec.ts`）。
+- **CI が見つけた不具合**: Linux の WebKit で、コードエディタの空の欄に `keyboard.type` で日本語を 1 文字ずつ送ると、まれに 1 文字目のあとでカーソルが進まず、「こんにちは」が「んにちはこ」になった（手元の macOS では起きない。CI と同じコンテナで 24 回中 3 回再現）。描画を待っても直らず、`keyboard.insertText`（まとめて挿入）では起きない（12 回中 0 回）。`codeEditor().type()` を `insertText` にし、`references/testing.md` の勧め方も「日本語は `insertText`」に直した（コンテナで 90 回とも通る）。pack-smoke で、Playwright を入れていない環境でも、入口を読み込めること（型だけを使っていること）を確かめる。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
