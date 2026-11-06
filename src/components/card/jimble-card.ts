@@ -35,6 +35,9 @@ const STUCK_FOOTER_SHADOW =
  * @csspart body - 本文領域
  * @csspart footer - フッター領域
  *
+ * @cssstate stuck-header - `sticky-header` のヘッダーが、スクロールする親の上端に貼り付いている
+ * @cssstate stuck-footer - `sticky-footer` のフッターが、スクロールする親の下端に貼り付いている
+ *
  * @cssprop [--jimble-card-radius=var(--jimble-radius-card)] - 角丸
  * @cssprop [--jimble-card-padding=4 単位(1rem)] - 各領域の内側の余白
  * @cssprop [--jimble-card-shadow=var(--jimble-shadow-sm)] - 影

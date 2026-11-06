@@ -95,7 +95,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/tabs/
 - **`jimble-router`** — シングルページアプリのルーター（Navigation API を使う）。
-  - 属性: `scroll-container=値`, `no-chunk-reload`, `busy`, `announcement=値`
+  - 属性: `scroll-container=値`, `no-chunk-reload`, `busy`
   - スロット: (既定)
   - イベント: `jimble-route-loading`, `jimble-route-change`, `jimble-route-error`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/router/
@@ -103,8 +103,9 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 表示
 
 - **`jimble-card`** — 関連する情報をまとめる面。
-  - 属性: `sticky-footer`, `sticky-header`, `_stuckHeader`, `_stuckFooter`
+  - 属性: `sticky-footer`, `sticky-header`
   - スロット: (既定), `header`, `footer`
+  - 状態: `:state(stuck-header)`, `:state(stuck-footer)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/card/
 - **`jimble-badge`** — 状態やカテゴリを示す小さなラベル。
   - 属性: `variant=neutral|primary|success|warning|danger|info`, `size=sm|md`, `dot`
@@ -119,21 +120,22 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
 - **`jimble-stepper`** — 段階を踏む入力（予約の登録など）の、今の位置と進み具合を見せる。
-  - 属性: `value=値`, `orientation=horizontal|vertical`, `size=sm|md`, `navigable`, `label=値`, `_narrow`
+  - 属性: `value=値`, `orientation=horizontal|vertical`, `size=sm|md`, `navigable`, `label=値`
   - スロット: (既定)
   - イベント: `jimble-step-change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/stepper/
 - **`jimble-step`** — ステッパーの 1 段階。
-  - 属性: `value=値`, `error`, `disabled`, `_state=値`
+  - 属性: `value=値`, `error`, `disabled`
   - スロット: (既定), `description`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/step/
 - **`jimble-icon`** — アイコン。
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/icon/
 - **`jimble-table`** — データテーブル。
-  - 属性: `label=値`, `sticky-header`, `striped`, `no-empty`, `_empty`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
+  - 属性: `label=値`, `sticky-header`, `striped`, `no-empty`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
   - スロット: (既定), `empty`
   - イベント: `jimble-sort`, `jimble-selection-change`
+  - 状態: `:state(empty)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-header`** — 表の見出し行のまとまり（rowgroup）。
   - スロット: (既定)
@@ -214,11 +216,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `change`, `input`, `jimble-search`, `jimble-create`, `jimble-load-error`, `jimble-reorder`, `jimble-open`, `jimble-close`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/combobox/
 - **`jimble-dual-listbox`** — 左右に分かれた選択(デュアルリストボックス)。
-  - 属性: `value=値`, `available-label=値`, `selected-label=値`, `move-all`, `max-items=値`, `match=contains|starts-with`, `reorderable`, `search-group`, `pickedAvailable=値`, `pickedSelected=値`, `queryAvailable=値`, `querySelected=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `value=値`, `available-label=値`, `selected-label=値`, `move-all`, `max-items=値`, `match=contains|starts-with`, `reorderable`, `search-group`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `input`, `change`, `jimble-reorder`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/dual-listbox/
 - **`jimble-date-input`** — 日付・日時・期間の入力。
-  - 属性: `value=値`, `min=値`, `max=値`, `placeholder=値`, `readonly`, `picker-only`, `range`, `time`, `months=数値`, `minute-step=数値`, `first-day-of-week=数値`, `open`, `view=値`, `focusDay=値`, `hoverDay=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `value=値`, `min=値`, `max=値`, `placeholder=値`, `readonly`, `picker-only`, `range`, `time`, `months=数値`, `minute-step=数値`, `first-day-of-week=数値`, `open`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `type`, `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/date-input/
 - **`jimble-color-input`** — 色の入力。
@@ -226,7 +228,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `type`, `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/color-input/
 - **`jimble-file-input`** — ファイルの添付。
-  - 属性: `accept=値`, `multiple`, `max-size=値`, `max-files=値`, `preview`, `entries=値`, `dragging`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `accept=値`, `multiple`, `max-size=値`, `max-files=値`, `preview`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `input`, `change`, `jimble-reject`, `jimble-upload-start`, `jimble-upload-complete`, `jimble-upload-error`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/file-input/
 - **`jimble-checkbox`** — チェックボックス。

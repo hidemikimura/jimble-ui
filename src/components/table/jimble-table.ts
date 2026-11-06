@@ -112,6 +112,8 @@ const isCell = (e: Element) =>
  * @csspart grid - 表のレイアウトを持つ領域
  * @csspart empty - 行が 0 件のときの表示を包むセル
  *
+ * @cssstate empty - 空の状態を出している（行が 0 件で、`loading` でも `no-empty` でもない）
+ *
  * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）。データから描くときは表の高さ（既定 24rem）
  * @cssprop [--jimble-table-columns=列の数だけ auto] - 列の幅（`grid-template-columns` の書き方。例: `12rem 1fr auto`）。`selectable` の選択の列は含めない
  * @cssprop [--jimble-table-cell-padding-x=3 単位] - セルの左右の余白

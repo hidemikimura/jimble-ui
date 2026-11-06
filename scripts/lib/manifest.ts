@@ -12,6 +12,7 @@ export interface ElementDecl {
   events?: { name: string; description?: string }[]
   cssProperties?: { name: string }[]
   cssParts?: { name: string }[]
+  cssStates?: { name: string; description?: string }[]
 }
 
 /** custom-elements.json の全要素（tagName を持つ宣言） */

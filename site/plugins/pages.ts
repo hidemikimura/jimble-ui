@@ -143,6 +143,16 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
         parts.map((p) => [code(p.name), esc(p.description ?? '')]),
       ),
     )
+  const states = (decl.cssStates ?? []) as Record<string, any>[]
+  if (states.length)
+    out.push(
+      '<h3 id="api-states">状態（:state）</h3>',
+      table(
+        `${tag} の状態の表`,
+        ['名前', '説明'],
+        states.map((s) => [code(`:state(${s.name})`), esc(s.description ?? '')]),
+      ),
+    )
   const props = (decl.cssProperties ?? []) as Record<string, any>[]
   if (props.length)
     out.push(

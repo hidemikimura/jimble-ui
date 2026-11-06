@@ -163,11 +163,13 @@ function components(): string {
         ...(e.events ?? []).map((v) => `\`${v.name}\``),
         ...(FORM.has(name) ? ['`input`', '`change`'] : []),
       ]
+      const states = (e.cssStates ?? []).map((s) => `\`:state(${s.name})\``)
       const page = `${SITE}/components/${PAGE[name] ?? name}/`
       out.push(`- **\`jimble-${name}\`** — ${firstSentence(e.description)}`)
       if (attrs.length) out.push(`  - 属性: ${attrs.join(', ')}`)
       if (slots.length) out.push(`  - スロット: ${slots.join(', ')}`)
       if (events.length) out.push(`  - イベント: ${events.join(', ')}`)
+      if (states.length) out.push(`  - 状態: ${states.join(', ')}`)
       out.push(`  - 詳細: ${page}`)
     }
     out.push('')
