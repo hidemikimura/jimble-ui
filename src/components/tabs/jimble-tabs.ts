@@ -168,6 +168,8 @@ JimbleTabs.define('jimble-tabs')
  * @tag jimble-tab
  * @slot - タブの文字
  * @csspart base - ルート要素
+ *
+ * @cssstate selected - 選ばれているタブ
  */
 export class JimbleTab extends JimbleElement {
   static override properties: PropertyDeclarations = {

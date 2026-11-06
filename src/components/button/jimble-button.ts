@@ -104,6 +104,10 @@ const ICON_ONLY = 'w-(--_h) p-0'
  * @cssprop [--jimble-button-ghost-fg-hover=hover 前の文字色] - ghost の hover 時の文字色
  * @cssprop [--jimble-button-ring=variant に応じる] - 枠（ring）の色
  * @cssprop [--jimble-button-shadow=var(--jimble-shadow-sm)] - 影（`none` で影なし。ghost の既定は影なし）
+ *
+ * @cssstate loading - `loading`（処理中。押せない）
+ * @cssstate disabled - `disabled`
+ * @cssstate icon-only - `icon-only`（アイコンだけのボタン）
  */
 export class JimbleButton extends JimbleElement {
   static formAssociated = true

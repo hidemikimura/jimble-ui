@@ -63,11 +63,13 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-nav-item`** — ナビゲーションの項目（リンク）。
   - 属性: `href=値`, `current`, `target=値`
   - スロット: (既定), `icon`
+  - 状態: `:state(current)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/sidebar-nav/
 - **`jimble-nav-group`** — 折りたためる項目のまとまり（disclosure パターン）。
   - 属性: `label=値`, `open`
   - スロット: (既定), `icon`
   - イベント: `jimble-open`, `jimble-close`
+  - 状態: `:state(flat)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/sidebar-nav/
 - **`jimble-page-header`** — ページの見出し領域。
   - 属性: `heading=値`, `description=値`, `level=数値`
@@ -89,6 +91,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-tab`** — タブ 1 つ。
   - 属性: `value=値`, `disabled`
   - スロット: (既定)
+  - 状態: `:state(selected)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/tabs/
 - **`jimble-tab-panel`** — タブのパネル。
   - 属性: `value=値`
@@ -127,6 +130,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-step`** — ステッパーの 1 段階。
   - 属性: `value=値`, `error`, `disabled`
   - スロット: (既定), `description`
+  - 状態: `:state(vertical)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/step/
 - **`jimble-icon`** — アイコン。
   - 属性: `name=値`, `size=sm|md|lg|xl`, `label=値`
@@ -135,7 +139,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `label=値`, `sticky-header`, `striped`, `no-empty`, `loading`, `selectable`, `row-height=数値`, `row-key=値`
   - スロット: (既定), `empty`
   - イベント: `jimble-sort`, `jimble-selection-change`
-  - 状態: `:state(empty)`
+  - 状態: `:state(virtual)`, `:state(empty)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/table/
 - **`jimble-table-header`** — 表の見出し行のまとまり（rowgroup）。
   - スロット: (既定)
@@ -176,10 +180,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-kanban-column`** — カンバンの列。
   - 属性: `value=値`, `heading=値`
   - スロット: (既定), `actions`, `empty`
+  - 状態: `:state(over)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/kanban/
 - **`jimble-kanban-card`** — カンバンのカード。
   - 属性: `value=値`, `label=値`, `locked`
   - スロット: (既定)
+  - 状態: `:state(moving)`, `:state(dragging)`, `:state(locked)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/kanban/
 
 ### 入力
@@ -187,6 +193,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-button`** — ボタン。
   - 属性: `variant=primary|secondary|danger|ghost`, `size=sm|md|lg`, `type=button|submit|reset`, `disabled`, `loading`, `href=値`, `target=値`, `rel=値`, `download=値`, `icon-only`, `block`, `aria-label=値`, `aria-description=値`
   - スロット: (既定), `prefix`, `suffix`
+  - 状態: `:state(loading)`, `:state(disabled)`, `:state(icon-only)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/button/
 - **`jimble-field`** — ラベル・ヒント・エラーを付けるための入れ物。
   - 属性: `label=値`, `hint=値`, `error=値`, `required`
@@ -196,10 +203,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `type=text|email|password|search|tel|url|number`, `min=値`, `max=値`, `step=値`, `pattern=値`, `value=値`, `placeholder=値`, `readonly`, `minlength=値`, `maxlength=値`, `autocomplete=値`, `inputmode=値`, `enterkeyhint=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: `prefix`, `suffix`
   - イベント: `input`, `change`
+  - 状態: `:state(readonly)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/input/
 - **`jimble-textarea`** — 複数行のテキスト入力。
   - 属性: `rows=数値`, `autosize`, `value=値`, `placeholder=値`, `readonly`, `minlength=値`, `maxlength=値`, `autocomplete=値`, `inputmode=値`, `enterkeyhint=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `input`, `change`
+  - 状態: `:state(readonly)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/textarea/
 - **`jimble-select`** — セレクト(WAI-ARIA の collapsible dropdown listbox パターン)。
   - 属性: `value=値`, `placeholder=値`, `open`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -209,6 +218,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-option`** — セレクトの選択肢。
   - 属性: `value=値`, `disabled`, `keywords=値`, `group=値`
   - スロット: (既定)
+  - 状態: `:state(selected)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/select/
 - **`jimble-combobox`** — 絞り込みできるセレクト(WAI-ARIA の combobox・list autocomplete パターン)。
   - 属性: `value=値`, `placeholder=値`, `readonly`, `clearable`, `multiple`, `creatable`, `match=contains|starts-with`, `search-group`, `open`, `load-delay=数値`, `load-min-length=数値`, `max-items=値`, `reorderable`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -230,6 +240,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-file-input`** — ファイルの添付。
   - 属性: `accept=値`, `multiple`, `max-size=値`, `max-files=値`, `preview`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - イベント: `input`, `change`, `jimble-reject`, `jimble-upload-start`, `jimble-upload-complete`, `jimble-upload-error`, `input`, `change`
+  - 状態: `:state(has-files)`, `:state(dragging)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/file-input/
 - **`jimble-checkbox`** — チェックボックス。
   - 属性: `indeterminate`, `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -244,6 +255,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-radio`** — ラジオ。
   - 属性: `value=値`, `disabled`, `size=sm|md|lg`
   - スロット: (既定)
+  - 状態: `:state(checked)`, `:state(disabled)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/radio-group/
 - **`jimble-switch`** — オン/オフのスイッチ。
   - 属性: `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -346,7 +358,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 6. 見た目のカスタマイズ（この順で）
 
 1. **CSS 変数**: 色・角丸・高さなど。`:root { --jimble-color-primary-600: #0f766e; }` はページのどこにでも書け、全部品に届く。部品固有の変数（`--jimble-button-radius` など）は、その部品のページの「CSS 変数」の表にある。
-2. **`::part()`**: `jimble-button::part(label) { … }`。part の名前は各ページの表にある。状態は `:state()`（`jimble-button:state(loading)`）。
+2. **`::part()`**: `jimble-button::part(label) { … }`。part の名前は各ページの表にある。状態は `:state()`（`jimble-button:state(loading)`）。各部品の状態は「コンポーネント早見」にあり、フォーム部品はすべて `:state(invalid)`（誤りを表示中）・`:state(touched)`・`:state(disabled)` を持つ。
 3. **スロット**: アイコンや操作を自分の HTML に置き換える。
 
 内部の Tailwind クラス名は非公開で、ページの CSS から狙えない・狙ってはいけない。**色を変えるときは、コントラストを確かめる**（主ボタンの背景は白い文字が乗るので 4.5:1 以上、入力欄の枠は 3:1 以上）。

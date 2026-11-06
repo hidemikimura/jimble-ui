@@ -54,6 +54,8 @@ export const AFFIX = 'inline-flex shrink-0 items-center text-fg-muted'
 /**
  * input / textarea 共通の基底。値（属性=デフォルト値、プロパティ=現在値）、イベント、
  * ネイティブの制約検証、IME 対応の共通部分を持つ。
+ *
+ * @cssstate readonly - `readonly`（読み取り専用）
  */
 export abstract class JimbleTextControl extends JimbleFormElement {
   static override properties: PropertyDeclarations = {

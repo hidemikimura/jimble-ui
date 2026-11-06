@@ -133,6 +133,9 @@ export function matchesAccept(file: File, accept: string | undefined): boolean {
  * @fires jimble-upload-start - アップロードを始めた。`detail.file`
  * @fires jimble-upload-complete - アップロードが完了した。`detail` は `{ file, value }`
  * @fires jimble-upload-error - アップロードが失敗した。`detail` は `{ file, error }`
+ *
+ * @cssstate has-files - 受け付けたファイルが 1 つ以上ある
+ * @cssstate dragging - ファイルをドラッグして、受け付ける領域の上に重ねている
  */
 export class JimbleFileInput extends JimbleFormElement {
   static override properties: PropertyDeclarations = {

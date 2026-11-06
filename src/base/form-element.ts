@@ -21,6 +21,10 @@ export interface ValidityResult {
  * フォーム関連カスタム要素（FACE）の基底（設計書 §5）。
  * 値・検証・リセット・disabled・状態復元と、jimble-field との連携を提供する。
  * 継承先は `nativeControl`・`formValue`・`resetValue`・`restoreValue` を実装する。
+ *
+ * @cssstate invalid - 誤りを表示している（一度離れた後か、送信を試みた後に検証に失敗した。`jimble-field` の `error` があるときも）
+ * @cssstate touched - 一度離れた（blur した）か、送信を試みた
+ * @cssstate disabled - 操作できない（`disabled`、または無効な `fieldset` の中）
  */
 export abstract class JimbleFormElement extends JimbleElement {
   static formAssociated = true

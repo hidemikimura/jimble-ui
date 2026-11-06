@@ -114,6 +114,8 @@ JimbleSidebarNav.define('jimble-sidebar-nav')
  * @slot icon - 前に置くアイコン
  *
  * @csspart link - a 要素
+ *
+ * @cssstate current - `current`（今のページの項目）
  */
 export class JimbleNavItem extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -190,6 +192,8 @@ let groupSeq = 0
  *
  * @fires jimble-open - 開いた
  * @fires jimble-close - 閉じた
+ *
+ * @cssstate flat - `compact` のサイドバーで、アイコンのないグループ（見出しを隠し、子項目をそのまま並べる）
  */
 export class JimbleNavGroup extends JimbleElement {
   static override properties: PropertyDeclarations = {

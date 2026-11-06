@@ -112,6 +112,7 @@ const isCell = (e: Element) =>
  * @csspart grid - 表のレイアウトを持つ領域
  * @csspart empty - 行が 0 件のときの表示を包むセル
  *
+ * @cssstate virtual - データ（`columns` / `rows`）から仮想スクロールで描いている
  * @cssstate empty - 空の状態を出している（行が 0 件で、`loading` でも `no-empty` でもない）
  *
  * @cssprop [--jimble-table-max-height=none] - 表の最大の高さ（超えると縦にスクロール。固定ヘッダーと組み合わせる）。データから描くときは表の高さ（既定 24rem）

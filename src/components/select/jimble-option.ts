@@ -16,6 +16,8 @@ const BASE =
  * @slot - 表示する文字
  *
  * @csspart base - ルート要素
+ *
+ * @cssstate selected - 選ばれている選択肢
  */
 export class JimbleOption extends JimbleElement {
   static override properties: PropertyDeclarations = {

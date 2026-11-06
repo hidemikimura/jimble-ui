@@ -30,6 +30,10 @@ const MOVE_BUTTON =
  * @csspart move - 移動ボタン
  * @csspart target - 「ここに移動」の受け口（移動先を選んでいる間だけ）
  * @csspart drop-indicator - ドラッグ中の、挿入位置の線
+ *
+ * @cssstate moving - 移動先を選んでいる（移動ボタン・キーボードでの移動の途中）
+ * @cssstate dragging - ドラッグしている
+ * @cssstate locked - `locked`（動かせない）
  */
 export class JimbleKanbanCard extends JimbleElement {
   static override properties: PropertyDeclarations = {

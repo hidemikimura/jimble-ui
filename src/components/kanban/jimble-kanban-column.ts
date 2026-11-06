@@ -19,6 +19,8 @@ import { MOVE_TARGET, JimbleKanbanCard } from './jimble-kanban-card.js'
  * @csspart empty - カードがないときの表示
  * @csspart target - 列の末尾への「ここに移動」の受け口（移動先を選んでいる間だけ）
  * @csspart drop-indicator - ドラッグ中の、列の末尾に挿入する線
+ *
+ * @cssstate over - ドラッグ中のカードが、この列の上にある
  */
 export class JimbleKanbanColumn extends JimbleElement {
   static override properties: PropertyDeclarations = {

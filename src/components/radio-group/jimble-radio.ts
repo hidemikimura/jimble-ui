@@ -22,6 +22,9 @@ const TEXT: Record<ControlSize, string> = { sm: 'text-sm', md: 'text-sm', lg: 't
  * @csspart base - ルート要素
  * @csspart indicator - 丸い表示部
  * @csspart label - ラベルを包む要素
+ *
+ * @cssstate checked - 選ばれている
+ * @cssstate disabled - 操作できない（自身かグループが `disabled`）
  */
 export class JimbleRadio extends JimbleElement {
   static override properties: PropertyDeclarations = {

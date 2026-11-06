@@ -106,7 +106,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 ### 6. 見た目のカスタマイズ（この順で）
 
 1. **CSS 変数**: 色・角丸・高さなど。`:root { --jimble-color-primary-600: #0f766e; }` はページのどこにでも書け、全部品に届く。部品固有の変数（`--jimble-button-radius` など）は、その部品のページの「CSS 変数」の表にある。
-2. **`::part()`**: `jimble-button::part(label) { … }`。part の名前は各ページの表にある。状態は `:state()`（`jimble-button:state(loading)`）。
+2. **`::part()`**: `jimble-button::part(label) { … }`。part の名前は各ページの表にある。状態は `:state()`（`jimble-button:state(loading)`）。各部品の状態は「コンポーネント早見」にあり、フォーム部品はすべて `:state(invalid)`（誤りを表示中）・`:state(touched)`・`:state(disabled)` を持つ。
 3. **スロット**: アイコンや操作を自分の HTML に置き換える。
 
 内部の Tailwind クラス名は非公開で、ページの CSS から狙えない・狙ってはいけない。**色を変えるときは、コントラストを確かめる**（主ボタンの背景は白い文字が乗るので 4.5:1 以上、入力欄の枠は 3:1 以上）。

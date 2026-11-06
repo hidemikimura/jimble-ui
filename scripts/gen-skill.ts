@@ -163,7 +163,10 @@ function components(): string {
         ...(e.events ?? []).map((v) => `\`${v.name}\``),
         ...(FORM.has(name) ? ['`input`', '`change`'] : []),
       ]
-      const states = (e.cssStates ?? []).map((s) => `\`:state(${s.name})\``)
+      // フォーム部品に共通の状態（invalid など）は、本文の「見た目のカスタマイズ」に 1 度だけ書く
+      const states = (e.cssStates ?? [])
+        .filter((s) => s.inheritedFrom?.name !== 'JimbleFormElement')
+        .map((s) => `\`:state(${s.name})\``)
       const page = `${SITE}/components/${PAGE[name] ?? name}/`
       out.push(`- **\`jimble-${name}\`** — ${firstSentence(e.description)}`)
       if (attrs.length) out.push(`  - 属性: ${attrs.join(', ')}`)

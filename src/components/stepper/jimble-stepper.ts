@@ -197,6 +197,8 @@ const FOCUS =
  * @csspart label - 名前
  * @csspart description - 補足
  * @csspart connector - 次の段階へのつなぎ線（最後の段階にはない）
+ *
+ * @cssstate vertical - 縦並び（`orientation="vertical"`、または幅が狭いとき）
  */
 export class JimbleStep extends JimbleElement {
   static override properties: PropertyDeclarations = {
