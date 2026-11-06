@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.17.0](https://github.com/hidemikimura/jimble-ui/compare/v0.16.0...v0.17.0) (2026-11-06)
+
+
+### 追加
+
+* **tabs:** 役割と状態を属性にも書き、Playwright の getByRole で探せるようにする ([f2746e8](https://github.com/hidemikimura/jimble-ui/commit/f2746e81d9278817d1334b8bccbfb4e6c6e0ca5b))
+* **testing:** 画面を Playwright で操作する関数を、testing の入口で配る ([9d6e678](https://github.com/hidemikimura/jimble-ui/commit/9d6e678d416d4531accade474af9e206a2b1c7f1))
+* ラジオ・選択肢・メニューの項目・表の役割と状態を属性にも書く ([ba39189](https://github.com/hidemikimura/jimble-ui/commit/ba3918973bf406fe9a8934e61de140f3c9527fa4))
+
+
+### 修正
+
+* **testing:** コードエディタの入力を insertText にし、WebKit で日本語の順が崩れるのを防ぐ ([ef89f7e](https://github.com/hidemikimura/jimble-ui/commit/ef89f7e1397e87e8df058b561ff1be8e220ec504))
+
+
+### ドキュメント
+
+* **skill:** 画面を Playwright で E2E テストするときの注意を、試験で確かめて足す ([71a4c5e](https://github.com/hidemikimura/jimble-ui/commit/71a4c5e2c801694a7a3edeede3f51d33da7e4ad6))
+
 ## [0.16.0](https://github.com/hidemikimura/jimble-ui/compare/v0.15.1...v0.16.0) (2026-11-06)
 
 
