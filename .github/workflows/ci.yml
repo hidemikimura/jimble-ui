@@ -9,12 +9,20 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# ブラウザを使うジョブは、ブラウザと OS の依存が入った Playwright のコンテナで動かす。
+# ジョブの中で `playwright install --with-deps` すると、OS の依存(約 139 MB)を Ubuntu のミラーから取る。
+# ミラーが遅いとき(46 kB/s)に 50 分ほど止まり、ほかの CI も枠が空くまで待たされた(2026-11)。
+# コンテナの版は package-lock.json の Playwright と同じにする(tests/unit/ci.test.ts が検査する)。
+# --user 1001 は、ランナーの利用者(チェックアウトの持ち主)と同じにするため(root だと Firefox が動かない)。
+#
 # 時間のかかるブラウザの試験(Vitest)と E2E を、ブラウザごとのジョブに分けて並べて動かす。
 # ブラウザの試験はファイルを直列で動かす約束（Firefox でキー入力が不安定になる）なので、
 # 1 つのジョブの中では速くできない。ジョブを分ければ、3 つのブラウザが同時に進む。
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -30,12 +38,13 @@ jobs:
       - run: npm run build
       - run: npm run check-dist
       - run: npm run check-package
-      # pack-smoke は、配布物を実ブラウザ(Chromium)で動かして確かめる
-      - run: npx playwright install --with-deps chromium
+      # pack-smoke は、配布物を実ブラウザ(Chromium。コンテナに入っている)で動かして確かめる
       - run: npm run pack-smoke
 
   browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
     strategy:
       fail-fast: false
       matrix: { browser: [chromium, firefox, webkit] }
@@ -44,11 +53,12 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npx vitest run --project "browser (${{ matrix.browser }})"
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
     strategy:
       fail-fast: false
       matrix: { browser: [chromium, firefox, webkit] }
@@ -57,6 +67,5 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
-      - run: npx playwright install --with-deps ${{ matrix.browser }}
       # サイトのビルドは playwright.config.ts の webServer が行う
       - run: npx playwright test --project ${{ matrix.browser }}
