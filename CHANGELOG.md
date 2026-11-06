@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/hidemikimura/jimble-ui/compare/v0.15.1...v0.16.0) (2026-11-06)
+
+
+### 追加
+
+* **code-editor:** 変数のチップと補完つきのコードエディタを足す（CodeMirror 6） ([dca7667](https://github.com/hidemikimura/jimble-ui/commit/dca7667278e5f46a673f5718ff1eee59ed48e92b))
+
 ## [0.15.1](https://github.com/hidemikimura/jimble-ui/compare/v0.15.0...v0.15.1) (2026-11-06)
 
 
