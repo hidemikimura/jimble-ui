@@ -49,6 +49,20 @@ describe('構造', () => {
     expect(inner(el.columns[2]!, 'empty')!.textContent!.trim()).toBe('カードがありません')
   })
 
+  it('区切りのない長い文字(ホスト名・URL)も、カードの中で折り返す', async () => {
+    const el = await board()
+    const text = document.createElement('div')
+    text.textContent =
+      'Socket fail to connect to masterdb1.private.tokyo.oraclevcn.com [10.0.1.236]'
+    card(el, 'c').replaceChildren(text)
+    await tick()
+    const face = inner(card(el, 'c'), 'card')!
+    expect(face.scrollWidth).toBeLessThanOrEqual(face.clientWidth)
+    expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(
+      face.getBoundingClientRect().right,
+    )
+  })
+
   it('カードにフォーカスすると、その 1 枚が入口になる', async () => {
     const el = await board()
     card(el, 'b').focus()

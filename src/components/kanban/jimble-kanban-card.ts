@@ -141,7 +141,7 @@ export class JimbleKanbanCard extends JimbleElement {
           : nothing
       }
       <div part="card" class="${CARD} ${face}">
-        <div class="min-w-0 flex-1"><slot></slot></div>
+        <div class="min-w-0 flex-1 wrap-anywhere"><slot></slot></div>
         ${this.#renderTail()}
       </div>
     </div>`
