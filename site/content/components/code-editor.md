@@ -65,6 +65,10 @@ CDN の場合は、全部入りの `jimble-ui.js` に加えて、`code-editor.js
 | Tab / Shift+Tab                     | 次・前の項目へ移る                                     |
 | Ctrl+Z / Ctrl+Shift+Z（macOS は ⌘） | 元に戻す・やり直す                                     |
 
+## Do / Don't
+
+::dos code-editor
+
 ## API
 
 ::api jimble-code-editor

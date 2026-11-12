@@ -82,6 +82,10 @@ description: 日付・日時・期間の選択（テキスト欄とカレンダ�
 | Tab                | （時刻ありのとき）時・分の欄、「今日」「クリア」「完了」へ        |
 | Esc                | 選ばずに閉じて、入力欄に戻る（選びかけの期間は捨てる）            |
 
+## Do / Don't
+
+::dos date-input
+
 ## API
 
 ::api jimble-date-input

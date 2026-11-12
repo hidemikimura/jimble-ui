@@ -253,3 +253,42 @@ describe('パンくず・サイドバーの現在のアイコン', () => {
     expect(iconColor(other!)).toBe(BLUE) // 現在のページだけ
   })
 })
+
+describe('全体の倍率（radius-scale / font-size-scale。設計書 §4.10）', () => {
+  const radius = (el: HTMLElement) => cs(inner(el, '[part="base"]')).borderTopLeftRadius
+
+  it('指定しなければ、既定の大きさのまま', async () => {
+    const { el } = await put('<jimble-button>保存</jimble-button>')
+    expect(radius(el)).toBe('8px') // radius-lg
+    expect(cs(inner(el, '[part="base"]')).fontSize).toBe('14px') // text-sm
+  })
+
+  it('--jimble-radius-scale で、ボタン・カードなどの角丸がまとめて変わる', async () => {
+    const vars = { '--jimble-radius-scale': '2' }
+    const { el: button } = await put('<jimble-button>保存</jimble-button>', vars)
+    const { el: card } = await put('<jimble-card>本文</jimble-card>', vars)
+    expect(radius(button)).toBe('16px')
+    expect(radius(card)).toBe('16px')
+    const { el: square } = await put('<jimble-button>保存</jimble-button>', {
+      '--jimble-radius-scale': '0',
+    })
+    expect(radius(square)).toBe('0px')
+  })
+
+  it('個別の指定（radius-control）は、倍率より優先する', async () => {
+    const { el } = await put('<jimble-button>保存</jimble-button>', {
+      '--jimble-radius-scale': '2',
+      '--jimble-radius-control': '3px',
+    })
+    expect(radius(el)).toBe('3px')
+  })
+
+  it('--jimble-font-size-scale で、文字の大きさと行の高さが一緒に変わる', async () => {
+    const { el } = await put('<jimble-button>保存</jimble-button>', {
+      '--jimble-font-size-scale': '1.25',
+    })
+    const base = cs(inner(el, '[part="base"]'))
+    expect(base.fontSize).toBe('17.5px') // 14px × 1.25
+    expect(base.lineHeight).toBe('25px') // 20px × 1.25
+  })
+})

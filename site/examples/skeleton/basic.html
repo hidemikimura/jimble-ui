@@ -1,0 +1,9 @@
+<!-- title: 読み込み中のカード（包む要素に aria-busy、読み込み中は spinner で伝える） -->
+<jimble-card aria-busy="true">
+  <jimble-spinner slot="header" size="sm" label="プロフィールを読み込み中"></jimble-spinner>
+  <jimble-stack direction="horizontal" gap="3" align="center">
+    <jimble-skeleton variant="circle"></jimble-skeleton>
+    <jimble-skeleton style="--jimble-skeleton-width: 10rem"></jimble-skeleton>
+  </jimble-stack>
+  <jimble-skeleton lines="3" style="margin-top: 1rem"></jimble-skeleton>
+</jimble-card>

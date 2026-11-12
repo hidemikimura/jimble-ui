@@ -83,6 +83,13 @@ const PAIRS: [string, string, number, string][] = [
   ['text-accent', 'surface-accent', 4.5, '変数のチップ'],
   ['text-warning-strong', 'surface-warning', 4.5, '未定義の変数のチップ'],
   ['text-accent', 'surface-accent', 4.5, 'primary バッジ'],
+  // 進み具合の棒（満たした部分と溝。1.4.11）と、区切った見た目のラジオ（選ばれていないものの文字）
+  ['text-accent', 'surface-track', 3, 'progress の棒（primary）'],
+  ['text-success', 'surface-track', 3, 'progress の棒（success）'],
+  ['text-warning', 'surface-track', 3, 'progress の棒（warning）'],
+  ['text-danger', 'surface-track', 3, 'progress の棒（danger）'],
+  ['ring-control', 'surface', 3, '区切った見た目のラジオの、選ばれたものの枠'],
+  ['text-muted', 'surface', 4.5, '空の状態の説明'],
   ...(['success', 'warning', 'danger', 'info'] as const).flatMap(
     (t): [string, string, number, string][] => [
       [`text-${t}`, `surface-${t}`, 4.5, `${t} バッジ`],

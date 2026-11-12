@@ -182,8 +182,9 @@ export const CATALOG: Group[] = [
   // ---- 角丸・大きさ・影・文字・動き ----
   {
     title: '角丸（全体）',
-    note: 'control = ボタン・入力欄 / card = カード / overlay = ダイアログ・メニュー',
+    note: 'scale = sm〜xl にかける倍率（1 が既定。0 で角なし）/ control = ボタン・入力欄 / card = カード / overlay = ダイアログ・メニュー',
     entries: [
+      num('--jimble-radius-scale', '角丸の倍率（sm〜xl にかける）', '例: 0.75・1・1.5'),
       radius('--jimble-radius-sm', '小'),
       radius('--jimble-radius-md', '中'),
       radius('--jimble-radius-lg', '大'),
@@ -225,6 +226,11 @@ export const CATALOG: Group[] = [
       weight('--jimble-font-weight-medium', '太さ medium（ラベルなど）'),
       weight('--jimble-font-weight-semibold', '太さ semibold（見出しなど）'),
       weight('--jimble-font-weight-bold', '太さ bold'),
+      num(
+        '--jimble-font-size-scale',
+        '文字の大きさの倍率（xs〜xl と行の高さにかける）',
+        '例: 0.9・1・1.1',
+      ),
       len('--jimble-font-size-xs', '大きさ xs'),
       len('--jimble-font-size-sm', '大きさ sm'),
       len('--jimble-font-size-base', '大きさ base'),
@@ -412,6 +418,18 @@ export const CATALOG: Group[] = [
       c('--jimble-switch-thumb-ring', 'スイッチの丸の縁'),
       len('--jimble-icon-size', 'アイコンの大きさ（大きさに応じる）', undefined, true),
       len('--jimble-spinner-size', 'スピナーの大きさ（大きさに応じる）', undefined, true),
+    ],
+  },
+  {
+    title: '進み具合・仮の表示・空の状態',
+    note: '進み具合の棒の色は、溝との対比 3:1 以上にする',
+    entries: [
+      c('--jimble-progress-fill', '進み具合の棒の色（variant に応じる）', true),
+      c('--jimble-progress-track', '進み具合の棒の溝'),
+      len('--jimble-skeleton-width', '仮の表示の幅（形に応じる）', undefined, true),
+      len('--jimble-skeleton-height', '仮の表示の高さ（形に応じる）', undefined, true),
+      len('--jimble-skeleton-radius', '仮の表示の角丸（形に応じる）', undefined, true),
+      len('--jimble-empty-state-padding', '空の状態の上下の余白', '例: 2.5rem'),
     ],
   },
   {

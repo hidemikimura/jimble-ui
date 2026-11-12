@@ -1,10 +1,11 @@
 {
   "description": "青と、青みのある灰色（slate）。角丸を小さくした、業務システム向けの落ち着いた見た目",
-  "scales": { "primary": "blue", "neutral": "slate" },
+  "scales": {
+    "primary": "blue",
+    "neutral": "slate"
+  },
   "tokens": {
     "color-primary-500": "@tw(--color-blue-700)",
-    "radius-control": "{radius-md}",
-    "radius-card": "{radius-md}",
-    "radius-overlay": "{radius-lg}"
+    "radius-scale": "0.75"
   }
 }

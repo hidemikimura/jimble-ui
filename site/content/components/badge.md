@@ -12,6 +12,10 @@ description: 状態やカテゴリを示す小さなラベル
 
 ::example badge/sizes
 
+## Do / Don't
+
+::dos badge
+
 ## API
 
 ::api jimble-badge

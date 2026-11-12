@@ -16,6 +16,10 @@ description: 項目名と値の一覧
 - 広い画面（40rem 以上）では項目名を左の列に、狭い画面では値の上に置きます。`layout="vertical"` で常に縦にできます。項目名の列の幅は `--jimble-description-label-width` で変えられます。
 - 項目名は `term`、値は `definition` の役割を持ちます。
 
+## Do / Don't
+
+::dos description-list
+
 ## API
 
 ::api jimble-description-list

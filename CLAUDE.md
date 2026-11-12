@@ -45,7 +45,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 2. **トークンの既定値を `:host` / `:root` に宣言しない**（利用者の `:root` での上書きが負ける）。`var(--jimble-x, 既定値)` のフォールバックで持つ。`*.host.css` から使う色は、生成される `--_c-*`（`aliases.generated.css`）を参照する。
 3. **Shadow DOM 内では Tailwind v4 の `@property` が効かない**。`build/postcss-shadow-fix.ts` が補正している。`shadow-*` / `ring-*` を触るときは、ブラウザテストで `box-shadow` が効くことを確認する。
 4. **リアクティブプロパティは `static properties: PropertyDeclarations` + `declare` フィールド**。デコレーターは使わない。`value` / `checked` は「属性=初期値、プロパティ=現在値」（利用者が触ったら属性で上書きしない）。
-5. **host 自身が意味を持つときは `ElementInternals` の role / aria\*** を使う（`JimbleElement.internals`。`attachInternals` はここでだけ呼ぶ）。host に属性を書き込まない（`tabindex` などの例外あり）。**例外**: 試験の道具（Playwright の `getByRole`）が `ElementInternals` の役割を見ないので、タブ・ラジオ・セレクトの選択肢・メニューの項目・表の行とセルは、`reflectAria()` で役割と状態（`aria-selected`・`aria-checked`・`aria-disabled`・`aria-sort` など）を属性にも書く（`ElementInternals` と同じ値。利用者が書いた属性は上書きしない）。`jimble-option` は、`jimble-select` の子のときだけ書く（コンボボックスなどでは、データの元なので書くと axe が指摘する）。表の `role="table"` は host ではなく、Shadow DOM の中のスクロール領域に付ける（はみ出すとフォーカスできるので、表と行の間にフォーカスできる要素を挟まない）。
+5. **host 自身が意味を持つときは `ElementInternals` の role / aria\*** を使う（`JimbleElement.internals`。`attachInternals` はここでだけ呼ぶ）。host に属性を書き込まない（`tabindex` などの例外あり）。**例外**: 試験の道具（Playwright の `getByRole`）が `ElementInternals` の役割を見ないので、タブ・ラジオ・セレクトの選択肢・メニューの項目・表の行とセルは、`reflectAria()` で役割と状態（`aria-selected`・`aria-checked`・`aria-disabled`・`aria-sort` など）を属性にも書く（`ElementInternals` と同じ値。利用者が書いた属性は上書きしない）。`jimble-progress` も `progressbar` と値を書く。`jimble-option` は、`jimble-select` の子のときだけ書く（コンボボックスなどでは、データの元なので書くと axe が指摘する）。表の `role="table"` は host ではなく、Shadow DOM の中のスクロール領域に付ける（はみ出すとフォーカスできるので、表と行の間にフォーカスできる要素を挟まない）。
 6. **Shadow DOM の境界**:
    - ARIA の IDREF は境界をまたげない。ラベル・ヒント・エラーは**文字列で渡して、部品側の root に写す**（`jimble-field`）。anchor 名（CSS Anchor Positioning）も同じツリー内でだけ有効。
    - リスナーから見た `event.target` は host に再ターゲットされる。内側の要素を探すときは `event.composedPath()`。
@@ -54,7 +54,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 7. **オーバーレイはネイティブ機能に任せる**（`<dialog>` の `showModal()`、Popover API）。popover 要素に `display` を変えるクラスを付けない（UA の非表示が壊れる）。メニュー/セレクトを Tab で閉じるときは、**描画を待たず同期的に `hidePopover()`**（Firefox で tabindex=0 の項目にフォーカスが移る）。toast の領域は、開いているモーダルの `<dialog>` の中へ移動する（モーダルの外は inert）。
 8. **IME**: Enter・Esc・先頭文字検索は `ImeController` で変換中を除外する。
 9. **アクセシビリティは自動テストで守る**: すべての部品と例に axe（違反ゼロ）。色の組み合わせを足したら `tests/unit/contrast.test.ts` に追加（文字 4.5:1、枠・アイコン 3:1）。入力欄の枠は `ring-line-control`（他より濃い）。強制色モード用に、ring/shadow の要素には透明な `outline` を併用する。
-10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。ページのテンプレート（`site/examples/templates/`、§18）も例と同じ扱いで、並べ方は `style` 属性で書く（サイトの CSS に頼らない。CLI の `template` がそのまま配る）。
+10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。使い方の Do / Don't を `site/dos/<名前>.md` に書き、ページに `::dos <名前>` を置く（§20。skill と CLI にも出る）。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。ページのテンプレート（`site/examples/templates/`、§18）も例と同じ扱いで、並べ方と余白は `jimble-stack` / `jimble-grid` で書き、書けない所だけ `style` 属性にする（サイトの CSS に頼らない。CLI の `template` がそのまま配る）。部品の中で動的な style を付けるときは、`style` 属性ではなく `styleMap`（CSSOM）にする（CSP の `style-src` を絞ったページでも動く）。
 
 ## テストの落とし穴（過去に踏んだもの）
 

@@ -43,6 +43,10 @@ description: ドロップダウンメニュー
 | Esc               | 閉じてトリガーに戻る（サブメニューの中では、そのサブメニューだけを閉じて親に戻る） |
 | Tab               | 閉じて、トリガーの次の要素へ進む                                                   |
 
+## Do / Don't
+
+::dos dropdown-menu
+
 ## API
 
 ::api jimble-dropdown-menu

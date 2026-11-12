@@ -77,6 +77,10 @@ jimble-app-shell {
 | `--jimble-app-shell-sidebar-collapsed-width` | `4rem`                        | 細い表示のサイドバーの幅                       |
 | `--jimble-app-shell-main-padding`            | `1rem`（広い画面は `1.5rem`） | 本文の余白                                     |
 
+## Do / Don't
+
+::dos app-shell
+
 ## API
 
 ::api jimble-app-shell

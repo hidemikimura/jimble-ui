@@ -13,6 +13,7 @@ description: jimble-ui（`<jimble-button>` など `jimble-` で始まる Web Com
 - 属性・スロット・イベント・part・CSS 変数の完全な一覧（機械可読）: `node_modules/@hidemikimura/jimble-ui/custom-elements.json`
 - 下の「コンポーネント早見」は、その一覧から生成した要約です。**細かい仕様（各属性の意味、既定値、キー操作）は各コンポーネントのページを見てください。推測で属性を作らないこと。**
 - 1 つの要素の属性・スロット・イベント・CSS 変数を確かめる: `npx @hidemikimura/jimble-ui component <名前>`。何を使うか分からないときは `npx @hidemikimura/jimble-ui search <ことば>`（どちらも `--json` で JSON。`npx jimble-ui` と略さない）。
+- **余白は `jimble-stack`（縦・横）と `jimble-grid`（格子）でそろえる**: `gap` は 4px の何倍か（2 = ボタンの並び、4 = フォームの項目・カードの間、6 = まとまりの間）。`style="display: flex; gap: 12px"` のような値を場所ごとに書かない。`jimble-grid min-column-width="12rem"` で、幅に合わせて列の数が変わる。
 - **ページ全体を作るときは、まずテンプレートから始める**: `npx @hidemikimura/jimble-ui template` で一覧（一覧・詳細・編集フォーム・設定・ログイン・ダッシュボード）、`template <名前>` でそのまま開ける HTML、`--fragment` で本文だけ。axe を通った組み立てなので、文言とデータを差し替えて使う。
 
 ## 読み込み
@@ -104,6 +105,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - イベント: `jimble-route-loading`, `jimble-route-change`, `jimble-route-error`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/router/
+- **`jimble-stack`** — 子の要素を、同じ間隔で縦（または横）に並べる。
+  - 属性: `direction=vertical|horizontal`, `gap=数値`, `align=値`, `justify=start|center|end|between`, `wrap`
+  - スロット: (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/stack/
+- **`jimble-grid`** — 子の要素を、同じ間隔の格子に並べる。
+  - 属性: `columns=数値`, `min-column-width=値`, `gap=数値`
+  - スロット: (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/grid/
 
 ### 表示
 
@@ -124,6 +133,17 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
+- **`jimble-progress`** — 処理の進み具合を、横の棒で示す（ファイルの取り込み・一括の処理・設定の完了の度合い）。
+  - 属性: `value=値`, `max=数値`, `label=値`, `variant=primary|success|warning|danger`, `size=sm|md`, `show-value`
+  - 状態: `:state(indeterminate)`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/progress/
+- **`jimble-skeleton`** — 読み込み中に、あとから出る内容と同じ形の、仮の面を出す（表の行・カード・文章）。
+  - 属性: `variant=text|rect|circle`, `lines=数値`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/skeleton/
+- **`jimble-empty-state`** — 表示するものがないことを伝え、次の一歩を示す（空の一覧・検索の結果なし・まだ作っていない）。
+  - 属性: `heading=値`, `description=値`, `level=数値`
+  - スロット: `icon`, `title`, `description`, `actions`, (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/empty-state/
 - **`jimble-stepper`** — 段階を踏む入力（予約の登録など）の、今の位置と進み具合を見せる。
   - 属性: `value=値`, `orientation=horizontal|vertical`, `size=sm|md`, `navigable`, `label=値`
   - スロット: (既定)
@@ -255,14 +275,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/checkbox/
 - **`jimble-radio-group`** — ラジオのグループ。
-  - 属性: `value=値`, `orientation=vertical|horizontal`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `value=値`, `orientation=vertical|horizontal`, `appearance=default|segmented`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
   - イベント: `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/radio-group/
 - **`jimble-radio`** — ラジオ。
   - 属性: `value=値`, `disabled`, `size=sm|md|lg`
   - スロット: (既定)
-  - 状態: `:state(checked)`, `:state(disabled)`
+  - 状態: `:state(checked)`, `:state(disabled)`, `:state(segmented)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/radio-group/
 - **`jimble-switch`** — オン/オフのスイッチ。
   - 属性: `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
@@ -350,6 +370,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。
 - **ルーター（SPA）** → `references/router.md`。`title` を必ず付ける。
 - **app-shell（サイドバー・ヘッダー）・一覧ページの骨格・テーマの CSS 変数** → `references/layout-theme.md`。
+- **部品ごとの Do / Don't**（こうする・避ける）→ `references/dos.md`。部品を選ぶとき・使い方に迷ったときに読む。`npx @hidemikimura/jimble-ui component <名前>` の出力にも入っている。
 - **Playwright での E2E テスト** → `references/testing.md`。操作の関数 `import { jimble } from '@hidemikimura/jimble-ui/testing'`（`ui.select('役割').choose('編集者')`・`ui.dialog('見出し')` など）を使う。入力欄は `getByRole('textbox', { name })`。ラジオ・選択肢・メニューの項目・タブ・表も `getByRole` で見つかる。ダイアログ・表の中身は、ダイアログ・表で絞らない（スロットで入るので見つからない）。
 
 ### 5. ナビゲーション

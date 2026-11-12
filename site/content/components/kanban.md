@@ -61,3 +61,7 @@ kanban.addEventListener('jimble-card-move', (e) => {
 - `jimble-kanban-column` の `heading` が見出し、件数は自動で出ます。`slot="actions"` に、見出しの右へ置く操作（「＋ 追加」ボタンなど）を入れられます。カードがないときの表示は `slot="empty"` で変えられます。
 - `jimble-kanban-card` の `label` は、読み上げと通知で使うカードの名前です（省略するとカードの文字）。
 - 列の幅は、CSS 変数 `--jimble-kanban-column-width`（既定 18rem）で変えます。列が多いときは、ボードが横にスクロールします。
+
+## Do / Don't
+
+::dos kanban

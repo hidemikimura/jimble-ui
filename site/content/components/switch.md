@@ -16,6 +16,10 @@ description: オン/オフのスイッチ
 | ----- | ------------------- |
 | Space | オン/オフの切り替え |
 
+## Do / Don't
+
+::dos switch
+
 ## API
 
 ::api jimble-switch

@@ -303,6 +303,8 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | それ以外の JS（コンポーネント 1 つぶんなど） | 8 KB 以下（当初は 4 KB） | 最大 6.5 KB（`combobox`） |
 | CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 56 KB 以下 | 39.2 KB |
 
+部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB。§21）。
+
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
 ---
@@ -554,9 +556,9 @@ Astryx（Meta のデザインシステム）が、neutral・stone などのテ�
 
 | 名前     | 主色（primary） | 灰色（neutral） | そのほか                    |
 | -------- | --------------- | --------------- | --------------------------- |
-| `ocean`  | blue            | slate           | 角丸を小さく（control・card は md、overlay は lg） |
+| `ocean`  | blue            | slate           | 角丸を小さく（`radius-scale` 0.75。§4.10） |
 | `forest` | emerald         | stone           |                             |
-| `plum`   | violet          | mauve           | 角丸を大きく（control は xl、card・overlay は 1rem） |
+| `plum`   | violet          | mauve           | 角丸を大きく（`radius-scale` 1.5。§4.10） |
 | `sand`   | orange          | taupe           |                             |
 
 - **白い文字が乗る塗りつぶし**: 既定（indigo）は、`primary-600` も hover の `primary-500` も、白い文字で 4.5:1 を満たす。ほかの色相では、600 または 500 が届かない（blue-500 は 3.76:1、emerald-600 は 3.67:1）。そこで、テーマで `primary-600` / `primary-500` に、より濃い段階を割り当てる（例: forest は 600 に emerald-700、500 に emerald-800）。`primary-500` を使うのは主ボタンの hover だけなので、hover が濃くなるだけで、ほかへの影響はない。
@@ -565,6 +567,24 @@ Astryx（Meta のデザインシステム）が、neutral・stone などのテ�
 - **試験**: `tests/unit/contrast.test.ts` が全テーマ × ライト・ダークで契約を測る。`src/styles/themes.test.ts` が、読み込むと変わること、`data-jimble-theme` の範囲だけ変わること、利用者の `:root` が先に書かれていても勝つこと、ダークの面がテーマの灰色になることを、3 つのブラウザで確かめる。`check-dist` が `dist/themes/*.css` の有無を確かめる。
 
 ---
+
+### 4.10 全体の倍率（2026-11-12）
+
+Astryx は、角丸を「基準値 × 倍率」、文字を「基準の大きさ × 比率」のように、少ない数で全体を変える指定を持っている。jimble-ui は、余白を `--jimble-spacing` 1 つで変えられる（§4.3）が、角丸と文字は段階ごとに変数を書く必要があった。
+
+> **決定** `--jimble-radius-scale`（既定 1）と `--jimble-font-size-scale`（既定 1）を足す。`radius-sm`〜`xl` の既定値を `calc(元の値 * var(--jimble-radius-scale, 1))`、`font-size-xs`〜`xl` と、それぞれの行の高さを `calc(元の値 * var(--jimble-font-size-scale, 1))` にする。`radius-full` は掛けない。
+> **理由**
+> - トークンの既定値の中で掛けるので、`radius-control` などの用途別の角丸と、それを既定に持つ部品固有の変数（`--jimble-button-radius` など）が、まとめて追従する。部品には手を入れない。
+> - 段階ごとの変数（`--jimble-radius-lg` など）を利用者が指定すれば、そちらが勝つ（倍率は既定値の中にしかない）。「全体は倍率で、一部だけ個別に」ができる。
+> - 既製のテーマ（§4.9）も、角丸を倍率 1 つで表せる（ocean は 0.75、plum は 1.5）。以前は用途別の角丸を 3 つずつ書いていた。
+>
+> **比較した案**
+> 1. 動きの「テンポ」（`--jimble-duration-scale`）も足す — 部品は、動きのトークン（`duration-*`）をほとんど使っておらず（Tailwind の 150ms のまま）、効く所がない。部品の動きをトークンにそろえてから考える。
+> 2. 高さ（`control-height-*`）も文字の倍率で変える — 文字を大きくしても、既定の高さ（32 / 36 / 40px）に収まる範囲（1.25 倍まで）が多く、高さまで変わると、表の行の密度などが意図せず変わる。高さは今までどおり個別の変数で変える。
+> 3. `--jimble-spacing` のように、基準の長さ（`--jimble-radius-base`）にする — 段階ごとの比（sm : md : lg : xl = 2 : 3 : 4 : 6）を保ったまま変えるには、倍率のほうが分かりやすい。0 で角なしにもできる。
+
+- **theme-lab**: `theme.css` の角丸と文字の大きさを、倍率を掛ける形で書いた（npm の公開版のライブラリでも、`theme.css` の中で掛けるので、倍率が効く）。カタログに 2 つの倍率を足した。
+- **試験**: `src/styles/theme-vars.test.ts` が、既定のまま、角丸の倍率（2 倍・0）、個別の指定が倍率に勝つこと、文字の倍率で大きさと行の高さが一緒に変わることを、3 つのブラウザで確かめる。テーマの試験（ocean のボタンが 6px）も、そのまま通る。
 
 ## 5. フォーム連携の基底
 
@@ -1905,7 +1925,7 @@ Astryx は、ダッシュボード・表・フォーム・設定・ログイン�
 > **理由**
 > - 例と同じ置き場なので、既存の仕組みがそのまま効く: 例の試験（`tests/browser/examples.test.ts`）が 3 つのブラウザで axe にかけ、ドキュメントサイトが iframe のページ（`frames/templates/<名前>/`）を作り、E2E がライトとダークで axe にかける。テンプレートだけの検査の仕組みを作らずに済む。
 > - 情報源は 1 つ。サイトの「ソース」、CLI の出力、配布物の中身が同じファイルから来る。
-> - 並べ方は `style` 属性（`display: grid` など）だけで書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。
+> - 並べ方は、部品（§19 の `jimble-stack` / `jimble-grid`）と、それで書けない所だけの `style` 属性で書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。（最初は `style` 属性の `display: grid` で書き、§19 で Stack・Grid に置き換えた）
 >
 > **比較した案**
 > 1. 完全な HTML 文書をファイルとして持つ — サイトの iframe・例の試験と形が合わず、`<head>` の CDN の版を、リリースのたびに書き換えることになる。CLI が、入っているパッケージの版から `<head>` を作る。
@@ -1917,6 +1937,86 @@ Astryx は、ダッシュボード・表・フォーム・設定・ログイン�
 - **main ランドマーク**: app-shell を使うテンプレートは、app-shell が `main` を持つ。ログインは app-shell を使わないので、テンプレート自身が `<main>` から始まる。例の試験は、`<main` を含む例を `main` で包まない（入れ子の `main` を避ける）。
 - **送信の処理**: `onsubmit` は `JimbleUI.toast` で通知を出すだけの見本。必須の項目は `jimble-field` の `required` で、未入力のまま送信すると、エラーを出して最初の項目にフォーカスする（ブラウザで確認した）。
 - **試験**: 例の試験と E2E に加えて、`tests/unit/cli.test.ts` が `template` の一覧・文書・`--fragment`・`--theme`・エラーコード・`search` での発見を確かめる。`pack-smoke` は、tarball を入れたプロジェクトで `template list --theme ocean` の出力を、CDN の URL を入れたパッケージの `dist` に向けて Chromium で開き、部品が登録され、テーマが効き、コンソールエラーがないことを確かめる。
+
+## 19. 配置の部品 Stack・Grid（2026-11-12）
+
+Astryx は Stack（VStack / HStack）・Grid などの配置の部品を持ち、余白を間隔の段階で指定させる。jimble-ui では、例とテンプレートが `style` 属性の `display: grid; gap: 1rem` などで並べていて、間隔の値が場所ごとにばらつきやすく、AI が画面を組むときにも、余白の決め方の手がかりがなかった。
+
+> **決定** `jimble-stack`（縦・横に並べる。`direction`・`gap`・`align`・`justify`・`wrap`）と、`jimble-grid`（格子に並べる。`columns`・`min-column-width`・`gap`）を足す。`gap` は、余白の基準 `--jimble-spacing`（既定 4px）の何倍か（既定 4 = 16px）。Shadow DOM の中の `<div part="base">` を flex / grid にし、既定のスロットの子を並べる。host には何も書かない。
+> **理由**
+> - 間隔を「基準の何倍か」で書かせると、値が 2・3・4・6 などの段階にそろい、ページ全体の密度（`--jimble-spacing`）を変えると一緒に変わる。Tailwind の `gap-4` と同じ数え方なので、覚えやすい。
+> - スロットは `display: contents` なので、light DOM の子が、そのまま内側の flex / grid の項目になる。子に手を入れずに並べられる。
+> - `min-column-width` で、メディアクエリなしに、幅に合わせて列の数が変わる（`repeat(auto-fit, minmax(min(幅, 100%), 1fr))`。`min(…, 100%)` で、狭い画面でもはみ出さない）。
+>
+> **比較した案**
+> 1. host 自身を flex / grid にする（`:host { display: flex }` と、属性ごとの `:host([gap="4"])`） — `gap` の値の数だけ規則が要り、小数や任意の値を扱えない。値を host の style に書くのは、host に書き込まない約束（CLAUDE.md の 5）に反する。
+> 2. ユーティリティのクラス（`.jimble-stack-4`）を配る — Shadow DOM の外の CSS になり、読み込みの手間が増える。部品なら、CDN の 1 行で使える。
+> 3. 間隔を長さ（`gap="1rem"`）で受ける — 段階がばらつき、密度の変更に追従しない。
+
+- **書体と色を引き継ぐ**: 共通の `:host` は部品の書体と文字色を決めるが、Stack・Grid は並べるだけの箱なので、host で `font-family: inherit; color: inherit` に戻す（利用者の文章の見た目を変えない）。試験で確かめる。
+- **CSP**: 間隔と列の指定は、`style` 属性ではなく `styleMap`（CSSOM）で渡す（§16 の色選択と同じく、`style-src` を絞ったページでも動く）。
+- **値の検査**: `gap` は 0 以上の数（小数も可）で、それ以外は既定の 4。`columns` は 1 以上の整数で、それ以外は 1。`min-column-width` は `16rem`・`240px`・`20ch`・`50%` のような長さだけを受け付け、式や `var()` は無視して `columns` を使う。
+- **意味**: どちらも役割（role）を持たない。リストなら `<ul>`、まとまりに名前を付けるなら `<section aria-label>` を、外側に置く。
+- **テンプレート**: §18 のテンプレートの `display: grid` / `flex` を、Stack・Grid に置き換えた（一覧の検索欄は、入力欄の伸び方を `flex` で決めているので、`style` のまま）。
+- **theme-lab**: 部品一覧のページに「配置」の欄を足した（公開版に入るまでは、間隔なしで表示される）。
+
+## 20. 部品ごとの Do / Don't（2026-11-12）
+
+Astryx のドキュメントは、部品ごとに「Do / Don't」を並べ、選び方と避けるべき使い方を、短い言葉で示している。人にも AI にも、部品の選び間違い（日付に `jimble-input`、操作に `jimble-select`）を防ぐ効き目がある。jimble-ui の注意書きは skill の references とページの本文に散らばっていて、部品ごとに引けなかった。
+
+> **決定** 情報源を `site/dos/<ページの名前>.md`（`## Do` と `## Don't` の箇条書き）にし、3 か所に出す。ドキュメントサイトは、各部品のページの `::dos <名前>` で 2 つの欄に描く。skill の生成（`gen-skill`）は、全部品分を `references/dos.md` にまとめる。CLI の `component <名前>` は、その部品のページの分を `dos`（`{ do, dont }`）として出す（子の要素は親のページの分）。
+> **理由**
+> - 1 か所に書けば、人が読むページ、AI が読む skill、エージェントが引く CLI の内容が食い違わない。
+> - skill の references に入るので、既存の試験（`tests/unit/skill.test.ts`）が、書いたタグ・属性が実在することを保証する。
+> - Don't には、代わりに使う部品を書く（「日付に使う。それは `jimble-date-input`」）。避けるだけでなく、正しい選択に導く。
+>
+> **比較した案**
+> 1. 各部品の JSDoc に書き、custom-elements.json から作る — API の説明と混ざり、VS Code の補完の説明が長くなる。使い方の判断は、API とは別の情報。
+> 2. 各ページの Markdown に直接書く — skill と CLI へ出すために、ページの Markdown を解析することになる。
+> 3. SKILL.md の本文に入れる — 常に読まれる skill の上限（約 2 万文字）を超える。必要なときだけ読む references に置く。
+
+- **形と量**: 各ページに、Do・Don't をそれぞれ 2〜6 項目（試験で確かめる）。短い 1 文で、部品の属性・スロット・イベントは実在する名前だけを書く。
+- **見た目**: 2 つの欄を、見出しの文字（「Do（こうする）」「Don't（避ける）」）と、上の縁の色で区別する（色だけに頼らない）。見出しの色は、ライト・ダークの背景で 4.5:1 以上。
+- **試験**: `tests/unit/dos.test.ts` が、全部品のページにファイルと `::dos` があること、項目の数、読み取りの規則を確かめる。`tests/unit/cli.test.ts` が、`component` の `dos` と、子の要素が親のページの分を出すことを確かめる。E2E が、全部品のページを axe にかける。
+- **部品を足したら**: `site/dos/<名前>.md` も書き、ページに `::dos <名前>` を置く（試験が落ちる）。
+
+## 21. 進み具合・仮の表示・空の状態・区切った見た目のラジオ（2026-11-12）
+
+Astryx にあって jimble-ui に無かった部品のうち、管理画面でよく使い、設計の軽いものを足した。ポップオーバー・コマンドパレット・ツリーは、キー操作と ARIA の設計が重いので、別に検討する。
+
+### 21.1 `jimble-progress`
+
+> **決定** host が `role="progressbar"`・`aria-valuemin`・`aria-valuemax`・`aria-valuenow`（`ElementInternals` と、試験の道具のための属性の両方。§3.3 の例外と同じ扱い）を持つ。`value` が無いと不確定（`aria-valuenow` を出さず、`:state(indeterminate)`）。名前は `label`（表示し、`ariaLabel` にも渡す。表示の文字は `aria-hidden`）か `aria-label`。
+> **理由** ネイティブの `<progress>` は、色・太さ・不確定の動きを、ブラウザごとの疑似要素でしか変えられない。部品にすると、トークンの色とダークモード・強制色モードを揃えられる。
+> **比較した案** 中の `<progress>` に役割を任せる — 見た目を揃えるために、`::-webkit-progress-value` / `::-moz-progress-bar` を別々に書くことになり、不確定の動きも揃わない。
+
+- **色**: 満たした部分は、溝（`surface-track`）との対比 3:1 を、ライト・ダークの両方で満たす必要がある（1.4.11）。`icon-success` / `icon-warning`（600）は溝に対して 3:1 に届かないので、文字の色（`text-*`。700 / ダークは 300）を使う。`contrast.test.ts` に 4 色を足した。
+- **動き**: 不確定は、棒の一部が流れる。「視差効果を減らす」設定では、流さずに溝いっぱいを点滅させる。値の変化は幅の transition（同じ設定では止める）。
+- **強制色モード**: 溝は枠、満たした部分は `Highlight`。
+
+### 21.2 `jimble-skeleton`
+
+> **決定** 読み上げに出さない（`ElementInternals.ariaHidden`）。読み込み中であることは、包む要素の `aria-busy` と、`jimble-spinner` などで伝える（ドキュメントと Do / Don't に書く）。
+> **理由** 仮の面を 1 つずつ「読み込み中」と読ませると、同じことが何度も読まれる。
+> **比較した案** 各面に `role="status"` — 上と同じく、読み上げが重なる。
+
+- 形は `text`（`lines`、最後の行は 60%）・`rect`・`circle`。大きさは `--jimble-skeleton-width` / `-height` / `-radius`。点滅は `motion-safe` のときだけ。強制色モードでは点線の枠。
+
+### 21.3 `jimble-empty-state`
+
+- 見出しは `role="heading"`（`level`、既定 2。`jimble-page-header` と同じ作り）。アイコンは `aria-hidden`。件数の変化の読み上げは、アプリの役目（ドキュメントに書く）。
+- 表が空のときは、`jimble-table` の `empty` スロットに置く（表の空の例を置き換えた）。
+
+### 21.4 区切った見た目のラジオ（segmented control）
+
+> **決定** 新しい部品にせず、`jimble-radio-group` に `appearance="segmented"` を足す。グループが子の `jimble-radio` に `segmented` を伝え、ラジオは丸い表示部の代わりに、ボタン状の面を描く。
+> **理由** 意味・キー操作（矢印キーで選ぶ）・フォームへの参加・検証は、ラジオのグループと同じ。別の部品にすると、これらを二重に持つことになる。
+> **比較した案** `jimble-segmented-control` を作る — 上の理由で重複する。トグルボタンの並び（`aria-pressed`）— 1 つだけを選ぶ意味を、読み上げで伝えられない。
+
+- **選ばれたものの示し方**: 面（`surface`）・枠（`ring-control`。沈んだ面に対して 3:1）・影・太字（色だけに頼らない）。選ばれていない文字は `text-secondary`（沈んだ面で 4.5:1。`text-muted` では足りない）。強制色モードでは `Highlight` の枠。
+- `orientation` は効かず、常に横。並びは折り返さない（少ない選択肢に使う）。
+
+- **予算**: 部品を 5 つ（§19 の 2 つと、ここの 3 つ）足し、CDN バンドルが 105.3 KB（予算 104 KB）、共有チャンク（共有シートの CSS を含む）が 17.1 KB（予算 17 KB）になった。どちらも部品の数に比例して増える分なので、予算を CDN 110 KB・共有チャンク 18 KB に上げた（§4.8 と同じ判断。部品 1 つあたり、CDN で約 0.5 KB）。部品ごとのチャンク（9 KB）は変えていない。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

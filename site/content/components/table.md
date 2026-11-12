@@ -79,6 +79,10 @@ table.rows = orders
 
 ::example table/states
 
+## Do / Don't
+
+::dos table
+
 ## API
 
 ::api jimble-table

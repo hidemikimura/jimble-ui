@@ -15,6 +15,10 @@ description: パンくずリスト
 - `href` のある項目はリンクになります。`href` の無い**最後の項目**が現在のページ（`aria-current="page"`）です。`current` 属性でも指定できます。
 - 区切りのアイコンは装飾で、支援技術には読み上げられません。
 
+## Do / Don't
+
+::dos breadcrumb
+
 ## API
 
 ::api jimble-breadcrumb

@@ -58,6 +58,10 @@ el.upload = async (file, { onProgress, signal }) => {
 - ボタンでのフォルダーの選択、ドラッグでの並べ替え、ファイルの編集（画像のトリミングなど）、チャンク分割アップロードは未対応です。
 - プログラムからは `addFiles(files)`、`removeFile(file)`、`clear()`、`files`（追加済みの `File`）を使えます。
 
+## Do / Don't
+
+::dos file-input
+
 ## API
 
 ::api jimble-file-input

@@ -53,6 +53,10 @@ registerIcon('my-logo', {
 
 ::icons
 
+## Do / Don't
+
+::dos icon
+
 ## API
 
 ::api jimble-icon

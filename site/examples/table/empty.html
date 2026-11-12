@@ -1,4 +1,4 @@
-<!-- title: 空の状態 -->
+<!-- title: 空の状態（empty スロットに jimble-empty-state を置く） -->
 <jimble-table label="予約">
   <jimble-table-header>
     <jimble-table-row>
@@ -8,8 +8,8 @@
     </jimble-table-row>
   </jimble-table-header>
   <jimble-table-body></jimble-table-body>
-  <div slot="empty">
-    <p style="margin: 0 0 0.75rem">該当する予約はありません</p>
-    <jimble-button size="sm">絞り込みを解除</jimble-button>
-  </div>
+  <jimble-empty-state slot="empty" heading="該当する予約はありません" level="3">
+    <span slot="description">絞り込みの条件を外すと、すべての予約が表示されます。</span>
+    <jimble-button slot="actions" size="sm">絞り込みを解除</jimble-button>
+  </jimble-empty-state>
 </jimble-table>

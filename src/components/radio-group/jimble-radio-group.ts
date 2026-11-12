@@ -5,10 +5,16 @@ import type { ValidationContext } from '../../base/validation.js'
 import type { JimbleRadio } from './jimble-radio.js'
 import './jimble-radio.js'
 
+export type RadioGroupAppearance = 'default' | 'segmented'
+
 /**
  * ラジオのグループ。フォーム関連カスタム要素で、選ばれた `jimble-radio` の `value` を送信する。
  * キーボード操作は WAI-ARIA の radio group パターンに従う（Tab でグループに入り、矢印キーで
  * 移動と同時に選択、Space で選択）。
+ *
+ * `appearance="segmented"` で、ボタンを横につなげた見た目（セグメンテッドコントロール）になる。
+ * 表示の切り替え（一覧・カード、日・週・月）など、少ない選択肢を 1 つ選ぶときに使う。
+ * 操作・値・フォームへの参加は、ふつうのラジオと同じ（`orientation` は効かず、常に横）。
  *
  * @tag jimble-radio-group
  *
@@ -24,10 +30,13 @@ export class JimbleRadioGroup extends JimbleFormElement {
   static override properties: PropertyDeclarations = {
     value: { noAccessor: true },
     orientation: { reflect: true },
+    appearance: { reflect: true },
   }
 
   /** 並べる向き */
   declare orientation: 'vertical' | 'horizontal'
+  /** 見た目。`segmented` は、ボタンを横につなげた見た目 */
+  declare appearance: RadioGroupAppearance
 
   #value = ''
   #dirty = false
@@ -58,6 +67,11 @@ export class JimbleRadioGroup extends JimbleFormElement {
   constructor() {
     super()
     this.orientation = 'vertical'
+    this.appearance = 'default'
+  }
+
+  get #segmented(): boolean {
+    return this.appearance === 'segmented'
   }
 
   get radios(): JimbleRadio[] {
@@ -100,6 +114,7 @@ export class JimbleRadioGroup extends JimbleFormElement {
       r.checked = r.value === this.#value
       r.size = this.size
       r.groupDisabled = this.isDisabled
+      r.segmented = this.#segmented
       r.tabIndex = r === stop && !this.isDisabled ? 0 : -1
     }
   }
@@ -158,12 +173,15 @@ export class JimbleRadioGroup extends JimbleFormElement {
 
   protected override render() {
     const invalid = this.showInvalid
-    const layout =
-      this.orientation === 'horizontal' ? 'flex-row flex-wrap gap-x-6 gap-y-2' : 'flex-col gap-2'
+    const layout = this.#segmented
+      ? 'inline-flex flex-row gap-1 rounded-control bg-surface-sunken p-1 outline outline-1 outline-transparent'
+      : this.orientation === 'horizontal'
+        ? 'flex flex-row flex-wrap gap-x-6 gap-y-2'
+        : 'flex flex-col gap-2'
     return html`<div
         part="base"
         role="radiogroup"
-        class="flex ${layout}"
+        class=${layout}
         aria-label=${ifDefined(this.accessibleName())}
         aria-required=${this.required || this.field.required ? 'true' : nothing}
         aria-invalid=${invalid ? 'true' : nothing}

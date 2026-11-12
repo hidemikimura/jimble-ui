@@ -10,6 +10,7 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { FORM, firstSentence, pageUrl } from '../cli/catalog.ts'
+import { dosNames, readDos, DOS_DIR } from './lib/dos.ts'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '..')
@@ -30,6 +31,8 @@ const GROUPS: [string, string[]][] = [
       'tab',
       'tab-panel',
       'router',
+      'stack',
+      'grid',
     ],
   ],
   [
@@ -39,6 +42,9 @@ const GROUPS: [string, string[]][] = [
       'badge',
       'alert',
       'spinner',
+      'progress',
+      'skeleton',
+      'empty-state',
       'stepper',
       'step',
       'icon',
@@ -161,6 +167,42 @@ const expand = (text: string) =>
     .replace('{{icons}}', iconNames())
     .replace(/\{\{example:([\w/-]+)\}\}/g, (_, id: string) => example(id))
 
+/** 部品のページの題名と並び順（site/content/components/<名前>.md の frontmatter） */
+function pageMeta(name: string): { title: string; order: number } {
+  const text = readFileSync(resolve(root, 'site/content/components', `${name}.md`), 'utf8')
+  return {
+    title: /^title:\s*(.+)$/m.exec(text)?.[1]?.trim() ?? name,
+    order: Number(/^order:\s*([\d.]+)$/m.exec(text)?.[1] ?? 999),
+  }
+}
+
+/** references/dos.md: 部品ごとの Do / Don't（site/dos/*.md を、ドキュメントの並び順でまとめる。設計書 §20） */
+function dosReference(): string {
+  const sections = dosNames()
+    .map((name) => ({ name, ...pageMeta(name), ...readDos(resolve(DOS_DIR, `${name}.md`)) }))
+    .sort((a, b) => a.order - b.order)
+    .map((d) =>
+      [
+        `## ${d.title}（\`jimble-${d.name}\`）`,
+        '',
+        '**Do**',
+        '',
+        ...d.doItems.map((i) => `- ${i}`),
+        '',
+        "**Don't**",
+        '',
+        ...d.dontItems.map((i) => `- ${i}`),
+      ].join('\n'),
+    )
+  return [
+    "# 部品ごとの Do / Don't",
+    '',
+    "部品ごとの、こうする（Do）と、避ける（Don't）。ドキュメントの各部品のページの「Do / Don't」と同じ内容（`site/dos/` から生成）。",
+    '',
+    ...sections.flatMap((s) => [s, '']),
+  ].join('\n')
+}
+
 const NOTICE =
   '<!-- 生成物: scripts/gen-skill.ts が scripts/skill-template.md・scripts/skill-references・custom-elements.json・site/examples から作る。直接編集しない。 -->\n'
 
@@ -175,6 +217,7 @@ function generate(): Map<string, string> {
     .filter((n) => n.endsWith('.md'))
     .sort())
     files.set(`references/${f}`, NOTICE + '\n' + expand(readFileSync(resolve(refDir, f), 'utf8')))
+  files.set('references/dos.md', NOTICE + '\n' + dosReference())
   // 目印の形だけを見る(コードエディタの例などの {{customer_name}} は、ふつうの文字)
   for (const [name, text] of files)
     if (/\{\{(?:components|icons)\}\}|\{\{[a-z]+:/.test(text))

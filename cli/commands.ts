@@ -1,5 +1,5 @@
 // 読み取りのコマンド（component・search・docs・themes）。結果は { type, data } で返し、表示は format.ts が行う。
-import { FORM, firstSentence, pageUrl } from './catalog.ts'
+import { FORM, firstSentence, pageName, pageUrl } from './catalog.ts'
 import { PACKAGE_NAME, type Component, type PackageData } from './data.ts'
 import { CliError, similar } from './errors.ts'
 import { cdnRange } from './template.ts'
@@ -32,7 +32,29 @@ export function listComponents(pkg: PackageData): Result {
   return { type: 'component.list', data: { components } }
 }
 
-export type ComponentDetail = Component & { page: string }
+export interface DosAdvice {
+  /** こうする */
+  do: string[]
+  /** 避ける */
+  dont: string[]
+}
+export type ComponentDetail = Component & { page: string; dos: DosAdvice | null }
+
+/** references/dos.md から、ページ（`## 題名（\`jimble-名前\`）`）の Do / Don't を取り出す（設計書 §20） */
+export function dosFor(pkg: PackageData, page: string): DosAdvice | null {
+  const body = pkg.topics.find((t) => t.id === 'dos')?.body
+  if (!body) return null
+  const start = body.search(new RegExp(`^## .*\`jimble-${page}\``, 'm'))
+  if (start < 0) return null
+  const rest = body.slice(start)
+  const next = rest.slice(3).search(/^## /m)
+  const section = next < 0 ? rest : rest.slice(0, next + 3)
+  const list = (label: string) =>
+    [...(section.split(label)[1]?.split(/^\*\*/m)[0] ?? '').matchAll(/^- (.+)$/gm)].map(
+      (m) => m[1]!,
+    )
+  return { do: list('**Do**'), dont: list("**Don't**") }
+}
 
 export function findComponent(pkg: PackageData, name: string): Component {
   const tag = name.startsWith('jimble-') ? name : `jimble-${name}`
@@ -55,14 +77,17 @@ export function showComponent(pkg: PackageData, name: string): Result {
   const c = findComponent(pkg, name)
   const short = shortName(c.tag)
   // フォーム部品は、ネイティブと同じ input / change も出す（JSDoc の @fires には書いていない）
-  const events = FORM.has(short)
-    ? [
-        ...c.events,
-        { name: 'input', description: '値が変わるたび（ネイティブと同じ）' },
-        { name: 'change', description: '値が確定したとき（ネイティブと同じ）' },
-      ]
-    : c.events
-  const detail: ComponentDetail = { ...c, events, page: pageUrl(short) }
+  const native = [
+    { name: 'input', description: '値が変わるたび（ネイティブと同じ）' },
+    { name: 'change', description: '値が確定したとき（ネイティブと同じ）' },
+  ].filter((n) => !c.events.some((e) => e.name === n.name))
+  const events = FORM.has(short) ? [...c.events, ...native] : c.events
+  const detail: ComponentDetail = {
+    ...c,
+    events,
+    page: pageUrl(short),
+    dos: dosFor(pkg, pageName(short)),
+  }
   return { type: 'component.detail', data: detail }
 }
 

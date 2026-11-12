@@ -11,6 +11,7 @@ description: jimble-ui（`<jimble-button>` など `jimble-` で始まる Web Com
 - 属性・スロット・イベント・part・CSS 変数の完全な一覧（機械可読）: `node_modules/@hidemikimura/jimble-ui/custom-elements.json`
 - 下の「コンポーネント早見」は、その一覧から生成した要約です。**細かい仕様（各属性の意味、既定値、キー操作）は各コンポーネントのページを見てください。推測で属性を作らないこと。**
 - 1 つの要素の属性・スロット・イベント・CSS 変数を確かめる: `npx @hidemikimura/jimble-ui component <名前>`。何を使うか分からないときは `npx @hidemikimura/jimble-ui search <ことば>`（どちらも `--json` で JSON。`npx jimble-ui` と略さない）。
+- **余白は `jimble-stack`（縦・横）と `jimble-grid`（格子）でそろえる**: `gap` は 4px の何倍か（2 = ボタンの並び、4 = フォームの項目・カードの間、6 = まとまりの間）。`style="display: flex; gap: 12px"` のような値を場所ごとに書かない。`jimble-grid min-column-width="12rem"` で、幅に合わせて列の数が変わる。
 - **ページ全体を作るときは、まずテンプレートから始める**: `npx @hidemikimura/jimble-ui template` で一覧（一覧・詳細・編集フォーム・設定・ログイン・ダッシュボード）、`template <名前>` でそのまま開ける HTML、`--fragment` で本文だけ。axe を通った組み立てなので、文言とデータを差し替えて使う。
 
 ## 読み込み
@@ -93,6 +94,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。
 - **ルーター（SPA）** → `references/router.md`。`title` を必ず付ける。
 - **app-shell（サイドバー・ヘッダー）・一覧ページの骨格・テーマの CSS 変数** → `references/layout-theme.md`。
+- **部品ごとの Do / Don't**（こうする・避ける）→ `references/dos.md`。部品を選ぶとき・使い方に迷ったときに読む。`npx @hidemikimura/jimble-ui component <名前>` の出力にも入っている。
 - **Playwright での E2E テスト** → `references/testing.md`。操作の関数 `import { jimble } from '@hidemikimura/jimble-ui/testing'`（`ui.select('役割').choose('編集者')`・`ui.dialog('見出し')` など）を使う。入力欄は `getByRole('textbox', { name })`。ラジオ・選択肢・メニューの項目・タブ・表も `getByRole` で見つかる。ダイアログ・表の中身は、ダイアログ・表で絞らない（スロットで入るので見つからない）。
 
 ### 5. ナビゲーション

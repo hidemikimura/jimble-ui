@@ -24,26 +24,25 @@
     >
   </jimble-page-header>
 
-  <div style="display: grid; gap: 1rem; margin-top: 1rem">
-    <section
-      aria-label="今月の数字"
-      style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr))"
-    >
-      <jimble-card>
-        <p style="margin: 0; font-size: 0.875rem">売上</p>
-        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">¥1,284,000</p>
-        <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +12%</jimble-badge>
-      </jimble-card>
-      <jimble-card>
-        <p style="margin: 0; font-size: 0.875rem">注文</p>
-        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">243 件</p>
-        <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +8%</jimble-badge>
-      </jimble-card>
-      <jimble-card>
-        <p style="margin: 0; font-size: 0.875rem">新しい顧客</p>
-        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">38 人</p>
-        <jimble-badge variant="danger" style="margin-top: 0.5rem">前月比 −5%</jimble-badge>
-      </jimble-card>
+  <jimble-stack style="margin-top: 1rem">
+    <section aria-label="今月の数字">
+      <jimble-grid min-column-width="12rem">
+        <jimble-card>
+          <p style="margin: 0; font-size: 0.875rem">売上</p>
+          <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">¥1,284,000</p>
+          <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +12%</jimble-badge>
+        </jimble-card>
+        <jimble-card>
+          <p style="margin: 0; font-size: 0.875rem">注文</p>
+          <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">243 件</p>
+          <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +8%</jimble-badge>
+        </jimble-card>
+        <jimble-card>
+          <p style="margin: 0; font-size: 0.875rem">新しい顧客</p>
+          <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">38 人</p>
+          <jimble-badge variant="danger" style="margin-top: 0.5rem">前月比 −5%</jimble-badge>
+        </jimble-card>
+      </jimble-grid>
     </section>
 
     <jimble-alert variant="info">
@@ -53,13 +52,10 @@
     </jimble-alert>
 
     <jimble-card>
-      <div
-        slot="header"
-        style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem"
-      >
+      <jimble-stack slot="header" direction="horizontal" justify="between" align="center" gap="3">
         <h2 style="margin: 0; font-size: 1rem">最近の注文</h2>
         <a href="#">すべて見る</a>
-      </div>
+      </jimble-stack>
       <jimble-table label="最近の注文">
         <jimble-table-header>
           <jimble-table-row>
@@ -95,5 +91,5 @@
         </jimble-table-body>
       </jimble-table>
     </jimble-card>
-  </div>
+  </jimble-stack>
 </jimble-app-shell>
