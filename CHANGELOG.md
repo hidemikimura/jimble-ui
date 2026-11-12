@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.18.0](https://github.com/hidemikimura/jimble-ui/compare/v0.17.1...v0.18.0) (2026-11-12)
+
+
+### 追加
+
+* **cli:** エージェントも使える CLI を npx で配る ([6471dba](https://github.com/hidemikimura/jimble-ui/commit/6471dbaa50a23af1a3e7b91b99ac5b254c89c3ca))
+* **command-palette:** ページや操作を名前で探して実行する jimble-command-palette を足す ([7cb0e04](https://github.com/hidemikimura/jimble-ui/commit/7cb0e0428f8f703f8b5ee2a3f22bef5378b92f3a))
+* **command-palette:** ページや操作を名前で探して実行する jimble-command-palette を足す ([61e72d1](https://github.com/hidemikimura/jimble-ui/commit/61e72d1d30474b73b457ce0dd3ad4234693fc67b))
+* **docs:** 部品ごとの Do と Don't を、ページ・skill・CLI に出す ([3511be7](https://github.com/hidemikimura/jimble-ui/commit/3511be76f113a9369619074c5b7572811337a587))
+* **feedback:** 進み具合・仮の表示・空の状態の部品を足す ([33af574](https://github.com/hidemikimura/jimble-ui/commit/33af574258d0ad24ad933a7be5e448f1ffcd8659))
+* **layout:** 余白をそろえて並べる部品 jimble-stack と jimble-grid を足す ([8155d0e](https://github.com/hidemikimura/jimble-ui/commit/8155d0e4bdd5e52e407729698631e2199e7d7b68))
+* **popover:** ボタンの近くに開く、操作できるパネル jimble-popover を足す ([ff87e1f](https://github.com/hidemikimura/jimble-ui/commit/ff87e1fae4b347a2c17941d93f1e9e339727f314))
+* **popover:** ボタンの近くに開く、操作できるパネル jimble-popover を足す ([a0565f0](https://github.com/hidemikimura/jimble-ui/commit/a0565f0fc6a3a173bc167ec7ef888d604be59508))
+* **radio-group:** 区切った見た目 appearance="segmented" を足す ([9c51091](https://github.com/hidemikimura/jimble-ui/commit/9c51091ed8abac526108fd9201ea2c1eb64bc246))
+* **templates:** 管理画面のページのテンプレートを 6 つ配り、CLI で取り出せるようにする ([e69876a](https://github.com/hidemikimura/jimble-ui/commit/e69876a062afc0fd2856b72cccd538118aad0ffc))
+* **theme:** 余白を 4 つの段階から選べる data-jimble-density と density.css を足す ([94e9a03](https://github.com/hidemikimura/jimble-ui/commit/94e9a03309015603e587d6331dcb252b28d08488))
+* **theme:** 余白を 4 つの段階から選べる data-jimble-density と density.css を足す ([c704047](https://github.com/hidemikimura/jimble-ui/commit/c704047c7bd28fb78c3e6c4272a2cd70bb749ac7))
+* **theme:** 既製のテーマ ocean・forest・plum・sand を配る ([00a6724](https://github.com/hidemikimura/jimble-ui/commit/00a67244ac4be218accd82238986b59ce93d90c1))
+* **theme:** 角丸と文字の大きさを、倍率 1 つでまとめて変えられるようにする ([aec02b8](https://github.com/hidemikimura/jimble-ui/commit/aec02b8558465e36b35df2944bdf23f16011f5bc))
+* **tree:** 開閉できる階層の一覧 jimble-tree と jimble-tree-item を足す ([eca05aa](https://github.com/hidemikimura/jimble-ui/commit/eca05aa13323f0d5ba5786bb747a8bbe796ec845))
+* **tree:** 開閉できる階層の一覧 jimble-tree と jimble-tree-item を足す ([fa047e4](https://github.com/hidemikimura/jimble-ui/commit/fa047e4f86bac6e173b17ce505bb7749356d89ad))
+* 倍率・Stack/Grid・Do と Don't・4 つの部品を main に入れる（[#60](https://github.com/hidemikimura/jimble-ui/issues/60)〜[#63](https://github.com/hidemikimura/jimble-ui/issues/63) の取りこぼし） ([9b4abf7](https://github.com/hidemikimura/jimble-ui/commit/9b4abf7cf600903854905385fad286fe6f70cca0))
+* 既製のテーマ・AI エージェント向けの CLI・ページのテンプレート ([cd2c6c7](https://github.com/hidemikimura/jimble-ui/commit/cd2c6c7d9391d256689e05f685395e63d21690a8))
+
+
+### ドキュメント
+
+* **design:** ツリーの複数選択とパレットの配布など、22 の決めたことを書く ([265000e](https://github.com/hidemikimura/jimble-ui/commit/265000e615b42459ff9c30f9a33773977c238065))
+* **design:** ポップオーバー・コマンドパレット・ツリーの設計案を書く ([d06b602](https://github.com/hidemikimura/jimble-ui/commit/d06b6022579dd7c03e8f3f1f3ed8dd0f37247c1c))
+* **theme:** 余白の段階で、チェックボックスなどの小さな印も大きさが変わることを書く ([1df5620](https://github.com/hidemikimura/jimble-ui/commit/1df56209bd583864011abdc8f71b336352670811))
+
 ## [0.17.1](https://github.com/hidemikimura/jimble-ui/compare/v0.17.0...v0.17.1) (2026-11-08)
 
 
