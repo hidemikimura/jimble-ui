@@ -425,6 +425,8 @@ export const CATALOG: Group[] = [
     note: '進み具合の棒の色は、溝との対比 3:1 以上にする',
     entries: [
       len('--jimble-tree-indent', '木の階層ごとの字下げ', '例: 1.25rem'),
+      len('--jimble-command-palette-width', 'コマンドパレットの幅', '例: 40rem'),
+      radius('--jimble-command-palette-radius', 'コマンドパレットの角丸'),
       len('--jimble-popover-width', 'ポップオーバーの幅', '例: 20rem'),
       radius('--jimble-popover-radius', 'ポップオーバーの角丸'),
       len('--jimble-popover-padding', 'ポップオーバーの内側の余白', '例: 1rem'),

@@ -22,6 +22,7 @@
     "cli",
     "vite.config.ts",
     "vite.cdn.config.ts",
-    "vite.cli.config.ts"
+    "vite.cli.config.ts",
+    "vite.cdn-command-palette.config.ts"
   ]
 }

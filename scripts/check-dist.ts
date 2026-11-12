@@ -69,6 +69,8 @@ const BUDGET = {
   cdn: 114 * 1024,
   /** CDN のコードエディタを、言語なしで開くまでに読み込む分(本体 + CodeMirror + Lit。2026-11-06 の実測 153 KB) */
   codeEditor: 165 * 1024,
+  /** CDN のコマンドパレット(自己完結。Lit を含む。設計書 §22.5) */
+  commandPalette: 40 * 1024,
   /** CLI(npx で初回に取ってくる。2026-11-12 の実測 8.8 KB) */
   cli: 16 * 1024,
 }
@@ -123,6 +125,20 @@ if (largest)
     // 共有の CSS には、コードエディタのクラスが入る(Tailwind が src 全体から作る)。登録の文字列で見る
     if (/define\(["']jimble-code-editor["']\)/.test(readFileSync(cdn, 'utf8')))
       fail('全部入りの CDN バンドルに、コードエディタが入っています(別のファイルにする)')
+  }
+}
+
+// (c3) CDN のコマンドパレット(全部入りとは別のファイル。設計書 §22.5)
+{
+  const entry = join(dist, 'cdn', 'command-palette.js')
+  if (!existsSync(entry)) fail('dist/cdn/command-palette.js がありません')
+  else {
+    const size = gz(entry)
+    console.log(`CDN のコマンドパレット: ${kb(size)} KB gz (予算 ${kb(BUDGET.commandPalette)} KB)`)
+    if (size > BUDGET.commandPalette)
+      fail(`CDN のコマンドパレットが予算超過: ${kb(size)} KB > ${kb(BUDGET.commandPalette)} KB`)
+    if (/define\(["']jimble-command-palette["']\)/.test(readFileSync(cdn, 'utf8')))
+      fail('全部入りの CDN バンドルに、コマンドパレットが入っています(別のファイルにする)')
   }
 }
 

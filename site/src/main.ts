@@ -12,6 +12,8 @@ installScopedThemes()
 // コードエディタは全部入りに含まれない(別の入口)。置いてあるページだけで読み込む
 if (document.querySelector('jimble-code-editor'))
   void import('../../src/components/code-editor/index.js')
+if (document.querySelector('jimble-command-palette'))
+  void import('../../src/components/command-palette/index.js')
 
 // 狭い画面ではメニューを畳んだ状態で開始する
 const toggle = document.querySelector<HTMLDetailsElement>('.nav-toggle')

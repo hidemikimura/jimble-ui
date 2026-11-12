@@ -94,6 +94,8 @@ const GROUPS: [string, string[]][] = [
       'menu-item',
       'menu-separator',
       'popover',
+      'command-palette',
+      'command',
       'toast',
       'toast-region',
       'tooltip',
