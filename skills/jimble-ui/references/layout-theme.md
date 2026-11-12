@@ -102,7 +102,7 @@
 
 ### 既製のテーマを使う
 
-`ocean`（青・角丸小）・`forest`（緑）・`plum`（紫・角丸大）・`sand`（橙）がある。CSS を 1 つ読み込むと、主色・灰色・角丸が、ライトとダークの両方で変わる（コントラストは自動テストで保証済み）。
+`ocean`（青・角丸小）・`forest`（緑）・`plum`（紫・角丸大）・`sand`（橙）・`high-contrast`（高コントラスト。文字 7:1・枠とアイコン 4.5:1・フォーカスの輪 3px）がある。CSS を 1 つ読み込むと、主色・灰色・角丸が、ライトとダークの両方で変わる（コントラストは自動テストで保証済み）。
 
 ```html
 <link
@@ -174,6 +174,24 @@ npm では `import '@hidemikimura/jimble-ui/themes/ocean.css'`。テーマの上
       <div slot="header" class="row" style="justify-content: space-between">
         <strong>sand</strong>
         <jimble-badge variant="primary">橙</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="high-contrast" aria-label="high-contrast">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>high-contrast</strong>
+        <jimble-badge variant="primary">高コントラスト</jimble-badge>
       </div>
       <div class="stack">
         <jimble-field label="名前">
