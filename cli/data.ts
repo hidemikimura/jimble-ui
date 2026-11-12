@@ -6,6 +6,7 @@
 //   dist/templates/<名前>.html        … ページのテンプレート（site/examples/templates の写し。先頭のコメントに題名）
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { releasePhase, type ReleasePhase } from './catalog.ts'
 import { CliError } from './errors.ts'
 
 export const PACKAGE_NAME = '@hidemikimura/jimble-ui'
@@ -25,6 +26,10 @@ export interface Named {
 export interface Component {
   tag: string
   description: string
+  /** 公開段階（設計書 §24） */
+  status: ReleasePhase
+  /** 非推奨のとき、代わりの案内 */
+  deprecated?: string
   attributes: Attribute[]
   slots: Named[]
   events: Named[]
@@ -83,6 +88,8 @@ function readRequired(root: string, rel: string): string {
 interface ManifestDecl {
   tagName?: string
   description?: string
+  status?: string
+  deprecated?: string | boolean
   attributes?: { name: string; type?: { text: string }; default?: string; description?: string }[]
   slots?: Named[]
   events?: Named[]
@@ -112,6 +119,8 @@ function loadComponents(root: string): Component[] {
     .map((d) => ({
       tag: d.tagName,
       description: d.description ?? '',
+      status: releasePhase(d),
+      ...(typeof d.deprecated === 'string' ? { deprecated: d.deprecated } : {}),
       // 同じ名前の属性が継承で重なることがある。最初のものを残す
       attributes: [...new Map((d.attributes ?? []).map((a) => [a.name, a])).values()].map((a) => ({
         name: a.name,

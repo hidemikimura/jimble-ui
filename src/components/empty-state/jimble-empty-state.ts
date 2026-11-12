@@ -12,6 +12,7 @@ import { SlotController } from '../../base/slot-controller.js'
  *   （`role="status"` の要素に「0 件」と書くなど）。
  *
  * @tag jimble-empty-state
+ * @status experimental
  *
  * @slot icon - 上に出すアイコン（`jimble-icon` など。飾りとして読み上げない）
  * @slot title - 見出し（`heading` の代わり）

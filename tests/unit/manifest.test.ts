@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { pageName } from '../../cli/catalog.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 
@@ -10,6 +11,7 @@ interface Decl {
   name: string
   tagName?: string
   description?: string
+  status?: string
   attributes?: { name: string; fieldName?: string }[]
   cssStates?: { name: string; inheritedFrom?: unknown }[]
 }
@@ -77,5 +79,19 @@ describe('custom-elements.json', () => {
         .map((name) => `${label(decl)} :state(${name})`)
     })
     expect(missing).toEqual([])
+  })
+
+  it('公開段階（設計書 §24）: @status は experimental だけで、子の要素は親のページと同じ段階', () => {
+    expect(elements.filter(({ decl }) => decl.status && decl.status !== 'experimental')).toEqual([])
+    const short = (tag: string) => tag.replace(/^jimble-/, '')
+    const statusOf = new Map(elements.map(({ decl }) => [short(decl.tagName!), decl.status]))
+    const mismatched = elements
+      .map(({ decl }) => short(decl.tagName!))
+      .filter(
+        (name) => pageName(name) !== name && statusOf.get(name) !== statusOf.get(pageName(name)),
+      )
+    expect(mismatched).toEqual([])
+    expect(statusOf.get('popover')).toBe('experimental')
+    expect(statusOf.get('button')).toBeUndefined()
   })
 })

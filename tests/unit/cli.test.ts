@@ -124,6 +124,27 @@ describe('component', () => {
     expect(text).toContain("Don't（避ける）:")
   })
 
+  it('公開段階（設計書 §24）が、一覧と詳細に出る。安定には印を付けない', () => {
+    type L = Envelope<{ components: { tag: string; status: string }[] }>
+    const list = cliJson<L>('component').json.data.components
+    const status = (tag: string) => list.find((c) => c.tag === tag)?.status
+    expect(status('jimble-popover')).toBe('experimental')
+    expect(status('jimble-button')).toBe('stable')
+    const detail = cliJson<Envelope<{ status: string }>>('component', 'tree').json.data
+    expect(detail.status).toBe('experimental')
+    expect(cli('component', 'tree').out).toContain('公開段階: 試験的')
+    expect(cli('component', 'button').out).not.toContain('公開段階')
+    const text = cli('component').out
+    expect(text).toMatch(/jimble-popover\s+［試験的］/)
+    expect(text).not.toMatch(/jimble-button\s+［/)
+  })
+
+  it('エディターの補完の説明にも、試験的であることが出る', () => {
+    const tags = vscodeData().tags
+    expect(tags.find((t) => t.name === 'jimble-popover')!.description).toMatch(/^【試験的】/)
+    expect(tags.find((t) => t.name === 'jimble-button')!.description).not.toMatch(/^【/)
+  })
+
   it('jimble- を付けた名前でも引ける', () => {
     expect(cliJson('component', 'jimble-card').code).toBe(0)
   })

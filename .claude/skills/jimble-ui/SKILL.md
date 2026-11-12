@@ -52,7 +52,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## コンポーネント早見
 
-各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。
+各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。**（試験的）**の部品は、マイナーバージョンで属性・イベントが変わることがある。使ってよいが、更新したら変更点（CHANGELOG）を確かめる。**（非推奨）**の部品は、新しく書かない。
 
 ### 枠組み
 
@@ -101,10 +101,10 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `scroll-container=値`, `no-chunk-reload`, `busy`
   - スロット: (既定)
   - イベント: `jimble-route-loading`, `jimble-route-change`, `jimble-route-error`
-- **`jimble-stack`** — 子の要素を、同じ間隔で縦（または横）に並べる。
+- **`jimble-stack`**（試験的） — 子の要素を、同じ間隔で縦（または横）に並べる。
   - 属性: `direction=vertical|horizontal`, `gap=数値`, `align=値`, `justify=start|center|end|between`, `wrap`
   - スロット: (既定)
-- **`jimble-grid`** — 子の要素を、同じ間隔の格子に並べる。
+- **`jimble-grid`**（試験的） — 子の要素を、同じ間隔の格子に並べる。
   - 属性: `columns=数値`, `min-column-width=値`, `gap=数値`
   - スロット: (既定)
 
@@ -123,12 +123,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `jimble-dismiss`
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
-- **`jimble-progress`** — 処理の進み具合を、横の棒で示す（ファイルの取り込み・一括の処理・設定の完了の度合い）。
+- **`jimble-progress`**（試験的） — 処理の進み具合を、横の棒で示す（ファイルの取り込み・一括の処理・設定の完了の度合い）。
   - 属性: `value=値`, `max=数値`, `label=値`, `variant=primary|success|warning|danger`, `size=sm|md`, `show-value`
   - 状態: `:state(indeterminate)`
-- **`jimble-skeleton`** — 読み込み中に、あとから出る内容と同じ形の、仮の面を出す（表の行・カード・文章）。
+- **`jimble-skeleton`**（試験的） — 読み込み中に、あとから出る内容と同じ形の、仮の面を出す（表の行・カード・文章）。
   - 属性: `variant=text|rect|circle`, `lines=数値`
-- **`jimble-empty-state`** — 表示するものがないことを伝え、次の一歩を示す（空の一覧・検索の結果なし・まだ作っていない）。
+- **`jimble-empty-state`**（試験的） — 表示するものがないことを伝え、次の一歩を示す（空の一覧・検索の結果なし・まだ作っていない）。
   - 属性: `heading=値`, `description=値`, `level=数値`
   - スロット: `icon`, `title`, `description`, `actions`, (既定)
 - **`jimble-stepper`** — 段階を踏む入力（予約の登録など）の、今の位置と進み具合を見せる。
@@ -255,11 +255,11 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
   - イベント: `change`, `input`, `change`
-- **`jimble-tree`** — 開閉できる階層の一覧（WAI-ARIA の Tree View パターン）。
+- **`jimble-tree`**（試験的） — 開閉できる階層の一覧（WAI-ARIA の Tree View パターン）。
   - 属性: `value=値`, `selection=none|single|multiple`, `checked-values=all|leaves`, `guides`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
   - イベント: `input`, `change`, `jimble-selection-change`, `jimble-expand`, `jimble-collapse`, `input`, `change`
-- **`jimble-tree-item`** — 木の項目。
+- **`jimble-tree-item`**（試験的） — 木の項目。
   - 属性: `label=値`, `value=値`, `expanded`, `lazy`, `disabled`
   - スロット: (既定), `icon`, `end`
   - 状態: `:state(expanded)`, `:state(selected)`, `:state(checked)`, `:state(mixed)`, `:state(disabled)`
@@ -285,15 +285,15 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 説明: `dropdown-menu` のページ
 - **`jimble-menu-separator`** — メニューの区切り線。
   - 説明: `dropdown-menu` のページ
-- **`jimble-popover`** — ボタンの近くに開く、操作できる小さなパネル（ポップオーバー）。
+- **`jimble-popover`**（試験的） — ボタンの近くに開く、操作できる小さなパネル（ポップオーバー）。
   - 属性: `open`, `placement=bottom-start|bottom-end|top-start|top-end`, `heading=値`, `label=値`, `hide-close-button`
   - スロット: `trigger`, (既定), `title`
   - イベント: `jimble-open`, `jimble-close`
-- **`jimble-command-palette`** — コマンドパレット。
+- **`jimble-command-palette`**（試験的） — コマンドパレット。
   - 属性: `open`, `label=値`, `placeholder=値`, `hotkey=値`, `load-delay=数値`, `load-min-length=数値`
   - スロット: (既定)
   - イベント: `jimble-select`, `jimble-open`, `jimble-close`, `jimble-search`, `jimble-load-error`
-- **`jimble-command`** — コマンドパレットのコマンド 1 つ。
+- **`jimble-command`**（試験的） — コマンドパレットのコマンド 1 つ。
   - 属性: `value=値`, `keywords=値`, `group=値`, `icon=値`, `shortcut=値`, `href=値`, `disabled`
   - スロット: (既定)
   - 説明: `command-palette` のページ

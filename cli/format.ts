@@ -1,5 +1,6 @@
 // 結果を、人が読む文章にする。--json のときは使わない（main.ts が JSON をそのまま出す）。
 import type { ComponentDetail, ComponentSummary, Result, SearchHit } from './commands.ts'
+import { PHASES } from './catalog.ts'
 import { command } from './commands.ts'
 import type { Named, ThemeInfo, Topic } from './data.ts'
 import type { InitFile } from './init.ts'
@@ -27,8 +28,17 @@ function formatComponent(c: ComponentDetail): string {
     const def = a.default ? `、既定 ${a.default}` : ''
     return `  ${a.name}: ${kind}${def}${a.description ? ` — ${oneLine(a.description)}` : ''}`
   })
+  const phase =
+    c.status === 'stable'
+      ? []
+      : [
+          '',
+          `公開段階: ${PHASES[c.status].label} — ${PHASES[c.status].meaning}`,
+          ...(c.deprecated ? [`代わり: ${oneLine(c.deprecated)}`] : []),
+        ]
   return [
     `<${c.tag}>`,
+    ...phase,
     '',
     c.description.trim(),
     ...(attrs.length ? ['', '属性:', ...attrs] : []),
@@ -56,7 +66,10 @@ function formatComponentList(list: readonly ComponentSummary[]): string {
   const width = Math.max(...list.map((c) => c.tag.length))
   return [
     `要素（${list.length} 個）:`,
-    ...list.map((c) => `  ${c.tag.padEnd(width)}  ${c.summary}`),
+    ...list.map(
+      (c) =>
+        `  ${c.tag.padEnd(width)}  ${c.status === 'stable' ? '' : `［${PHASES[c.status].label}］`}${c.summary}`,
+    ),
     '',
     `1 つの要素の属性・スロット・イベント: ${command('component <名前>')}`,
   ].join('\n')
