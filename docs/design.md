@@ -2126,6 +2126,27 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 2. **コマンドパレットのショートカット**: 既定ではなし。使う側が `hotkey="mod+k"` を書いたときだけ効く。
 3. **配布**: コマンドパレットだけ、`code-editor` と同じく別の入口（`@hidemikimura/jimble-ui/command-palette`、CDN は `dist/cdn/command-palette.js`）にし、全部入りに入れない（`tests/unit/entry.test.ts` の `SEPARATE` に足す）。ポップオーバーとツリーは全部入りに入れる。**ツリーを足して CDN バンドルが 110.0 KB（予算 110 KB）に達したので、予算を 114 KB にした**（ツリーで約 3.3 KB。コマンドパレットは別の入口なので、全部入りは当面これ以上増えない）。
 
+## 23. 余白の段階（密度。2026-11-12）
+
+管理画面向けに詰めた表示（既定）のほかに、画面や利用者に合わせて、余白を段階で選べるようにする（依頼: 3〜5 段階）。
+
+> **決定** 4 段階（`compact`・`default`・`comfortable`・`spacious`）を `tokens/density.json` に書き、`gen-tokens` が `tokens/density.generated.css` を作り、`dist/density.css`（`@hidemikimura/jimble-ui/density.css`）として配る。`<html>` か要素に `data-jimble-density="段階"` を付けると、その中の余白の基準（`--jimble-spacing`）と、ボタン・入力欄の高さ（`--jimble-control-height-sm` / `md` / `lg`）が変わる。セレクターは `:where([data-jimble-density='段階'])`（詳細度 0）。
+> **理由**
+> - 部品の余白は、ほぼすべて Tailwind の間隔（`--jimble-spacing` の倍数）で書いてあり、`--jimble-spacing` 1 つで、ボタンの左右・カード・表のセル・木の行・Stack・Grid・app-shell の本文の余白が一緒に変わる。高さだけは固定の長さ（`--jimble-control-height-*`）なので、段階ごとに一緒に変える。部品には手を入れない。
+> - 段階は、余白と高さの**組み**なので、数値の倍率 1 つ（`--jimble-radius-scale` のような形）より、名前で選ぶほうが、選び間違いが少ない（高さを余白と同じ比で伸ばすと、`spacious` の高さが大きくなりすぎる）。
+> - 既製のテーマ（§4.9）と同じく CSS ファイルなので、CDN でも `<link>` 1 つで使える。`:where()` の詳細度 0 で、利用者が書いた変数が、読み込む順によらず勝つ。入れ子の要素の宣言は、外側から継承した値より優先されるので、ページの一部だけ別の段階にできる。
+>
+> **比較した案**
+> 1. 部品ごとの `density` 属性 — 全部の部品に属性を足すことになり、ページ全体を変えるには全部に書く必要がある。
+> 2. `--jimble-density-scale`（数値の倍率）— 余白と高さを別の比で変えたいので、1 つの数では表しにくい。値を自由に決めたいときは、今までどおり `--jimble-spacing` と `--jimble-control-height-*` を直接書けばよい。
+> 3. 既製のテーマに段階を混ぜる — 色と余白は別々に選びたい（テーマと段階は組み合わせて使う）。
+
+- **値**: `compact` は余白 3px・高さ 28/32/36px、`default` は 4px・32/36/40px（`tokens.json` の既定と同じ。試験が確かめる）、`comfortable` は 5px・36/40/44px、`spacious` は 6px・40/44/48px。いちばん詰めた段階でも、高さは 24px 以上（WCAG 2.5.8 の最小のターゲット）。
+- **小さな印も一緒に変わる（決定）**: チェックボックス・ラジオの丸・アイコンなど、Tailwind の `size-*`（間隔の倍数）で大きさを決めている印は、段階に合わせて大きさが変わる（チェックボックスは `compact` で 12px、`spacious` で 24px）。今までの `--jimble-spacing` と同じ動きで、`spacious` ではタッチしやすくなるので、このままにした（印を文字の大きさに合わせて固定する案は採らない）。
+- **変えないもの**: 文字の大きさ（§4.10 の `--jimble-font-size-scale`）、app-shell のヘッダーの高さ（3.5rem。`spacious` のボタン 44px も収まる）、表の仮想スクロールの行の高さ（`row-height` で、アプリが決める）。
+- **試験**: `tests/unit/density.test.ts`（4 段階の順・同じトークンを上書きする・`default` が既定値と同じ・段階が上がるほど大きい・24px 以上・`:where()`）と、`src/styles/density.test.ts`（段階ごとのボタン・入力欄の高さとカードの余白、入れ子、利用者の変数が勝つことを、3 つのブラウザで）。ドキュメントサイトでは、4 段階を並べた例を、ライト・ダークで axe にかける。
+- **theme-lab**: npm の公開版を使うので、段階の切り替えは公開後に足す。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

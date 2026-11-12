@@ -171,3 +171,37 @@ export const themeCss = (theme: Theme): string => {
     css += `  --jimble-${t.name}: ${withScheme(t, (r) => resolveFull(r))};\n`
   return css + '}\n'
 }
+
+// ---- 余白の段階（密度。設計書 §23）: tokens/density.json ----
+
+export interface DensityLevel {
+  name: string
+  description: string
+  /** 段階が上書きするトークン（名前 → 値） */
+  tokens: Record<string, string>
+}
+
+const densitySrc = JSON.parse(readFileSync(resolve(root, 'tokens/density.json'), 'utf8')) as {
+  levels: Record<string, { description: string; tokens: Record<string, string> }>
+}
+export const densities: DensityLevel[] = Object.entries(densitySrc.levels).map(([name, level]) => {
+  for (const t of Object.keys(level.tokens))
+    if (!byName.has(t)) throw new Error(`密度 ${name}: 未定義のトークン: ${t}`)
+  return { name, description: level.description, tokens: level.tokens }
+})
+
+/**
+ * 密度の CSS。`:where([data-jimble-density="名前"])`（詳細度 0）なので、利用者が書いた変数が、読み込む順によらず勝つ。
+ * 入れ子の要素の宣言は、外側から継承した値より優先されるので、ページの一部だけ別の段階にもできる
+ */
+export const densityCss = (levels: DensityLevel[] = densities): string =>
+  levels
+    .map(
+      (d) =>
+        `/* ${d.name}: ${d.description} */\n:where([data-jimble-density='${d.name}']) {\n` +
+        Object.entries(d.tokens)
+          .map(([t, v]) => `  --jimble-${t}: ${v};\n`)
+          .join('') +
+        '}\n',
+    )
+    .join('\n')

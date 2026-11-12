@@ -206,6 +206,7 @@ if (existsSync(cliFile)) {
 // (d) 配布用ファイルが揃っている
 for (const f of [
   'tokens.css',
+  'density.css',
   'cloak.css',
   'vscode.html-data.json',
   'cdn/locales/en.js',

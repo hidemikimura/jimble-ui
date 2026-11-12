@@ -73,6 +73,8 @@ skill には、全要素の属性・イベント、間違えやすい点、そ�
 
 ## カスタマイズ
 
+余白は 4 段階から選べます（`@hidemikimura/jimble-ui/density.css` を読み込み、`<html data-jimble-density="comfortable">`。`compact`・`default`・`comfortable`・`spacious`）。
+
 ```css
 /* 1. CSS 変数: 色・角丸・高さなど。ページのどこかに書けば全部品に届きます */
 :root {

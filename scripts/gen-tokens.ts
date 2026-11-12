@@ -1,5 +1,6 @@
 // tokens/tokens.json → src/styles/theme.generated.css (@theme inline) と tokens/tokens.generated.css (:root)
 // tokens/themes/<名前>.json → tokens/themes/<名前>.generated.css（既製のテーマ。dist/themes/<名前>.css として配る）
+// tokens/density.json → tokens/density.generated.css（余白の段階。dist/density.css として配る）
 // 実行: node scripts/gen-tokens.ts [--check]   （--check は生成物が最新か確認するだけ）
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -7,6 +8,7 @@ import {
   aliases,
   all,
   byName,
+  densityCss,
   themeCss,
   themeRaw,
   themes,
@@ -51,11 +53,21 @@ const themeOutputs = themes.map((t): [string, string] => [
 ${themeCss(t)}`,
 ])
 
+// 余白の段階（設計書 §23）
+const densityOutput: [string, string] = [
+  'tokens/density.generated.css',
+  `/* 生成物: scripts/gen-tokens.ts が tokens/density.json から作る。直接編集しない。 */
+/* jimble-ui 余白の段階（密度）。<html data-jimble-density="comfortable"> のように付ける。
+   ページの一部だけなら、その要素に付ける（入れ子にした段階が優先する）。 */
+${densityCss()}`,
+]
+
 const outputs: [string, string][] = [
   ['src/styles/aliases.generated.css', aliasCss],
   ['src/styles/theme.generated.css', theme],
   ['tokens/tokens.generated.css', tokensCss],
   ...themeOutputs,
+  densityOutput,
 ]
 
 const check = process.argv.includes('--check')

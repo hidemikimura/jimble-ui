@@ -78,6 +78,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 import * as all from '@hidemikimura/jimble-ui'
 import '@hidemikimura/jimble-ui/tokens.css'
 import '@hidemikimura/jimble-ui/themes/ocean.css'
+import '@hidemikimura/jimble-ui/density.css'
 // 全部入りに含まれない部品(CodeMirror を利用者の側で解決する)
 import '@hidemikimura/jimble-ui/code-editor'
 import '@hidemikimura/jimble-ui/command-palette'

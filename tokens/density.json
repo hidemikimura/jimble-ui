@@ -1,0 +1,41 @@
+{
+  "$comment": "余白の段階（密度。設計書 §23）。scripts/gen-tokens.ts が tokens/density.generated.css を作り、dist/density.css として配る。各段階に、トークン（tokens.json の名前）の値を書く。default は tokens.json の既定値と同じにする（試験が確かめる）。",
+  "levels": {
+    "compact": {
+      "description": "いちばん詰めた表示（1 画面に多く並べる一覧・表）",
+      "tokens": {
+        "spacing": "0.1875rem",
+        "control-height-sm": "1.75rem",
+        "control-height-md": "2rem",
+        "control-height-lg": "2.25rem"
+      }
+    },
+    "default": {
+      "description": "既定（管理画面向けに詰めた表示）",
+      "tokens": {
+        "spacing": "0.25rem",
+        "control-height-sm": "2rem",
+        "control-height-md": "2.25rem",
+        "control-height-lg": "2.5rem"
+      }
+    },
+    "comfortable": {
+      "description": "ゆとりのある表示（入力の多いフォーム・ときどき使う画面）",
+      "tokens": {
+        "spacing": "0.3125rem",
+        "control-height-sm": "2.25rem",
+        "control-height-md": "2.5rem",
+        "control-height-lg": "2.75rem"
+      }
+    },
+    "spacious": {
+      "description": "いちばん広い表示（タッチ操作・大きな画面・読みやすさを優先）",
+      "tokens": {
+        "spacing": "0.375rem",
+        "control-height-sm": "2.5rem",
+        "control-height-md": "2.75rem",
+        "control-height-lg": "3rem"
+      }
+    }
+  }
+}
