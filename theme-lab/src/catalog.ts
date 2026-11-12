@@ -421,9 +421,10 @@ export const CATALOG: Group[] = [
     ],
   },
   {
-    title: 'ポップオーバー・進み具合・仮の表示・空の状態',
+    title: '木・ポップオーバー・進み具合・仮の表示・空の状態',
     note: '進み具合の棒の色は、溝との対比 3:1 以上にする',
     entries: [
+      len('--jimble-tree-indent', '木の階層ごとの字下げ', '例: 1.25rem'),
       len('--jimble-popover-width', 'ポップオーバーの幅', '例: 20rem'),
       radius('--jimble-popover-radius', 'ポップオーバーの角丸'),
       len('--jimble-popover-padding', 'ポップオーバーの内側の余白', '例: 1rem'),

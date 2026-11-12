@@ -22,6 +22,7 @@ const PAGE: Readonly<Record<string, string>> = {
   'toast-region': 'toast',
   'kanban-column': 'kanban',
   'kanban-card': 'kanban',
+  'tree-item': 'tree',
 }
 
 /** input / change をネイティブと同じく出すフォーム部品（`jimble-` を除いた名前） */
@@ -37,6 +38,7 @@ export const FORM: ReadonlySet<string> = new Set([
   'checkbox',
   'radio-group',
   'switch',
+  'tree',
 ])
 
 /** 要素の説明がある、ドキュメントのページの名前（子の要素は親のページ）。name は `jimble-` を除いた名前 */

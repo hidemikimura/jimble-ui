@@ -120,7 +120,7 @@ export function components() {
     </jimble-card>
 
     <jimble-card class="section" id="sec-feedback">
-      <h3 slot="header">ポップオーバー・進み具合・仮の表示・空の状態・切り替え</h3>
+      <h3 slot="header">木・ポップオーバー・進み具合・仮の表示・空の状態・切り替え</h3>
       <jimble-stack gap="5">
         <jimble-popover heading="表示の設定">
           <jimble-button slot="trigger">ポップオーバーを開く</jimble-button>
@@ -129,6 +129,13 @@ export function components() {
             <jimble-button data-popover-close variant="primary">閉じる</jimble-button>
           </jimble-stack>
         </jimble-popover>
+        <jimble-tree aria-label="カテゴリ" selection="multiple" value="veg" guides>
+          <jimble-tree-item label="食品" value="food" expanded>
+            <jimble-tree-item label="野菜" value="veg"></jimble-tree-item>
+            <jimble-tree-item label="果物" value="fruit"></jimble-tree-item>
+          </jimble-tree-item>
+          <jimble-tree-item label="家電" value="appliance"></jimble-tree-item>
+        </jimble-tree>
         <jimble-progress label="取り込み" value="45" show-value></jimble-progress>
         <jimble-progress label="準備中" variant="success"></jimble-progress>
         <jimble-radio-group appearance="segmented" aria-label="表示の切り替え" value="list">
