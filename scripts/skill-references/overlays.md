@@ -2,6 +2,15 @@
 
 ダイアログ・ドロワー・ポップオーバー・コマンドパレット・ツールチップ・メニュー・通知の使い方。
 
+**知らせ方の選び方**（同じ種類の知らせは、いつも同じ部品で出す。1 回の操作で複数を同時に出さない）:
+
+- 操作の結果（保存した・削除した）→ 通知 `JimbleUI.toast()`。失敗は `variant: 'danger'`（残る）、やり直せるなら `action`。
+- 項目ごとの入力の誤り → `jimble-field` の `error`。誤りの要約・画面の一部への注意 → その部分の上に `jimble-alert`。
+- 画面・アプリ全体に関わること（保守・期限）→ 本文の先頭に `jimble-alert`。
+- 先へ進む前に答えが要ること（削除の確認）→ `jimble-dialog` の `alert`。
+- データがない（0 件・検索の結果なし）→ `jimble-empty-state`。読み込み中 → `jimble-skeleton` / `jimble-spinner` / `jimble-progress`。状態 → `jimble-badge`。
+- 文章は「何が起きたか」と「次に何をすればよいか」を書く（「エラーが発生しました」だけにしない）。色だけで重さを伝えない。
+
 - **ダイアログ**: `heading` 属性（または `title` スロット / `aria-label`）が必要。開閉は `el.show()` / `el.hide()` / `open` 属性。中の要素に `data-dialog-close` を付けると、JavaScript なしで閉じる。確認など応答が必須のものは `alert`（背景クリックで閉じない）にして、安全な側のボタンに `autofocus`。閉じる前に `jimble-close-request`（`preventDefault()` で止められる）。
 - **ドロワー**（`jimble-drawer`。サイドモーダル・スライドパネル・ボトムシート）: 画面の端から出るモーダル。API と挙動は `jimble-dialog` と同じ（`heading`・`show()` / `hide()`・`data-dialog-close`・`jimble-close-request`）。位置は `placement`（`end` 右・既定 / `start` 左 / `top` / `bottom`）、幅は `size`。確認など短い操作は dialog、詳細・絞り込み・編集は drawer。開いている間は背面が操作できない（非モーダルは未対応）。
 - **ポップオーバー**（`jimble-popover`）: ボタンの近くに開く、操作できる小さなパネル（モーダルではない）。絞り込みの条件・その場での確認・表示の設定など。トリガーは `slot="trigger"`、名前は `heading`（表示する）か `label`。開くと `autofocus` → 最初のフォーカスできる要素へ。Esc・外側クリック・Tab で外へ出る・`data-popover-close` の要素で閉じる。中のセレクト・コンボボックスを開いても閉じない。`placement`（bottom-start / bottom-end / top-start / top-end）・`--jimble-popover-width`。操作の一覧なら `jimble-dropdown-menu`、長いフォームや答えが必須の確認なら `jimble-dialog`。

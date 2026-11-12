@@ -9,6 +9,7 @@ const PAGES = [
   '/guide/i18n/',
   '/guide/forms/',
   '/guide/overlays/',
+  '/guide/messages/',
   '/guide/accessibility/',
   '/guide/limitations/',
   '/guide/ai/',
