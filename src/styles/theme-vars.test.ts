@@ -229,12 +229,23 @@ describe('パンくず・サイドバーの現在のアイコン', () => {
     const { el: plain } = await put<HTMLElement>(
       '<jimble-breadcrumb><jimble-breadcrumb-item href="/">ホーム</jimble-breadcrumb-item><jimble-breadcrumb-item>詳細</jimble-breadcrumb-item></jimble-breadcrumb>',
     )
-    expect(cs(inner(plain, '[part="list"]')).justifyContent).toBe('flex-start')
+    // 計算値の文字(flex-start)は、ブラウザの版で書き方が変わる(Chromium は flow-start と返す)ので、位置で確かめる
+    const gap = (host: HTMLElement) => {
+      const list = inner(host, '[part="list"]').getBoundingClientRect()
+      const items = [...host.querySelectorAll('jimble-breadcrumb-item')].map((i) =>
+        i.getBoundingClientRect(),
+      )
+      return { left: items[0]!.left - list.left, right: list.right - items.at(-1)!.right }
+    }
+    expect(gap(plain).left).toBeLessThan(1)
+    expect(gap(plain).right).toBeGreaterThan(10)
     const { el } = await put<HTMLElement>(
       '<jimble-breadcrumb><jimble-breadcrumb-item href="/">ホーム</jimble-breadcrumb-item><jimble-breadcrumb-item>詳細</jimble-breadcrumb-item></jimble-breadcrumb>',
       { '--jimble-breadcrumb-justify': 'center' },
     )
-    expect(cs(inner(el, '[part="list"]')).justifyContent).toBe('center')
+    const centered = gap(el)
+    expect(centered.left).toBeGreaterThan(10)
+    expect(Math.abs(centered.left - centered.right)).toBeLessThan(2)
   })
 
   it('現在のページのアイコンの色を、他の項目とは別に変えられる。指定しなければ、アイコンの色と同じ', async () => {
