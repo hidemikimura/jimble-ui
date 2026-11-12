@@ -1,0 +1,10 @@
+@layer components {
+  :host(jimble-tag) {
+    display: inline-flex;
+    vertical-align: middle;
+    max-width: 100%;
+  }
+  :host(jimble-tag-group) {
+    display: block;
+  }
+}

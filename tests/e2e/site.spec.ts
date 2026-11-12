@@ -51,6 +51,7 @@ const PAGES = [
   '/components/progress/',
   '/components/skeleton/',
   '/components/avatar/',
+  '/components/tag/',
   '/components/empty-state/',
   '/components/popover/',
   '/components/tree/',

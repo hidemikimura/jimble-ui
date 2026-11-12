@@ -344,6 +344,11 @@
   --jimble-avatar-bg: var(--jimble-color-surface-accent-strong);
   --jimble-avatar-text: var(--jimble-color-text-accent);
   --jimble-avatar-radius: var(--jimble-radius-md);
+  --jimble-tag-bg: var(--jimble-color-surface);
+  --jimble-tag-text: var(--jimble-color-text);
+  --jimble-tag-border: var(--jimble-color-ring-control);
+  --jimble-tag-radius: var(--jimble-radius-sm);
+  --jimble-tag-group-gap: calc(var(--jimble-spacing) * 1.5);
   --jimble-tooltip-bg: var(--jimble-color-surface-inverse);
   --jimble-tooltip-text: var(--jimble-color-text-on-primary);
   --jimble-switch-thumb-bg: var(--jimble-color-surface);

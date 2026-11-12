@@ -123,6 +123,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `max=数値`, `label=値`
   - スロット: (既定)
   - 説明: `avatar` のページ
+- **`jimble-tag`**（試験的） — もの・条件に付ける、外せる名札（絞り込みの条件・付けたラベル・選んだ宛先）。
+  - 属性: `value=値`, `removable`, `size=sm|md`
+  - スロット: (既定)
+  - イベント: `jimble-remove`
+- **`jimble-tag-group`**（試験的） — タグを折り返して並べる。
+  - 属性: `label=値`
+  - スロット: (既定)
+  - 説明: `tag` のページ
 - **`jimble-alert`** — ページ内の通知。
   - 属性: `variant=info|success|warning|danger`, `dismissible`
   - スロット: (既定), `title`, `icon`, `actions`
