@@ -303,7 +303,7 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | それ以外の JS（コンポーネント 1 つぶんなど） | 8 KB 以下（当初は 4 KB） | 最大 6.5 KB（`combobox`） |
 | CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 56 KB 以下 | 39.2 KB |
 
-部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB（§21）、ツリーを足して CDN 114 KB（§22.5））。
+部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB（§21）、ツリーを足して CDN 114 KB（§22.5）。アバターを足して、共有チャンクが 18.0 KB を超えたので 19 KB（§26））。
 
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
@@ -2189,6 +2189,33 @@ Atlassian Design System の Elevation（面と影を組みで決める）と Opa
 - **ダークモードの sunken（残した食い違い）**: jimble-ui の `surface-sunken` は、ダークで neutral-800 と、既定の面（900）より明るい（hover の背景を兼ねるため）。そのため、カンバンの列（sunken）の上のカード（raised、900 と 800 の中間）は、ダークでは列より少し暗く見える。枠（`ring-line-card`）で区別でき、コントラストの試験も通る。sunken の値を変えるのは、hover など多くの部品の見た目が変わるので、この変更には含めない。
 - **不透明度の値が変わったもの**: 日付の前後のボタン（0.4 → 0.5）、コンボボックスの × と開閉（0.4 → 0.5）、ページネーションの無効なボタン（0.6 → 0.5）。表の読み込み中は 0.6 のまま（`opacity-loading`）。
 - **試験**: `tests/unit/contrast.test.ts` に raised の面の組み（本文・補助の文字・フォーカスリング）を足した（`color-mix(in oklab, A, B)` を計算できるようにした）。theme-lab のカタログと `theme.css` に 5 つの変数を足した。
+
+## 26. アバター（jimble-avatar・jimble-avatar-group。2026-11-12）
+
+人（担当者・作成者・ユーザー）を、画像か頭文字の小さな丸で示す（Atlassian Design System の Avatar と Avatar group を参考にした）。管理画面では、一覧の担当者の列・カンバンのカード・ヘッダーのユーザーメニューで使う。
+
+> **決定**
+> - `jimble-avatar`: `name`（頭文字と、読み上げる名前）・`src`（画像）・`size`（`sm` 24px / `md` 32px / `lg` 40px）・`shape`（`circle` / `square`。square は組織やプロジェクト）・`decorative`（隣に名前の文字があるとき、読み上げから外す）。
+> - 役割は host ではなく、Shadow DOM の中の要素に `role="img"` と `aria-label`（名前）を付ける。画像は `alt=""` で、その中に置く。
+> - 画像が読めなかったとき（`error`）と、`src` が無いときは、頭文字を出す。名前も無いときは、人の形のアイコンを出す。
+> - `jimble-avatar-group`: 子のアバターを重ねて並べる。`max`（既定 5）を超えた分は、手動のスロットの割り当て（`slotAssignment: 'manual'`）で描画から外し、「+N」を出す。
+>   - 「+N」は `role="img"` で、名前は「ほか N 人（隠れた人の名前）」（辞書のキー `avatarGroup.more`。名前の並びは `Intl.ListFormat`）。
+>   - 群の名前は `label`（`role="group"`）。
+>
+> **理由**
+> - 役割を中の要素に置くと、試験の道具（Playwright の `getByRole`）からも見え、`reflectAria()` で host に書く例外を増やさずに済む。名前は文字列で渡すので、Shadow DOM の境界の問題も無い。
+> - 隠す分を、利用者の要素に `hidden` を書いて隠すと、利用者の DOM を書き換えることになる（約束 5）。手動の割り当てなら、割り当てない子は描画されず、読み上げにも出ない。3 つのエンジンで使える（Safari 16.4 以降）。
+> - 大きさは Tailwind の `size-*`（間隔の倍数）で決めるので、余白の段階（§23）に合わせて変わる（チェックボックスと同じ）。決まった大きさにしたいときは `--jimble-avatar-size`。
+> - 頭文字: 名前を空白（全角も）と中黒で区切る。ラテン文字で始まるなら、最初と最後の語の頭文字を大文字で 2 つ（Hanako Sato → HS）。それ以外（日本語など）は、最初の語の最初の 1 文字（佐藤 花子 → 佐）。文字は書記素（`Intl.Segmenter`）で数える。
+>
+> **比較した案**
+> 1. 名前から色を自動で決める（ハッシュで数色から選ぶ）— 色ごとにコントラストの保証が要り、色に意味があるように見える。既定は 1 色にし、変えたいときは `--jimble-avatar-bg` / `-text`。
+> 2. 「+N」を押すと隠れた人の一覧が開く — 管理画面ではまず数が分かればよい。開く操作が要るなら、利用者が `jimble-popover` で包む（今は作らない）。
+> 3. 在席などの状態の丸 — 使う場面が限られる。必要になったら足す。
+
+- **公開段階**: 試験的（§24）。
+- **大きさの予算**: 部品のクラスは共有スタイルシートに入るので、共有チャンクが 18.0 KB をわずかに超えた。予算を 19 KB に上げた（§2.6）。
+- **色**: 背景 `surface-accent-strong`、文字 `fg-accent`（コントラストの試験に追加）。群の中では、重なりの境目に、面の色の 2px の輪を付ける（`--jimble-avatar-ring`）。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

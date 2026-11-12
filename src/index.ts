@@ -1,6 +1,7 @@
 // 全コンポーネントを登録して再エクスポートする（CDN バンドルの入口）
 export * from './components/alert/index.js'
 export * from './components/app-shell/index.js'
+export * from './components/avatar/index.js'
 export * from './components/badge/index.js'
 export * from './components/breadcrumb/index.js'
 export * from './components/button/index.js'

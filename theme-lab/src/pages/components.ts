@@ -80,6 +80,18 @@ export function components() {
             (v) => html`<jimble-badge variant=${v} size="sm">${v}</jimble-badge>`,
           )}
         </div>
+        <!-- アバターは jimble-ui 0.19 から。公開版に入ったら、この template を外す -->
+        <template>
+          <div class="row" style="margin-top: 0.75rem">
+            <jimble-avatar name="佐藤 花子"></jimble-avatar>
+            <jimble-avatar name="開発部" shape="square"></jimble-avatar>
+            <jimble-avatar-group label="担当者" max="2">
+              <jimble-avatar name="鈴木 一郎" size="sm"></jimble-avatar>
+              <jimble-avatar name="高橋 次郎" size="sm"></jimble-avatar>
+              <jimble-avatar name="田中 三郎" size="sm"></jimble-avatar>
+            </jimble-avatar-group>
+          </div>
+        </template>
       </jimble-card>
       <jimble-card id="sec-icon">
         <h3 slot="header">スピナー・アイコン・ツールチップ</h3>

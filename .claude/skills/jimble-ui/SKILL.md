@@ -117,6 +117,12 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-badge`** — 状態やカテゴリを示す小さなラベル。
   - 属性: `variant=neutral|primary|success|warning|danger|info`, `size=sm|md`, `dot`
   - スロット: (既定), `prefix`
+- **`jimble-avatar`**（試験的） — 人（担当者・作成者・ユーザー）を、画像か頭文字の小さな丸で示す。
+  - 属性: `name=値`, `src=値`, `size=sm|md|lg`, `shape=circle|square`, `decorative`
+- **`jimble-avatar-group`**（試験的） — アバターを重ねて並べる。
+  - 属性: `max=数値`, `label=値`
+  - スロット: (既定)
+  - 説明: `avatar` のページ
 - **`jimble-alert`** — ページ内の通知。
   - 属性: `variant=info|success|warning|danger`, `dismissible`
   - スロット: (既定), `title`, `icon`, `actions`

@@ -63,7 +63,8 @@ function releaseStatus() {
       if (!ts.isClassDeclaration(node) || !node.name) return
       const tag = ts.getJSDocTags(node).find((t) => t.tagName.text === 'status')
       if (!tag) return
-      const value = ts.getTextOfJSDocComment(tag.comment)?.trim() ?? ''
+      // 値は最初の語だけ（後ろに説明の段落が続いても、それは値ではない）
+      const value = ts.getTextOfJSDocComment(tag.comment)?.trim().split(/\s+/)[0] ?? ''
       if (!STATUSES.has(value))
         throw new Error(
           `${moduleDoc.path} の ${node.name.text}: @status は ${[...STATUSES].join(' / ')} だけ（安定なら書かない）。書かれていたもの: ${value}`,
