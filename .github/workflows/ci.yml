@@ -22,7 +22,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
+    container: { image: 'mcr.microsoft.com/playwright:v1.65.0-noble', options: --user 1001 }
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -44,7 +44,7 @@ jobs:
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
+    container: { image: 'mcr.microsoft.com/playwright:v1.65.0-noble', options: --user 1001 }
     strategy:
       fail-fast: false
       matrix: { browser: [chromium, firefox, webkit] }
@@ -58,7 +58,7 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    container: { image: 'mcr.microsoft.com/playwright:v1.64.1-noble', options: --user 1001 }
+    container: { image: 'mcr.microsoft.com/playwright:v1.65.0-noble', options: --user 1001 }
     strategy:
       fail-fast: false
       matrix: { browser: [chromium, firefox, webkit] }
