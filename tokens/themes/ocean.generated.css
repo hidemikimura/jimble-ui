@@ -26,7 +26,5 @@
   --jimble-color-neutral-800: oklch(27.9% 0.041 260.031);
   --jimble-color-neutral-900: oklch(20.8% 0.042 265.755);
   --jimble-color-neutral-950: oklch(12.9% 0.042 264.695);
-  --jimble-radius-control: var(--jimble-radius-md, 0.375rem);
-  --jimble-radius-card: var(--jimble-radius-md, 0.375rem);
-  --jimble-radius-overlay: var(--jimble-radius-lg, 0.5rem);
+  --jimble-radius-scale: 0.75;
 }

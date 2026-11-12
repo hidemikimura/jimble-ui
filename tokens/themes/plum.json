@@ -1,10 +1,11 @@
 {
   "description": "紫（violet）と、紫みのある灰色（mauve）。角丸を大きくした、柔らかい見た目",
-  "scales": { "primary": "violet", "neutral": "mauve" },
+  "scales": {
+    "primary": "violet",
+    "neutral": "mauve"
+  },
   "tokens": {
     "color-primary-500": "@tw(--color-violet-700)",
-    "radius-control": "{radius-xl}",
-    "radius-card": "1rem",
-    "radius-overlay": "1rem"
+    "radius-scale": "1.5"
   }
 }

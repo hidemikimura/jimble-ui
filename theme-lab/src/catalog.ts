@@ -182,8 +182,9 @@ export const CATALOG: Group[] = [
   // ---- 角丸・大きさ・影・文字・動き ----
   {
     title: '角丸（全体）',
-    note: 'control = ボタン・入力欄 / card = カード / overlay = ダイアログ・メニュー',
+    note: 'scale = sm〜xl にかける倍率（1 が既定。0 で角なし）/ control = ボタン・入力欄 / card = カード / overlay = ダイアログ・メニュー',
     entries: [
+      num('--jimble-radius-scale', '角丸の倍率（sm〜xl にかける）', '例: 0.75・1・1.5'),
       radius('--jimble-radius-sm', '小'),
       radius('--jimble-radius-md', '中'),
       radius('--jimble-radius-lg', '大'),
@@ -225,6 +226,11 @@ export const CATALOG: Group[] = [
       weight('--jimble-font-weight-medium', '太さ medium（ラベルなど）'),
       weight('--jimble-font-weight-semibold', '太さ semibold（見出しなど）'),
       weight('--jimble-font-weight-bold', '太さ bold'),
+      num(
+        '--jimble-font-size-scale',
+        '文字の大きさの倍率（xs〜xl と行の高さにかける）',
+        '例: 0.9・1・1.1',
+      ),
       len('--jimble-font-size-xs', '大きさ xs'),
       len('--jimble-font-size-sm', '大きさ sm'),
       len('--jimble-font-size-base', '大きさ base'),
