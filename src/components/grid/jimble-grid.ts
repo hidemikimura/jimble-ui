@@ -16,6 +16,7 @@ const LENGTH = /^\d+(\.\d+)?(px|rem|em|ch|%)$/
  * - 並べるだけで、意味は持たない。中の文字の書体と色は、置いた場所のものを引き継ぐ。
  *
  * @tag jimble-grid
+ * @status experimental
  *
  * @slot - 並べる要素
  *

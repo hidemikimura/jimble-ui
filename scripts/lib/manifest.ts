@@ -1,12 +1,17 @@
 // custom-elements.json の読み取りと、属性の候補値の解決。postbuild(VS Code 補完)・gen-skill・CLI の試験が共有する。
 import { globSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { PHASES, releasePhase } from '../../cli/catalog.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 
 export interface ElementDecl {
   tagName: string
   description?: string
+  /** `@status experimental`（設計書 §24） */
+  status?: string
+  /** `@deprecated` の案内（解析ツールが標準で写す） */
+  deprecated?: string | boolean
   attributes?: { name: string; description?: string; type?: { text: string } }[]
   slots?: { name: string; description?: string }[]
   events?: { name: string; description?: string }[]
@@ -58,6 +63,14 @@ export interface HtmlData {
   valueSets: { name: string; values: { name: string }[] }[]
 }
 
+/** エディターの説明の先頭に付ける、公開段階の注意（安定なら空） */
+function phaseNote(d: ElementDecl): string {
+  const phase = releasePhase(d)
+  if (phase === 'stable') return ''
+  const instead = typeof d.deprecated === 'string' ? `代わり: ${d.deprecated}。` : ''
+  return `【${PHASES[phase].label}】${PHASES[phase].meaning}。${instead}\n\n`
+}
+
 export function vscodeData(elements: ElementDecl[] = loadElements()): HtmlData {
   const values = (type?: string): { name: string }[] | undefined =>
     enumValues(type)?.map((name) => ({ name }))
@@ -65,7 +78,7 @@ export function vscodeData(elements: ElementDecl[] = loadElements()): HtmlData {
     version: 1.1,
     tags: elements.map((d) => ({
       name: d.tagName,
-      description: d.description ?? '',
+      description: phaseNote(d) + (d.description ?? ''),
       attributes: (d.attributes ?? []).map((a) => ({
         name: a.name,
         description: a.description ?? '',

@@ -49,11 +49,41 @@ function hideInternalState() {
   }
 }
 
+/**
+ * クラスの JSDoc の `@status experimental` を、宣言の `status` に写す（公開段階。設計書 §24）。
+ * 安定（既定）は書かない。非推奨は解析ツールが標準で読む `@deprecated 代わりの案内` を使う。
+ */
+function releaseStatus() {
+  const STATUSES = new Set(['experimental'])
+  /** `モジュールのパス#クラス名` → 公開段階 */
+  const found = new Map()
+  return {
+    name: 'jimble-release-status',
+    analyzePhase({ ts, node, moduleDoc }) {
+      if (!ts.isClassDeclaration(node) || !node.name) return
+      const tag = ts.getJSDocTags(node).find((t) => t.tagName.text === 'status')
+      if (!tag) return
+      const value = ts.getTextOfJSDocComment(tag.comment)?.trim() ?? ''
+      if (!STATUSES.has(value))
+        throw new Error(
+          `${moduleDoc.path} の ${node.name.text}: @status は ${[...STATUSES].join(' / ')} だけ（安定なら書かない）。書かれていたもの: ${value}`,
+        )
+      found.set(`${moduleDoc.path}#${node.name.text}`, value)
+    },
+    moduleLinkPhase({ moduleDoc }) {
+      moduleDoc.declarations = (moduleDoc.declarations ?? []).map((decl) => {
+        const status = found.get(`${moduleDoc.path}#${decl.name}`)
+        return status ? { ...decl, status } : decl
+      })
+    },
+  }
+}
+
 export default {
   // 基底クラス(src/base)も解析して、継承した属性・メソッドを各要素の API に含める
   globs: ['src/components/**/jimble-*.ts', 'src/base/*.ts'],
   exclude: ['**/*.test.ts'],
   outdir: '.',
   litelement: true,
-  plugins: [hideInternalState()],
+  plugins: [hideInternalState(), releaseStatus()],
 }

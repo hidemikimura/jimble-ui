@@ -2147,6 +2147,25 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 - **試験**: `tests/unit/density.test.ts`（4 段階の順・同じトークンを上書きする・`default` が既定値と同じ・段階が上がるほど大きい・24px 以上・`:where()`）と、`src/styles/density.test.ts`（段階ごとのボタン・入力欄の高さとカードの余白、入れ子、利用者の変数が勝つことを、3 つのブラウザで）。ドキュメントサイトでは、4 段階を並べた例を、ライト・ダークで axe にかける。
 - **theme-lab**: 0.18.0 の公開後に、テーマ調整のパネルに「出発点」を足した。既製のテーマと余白の段階を選ぶと、配布する CSS（`dist/themes/*.css`・`dist/density.css`）の値を、試しの値として当てる（`theme.css をコピー` に入る）。選び直すと、前に当てた分を外してから当てる。段階の属性（`data-jimble-density`）を使わないのは、theme-lab の `theme.css` が `:root` にすべての変数を書くので、詳細度 0 の段階より強く、属性では変わらないため。
 
+## 24. 公開段階（試験的・安定・非推奨。2026-11-12）
+
+部品ごとに、どのくらい変わりうるかを示す（Atlassian Design System の Release phases を参考にした）。0.x のあいだはマイナーで互換性が壊れうるが、0.18 で 8 つの部品を一度に足したので、固まった部品と、意見で変わりうる部品を、利用者と AI が見分けられるようにする。
+
+> **決定** 段階は 3 つ（試験的・安定・非推奨）。部品のクラスの JSDoc に `@status experimental` を書くと試験的、`@deprecated 代わりの案内` を書くと非推奨、どちらも無ければ安定。`custom-elements-manifest.config.mjs` の `releaseStatus()` が `@status` を宣言の `status` に写す（`@deprecated` は解析ツールが標準で `deprecated` に写す）。段階の名前と意味の文は `cli/catalog.ts` の `PHASES` 1 か所に置き、サイト（部品のページの見出しの下とメニュー）・skill の早見・CLI の `component`（一覧と詳細、`--json` の `status`）・エディターの補完の説明（`dist/vscode.html-data.json`）が同じ文を使う。
+> **理由**
+> - 段階は API と同じく部品のソースに置くと、部品を足す・直す人が忘れにくく、マニフェストを読むすべての出し先に、同じ仕組みで届く（§17 の CLI、§20 の Do / Don't と同じ流れ）。
+> - Atlassian の 5 段階（Early access・Beta・GA・Intent to deprecate・Deprecated）は、社内の利用者向けの区別が多い。jimble-ui では「使ってよいが変わりうる」「変えない」「外す」の 3 つで足りる。
+> - 安定を既定にして印を付けないのは、ほとんどの部品が安定で、印が多いと注意が薄れるため。
+>
+> **比較した案**
+> 1. 段階の一覧を別の JSON に書く — 部品のソースと離れて、足したときに書き忘れる。
+> 2. 試験的な部品を別の入口（`/experimental`）にする — 安定にしたときに import の場所が変わり、それ自体が互換性を壊す。
+
+- **最初の試験的な部品**: 0.18.0 で足した popover・tree（tree-item）・command-palette（command）・progress・skeleton・empty-state・stack・grid。子の要素も親と同じ段階にする（試験が確かめる）。
+- **安定にするとき**: `@status` の行を消す。CHANGELOG に載るよう、`docs(<部品>): …を安定にする` のようにコミットする。
+- **非推奨にするとき**: `@deprecated` に代わりの部品・書き方を書き、少なくとも 1 つのマイナーバージョンのあいだ残してから外す（`ガイド > 既知の制約 > 公開段階`）。
+- **試験**: `tests/unit/manifest.test.ts`（`@status` の値と、子の要素が親と同じ段階）、`tests/unit/cli.test.ts`（`component` の一覧・詳細に段階が出る）、`tests/unit/skill.test.ts`（早見に印が出る）。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

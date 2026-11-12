@@ -50,7 +50,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## コンポーネント早見
 
-各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。
+各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。**（試験的）**の部品は、マイナーバージョンで属性・イベントが変わることがある。使ってよいが、更新したら変更点（CHANGELOG）を確かめる。**（非推奨）**の部品は、新しく書かない。
 
 {{components}}
 

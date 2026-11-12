@@ -15,6 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import matter from 'gray-matter'
 import MarkdownIt from 'markdown-it'
 import { createHighlighter, type Highlighter } from 'shiki'
+import { PHASES, releasePhase, type ReleasePhase } from '../../cli/catalog.ts'
 import { readDos } from '../../scripts/lib/dos.ts'
 import { all, resolveRef } from '../../scripts/lib/tokens.ts'
 
@@ -171,6 +172,29 @@ function apiHtml(manifest: Manifest | null, tag: string): string {
   return out.join('\n')
 }
 
+// ---- 公開段階（設計書 §24） -------------------------------------------------------------
+/** 部品のページの公開段階（ページの最初の `::api <タグ>` の要素で決める。部品以外は undefined） */
+function phaseOf(
+  page: Page,
+  manifest: Manifest | null,
+): { phase: ReleasePhase; instead?: string } | undefined {
+  const tag = /^::api[ \t]+(\S+)/m.exec(page.body)?.[1]
+  const decl = manifest?.modules.flatMap((m) => m.declarations ?? []).find((d) => d.tagName === tag)
+  if (!decl) return undefined
+  return {
+    phase: releasePhase(decl),
+    instead: typeof decl.deprecated === 'string' ? decl.deprecated : undefined,
+  }
+}
+
+/** 見出しの下に置く、公開段階の知らせ（安定なら空） */
+function phaseHtml(info: ReturnType<typeof phaseOf>, guide: string): string {
+  if (!info || info.phase === 'stable') return ''
+  const { label, meaning } = PHASES[info.phase]
+  const instead = info.instead ? ` 代わり: ${esc(info.instead)}` : ''
+  return `<p class="phase phase-${info.phase}"><strong>${label}</strong> — ${esc(meaning)}。${instead}<a href="${guide}">公開段階について</a></p>`
+}
+
 // ---- トークン表 --------------------------------------------------------------------------
 /** icons/svg の全アイコンの一覧(名前 + 見た目) */
 function iconsHtml(): string {
@@ -321,10 +345,16 @@ function render(page: Page, pages: Page[], md: MarkdownIt, manifest: Manifest | 
       .filter((p) => p.section === section)
       .map(
         (p) =>
-          `<li><a href="${href(p.out)}"${p.out === page.out ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`,
+          `<li><a href="${href(p.out)}"${p.out === page.out ? ' aria-current="page"' : ''}>${esc(p.title)}${navMark(p)}</a></li>`,
       )
       .join('')}</ul>`
   const home = href('index.html')
+  const navMark = (p: Page) => {
+    const phase = phaseOf(p, manifest)?.phase
+    return phase && phase !== 'stable'
+      ? ` <small class="nav-phase">${PHASES[phase].label}</small>`
+      : ''
+  }
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -347,6 +377,7 @@ ${page.description ? `<meta name="description" content="${esc(page.description)}
   </details>
   <main id="main">
     <h1>${esc(page.title)}</h1>
+    ${phaseHtml(phaseOf(page, manifest), `${href('guide/limitations/index.html')}#phases`)}
     ${body}
   </main>
 </div>

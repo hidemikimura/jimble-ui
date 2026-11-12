@@ -26,6 +26,7 @@ export interface CommandItem {
  * 名前は中身の文字。
  *
  * @tag jimble-command
+ * @status experimental
  *
  * @slot - 名前
  */

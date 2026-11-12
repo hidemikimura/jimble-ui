@@ -40,6 +40,7 @@ const MAX_FOCUS_TRIES = 50
  *   （トリガーへ戻る）・`hide()`。中のセレクトやコンボボックスを開いても閉じない。
  *
  * @tag jimble-popover
+ * @status experimental
  *
  * @slot trigger - パネルを開くボタン（jimble-button など）
  * @slot - パネルの中身
