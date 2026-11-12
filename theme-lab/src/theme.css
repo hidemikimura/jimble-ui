@@ -341,6 +341,9 @@
   --jimble-button-shadow: var(--jimble-shadow-sm);
   --jimble-pagination-shadow: var(--jimble-button-shadow);
   --jimble-badge-radius: var(--jimble-radius-md);
+  --jimble-avatar-bg: var(--jimble-color-surface-accent-strong);
+  --jimble-avatar-text: var(--jimble-color-text-accent);
+  --jimble-avatar-radius: var(--jimble-radius-md);
   --jimble-tooltip-bg: var(--jimble-color-surface-inverse);
   --jimble-tooltip-text: var(--jimble-color-text-on-primary);
   --jimble-switch-thumb-bg: var(--jimble-color-surface);
@@ -427,6 +430,10 @@
   --jimble-badge-text: var(--jimble-color-text-secondary);
   --jimble-badge-border: var(--jimble-color-ring-control);
   --jimble-badge-dot-color: currentColor;
+  */
+  /* アバターの大きさと輪（大きさは size ごと、輪は群の中で面の色になるので、必要なときだけ）
+  --jimble-avatar-size: 2rem;
+  --jimble-avatar-ring: transparent;
   */
   --jimble-card-radius: var(--jimble-radius-card);
   --jimble-card-padding: calc(var(--jimble-spacing) * 4);

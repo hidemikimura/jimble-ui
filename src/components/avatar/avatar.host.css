@@ -1,0 +1,10 @@
+@layer components {
+  :host(jimble-avatar) {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  :host(jimble-avatar-group) {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+}

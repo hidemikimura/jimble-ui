@@ -116,6 +116,8 @@ const en: Locale = {
   'stepper.current': ' (current)',
   'stepper.upcoming': ' (not started)',
   'stepper.error': ' (has errors)',
+  'avatarGroup.more': '{count} more',
+  'avatarGroup.moreNames': '{count} more: {names}',
   'pagination.label': 'Pagination',
   'pagination.previous': 'Previous page',
   'pagination.next': 'Next page',

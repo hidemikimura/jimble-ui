@@ -40,6 +40,8 @@ const GROUPS: [string, string[]][] = [
     [
       'card',
       'badge',
+      'avatar',
+      'avatar-group',
       'alert',
       'spinner',
       'progress',

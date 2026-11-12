@@ -116,6 +116,8 @@ const ja = {
   'stepper.current': '：現在',
   'stepper.upcoming': '：未',
   'stepper.error': '：エラーあり',
+  'avatarGroup.more': 'ほか {count} 人',
+  'avatarGroup.moreNames': 'ほか {count} 人（{names}）',
   'pagination.label': 'ページネーション',
   'pagination.previous': '前のページ',
   'pagination.next': '次のページ',

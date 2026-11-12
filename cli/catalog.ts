@@ -24,6 +24,7 @@ const PAGE: Readonly<Record<string, string>> = {
   'kanban-card': 'kanban',
   'tree-item': 'tree',
   command: 'command-palette',
+  'avatar-group': 'avatar',
 }
 
 /** input / change をネイティブと同じく出すフォーム部品（`jimble-` を除いた名前） */
