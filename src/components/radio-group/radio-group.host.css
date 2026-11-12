@@ -2,6 +2,10 @@
   :host(jimble-radio-group) {
     display: block;
   }
+  :host(jimble-radio-group[appearance='segmented']) {
+    display: inline-block;
+    vertical-align: middle;
+  }
   :host(jimble-radio) {
     display: flex;
     outline: none;
@@ -26,6 +30,11 @@
     }
     :host(jimble-radio:state(disabled)) [part='indicator'] {
       outline-color: GrayText !important;
+    }
+    /* 区切った見た目: 選ばれたものを、選択色の枠で示す */
+    :host(jimble-radio:state(segmented):state(checked)) [part='base'] {
+      outline: 2px solid Highlight !important;
+      outline-offset: -2px;
     }
   }
 }

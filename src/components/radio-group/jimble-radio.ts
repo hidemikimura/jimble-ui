@@ -10,6 +10,19 @@ const INDICATOR =
   'outline outline-1 outline-transparent [:host(:focus-visible)_&]:outline-2 ' +
   '[:host(:focus-visible)_&]:outline-offset-2 [:host(:focus-visible)_&]:outline-focus'
 const TEXT: Record<ControlSize, string> = { sm: 'text-sm', md: 'text-sm', lg: 'text-base' }
+// 区切った見た目（appearance="segmented"）の 1 つ分。選ばれたものは、面・枠・影・太字で示す（色だけに頼らない）
+const SEGMENT: Record<ControlSize, string> = {
+  sm: 'px-2.5 py-0.5 text-sm',
+  md: 'px-3 py-1 text-sm',
+  lg: 'px-4 py-1.5 text-base',
+}
+const SEGMENT_BASE =
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md select-none ' +
+  'outline outline-1 outline-transparent [:host(:focus-visible)_&]:outline-2 ' +
+  '[:host(:focus-visible)_&]:outline-offset-1 [:host(:focus-visible)_&]:outline-focus'
+const SEGMENT_ON =
+  'bg-surface text-fg shadow-sm ring-1 ring-inset ring-line-control [font-weight:var(--font-weight-medium)]'
+const SEGMENT_OFF = 'text-fg-secondary hover:text-fg'
 
 /**
  * ラジオ。`jimble-radio-group` の直接の子として使う。フォームへの参加・キーボード操作・
@@ -20,11 +33,12 @@ const TEXT: Record<ControlSize, string> = { sm: 'text-sm', md: 'text-sm', lg: 't
  * @slot - ラベル
  *
  * @csspart base - ルート要素
- * @csspart indicator - 丸い表示部
+ * @csspart indicator - 丸い表示部（区切った見た目では、ない）
  * @csspart label - ラベルを包む要素
  *
  * @cssstate checked - 選ばれている
  * @cssstate disabled - 操作できない（自身かグループが `disabled`）
+ * @cssstate segmented - 区切った見た目（グループの `appearance="segmented"`）
  */
 export class JimbleRadio extends JimbleElement {
   static override properties: PropertyDeclarations = {
@@ -33,6 +47,7 @@ export class JimbleRadio extends JimbleElement {
     size: { reflect: true },
     checked: { type: Boolean, attribute: false },
     groupDisabled: { type: Boolean, attribute: false },
+    segmented: { type: Boolean, attribute: false },
   }
 
   /** このラジオが選ばれたときにグループが持つ値 */
@@ -43,6 +58,8 @@ export class JimbleRadio extends JimbleElement {
   declare checked: boolean
   /** グループ全体が無効（グループが設定する） */
   declare groupDisabled: boolean
+  /** 区切った見た目で描く（グループの appearance="segmented"。グループが設定する） */
+  declare segmented: boolean
 
   constructor() {
     super()
@@ -51,6 +68,7 @@ export class JimbleRadio extends JimbleElement {
     this.size = 'md'
     this.checked = false
     this.groupDisabled = false
+    this.segmented = false
   }
 
   get isDisabled(): boolean {
@@ -69,11 +87,23 @@ export class JimbleRadio extends JimbleElement {
     this.reflectAria('aria-disabled', this.isDisabled ? 'true' : 'false')
     this.setState('checked', this.checked)
     this.setState('disabled', this.isDisabled)
+    this.setState('segmented', this.segmented)
+  }
+
+  #renderSegment(size: ControlSize, disabled: boolean) {
+    return html`<span
+      part="base"
+      class="${SEGMENT_BASE} ${SEGMENT[size]} ${this.checked ? SEGMENT_ON : SEGMENT_OFF} ${
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+      }"
+      ><span part="label"><slot></slot></span
+    ></span>`
   }
 
   protected override render() {
     const size = this.size in BOX ? this.size : 'md'
     const disabled = this.isDisabled
+    if (this.segmented) return this.#renderSegment(size, disabled)
     return html`<span
       part="base"
       class="flex min-h-6 items-start gap-2 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}"
