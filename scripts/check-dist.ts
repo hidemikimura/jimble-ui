@@ -21,7 +21,13 @@ if (!existsSync(dist)) {
 }
 
 const files = walk(dist)
-const js = files.filter((f) => f.endsWith('.js') && !f.includes(`${join('dist', 'cdn')}/`))
+// ブラウザで読む JS。CDN バンドルと CLI(Node で動く。設計書 §17)は、別に予算を見る
+const js = files.filter(
+  (f) =>
+    f.endsWith('.js') &&
+    !f.includes(`${join('dist', 'cdn')}/`) &&
+    !f.includes(`${join('dist', 'cli')}/`),
+)
 const cdn = join(dist, 'cdn', 'jimble-ui.js')
 
 // (a) CSS は JS に文字列で入る。@property の残り・生パレットの混入を検出する
@@ -63,6 +69,8 @@ const BUDGET = {
   cdn: 104 * 1024,
   /** CDN のコードエディタを、言語なしで開くまでに読み込む分(本体 + CodeMirror + Lit。2026-11-06 の実測 153 KB) */
   codeEditor: 165 * 1024,
+  /** CLI(npx で初回に取ってくる。2026-11-12 の実測 8.8 KB) */
+  cli: 16 * 1024,
 }
 const sizes = js.map((f) => [f, gz(f)] as const)
 const sharedFile = cssHolder[0]?.[0]
@@ -170,6 +178,13 @@ if (largest)
     fail(
       `CSS が出ていないクラス: ${token}（${[...where].join(', ')}）。Tailwind に定義がないか、書き方が違う`,
     )
+}
+
+const cliFile = join(dist, 'cli', 'jimble-ui.js')
+if (existsSync(cliFile)) {
+  const size = gz(cliFile)
+  console.log(`CLI: ${kb(size)} KB gz (予算 ${kb(BUDGET.cli)} KB)`)
+  if (size > BUDGET.cli) fail(`CLI が予算超過: ${kb(size)} KB > ${kb(BUDGET.cli)} KB`)
 }
 
 // (d) 配布用ファイルが揃っている

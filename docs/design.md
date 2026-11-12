@@ -554,9 +554,9 @@ Astryx（Meta のデザインシステム）が、neutral・stone などのテ�
 
 | 名前     | 主色（primary） | 灰色（neutral） | そのほか                    |
 | -------- | --------------- | --------------- | --------------------------- |
-| `ocean`  | blue            | slate           | 角丸を小さく（control・card は md、overlay は lg） |
+| `ocean`  | blue            | slate           | 角丸を小さく（`radius-scale` 0.75。§4.10） |
 | `forest` | emerald         | stone           |                             |
-| `plum`   | violet          | mauve           | 角丸を大きく（control は xl、card・overlay は 1rem） |
+| `plum`   | violet          | mauve           | 角丸を大きく（`radius-scale` 1.5。§4.10） |
 | `sand`   | orange          | taupe           |                             |
 
 - **白い文字が乗る塗りつぶし**: 既定（indigo）は、`primary-600` も hover の `primary-500` も、白い文字で 4.5:1 を満たす。ほかの色相では、600 または 500 が届かない（blue-500 は 3.76:1、emerald-600 は 3.67:1）。そこで、テーマで `primary-600` / `primary-500` に、より濃い段階を割り当てる（例: forest は 600 に emerald-700、500 に emerald-800）。`primary-500` を使うのは主ボタンの hover だけなので、hover が濃くなるだけで、ほかへの影響はない。
@@ -565,6 +565,24 @@ Astryx（Meta のデザインシステム）が、neutral・stone などのテ�
 - **試験**: `tests/unit/contrast.test.ts` が全テーマ × ライト・ダークで契約を測る。`src/styles/themes.test.ts` が、読み込むと変わること、`data-jimble-theme` の範囲だけ変わること、利用者の `:root` が先に書かれていても勝つこと、ダークの面がテーマの灰色になることを、3 つのブラウザで確かめる。`check-dist` が `dist/themes/*.css` の有無を確かめる。
 
 ---
+
+### 4.10 全体の倍率（2026-11-12）
+
+Astryx は、角丸を「基準値 × 倍率」、文字を「基準の大きさ × 比率」のように、少ない数で全体を変える指定を持っている。jimble-ui は、余白を `--jimble-spacing` 1 つで変えられる（§4.3）が、角丸と文字は段階ごとに変数を書く必要があった。
+
+> **決定** `--jimble-radius-scale`（既定 1）と `--jimble-font-size-scale`（既定 1）を足す。`radius-sm`〜`xl` の既定値を `calc(元の値 * var(--jimble-radius-scale, 1))`、`font-size-xs`〜`xl` と、それぞれの行の高さを `calc(元の値 * var(--jimble-font-size-scale, 1))` にする。`radius-full` は掛けない。
+> **理由**
+> - トークンの既定値の中で掛けるので、`radius-control` などの用途別の角丸と、それを既定に持つ部品固有の変数（`--jimble-button-radius` など）が、まとめて追従する。部品には手を入れない。
+> - 段階ごとの変数（`--jimble-radius-lg` など）を利用者が指定すれば、そちらが勝つ（倍率は既定値の中にしかない）。「全体は倍率で、一部だけ個別に」ができる。
+> - 既製のテーマ（§4.9）も、角丸を倍率 1 つで表せる（ocean は 0.75、plum は 1.5）。以前は用途別の角丸を 3 つずつ書いていた。
+>
+> **比較した案**
+> 1. 動きの「テンポ」（`--jimble-duration-scale`）も足す — 部品は、動きのトークン（`duration-*`）をほとんど使っておらず（Tailwind の 150ms のまま）、効く所がない。部品の動きをトークンにそろえてから考える。
+> 2. 高さ（`control-height-*`）も文字の倍率で変える — 文字を大きくしても、既定の高さ（32 / 36 / 40px）に収まる範囲（1.25 倍まで）が多く、高さまで変わると、表の行の密度などが意図せず変わる。高さは今までどおり個別の変数で変える。
+> 3. `--jimble-spacing` のように、基準の長さ（`--jimble-radius-base`）にする — 段階ごとの比（sm : md : lg : xl = 2 : 3 : 4 : 6）を保ったまま変えるには、倍率のほうが分かりやすい。0 で角なしにもできる。
+
+- **theme-lab**: `theme.css` の角丸と文字の大きさを、倍率を掛ける形で書いた（npm の公開版のライブラリでも、`theme.css` の中で掛けるので、倍率が効く）。カタログに 2 つの倍率を足した。
+- **試験**: `src/styles/theme-vars.test.ts` が、既定のまま、角丸の倍率（2 倍・0）、個別の指定が倍率に勝つこと、文字の倍率で大きさと行の高さが一緒に変わることを、3 つのブラウザで確かめる。テーマの試験（ocean のボタンが 6px）も、そのまま通る。
 
 ## 5. フォーム連携の基底
 
