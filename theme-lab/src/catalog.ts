@@ -341,6 +341,8 @@ export const CATALOG: Group[] = [
       c('--jimble-badge-text', 'バッジの文字（種類に応じる）', true),
       c('--jimble-badge-border', 'バッジの枠（種類に応じる）', true),
       c('--jimble-badge-dot-color', 'バッジの丸（dot。文字色に応じる）', true),
+      c('--jimble-banner-bg', '画面上部の知らせの背景（種類に応じる）', true),
+      c('--jimble-banner-text', '画面上部の知らせの文字（種類に応じる）', true),
       c('--jimble-avatar-bg', 'アバターの頭文字の背景'),
       c('--jimble-avatar-text', 'アバターの頭文字の色'),
       radius('--jimble-avatar-radius', 'アバター（square）の角丸'),

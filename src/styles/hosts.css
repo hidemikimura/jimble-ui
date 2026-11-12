@@ -3,6 +3,7 @@
 @import '../components/app-shell/app-shell.host.css';
 @import '../components/avatar/avatar.host.css';
 @import '../components/badge/badge.host.css';
+@import '../components/banner/banner.host.css';
 @import '../components/breadcrumb/breadcrumb.host.css';
 @import '../components/button/button.host.css';
 @import '../components/card/card.host.css';
