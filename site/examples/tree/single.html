@@ -1,0 +1,19 @@
+<!-- title: 1 つを選ぶ（selection="single"） -->
+<jimble-stack gap="3">
+  <jimble-tree id="tree-single" aria-label="部署" selection="single" value="sales">
+    <jimble-tree-item label="本社" value="hq" expanded>
+      <jimble-tree-item label="営業部" value="sales"></jimble-tree-item>
+      <jimble-tree-item label="開発部" value="dev">
+        <jimble-tree-item label="フロントエンド" value="fe"></jimble-tree-item>
+        <jimble-tree-item label="サーバー" value="be"></jimble-tree-item>
+      </jimble-tree-item>
+    </jimble-tree-item>
+    <jimble-tree-item label="大阪支社" value="osaka"></jimble-tree-item>
+  </jimble-tree>
+  <output id="tree-single-out" aria-live="polite">選択: sales</output>
+</jimble-stack>
+<script>
+  document.getElementById('tree-single').addEventListener('jimble-selection-change', (e) => {
+    document.getElementById('tree-single-out').textContent = '選択: ' + e.detail.values.join(', ')
+  })
+</script>

@@ -303,7 +303,7 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | それ以外の JS（コンポーネント 1 つぶんなど） | 8 KB 以下（当初は 4 KB） | 最大 6.5 KB（`combobox`） |
 | CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 56 KB 以下 | 39.2 KB |
 
-部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB。§21）。
+部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB（§21）、ツリーを足して CDN 114 KB（§22.5））。
 
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
@@ -2089,7 +2089,16 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
   - **フォーム**: `name` を付けると、フォーム関連カスタム要素として、`values` を同じ `name` で複数送る（`jimble-dual-listbox` と同じ）。`required`（1 つ以上）も効く。ラベルは `jimble-field` で付ける。
   - **遅延読み込みとの組み合わせ**: 子がまだ読み込まれていない親を付けると、あとで読み込まれた子は、親の状態（付いている）を受け継ぐ。
 - **遅延読み込み**: 子がまだ無い項目に `lazy` を付けると、開くための印を出し、開いたときに木から `jimble-expand`（`detail.item`）が出る。アプリが子を足すまで `loading`（項目に読み込み中を出す）。開閉は木から `jimble-expand` / `jimble-collapse`（`jimble-*` はバブルしないので、木が項目の分をまとめて出す）。
-- **見た目**: 開閉の印・字下げ（`--jimble-tree-indent`、既定 1.25rem）・`guides` 属性で階層の線。項目の中身は既定スロット（アイコンは `slot="icon"`、右の補足は `slot="end"`）。
+- **見た目**: 開閉の印・字下げ（`--jimble-tree-indent`、既定 1.25rem）・`guides` 属性で階層の線。項目の名前は **`label` 属性**、アイコンは `slot="icon"`、右の補足は `slot="end"`、子の項目は既定スロット。
+- **実装の結果（2026-11-12）**:
+  - **名前は `label` 属性にした**（案では既定スロットの文字）。既定スロットに、名前の文字と子の項目の両方が入ると、手動のスロット割り当て（`slotAssignment: 'manual'` と、子の変化を見て割り当て直す処理）が要る。名前は文字で足り、太字などの装飾は要らないので、属性にした。
+  - **`role="tree"` は Shadow 内の要素に付けた**（案では host）。`jimble-radio-group` と同じく、`jimble-field` のラベル・ヒント・エラーを、その要素の `aria-label`・`aria-describedby` に写すため。項目は、合成ツリーでその下に入る。
+  - **項目に `aria-label` を付けない**。付けると、axe が「見えている文字（子の項目の名前も含む）が名前に入っていない」（`label-content-name-mismatch`）と指摘した。名前は中身から計算される（Chromium では、自分の `label` だけが名前になる。スパイク S3 と同じ）。
+  - **木の処理は、項目の getter ではなく DOM と属性で読む**。`value` 属性の処理は、子の項目が登録（upgrade）される前に動くことがあり、項目の getter（`childItems` など）がまだ無い。
+  - **字下げ**: 子の項目は親の group の中にあるので、group の左の余白が階層ごとに積み重なる。階層の線は group の左の線（線の 1px も字下げに含める）。
+  - **Tab で入る先**: 木の外にフォーカスがあるときは、選ばれている項目（`multiple` では付いている・一部の項目）、無ければ最初の項目。`single` では、子が選ばれている親を「一部」として扱わない。
+  - **disabled の項目**: 選べない・付け外しできないが、移動と開閉はできる（子へたどり着けるように）。`multiple` で親を付けたとき、disabled の子は変えない（親は「一部」になる）。
+  - **選ばない木（`none`）**: 子のある行のクリックで開閉する。
 - **スパイク S3 の結果（2026-11-12、Chromium の CDP `Accessibility.getFullAXTree`）**: host の treeitem → Shadow の `role="group"` → スロットの treeitem は、木としてそのまま読まれ、`aria-level` もブラウザが入れ子から計算した（1・2）。→ 入れ子のスロットの作りで作る。`aria-level`・`aria-posinset`・`aria-setsize` は、Firefox・WebKit の差に備えて、木が計算して明示する（案のまま）。**子の無い項目には `aria-expanded` を付けず、空の group も描かない**（付けると「展開済み」で中身が無いと読まれる。スパイクで確認）。
 - **やらないこと（今回）**: 並べ替え（ドラッグ）・名前の編集・仮想スクロール・`href`（項目をリンクにする。ページの移動はナビゲーションの部品で）。
 
@@ -2106,7 +2115,7 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 
 1. **ツリーの複数選択**: `multiple` まで作る（チェックボックスの木・親子の連動・一部だけ付いた状態・フォームへの参加。§22.3）。
 2. **コマンドパレットのショートカット**: 既定ではなし。使う側が `hotkey="mod+k"` を書いたときだけ効く。
-3. **配布**: コマンドパレットだけ、`code-editor` と同じく別の入口（`@hidemikimura/jimble-ui/command-palette`、CDN は `dist/cdn/command-palette.js`）にし、全部入りに入れない（`tests/unit/entry.test.ts` の `SEPARATE` に足す）。ポップオーバーとツリーは全部入りに入れる（CDN の予算 110 KB の中に収まる見込み。超えたら、その PR で見直す）。
+3. **配布**: コマンドパレットだけ、`code-editor` と同じく別の入口（`@hidemikimura/jimble-ui/command-palette`、CDN は `dist/cdn/command-palette.js`）にし、全部入りに入れない（`tests/unit/entry.test.ts` の `SEPARATE` に足す）。ポップオーバーとツリーは全部入りに入れる。**ツリーを足して CDN バンドルが 110.0 KB（予算 110 KB）に達したので、予算を 114 KB にした**（ツリーで約 3.3 KB。コマンドパレットは別の入口なので、全部入りは当面これ以上増えない）。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

@@ -81,6 +81,8 @@ const GROUPS: [string, string[]][] = [
       'radio-group',
       'radio',
       'switch',
+      'tree',
+      'tree-item',
     ],
   ],
   [

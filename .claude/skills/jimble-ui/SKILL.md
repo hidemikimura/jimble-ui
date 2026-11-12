@@ -255,6 +255,15 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
   - イベント: `change`, `input`, `change`
+- **`jimble-tree`** — 開閉できる階層の一覧（WAI-ARIA の Tree View パターン）。
+  - 属性: `value=値`, `selection=none|single|multiple`, `checked-values=all|leaves`, `guides`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - スロット: (既定)
+  - イベント: `input`, `change`, `jimble-selection-change`, `jimble-expand`, `jimble-collapse`, `input`, `change`
+- **`jimble-tree-item`** — 木の項目。
+  - 属性: `label=値`, `value=値`, `expanded`, `lazy`, `disabled`
+  - スロット: (既定), `icon`, `end`
+  - 状態: `:state(expanded)`, `:state(selected)`, `:state(checked)`, `:state(mixed)`, `:state(disabled)`
+  - 説明: `tree` のページ
 
 ### オーバーレイ
 
@@ -330,7 +339,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 **使う部品の参照ファイルを、書き始める前に読む**（`SKILL.md` と同じフォルダの `references/`）。注意書きと、そのまま使える例がある。
 
 - **ダイアログ・ドロワー・ポップオーバー・ツールチップ・メニュー・通知** → `references/overlays.md`。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
-- **セレクト・コンボボックス・左右分割の選択・日付・色・ファイル添付・コードエディタ** → `references/inputs.md`。コードエディタは全部入りに含まれず、別に import する。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
+- **セレクト・コンボボックス・左右分割の選択・木・日付・色・ファイル添付・コードエディタ** → `references/inputs.md`。コードエディタは全部入りに含まれず、別に import する。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
 - **表（並べ替え）・アイコン・スピナー・カンバン** → `references/display.md`。**アイコンの `name` は、そこにある一覧のものだけ**（推測しない）。
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。
 - **ルーター（SPA）** → `references/router.md`。`title` を必ず付ける。

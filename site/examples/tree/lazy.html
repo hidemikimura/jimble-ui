@@ -1,0 +1,22 @@
+<!-- title: 開いたときに子を読み込む（lazy） -->
+<jimble-tree id="tree-lazy" aria-label="組織">
+  <jimble-tree-item label="東京本社" value="tokyo" lazy></jimble-tree-item>
+  <jimble-tree-item label="大阪支社" value="osaka" lazy></jimble-tree-item>
+</jimble-tree>
+<script>
+  // サーバーへの問い合わせの代わり。子が無いと分かったら lazy を外す
+  const ORG = { tokyo: ['営業部', '開発部', '総務部'], osaka: [] }
+  document.getElementById('tree-lazy').addEventListener('jimble-expand', (e) => {
+    const item = e.detail.item
+    if (!item.lazy) return
+    setTimeout(() => {
+      const names = ORG[item.value] ?? []
+      for (const name of names) {
+        const child = document.createElement('jimble-tree-item')
+        child.label = name
+        item.append(child)
+      }
+      item.lazy = false
+    }, 600)
+  })
+</script>

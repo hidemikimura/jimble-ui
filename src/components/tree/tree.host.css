@@ -1,0 +1,37 @@
+@layer components {
+  :host(jimble-tree) {
+    display: block;
+  }
+  :host(jimble-tree-item) {
+    display: block;
+    /* フォーカスの印は行(part=row)に描く */
+    outline: none;
+  }
+  :host(jimble-tree-item) [part='group'][hidden] {
+    display: none;
+  }
+
+  /* 強制色モード: 背景色が消えるので、選択中の行とチェックボックスを、システムの色の枠で示す */
+  @media (forced-colors: active) {
+    :host(jimble-tree-item:focus-visible) [part='row'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-tree-item:state(selected)) [part='row'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    :host(jimble-tree-item) [part='checkbox'] {
+      forced-color-adjust: none;
+      background-color: Canvas !important;
+      color: CanvasText !important;
+      outline: 1px solid CanvasText !important;
+    }
+    :host(jimble-tree-item:state(checked)) [part='checkbox'],
+    :host(jimble-tree-item:state(mixed)) [part='checkbox'] {
+      background-color: Highlight !important;
+      color: HighlightText !important;
+      outline-color: Highlight !important;
+    }
+  }
+}

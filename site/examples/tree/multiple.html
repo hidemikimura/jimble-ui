@@ -1,0 +1,31 @@
+<!-- title: チェックボックスで複数を選び、フォームで送る（selection="multiple"） -->
+<form
+  onsubmit="
+    event.preventDefault()
+    this.querySelector('output').textContent = JSON.stringify(new FormData(this).getAll('category'))
+  "
+>
+  <jimble-stack gap="3">
+    <jimble-field
+      label="表示するカテゴリ"
+      hint="親を付けると、中のカテゴリがすべて付きます"
+      required
+    >
+      <jimble-tree name="category" selection="multiple" checked-values="leaves" value="veg">
+        <jimble-tree-item label="食品" value="food" expanded>
+          <jimble-tree-item label="野菜" value="veg"></jimble-tree-item>
+          <jimble-tree-item label="果物" value="fruit">
+            <jimble-tree-item label="りんご" value="apple"></jimble-tree-item>
+            <jimble-tree-item label="みかん" value="orange"></jimble-tree-item>
+          </jimble-tree-item>
+        </jimble-tree-item>
+        <jimble-tree-item label="家電" value="appliance"></jimble-tree-item>
+      </jimble-tree>
+    </jimble-field>
+    <jimble-stack direction="horizontal" gap="2">
+      <jimble-button type="submit" variant="primary">送信</jimble-button>
+      <jimble-button type="reset">リセット</jimble-button>
+    </jimble-stack>
+    <output aria-live="polite"></output>
+  </jimble-stack>
+</form>

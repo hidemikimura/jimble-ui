@@ -1,6 +1,6 @@
-# 選択・日付・色・ファイル・コードエディタ
+# 選択・木・日付・色・ファイル・コードエディタ
 
-セレクト・コンボボックス・左右分割の選択・日付・色・ファイル添付・コードエディタの使い方。
+セレクト・コンボボックス・左右分割の選択・木・日付・色・ファイル添付・コードエディタの使い方。
 
 - **セレクト**: 選択肢は `jimble-option`（`value`）。未選択はプレースホルダー（ネイティブと違い、最初の選択肢が自動で選ばれない）。
 - **コンボボックス**（`jimble-combobox`）: 選択肢が多く、探して選ぶときに使う。選択肢は `jimble-select` と同じ `jimble-option`（読みは `keywords="とうきょう tokyo"`）。既定では**自由入力は値にならない**。文字入力では `input` / `change` は出ず、`jimble-search`（`detail.query`）が出る。
@@ -10,6 +10,7 @@
   - `creatable`: 一覧にない文字を追加できる（`jimble-create`。`create` プロパティで作り方を決める）。
 - **ファイル添付**（`jimble-file-input`）: ドロップエリア + 「ファイルを選択」ボタン + 一覧。`multiple`・`accept=".pdf,image/*"`・`max-size`（バイト）・`max-files`。合わないファイルは追加されず理由が出る（`jimble-reject`）。ファイルはそのままフォームに送られる。`multiple` ならフォルダーのドロップで中のファイルを追加し、ファイル名は相対パス（`docs/a.pdf`）になる（`upload` には `path` で渡る）。**`upload` プロパティ**（`(file, { onProgress, signal }) => Promise<id>`）を渡すと自動でサーバーへ送り（進捗・中止・再試行つき）、フォームには返した ID が送られる（アップロード中・失敗があると検証が通らない）。サーバー側の検証は必須。
 - **左右分割の選択**（`jimble-dual-listbox`）: 左に未選択、右に選択済みを並べて「追加」「削除」で移す。項目は `jimble-option`、初期値は `value="a,b"`（カンマ区切り）、現在値は `values` 配列、同じ `name` で複数送信。`available-label` / `selected-label`・`move-all`・`max-items`。`reorderable` で右の一覧を並べ替え（ドラッグ・Alt+↑↓・「上へ」「下へ」。`jimble-reorder`）。`jimble-option` の `group` で見出し付きにまとめる（`search-group` でグループ名でも絞り込み）。項目が少なければ `jimble-select` や `jimble-combobox multiple`。
+- **木**（`jimble-tree` > `jimble-tree-item`）: カテゴリ・部署・フォルダなど、データの階層を開閉して見て選ぶ（ページの移動には使わない）。項目は `label`（名前）と `value` で、子の項目はそのまま入れ子に書く（`expanded` で開いておく）。`selection`: `none`（既定。開閉だけ）・`single`・`multiple`（チェックボックス。親を付けると子孫がすべて付き、一部だけなら親は「一部」）。現在値は `values`（`single` は `value` も）、初期値は `value` 属性（`multiple` はカンマ区切り）。`checked-values="leaves"` で子の無い項目だけを値にする。`name` でフォームに送る（同じ名前で複数）。名前は `jimble-field` の `label` か `aria-label`。変わると `jimble-selection-change`（`detail.values`）。子を後から読み込む項目は `lazy`（開くと木から `jimble-expand`、`detail.item` に子を足し、無ければ `lazy` を外す）。アイコンは `slot="icon"`、件数などは `slot="end"`。
 - **日付入力**（`jimble-date-input`）: 日付・日時・期間の選択（`<input type="date">` の代わり。`jimble-input` に `type="date"` はない）。値は文字列で、`Date` を渡さない。既定 `YYYY-MM-DD`、`time` で `YYYY-MM-DDTHH:mm`、`range` で `開始/終了`（`2026-09-01/2026-09-10`。`start` / `end` プロパティ）、`range time` で両方。`min` / `max`、`first-day-of-week`、`months="2"`、`minute-step`。期間は 2 回クリック（開始→終了）。カレンダーの見出しで月・年を直接選べる。`picker-only` で手入力不可（カレンダーだけで選ばせる。このときだけ入力欄のクリックで開く）。時刻ありはカレンダーが開いたままで「完了」で閉じる。秒・タイムゾーン・12 時間表記は未対応。
 - **コードエディタ**（`jimble-code-editor`）: メールの文面・HTML・JSON のテンプレートの編集（CodeMirror 6）。**全部入りに含まれない**ので、別に読み込む（`import '@hidemikimura/jimble-ui/code-editor'`、CDN は `jimble-ui.js` に加えて `dist/cdn/code-editor.js`）。`language="text|html|json"`・`rows`・`line-numbers`・`placeholder`・`readonly`。変数は **`variables` プロパティ**（`[{ name, label, description }]`）で渡し、文書の `{{name}}` をラベルのチップで見せる。`{{` の入力か Ctrl+Space で候補が出る。ボタン・メニューから入れるときは `insertVariable(name)`（メニューの `jimble-select` から呼んでよい）。区切りは `variable-prefix` / `variable-suffix`。値は `{{name}}` を含む文字列のまま送信される。`input` は利用者の編集と `insertVariable()` で出る。Tab はインデントに使わない（次の項目へ移る）。
 - **色選択**（`jimble-color-input`）: 値は小文字の `#rrggbb`。候補の色は `presets`。透明度も選ぶなら `alpha`（透けた色は `#rrggbbaa`、不透明は `#rrggbb`。候補にも `#rrggbbaa` を書ける）。
@@ -21,6 +22,10 @@
 ### コンボボックス（複数選択）
 
 {{example:combobox/multiple}}
+
+### 木（チェックボックスで複数を選び、フォームで送る）
+
+{{example:tree/multiple}}
 
 ### 日付入力（期間）
 
