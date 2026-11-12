@@ -421,6 +421,18 @@ export const CATALOG: Group[] = [
     ],
   },
   {
+    title: '進み具合・仮の表示・空の状態',
+    note: '進み具合の棒の色は、溝との対比 3:1 以上にする',
+    entries: [
+      c('--jimble-progress-fill', '進み具合の棒の色（variant に応じる）', true),
+      c('--jimble-progress-track', '進み具合の棒の溝'),
+      len('--jimble-skeleton-width', '仮の表示の幅（形に応じる）', undefined, true),
+      len('--jimble-skeleton-height', '仮の表示の高さ（形に応じる）', undefined, true),
+      len('--jimble-skeleton-radius', '仮の表示の角丸（形に応じる）', undefined, true),
+      len('--jimble-empty-state-padding', '空の状態の上下の余白', '例: 2.5rem'),
+    ],
+  },
+  {
     title: '表・説明リスト',
     note: '行の区切り線の色は「枠・区切り線」の divider',
     entries: [

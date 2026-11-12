@@ -133,6 +133,17 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/spinner/
+- **`jimble-progress`** — 処理の進み具合を、横の棒で示す（ファイルの取り込み・一括の処理・設定の完了の度合い）。
+  - 属性: `value=値`, `max=数値`, `label=値`, `variant=primary|success|warning|danger`, `size=sm|md`, `show-value`
+  - 状態: `:state(indeterminate)`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/progress/
+- **`jimble-skeleton`** — 読み込み中に、あとから出る内容と同じ形の、仮の面を出す（表の行・カード・文章）。
+  - 属性: `variant=text|rect|circle`, `lines=数値`
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/skeleton/
+- **`jimble-empty-state`** — 表示するものがないことを伝え、次の一歩を示す（空の一覧・検索の結果なし・まだ作っていない）。
+  - 属性: `heading=値`, `description=値`, `level=数値`
+  - スロット: `icon`, `title`, `description`, `actions`, (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/empty-state/
 - **`jimble-stepper`** — 段階を踏む入力（予約の登録など）の、今の位置と進み具合を見せる。
   - 属性: `value=値`, `orientation=horizontal|vertical`, `size=sm|md`, `navigable`, `label=値`
   - スロット: (既定)
@@ -264,14 +275,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - イベント: `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/checkbox/
 - **`jimble-radio-group`** — ラジオのグループ。
-  - 属性: `value=値`, `orientation=vertical|horizontal`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
+  - 属性: `value=値`, `orientation=vertical|horizontal`, `appearance=default|segmented`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`
   - スロット: (既定)
   - イベント: `input`, `change`, `input`, `change`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/radio-group/
 - **`jimble-radio`** — ラジオ。
   - 属性: `value=値`, `disabled`, `size=sm|md|lg`
   - スロット: (既定)
-  - 状態: `:state(checked)`, `:state(disabled)`
+  - 状態: `:state(checked)`, `:state(disabled)`, `:state(segmented)`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/radio-group/
 - **`jimble-switch`** — オン/オフのスイッチ。
   - 属性: `checked`, `value=値`, `name=値`, `disabled`, `required`, `size=sm|md|lg`, `aria-label=値`

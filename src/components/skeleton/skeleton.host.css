@@ -1,0 +1,11 @@
+@layer components {
+  :host(jimble-skeleton) {
+    display: block;
+  }
+  /* 強制色モードでは、背景色が消える。形が分かるよう、点線の枠を描く */
+  @media (forced-colors: active) {
+    :host(jimble-skeleton) [part='shape'] {
+      outline: 1px dashed GrayText !important;
+    }
+  }
+}

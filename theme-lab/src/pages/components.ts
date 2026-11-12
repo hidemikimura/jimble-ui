@@ -119,6 +119,30 @@ export function components() {
       </jimble-stack>
     </jimble-card>
 
+    <jimble-card class="section" id="sec-feedback">
+      <h3 slot="header">進み具合・仮の表示・空の状態・切り替え</h3>
+      <jimble-stack gap="5">
+        <jimble-progress label="取り込み" value="45" show-value></jimble-progress>
+        <jimble-progress label="準備中" variant="success"></jimble-progress>
+        <jimble-radio-group appearance="segmented" aria-label="表示の切り替え" value="list">
+          <jimble-radio value="list">一覧</jimble-radio>
+          <jimble-radio value="card">カード</jimble-radio>
+          <jimble-radio value="calendar">カレンダー</jimble-radio>
+        </jimble-radio-group>
+        <div aria-busy="true">
+          <jimble-skeleton variant="circle"></jimble-skeleton>
+          <jimble-skeleton lines="3" style="margin-top: 0.75rem"></jimble-skeleton>
+        </div>
+        <jimble-empty-state
+          heading="注文はまだありません"
+          description="最初の注文を登録しましょう。"
+        >
+          <jimble-icon slot="icon" name="inbox"></jimble-icon>
+          <jimble-button slot="actions" variant="primary">注文を登録</jimble-button>
+        </jimble-empty-state>
+      </jimble-stack>
+    </jimble-card>
+
     <jimble-card class="section" id="sec-alert">
       <h3 slot="header">アラート</h3>
       <div class="stack">

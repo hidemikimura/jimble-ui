@@ -190,3 +190,62 @@ describe('役割と状態を属性にも書く(Playwright などの getByRole �
     expect(attrs('aria-checked')).toEqual(['true', 'false', 'false'])
   })
 })
+
+describe('jimble-radio-group appearance="segmented"', () => {
+  const seg = () =>
+    mount<JimbleRadioGroup>(
+      html`<jimble-radio-group appearance="segmented" aria-label="表示" name="view" value="list">
+        <jimble-radio value="list">一覧</jimble-radio>
+        <jimble-radio value="card">カード</jimble-radio>
+        <jimble-radio value="map" disabled>地図</jimble-radio>
+      </jimble-radio-group>`,
+    )
+  const base = (r: Element) => r.shadowRoot!.querySelector<HTMLElement>('[part="base"]')!
+
+  it('丸い表示部を出さず、横につなげて並べる', async () => {
+    const g = await seg()
+    const [a, b] = g.radios
+    expect(a!.shadowRoot!.querySelector('[part="indicator"]')).toBeNull()
+    expect(a!.getBoundingClientRect().top).toBe(b!.getBoundingClientRect().top)
+    expect(a!.matches(':state(segmented)')).toBe(true)
+  })
+
+  it('選ばれたものは、面と枠で区別する（色だけに頼らない）', async () => {
+    const g = await seg()
+    const [on, off] = g.radios
+    expect(getComputedStyle(base(on!)).boxShadow).not.toBe(getComputedStyle(base(off!)).boxShadow)
+    expect(getComputedStyle(base(on!)).backgroundColor).not.toBe(
+      getComputedStyle(base(off!)).backgroundColor,
+    )
+  })
+
+  it('操作と値は、ふつうのラジオと同じ（矢印キーで選び、無効は飛ばす）', async () => {
+    const g = await seg()
+    const [a, b] = g.radios
+    a!.focus()
+    a!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true }),
+    )
+    await g.updateComplete
+    expect(g.value).toBe('card')
+    expect(document.activeElement).toBe(b)
+    b!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true }),
+    )
+    await g.updateComplete
+    expect(g.value).toBe('list')
+  })
+
+  it('appearance を戻すと、ふつうのラジオの見た目になる', async () => {
+    const g = await seg()
+    g.appearance = 'default'
+    await g.updateComplete
+    await g.radios[0]!.updateComplete
+    expect(g.radios[0]!.shadowRoot!.querySelector('[part="indicator"]')).not.toBeNull()
+  })
+
+  it('axe 違反がない', async () => {
+    const g = await seg()
+    await expectNoA11yViolations(g)
+  })
+})

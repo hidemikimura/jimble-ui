@@ -1,0 +1,40 @@
+@layer components {
+  :host(jimble-progress) {
+    display: block;
+  }
+  /* 不確定: 棒の一部が、左から右へ流れ続ける */
+  :host(jimble-progress:state(indeterminate)) [part='fill'] {
+    width: 40%;
+    animation: jimble-progress-slide 1.4s ease-in-out infinite;
+  }
+  @keyframes jimble-progress-slide {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+  /* 視差効果を減らす: 流さず、溝いっぱいを点滅させる */
+  @media (prefers-reduced-motion: reduce) {
+    :host(jimble-progress:state(indeterminate)) [part='fill'] {
+      width: 100%;
+      animation: jimble-progress-blink 2s ease-in-out infinite;
+    }
+  }
+  @keyframes jimble-progress-blink {
+    50% {
+      opacity: 0.4;
+    }
+  }
+  /* 強制色モードでは、背景色が消える。溝は枠、満たした部分はシステムの選択色で描く */
+  @media (forced-colors: active) {
+    :host(jimble-progress) [part='track'] {
+      outline: 1px solid CanvasText !important;
+    }
+    :host(jimble-progress) [part='fill'] {
+      forced-color-adjust: none;
+      background-color: Highlight !important;
+    }
+  }
+}

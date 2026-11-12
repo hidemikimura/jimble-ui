@@ -27,6 +27,12 @@ WAI-ARIA の radio group パターンに従います。
 
 ::example field/group
 
+## 区切った見た目（segmented）
+
+`appearance="segmented"` で、ボタンを横につなげた見た目（セグメンテッドコントロール）になります。表示の切り替え（一覧・カード）や、集計の単位（日・週・月）など、2〜5 個ほどの短い選択肢から 1 つを選ぶときに使います。キーボード操作・値・フォームへの参加は、ふつうのラジオと同じです。選ばれたものは、面・枠・影・太字で示します（色だけに頼りません）。
+
+::example radio-group/segmented
+
 ## Do / Don't
 
 ::dos radio-group

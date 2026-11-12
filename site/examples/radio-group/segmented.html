@@ -1,0 +1,26 @@
+<!-- title: 区切った見た目（appearance="segmented"。表示の切り替えなど） -->
+<jimble-stack gap="4">
+  <jimble-radio-group
+    id="view-switch"
+    appearance="segmented"
+    aria-label="表示"
+    name="view"
+    value="list"
+  >
+    <jimble-radio value="list">一覧</jimble-radio>
+    <jimble-radio value="card">カード</jimble-radio>
+    <jimble-radio value="calendar">カレンダー</jimble-radio>
+  </jimble-radio-group>
+  <jimble-field label="集計の単位">
+    <jimble-radio-group appearance="segmented" name="unit" value="week" size="sm">
+      <jimble-radio value="day">日</jimble-radio>
+      <jimble-radio value="week">週</jimble-radio>
+      <jimble-radio value="month">月</jimble-radio>
+    </jimble-radio-group>
+  </jimble-field>
+</jimble-stack>
+<script>
+  document.getElementById('view-switch').addEventListener('change', (e) => {
+    JimbleUI.toast('表示: ' + e.target.value)
+  })
+</script>
