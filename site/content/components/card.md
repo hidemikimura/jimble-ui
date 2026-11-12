@@ -16,6 +16,10 @@ description: 関連する情報をまとめる面
 
 カードには暗黙のロールを付けていません。見出しを含める場合は、ページの見出し階層に合わせて `h2` などを `slot="header"` に置いてください。
 
+## Do / Don't
+
+::dos card
+
 ## API
 
 ::api jimble-card

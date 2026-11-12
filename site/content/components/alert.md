@@ -20,6 +20,10 @@ description: ページ内の通知
 - 種別名（「エラー」など）を視覚的に隠したテキストで補うので、色が見えなくても種別が伝わります。文言は辞書で切り替えられます。
 - 閉じるボタンは `dismissible` で表示します。`jimble-dismiss` を `preventDefault()` すると閉じません。
 
+## Do / Don't
+
+::dos alert
+
 ## API
 
 ::api jimble-alert

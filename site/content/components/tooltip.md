@@ -35,6 +35,10 @@ description: ツールチップ（マウスを重ねる・フォーカスする�
 - **アイコンだけのボタンの名前は、ツールチップではなく `aria-label` で付けます**（上の例の削除ボタン）。
 - 囲めるのは 1 つの要素です（先頭の要素に `aria-describedby` が付きます）。
 
+## Do / Don't
+
+::dos tooltip
+
 ## API
 
 ::api jimble-tooltip

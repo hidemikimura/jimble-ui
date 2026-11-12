@@ -15,6 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import matter from 'gray-matter'
 import MarkdownIt from 'markdown-it'
 import { createHighlighter, type Highlighter } from 'shiki'
+import { readDos } from '../../scripts/lib/dos.ts'
 import { all, resolveRef } from '../../scripts/lib/tokens.ts'
 
 const siteRoot = resolve(import.meta.dirname, '..')
@@ -212,6 +213,23 @@ function tokensHtml(): string {
   )
 }
 
+// ---- Do / Don't（設計書 §20）--------------------------------------------------------------
+// site/dos/<名前>.md の「## Do」「## Don't」の箇条書きを、2 つの欄にする。
+function dosHtml(name: string, md: MarkdownIt): string {
+  const { doItems, dontItems } = readDos(resolve(siteRoot, 'dos', `${name}.md`))
+  const col = (cls: string, id: string, heading: string, items: string[]) =>
+    `<section class="dos-col ${cls}" aria-labelledby="${id}">` +
+    `<h3 id="${id}">${heading}</h3>` +
+    md.render(items.map((i) => `- ${i}`).join('\n')) +
+    `</section>`
+  return (
+    `<div class="dos">` +
+    col('dos-do', 'dos-do', 'Do（こうする）', doItems) +
+    col('dos-dont', 'dos-dont', "Don't（避ける）", dontItems) +
+    `</div>`
+  )
+}
+
 // ---- 例 ----------------------------------------------------------------------------------
 // ビューポート全体に依存する例(app-shell など)は、先頭付近に `<!-- frame: 高さ(px) -->` を書くと、
 // 単体のページ(frames/<id>/)として生成し、プレビューを iframe で表示する。
@@ -279,22 +297,24 @@ function render(page: Page, pages: Page[], md: MarkdownIt, manifest: Manifest | 
     return (r === '.' ? './' : `${r}/`).replace(/^(?!\.)/, './')
   }
   const source = page.body.replace(
-    /^::(example|api|tokens|icons)(?:[ \t]+(\S+))?[ \t]*$/gm,
+    /^::(example|api|tokens|icons|dos)(?:[ \t]+(\S+))?[ \t]*$/gm,
     (_, kind: string, arg?: string) =>
       `\n<div data-directive="${kind}" data-arg="${arg ?? ''}"></div>\n`,
   )
   const body = md
     .render(source)
     .replace(
-      /<div data-directive="(example|api|tokens|icons)" data-arg="([^"]*)"><\/div>/g,
+      /<div data-directive="(example|api|tokens|icons|dos)" data-arg="([^"]*)"><\/div>/g,
       (_, kind: string, arg: string) =>
-        kind === 'example'
-          ? exampleHtml(arg, here)
-          : kind === 'api'
-            ? apiHtml(manifest, arg)
-            : kind === 'icons'
-              ? iconsHtml()
-              : tokensHtml(),
+        kind === 'dos'
+          ? dosHtml(arg, md)
+          : kind === 'example'
+            ? exampleHtml(arg, here)
+            : kind === 'api'
+              ? apiHtml(manifest, arg)
+              : kind === 'icons'
+                ? iconsHtml()
+                : tokensHtml(),
     )
   const nav = (section: Page['section'], label: string) =>
     `<p class="nav-heading">${label}</p><ul>${pages

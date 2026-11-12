@@ -21,6 +21,10 @@ description: 読み込み中を示すスピナー
 - 「視差効果を減らす」設定では回転せず、点滅します。
 - ボタンの読み込み中は、スピナーを自分で置かず `jimble-button` の `loading` を使います。
 
+## Do / Don't
+
+::dos spinner
+
 ## API
 
 ::api jimble-spinner

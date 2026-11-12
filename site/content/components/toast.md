@@ -50,6 +50,10 @@ CDN から読み込んだ場合は、グローバルの `JimbleUI.toast` でも�
 <jimble-toast-region placement="top-end"></jimble-toast-region>
 ```
 
+## Do / Don't
+
+::dos toast
+
 ## API
 
 ### toast()

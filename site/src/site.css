@@ -12,6 +12,9 @@
   --current-fg: light-dark(#3730a3, #c7d2fe);
   --accent: light-dark(#4f46e5, #818cf8);
   --warn: light-dark(#b45309, #fbbf24);
+  /* Do / Don't の見出し（白・黒の背景で 4.5:1 以上） */
+  --ok: light-dark(#15803d, #4ade80);
+  --ng: light-dark(#b91c1c, #f87171);
   font-family: var(--jimble-font-sans, system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif);
   color: var(--fg);
   line-height: 1.7;
@@ -229,4 +232,36 @@ small {
   main {
     padding: 1rem 1rem 3rem;
   }
+}
+
+/* Do / Don't（設計書 §20）。色だけに頼らず、見出しの文字（Do / Don't）で区別する */
+.dos {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  margin: 1rem 0;
+}
+.dos-col {
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--dos-accent);
+  border-radius: 0.5rem;
+  padding: 0.25rem 1rem;
+}
+.dos-col h3 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+  color: var(--dos-accent);
+}
+.dos-col ul {
+  margin: 0.5rem 0 0.75rem;
+  padding-left: 1.25rem;
+}
+.dos-col li + li {
+  margin-top: 0.375rem;
+}
+.dos-do {
+  --dos-accent: var(--ok);
+}
+.dos-dont {
+  --dos-accent: var(--ng);
 }

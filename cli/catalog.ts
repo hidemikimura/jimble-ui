@@ -39,8 +39,11 @@ export const FORM: ReadonlySet<string> = new Set([
   'switch',
 ])
 
+/** 要素の説明がある、ドキュメントのページの名前（子の要素は親のページ）。name は `jimble-` を除いた名前 */
+export const pageName = (name: string): string => PAGE[name] ?? name
+
 /** 要素のドキュメントのページの URL。name は `jimble-` を除いた名前 */
-export const pageUrl = (name: string): string => `${SITE}/components/${PAGE[name] ?? name}/`
+export const pageUrl = (name: string): string => `${SITE}/components/${pageName(name)}/`
 
 /** 説明の最初の一文(最初の「。」まで) */
 export const firstSentence = (text = ''): string => {

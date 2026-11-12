@@ -16,6 +16,10 @@ description: 子の要素を、同じ間隔で縦（または横）に並べる
 
 ::example stack/align
 
+## Do / Don't
+
+::dos stack
+
 ## API
 
 ::api jimble-stack

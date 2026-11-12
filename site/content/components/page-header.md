@@ -15,6 +15,10 @@ description: ページの見出し領域
 - 見出しは `heading` 属性または `title` スロットで書きます。見出しのレベルは `level` で指定します（既定は 1）。ページ全体の見出し階層に合わせてください。
 - パンくずは `slot="breadcrumb"`、右側の操作は `slot="actions"` です。狭い画面では操作が折り返します。
 
+## Do / Don't
+
+::dos page-header
+
 ## API
 
 ::api jimble-page-header

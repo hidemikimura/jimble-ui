@@ -28,6 +28,10 @@ description: タブ
 | Home / End               | 最初 / 最後のタブへ                                                         |
 | Enter / Space            | （`manual` のとき）フォーカス中のタブに切り替える                           |
 
+## Do / Don't
+
+::dos tabs
+
 ## API
 
 ::api jimble-tabs

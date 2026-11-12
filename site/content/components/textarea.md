@@ -12,6 +12,10 @@ description: 複数行のテキスト入力
 
 `autosize` は、ブラウザが `field-sizing: content` に対応していればそれを使い、非対応の場合は JavaScript で高さを合わせます。
 
+## Do / Don't
+
+::dos textarea
+
 ## API
 
 ::api jimble-textarea

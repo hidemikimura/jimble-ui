@@ -38,6 +38,10 @@ description: 操作の実行・ページ遷移に使うボタン
 
 ::example button/customize
 
+## Do / Don't
+
+::dos button
+
 ## API
 
 ::api jimble-button

@@ -25,6 +25,10 @@ description: チェックボックス
 | ----- | ------------------ |
 | Space | チェックの切り替え |
 
+## Do / Don't
+
+::dos checkbox
+
 ## API
 
 ::api jimble-checkbox
