@@ -12,25 +12,26 @@
   <jimble-card style="width: 100%; max-width: 24rem">
     <h1 slot="header" style="margin: 0; font-size: 1.25rem">jimble 管理画面にログイン</h1>
     <form
-      style="display: grid; gap: 1rem"
       onsubmit="
         event.preventDefault()
         JimbleUI.toast.success('ログインしました')
       "
     >
-      <jimble-field label="メールアドレス" required>
-        <jimble-input name="email" type="email" autocomplete="username"></jimble-input>
-      </jimble-field>
-      <jimble-field label="パスワード" required>
-        <jimble-input
-          name="password"
-          type="password"
-          autocomplete="current-password"
-        ></jimble-input>
-      </jimble-field>
-      <jimble-checkbox name="remember">ログインしたままにする</jimble-checkbox>
-      <jimble-button type="submit" variant="primary" block>ログイン</jimble-button>
-      <a href="#" style="justify-self: center">パスワードを忘れた場合</a>
+      <jimble-stack>
+        <jimble-field label="メールアドレス" required>
+          <jimble-input name="email" type="email" autocomplete="username"></jimble-input>
+        </jimble-field>
+        <jimble-field label="パスワード" required>
+          <jimble-input
+            name="password"
+            type="password"
+            autocomplete="current-password"
+          ></jimble-input>
+        </jimble-field>
+        <jimble-checkbox name="remember">ログインしたままにする</jimble-checkbox>
+        <jimble-button type="submit" variant="primary" block>ログイン</jimble-button>
+        <a href="#" style="align-self: center">パスワードを忘れた場合</a>
+      </jimble-stack>
     </form>
   </jimble-card>
 </main>

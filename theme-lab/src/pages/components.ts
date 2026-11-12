@@ -103,6 +103,22 @@ export function components() {
       </jimble-card>
     </div>
 
+    <jimble-card class="section" id="sec-layout">
+      <h3 slot="header">配置（Stack・Grid）</h3>
+      <jimble-stack gap="3">
+        <span class="muted"
+          >余白は --jimble-spacing の倍数。密度を変えると、間隔も一緒に変わります。</span
+        >
+        <jimble-grid min-column-width="10rem" gap="3">
+          ${['一', '二', '三', '四'].map((n) => html`<jimble-card>カード ${n}</jimble-card>`)}
+        </jimble-grid>
+        <jimble-stack direction="horizontal" gap="2" justify="end">
+          <jimble-button>取り消す</jimble-button>
+          <jimble-button variant="primary">保存</jimble-button>
+        </jimble-stack>
+      </jimble-stack>
+    </jimble-card>
+
     <jimble-card class="section" id="sec-alert">
       <h3 slot="header">アラート</h3>
       <div class="stack">

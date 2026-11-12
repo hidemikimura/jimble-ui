@@ -13,6 +13,7 @@ description: jimble-ui（`<jimble-button>` など `jimble-` で始まる Web Com
 - 属性・スロット・イベント・part・CSS 変数の完全な一覧（機械可読）: `node_modules/@hidemikimura/jimble-ui/custom-elements.json`
 - 下の「コンポーネント早見」は、その一覧から生成した要約です。**細かい仕様（各属性の意味、既定値、キー操作）は各コンポーネントのページを見てください。推測で属性を作らないこと。**
 - 1 つの要素の属性・スロット・イベント・CSS 変数を確かめる: `npx @hidemikimura/jimble-ui component <名前>`。何を使うか分からないときは `npx @hidemikimura/jimble-ui search <ことば>`（どちらも `--json` で JSON。`npx jimble-ui` と略さない）。
+- **余白は `jimble-stack`（縦・横）と `jimble-grid`（格子）でそろえる**: `gap` は 4px の何倍か（2 = ボタンの並び、4 = フォームの項目・カードの間、6 = まとまりの間）。`style="display: flex; gap: 12px"` のような値を場所ごとに書かない。`jimble-grid min-column-width="12rem"` で、幅に合わせて列の数が変わる。
 - **ページ全体を作るときは、まずテンプレートから始める**: `npx @hidemikimura/jimble-ui template` で一覧（一覧・詳細・編集フォーム・設定・ログイン・ダッシュボード）、`template <名前>` でそのまま開ける HTML、`--fragment` で本文だけ。axe を通った組み立てなので、文言とデータを差し替えて使う。
 
 ## 読み込み
@@ -104,6 +105,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - スロット: (既定)
   - イベント: `jimble-route-loading`, `jimble-route-change`, `jimble-route-error`
   - 詳細: https://hidemikimura.github.io/jimble-ui/components/router/
+- **`jimble-stack`** — 子の要素を、同じ間隔で縦（または横）に並べる。
+  - 属性: `direction=vertical|horizontal`, `gap=数値`, `align=値`, `justify=start|center|end|between`, `wrap`
+  - スロット: (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/stack/
+- **`jimble-grid`** — 子の要素を、同じ間隔の格子に並べる。
+  - 属性: `columns=数値`, `min-column-width=値`, `gap=数値`
+  - スロット: (既定)
+  - 詳細: https://hidemikimura.github.io/jimble-ui/components/grid/
 
 ### 表示
 

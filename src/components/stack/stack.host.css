@@ -1,0 +1,8 @@
+@layer components {
+  :host(jimble-stack) {
+    display: block;
+    /* 並べるだけの箱なので、中の文字は置いた場所の書体と色のまま（共通の :host の指定を打ち消す） */
+    font-family: inherit;
+    color: inherit;
+  }
+}

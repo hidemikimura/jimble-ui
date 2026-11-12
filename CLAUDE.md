@@ -54,7 +54,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 7. **オーバーレイはネイティブ機能に任せる**（`<dialog>` の `showModal()`、Popover API）。popover 要素に `display` を変えるクラスを付けない（UA の非表示が壊れる）。メニュー/セレクトを Tab で閉じるときは、**描画を待たず同期的に `hidePopover()`**（Firefox で tabindex=0 の項目にフォーカスが移る）。toast の領域は、開いているモーダルの `<dialog>` の中へ移動する（モーダルの外は inert）。
 8. **IME**: Enter・Esc・先頭文字検索は `ImeController` で変換中を除外する。
 9. **アクセシビリティは自動テストで守る**: すべての部品と例に axe（違反ゼロ）。色の組み合わせを足したら `tests/unit/contrast.test.ts` に追加（文字 4.5:1、枠・アイコン 3:1）。入力欄の枠は `ring-line-control`（他より濃い）。強制色モード用に、ring/shadow の要素には透明な `outline` を併用する。
-10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。ページのテンプレート（`site/examples/templates/`、§18）も例と同じ扱いで、並べ方は `style` 属性で書く（サイトの CSS に頼らない。CLI の `template` がそのまま配る）。
+10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。ページのテンプレート（`site/examples/templates/`、§18）も例と同じ扱いで、並べ方と余白は `jimble-stack` / `jimble-grid` で書き、書けない所だけ `style` 属性にする（サイトの CSS に頼らない。CLI の `template` がそのまま配る）。部品の中で動的な style を付けるときは、`style` 属性ではなく `styleMap`（CSSOM）にする（CSP の `style-src` を絞ったページでも動く）。
 
 ## テストの落とし穴（過去に踏んだもの）
 

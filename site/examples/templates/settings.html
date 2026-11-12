@@ -39,7 +39,7 @@
 
       <jimble-tab-panel value="general">
         <jimble-card>
-          <div style="display: grid; gap: 1rem">
+          <jimble-stack>
             <jimble-field label="ワークスペースの名前" required>
               <jimble-input name="workspace" value="jimble 商店"></jimble-input>
             </jimble-field>
@@ -57,23 +57,23 @@
                 <jimble-option value="America/Los_Angeles">America/Los_Angeles</jimble-option>
               </jimble-combobox>
             </jimble-field>
-          </div>
+          </jimble-stack>
         </jimble-card>
       </jimble-tab-panel>
 
       <jimble-tab-panel value="notify">
         <jimble-card>
-          <div style="display: grid; gap: 1rem">
+          <jimble-stack>
             <jimble-switch name="notify-order" checked>新しい注文を受け付けたとき</jimble-switch>
             <jimble-switch name="notify-stock" checked>在庫が少なくなったとき</jimble-switch>
             <jimble-switch name="notify-weekly">毎週の集計</jimble-switch>
-          </div>
+          </jimble-stack>
         </jimble-card>
       </jimble-tab-panel>
 
       <jimble-tab-panel value="security">
         <jimble-card>
-          <div style="display: grid; gap: 1rem">
+          <jimble-stack>
             <jimble-switch name="mfa" checked>ログインに 2 段階認証を求める</jimble-switch>
             <jimble-field label="自動でログアウトするまでの時間">
               <jimble-select name="timeout" value="60">
@@ -82,14 +82,14 @@
                 <jimble-option value="480">8 時間</jimble-option>
               </jimble-select>
             </jimble-field>
-          </div>
+          </jimble-stack>
         </jimble-card>
       </jimble-tab-panel>
     </jimble-tabs>
 
-    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem">
+    <jimble-stack direction="horizontal" gap="3" justify="end" style="margin-top: 1rem">
       <jimble-button type="reset">元に戻す</jimble-button>
       <jimble-button type="submit" variant="primary">保存</jimble-button>
-    </div>
+    </jimble-stack>
   </form>
 </jimble-app-shell>

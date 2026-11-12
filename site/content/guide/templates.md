@@ -21,7 +21,7 @@ npx @hidemikimura/jimble-ui template detail --fragment   # <body> の中身だ�
 - `--fragment` は、`<body>` の中身だけを出します。自分のページや、サーバーのテンプレートに貼るときに使います。このときは、jimble-ui の読み込み（[はじめに](../getting-started/)）を自分で書いてください。
 - 下の各例の「ソース」も、同じ内容です。
 
-テンプレートの見た目は、部品と、`style` 属性に書いた並べ方（`display: grid` など）だけでできています。ページの CSS やフレームワークに依存しないので、Tailwind などの自分の CSS に置き換えて構いません。送信の処理（`onsubmit`）は、通知を出すだけの見本です。
+テンプレートの見た目は、部品だけでできています。並べ方と余白は [Stack](../../components/stack/) と [Grid](../../components/grid/) でそろえ、それで書けない所（ページの外側の余白など）だけを `style` 属性に書いています。ページの CSS やフレームワークに依存しないので、Tailwind などの自分の CSS に置き換えて構いません。送信の処理（`onsubmit`）は、通知を出すだけの見本です。
 
 ## 一覧
 
