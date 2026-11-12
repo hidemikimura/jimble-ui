@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.19.0](https://github.com/hidemikimura/jimble-ui/compare/v0.18.0...v0.19.0) (2026-11-12)
+
+
+### 追加
+
+* **avatar:** 人を画像か頭文字で示す jimble-avatar と、重ねて並べる jimble-avatar-group を足す ([dd568ff](https://github.com/hidemikimura/jimble-ui/commit/dd568ff545b9b02d2f7e0ce91683754d18c32ef0))
+* **avatar:** 人を画像か頭文字で示す jimble-avatar と、重ねて並べる jimble-avatar-group を足す ([62ba2e2](https://github.com/hidemikimura/jimble-ui/commit/62ba2e2667880f1cfbb6ec7e21421d37adebeec7))
+* **banner:** 画面のいちばん上に出す知らせ jimble-banner と、app-shell の banner スロットを足す ([f6eeafe](https://github.com/hidemikimura/jimble-ui/commit/f6eeafe25f42346cf083ca76d2fa3d15f0cc5634))
+* **banner:** 画面のいちばん上に出す知らせ jimble-banner と、app-shell の banner スロットを足す ([5806b09](https://github.com/hidemikimura/jimble-ui/commit/5806b09a83abf35494f5640f6d1222643d098c30))
+* **tag:** 外せる名札 jimble-tag と、並べる jimble-tag-group を足す ([a619661](https://github.com/hidemikimura/jimble-ui/commit/a619661c61257aa9103fa4662e86e911b22b6fa9))
+* **tag:** 外せる名札 jimble-tag と、並べる jimble-tag-group を足す ([2b283dc](https://github.com/hidemikimura/jimble-ui/commit/2b283dc8a353dcfe0956f0eeaa6e32ce8348f9d7))
+* **theme:** 面の高さを背景と影の組みにし、無効と読み込み中の不透明度をトークンにする ([718f5ee](https://github.com/hidemikimura/jimble-ui/commit/718f5ee76081cf9b3b394fc4b38e3f8f7f3581e4))
+* **theme:** 面の高さを背景と影の組みにし、無効と読み込み中の不透明度をトークンにする ([2f11b85](https://github.com/hidemikimura/jimble-ui/commit/2f11b85dc813ed2ff00ae836b92a85e6dd9f2ef5))
+* 部品ごとの公開段階（試験的・安定・非推奨）を、ページ・skill・CLI・補完に出す ([4e5456b](https://github.com/hidemikimura/jimble-ui/commit/4e5456b421b06619065e1b4e49ca8c0209696374))
+* 部品ごとの公開段階（試験的・安定・非推奨）を、ページ・skill・CLI・補完に出す ([47c4f73](https://github.com/hidemikimura/jimble-ui/commit/47c4f73233c77358d415ca3bc29a6bec81e78cac))
+
+
+### ドキュメント
+
+* **guide:** 結果・警告・エラー・空の状態を、どの部品で知らせるかのガイドを足す ([47a3ea7](https://github.com/hidemikimura/jimble-ui/commit/47a3ea7cab0e9cdacc31f90b5814daa99f031595))
+* **guide:** 結果・警告・エラー・空の状態を、どの部品で知らせるかのガイドを足す ([5cec3c0](https://github.com/hidemikimura/jimble-ui/commit/5cec3c0420c1c850227dd496d2f5511a02cf27b6))
+
 ## [0.18.0](https://github.com/hidemikimura/jimble-ui/compare/v0.17.1...v0.18.0) (2026-11-12)
 
 
