@@ -342,6 +342,9 @@
   --jimble-switch-thumb-bg: var(--jimble-color-surface);
   --jimble-switch-thumb-ring: color-mix(in oklab, var(--jimble-color-text) 12%, transparent);
   --jimble-progress-track: var(--jimble-color-surface-track);
+  --jimble-popover-width: 20rem;
+  --jimble-popover-radius: var(--jimble-radius-overlay);
+  --jimble-popover-padding: calc(var(--jimble-spacing) * 4);
   --jimble-empty-state-padding: calc(var(--jimble-spacing) * 10);
   --jimble-table-header-bg: var(--jimble-color-surface-muted);
   --jimble-table-header-text: var(--jimble-color-text-muted);

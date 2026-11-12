@@ -120,8 +120,15 @@ export function components() {
     </jimble-card>
 
     <jimble-card class="section" id="sec-feedback">
-      <h3 slot="header">進み具合・仮の表示・空の状態・切り替え</h3>
+      <h3 slot="header">ポップオーバー・進み具合・仮の表示・空の状態・切り替え</h3>
       <jimble-stack gap="5">
+        <jimble-popover heading="表示の設定">
+          <jimble-button slot="trigger">ポップオーバーを開く</jimble-button>
+          <jimble-stack gap="3">
+            <jimble-switch checked>件数を表示する</jimble-switch>
+            <jimble-button data-popover-close variant="primary">閉じる</jimble-button>
+          </jimble-stack>
+        </jimble-popover>
         <jimble-progress label="取り込み" value="45" show-value></jimble-progress>
         <jimble-progress label="準備中" variant="success"></jimble-progress>
         <jimble-radio-group appearance="segmented" aria-label="表示の切り替え" value="list">

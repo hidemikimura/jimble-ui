@@ -71,26 +71,26 @@ describe('skill(AI 向けの使い方)', () => {
     expect(problems).toEqual([])
   })
 
-  it('メニュー等の子要素の説明が、親のページ(存在する URL)を指している', () => {
-    const urls = new Set(
+  it('メニュー等の子要素の説明が、親のページ(存在するページ)を指している', () => {
+    // 早見では、子の要素にだけ「説明: `親` のページ」を書く(各要素のページの URL は、冒頭に形だけ書く)
+    const notes = new Map(
       [
-        ...skill.matchAll(/https:\/\/hidemikimura\.github\.io\/jimble-ui\/components\/([\w-]+)\//g),
-      ].map((m) => m[1]!),
+        ...skill.matchAll(
+          /- \*\*`jimble-([\w-]+)`\*\*[^\n]*\n(?:  - [^\n]*\n)*?  - 説明: `([\w-]+)` のページ/g,
+        ),
+      ].map((m) => [m[1]!, m[2]!]),
     )
-    for (const page of [
-      'button',
-      'sidebar-nav',
-      'tabs',
-      'table',
-      'select',
-      'radio-group',
-      'dropdown-menu',
-      'toast',
-    ]) {
-      expect(urls.has(page), page).toBe(true)
-    }
-    // ページに存在しない名前(タグ名そのものなど)を指していない
+    expect(notes.get('option')).toBe('select')
+    expect(notes.get('tab')).toBe('tabs')
+    expect(notes.get('table-row')).toBe('table')
+    expect(notes.get('menu-item')).toBe('dropdown-menu')
+    expect(notes.get('nav-item')).toBe('sidebar-nav')
+    expect(notes.get('radio')).toBe('radio-group')
+    expect(notes.get('toast-region')).toBe('toast')
+    expect(notes.has('button')).toBe(false) // 自分のページがある要素には書かない
+    // ページに存在しない名前を指していない
     const pages = new Set(elements.map((e) => e.tagName.replace(/^jimble-/, '')))
-    for (const u of urls) expect(pages.has(u), `${u} のページ`).toBe(true)
+    for (const page of notes.values()) expect(pages.has(page), `${page} のページ`).toBe(true)
+    expect(skill).toContain('https://hidemikimura.github.io/jimble-ui/components/<名前>/')
   })
 })

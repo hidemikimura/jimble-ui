@@ -50,6 +50,7 @@ const PAGES = [
   '/components/progress/',
   '/components/skeleton/',
   '/components/empty-state/',
+  '/components/popover/',
   '/components/grid/',
   '/frames/app-shell/basic/',
   '/frames/app-shell/admin-page/',

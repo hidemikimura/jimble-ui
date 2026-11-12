@@ -2045,6 +2045,11 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 - **入れ子のポップアップ**: パネルの中の `jimble-select`・`jimble-combobox`・`jimble-date-input` は、それぞれ自分の Shadow 内で `popover="auto"` を開く。HTML の仕様では、`auto` のポップオーバーを開くと、**祖先でない** `auto` のポップオーバーは閉じる。祖先かどうかを Shadow DOM の境界（スロット）をまたいで判定するかが、エンジンごとに違う可能性があった。
   - **スパイク S1 の結果（2026-11-12、3 エンジンとも同じ）**: Shadow 内の `popover="auto"` のパネルに、スロットで入れた `jimble-select` / `jimble-combobox` の候補を開いても、パネルは閉じない（候補はパネルの子として扱われる）。実際のクリックで候補を開いて選んでも開いたまま。候補を開いたままパネルの外をクリックすると、両方閉じる。→ **`popover="auto"` で作る**（案 2 の `manual` は要らない）。
 - **やらないこと**: ホバーで開く・矢印（吹き出しの三角）・タッチでボトムシートに変える・ポップオーバーの中にポップオーバー（Do / Don't に書く）。
+- **実装の結果（2026-11-12）**:
+  - **Esc の理由**: パネルの `keydown` で Esc を受けると、Chromium と WebKit では、パネルに届く前にライトディスミスで閉じ、理由が `outside` になった。開いている間だけ、文書の捕捉段階で `keydown` を受け、理由（`escape`）とフォーカスの戻し先を覚える（`toggle` は、そのあとのタスクで届く）。IME の変換中の Esc は `preventDefault()` する（実機の確認は `docs/manual-checks.md` の 3f）。
+  - **外側のクリックと Tab の区別**: 外側のボタンを押すと、閉じる前にフォーカスが移り、`focusout` が先に来る。開いている間だけ、文書の `pointerdown` で「外側を押した」を覚え、そのときは `outside`、それ以外の `focusout` は `tab` にする。
+  - **見出しの横の閉じるボタン**: `heading` があるときだけ出す（`hide-close-button` で消せる）。名前は `jimble-dialog` と同じ辞書（`dialog.close`）。
+  - **位置**: メニューと同じ 4 つ（`bottom-start` 既定・`bottom-end`・`top-start`・`top-end`）。中央そろえは作らなかった。
 
 ### 22.2 `jimble-command-palette`
 
