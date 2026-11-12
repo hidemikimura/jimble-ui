@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 const root = resolve(import.meta.dirname, '../..')
 
 // 全部入りに含めない部品(大きな依存を持つ。個別の入口だけで読み込む)
-const SEPARATE = ['code-editor']
+const SEPARATE = ['code-editor', 'command-palette']
 
 describe('入口 src/index.ts', () => {
   it('src/components の全部品を再エクスポートしている(CDN バンドル・ドキュメントサイトに載る)', () => {

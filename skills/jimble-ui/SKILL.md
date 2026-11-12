@@ -289,6 +289,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
   - 属性: `open`, `placement=bottom-start|bottom-end|top-start|top-end`, `heading=値`, `label=値`, `hide-close-button`
   - スロット: `trigger`, (既定), `title`
   - イベント: `jimble-open`, `jimble-close`
+- **`jimble-command-palette`** — コマンドパレット。
+  - 属性: `open`, `label=値`, `placeholder=値`, `hotkey=値`, `load-delay=数値`, `load-min-length=数値`
+  - スロット: (既定)
+  - イベント: `jimble-select`, `jimble-open`, `jimble-close`, `jimble-search`, `jimble-load-error`
+- **`jimble-command`** — コマンドパレットのコマンド 1 つ。
+  - 属性: `value=値`, `keywords=値`, `group=値`, `icon=値`, `shortcut=値`, `href=値`, `disabled`
+  - スロット: (既定)
+  - 説明: `command-palette` のページ
 - **`jimble-toast`** — 通知1件。
   - 属性: `variant=info|success|warning|danger`, `duration=値`, `dismissible`
   - スロット: (既定), `title`, `actions`
@@ -338,7 +346,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 **使う部品の参照ファイルを、書き始める前に読む**（`SKILL.md` と同じフォルダの `references/`）。注意書きと、そのまま使える例がある。
 
-- **ダイアログ・ドロワー・ポップオーバー・ツールチップ・メニュー・通知** → `references/overlays.md`。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
+- **ダイアログ・ドロワー・ポップオーバー・コマンドパレット・ツールチップ・メニュー・通知** → `references/overlays.md`。コマンドパレットは全部入りに含まれず、別に import する。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
 - **セレクト・コンボボックス・左右分割の選択・木・日付・色・ファイル添付・コードエディタ** → `references/inputs.md`。コードエディタは全部入りに含まれず、別に import する。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
 - **表（並べ替え）・アイコン・スピナー・カンバン** → `references/display.md`。**アイコンの `name` は、そこにある一覧のものだけ**（推測しない）。
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。

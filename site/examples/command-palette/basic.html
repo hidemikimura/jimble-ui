@@ -1,0 +1,31 @@
+<!-- title: ページと操作を探す（グループ・読み・ショートカットの表示。hotkey="mod+k" で Ctrl+K / ⌘K） -->
+<jimble-button id="cp-open" onclick="document.getElementById('cp-basic').show()">
+  <jimble-icon slot="prefix" name="magnifying-glass"></jimble-icon>コマンドを探す
+</jimble-button>
+<jimble-command-palette id="cp-basic" hotkey="mod+k">
+  <jimble-command value="orders" group="ページ" icon="shopping-cart" keywords="ちゅうもん"
+    >注文の一覧</jimble-command
+  >
+  <jimble-command value="customers" group="ページ" icon="users" keywords="こきゃく"
+    >顧客の一覧</jimble-command
+  >
+  <jimble-command value="settings" group="ページ" icon="cog-6-tooth" keywords="せってい"
+    >設定</jimble-command
+  >
+  <jimble-command
+    value="new-order"
+    group="操作"
+    icon="plus"
+    shortcut="⌘N"
+    keywords="ちゅうもん とうろく"
+    >注文を登録</jimble-command
+  >
+  <jimble-command value="export" group="操作" icon="arrow-down-tray" keywords="しーえすぶい"
+    >CSV に書き出す</jimble-command
+  >
+</jimble-command-palette>
+<script>
+  document.getElementById('cp-basic').addEventListener('jimble-select', (e) => {
+    JimbleUI.toast('実行: ' + e.detail.item.label)
+  })
+</script>

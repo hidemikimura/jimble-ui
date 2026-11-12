@@ -23,6 +23,7 @@ const PAGE: Readonly<Record<string, string>> = {
   'kanban-column': 'kanban',
   'kanban-card': 'kanban',
   'tree-item': 'tree',
+  command: 'command-palette',
 }
 
 /** input / change をネイティブと同じく出すフォーム部品（`jimble-` を除いた名前） */

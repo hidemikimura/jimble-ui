@@ -80,6 +80,7 @@ import '@hidemikimura/jimble-ui/tokens.css'
 import '@hidemikimura/jimble-ui/themes/ocean.css'
 // 全部入りに含まれない部品(CodeMirror を利用者の側で解決する)
 import '@hidemikimura/jimble-ui/code-editor'
+import '@hidemikimura/jimble-ui/command-palette'
 document.getElementById('ce').variables = [{ name: 'x', label: '変数' }]
 window.__smoke = { setLocale, getLocale, en, toast, all, ICON_NAMES }
 `,
@@ -103,6 +104,10 @@ import {
   JimbleCodeEditor,
   type CodeEditorVariable,
 } from '@hidemikimura/jimble-ui/code-editor'
+import {
+  JimbleCommandPalette,
+  type CommandItem,
+} from '@hidemikimura/jimble-ui/command-palette'
 
 const b: JimbleButton = document.createElement('jimble-button')
 b.variant = 'primary'
@@ -126,6 +131,12 @@ ce.language = 'html'
 // @ts-expect-error language は決まった値だけ
 ce.language = 'sql'
 ce.insertVariable('customer_name')
+const cp: JimbleCommandPalette = document.createElement('jimble-command-palette')
+const cmd: CommandItem = { value: 'orders', label: '注文', href: '/orders' }
+cp.commands = [cmd]
+// @ts-expect-error label は必須
+const badCmd: CommandItem = { value: 'x' }
+void badCmd
 `,
   )
   writeFileSync(
@@ -159,6 +170,8 @@ ce.insertVariable('customer_name')
     join(cdnDir, 'index.html'),
     `<!doctype html><meta charset="utf-8"><script type="module" src="./jimble-ui.js"></script>
 <script type="module" src="./code-editor.js"></script>
+<script type="module" src="./command-palette.js"></script>
+<jimble-command-palette id="cp"><jimble-command value="a">注文の一覧</jimble-command></jimble-command-palette>
 <jimble-button id="b" variant="primary" onclick="JimbleUI.toast.success('ok')">通知</jimble-button>
 <jimble-code-editor id="ce" aria-label="本文" language="html" value="<b>{{x}}</b>"></jimble-code-editor>
 <script>document.getElementById('ce').variables = [{ name: 'x', label: '変数' }]</script>`,
@@ -245,9 +258,13 @@ ce.insertVariable('customer_name')
     })
     const r2 = await p2.evaluate(() => ({
       global: typeof (window as unknown as { JimbleUI: { toast: unknown } }).JimbleUI.toast,
-      tags: ['jimble-app-shell', 'jimble-table', 'jimble-select', 'jimble-toast-region'].every(
-        (t) => customElements.get(t),
-      ),
+      tags: [
+        'jimble-app-shell',
+        'jimble-table',
+        'jimble-select',
+        'jimble-toast-region',
+        'jimble-command-palette',
+      ].every((t) => customElements.get(t)),
     }))
     cdn.close()
     if (r2.global !== 'function' || !r2.tags)

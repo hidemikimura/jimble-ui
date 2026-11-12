@@ -52,6 +52,7 @@ const PAGES = [
   '/components/empty-state/',
   '/components/popover/',
   '/components/tree/',
+  '/components/command-palette/',
   '/components/grid/',
   '/frames/app-shell/basic/',
   '/frames/app-shell/admin-page/',

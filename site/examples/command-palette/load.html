@@ -1,0 +1,23 @@
+<!-- title: サーバーで探す（load。入力が止まってから呼び、古い検索は中止する） -->
+<jimble-button onclick="document.getElementById('cp-load').show()">顧客を探す</jimble-button>
+<jimble-command-palette
+  id="cp-load"
+  label="顧客を探す"
+  placeholder="名前で探す"
+></jimble-command-palette>
+<script>
+  const CUSTOMERS = ['山田 太郎', '佐藤 花子', '鈴木 一郎', '高橋 次郎', '田中 三郎']
+  const palette = document.getElementById('cp-load')
+  // サーバーへの問い合わせの代わり。fetch には signal を渡す
+  palette.load = async (query, signal) => {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    if (signal.aborted) return []
+    return CUSTOMERS.filter((name) => name.includes(query)).map((name, i) => ({
+      value: String(i + 1),
+      label: name,
+      group: query ? '検索の結果' : '最近見た顧客',
+      icon: 'user',
+    }))
+  }
+  palette.addEventListener('jimble-select', (e) => JimbleUI.toast('選択: ' + e.detail.item.label))
+</script>

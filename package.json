@@ -26,7 +26,7 @@
     "gen:skill": "node scripts/gen-skill.ts",
     "gen:skill:check": "node scripts/gen-skill.ts --check",
     "prebuild": "npm run gen:tokens && npm run gen:icons && npm run gen:manifest && npm run gen:skill",
-    "build": "vite build && vite build --config vite.cdn.config.ts && vite build --config vite.cdn-code-editor.config.ts && vite build --config vite.cli.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
+    "build": "vite build && vite build --config vite.cdn.config.ts && vite build --config vite.cdn-code-editor.config.ts && vite build --config vite.cdn-command-palette.config.ts && vite build --config vite.cli.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
     "check-dist": "node scripts/check-dist.ts",
     "check-package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./tokens.css ./cloak.css",
     "pack-smoke": "node scripts/pack-smoke.ts",

@@ -2069,6 +2069,15 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 - **表示**: 上から 15% あたりに出る、幅 `--jimble-command-palette-width`（既定 40rem、狭い画面では画面いっぱい）。候補が無い・読み込み中・失敗の表示（`jimble-empty-state` と同じ見た目の文）。下に、キーの案内（↑↓ 移動・Enter 実行・Esc 閉じる。言語の辞書に入れる）。最近使ったものの記録はしない（アプリが `commands` の並びで出す）。
 - **事前スパイク S2**: VoiceOver（macOS）と NVDA（Firefox）で、モーダルの中の combobox の `aria-activedescendant` が読まれるか（`docs/manual-checks.md` に足す）。
 - **配布**: 別の入口（§22.5 の 3）。
+- **実装の結果（2026-11-12）**:
+  - **入口と配布**: `src/components/command-palette/`（`jimble-command-palette`・`jimble-command`）は、全部入り（`src/index.ts`・`hosts.css`）に入れない（`tests/unit/entry.test.ts` の `SEPARATE`）。npm は `@hidemikimura/jimble-ui/command-palette`（`./*` の exports）、CDN は `vite.cdn-command-palette.config.ts` で `dist/cdn/command-palette.js`（自己完結。Lit と共有シートを含めて 32.2 KB gz、予算 40 KB）。全部入りに入っていないことは `check-dist` が確かめる。ホストの CSS は、`hosts.css` ではなく部品の `static styles` に書く（`code-editor` と同じ）。
+  - **コマンド**: `jimble-command` は画面に出ない、データだけの要素（`jimble-option` と同じ考え方）。名前は中身の文字。パレットは、子の `jimble-command` と `commands` プロパティを合わせて描く。子の変化は `MutationObserver` で追う。
+  - **選んでいる候補**: `aria-activedescendant` で入力欄から指し、候補に `aria-selected="true"`。無効な候補は ↑↓ で飛ばす。一覧が空のときは listbox を描かず、入力欄の `aria-controls` も外す（空の listbox は、子の役割が足りないと指摘されるため）。
+  - **並べ方**: グループなしのコマンドを先頭に、グループは最初に出た順。絞り込んだときは、名前の先頭に一致するものを先にする（それ以外の順は保つ）。
+  - **閉じ方**: Esc はダイアログの `cancel` で受け（IME の変換中は閉じない）、背景のクリックは、押下と解放の両方が背景のときだけ（`jimble-dialog` と同じ）。`href` のあるコマンドでは、開く前の要素にフォーカスを戻さず、閉じたあと `location.assign()` する。
+  - **ショートカット**: `hotkey` の読み取りと一致は `hotkey.ts`（`mod` は macOS・iPadOS で ⌘、ほかで Ctrl。余分な修飾キーがあれば一致しない）。入力欄・テキストエリア・`contenteditable` の中では反応しない（パレット自身の入力欄では閉じる）。
+  - **theme-lab**: 公開版に別の入口がまだ無いので、部品一覧のページには `<template>` の中に置いた（描画されない）。公開後に `main.ts` で import し、`template` を外す。
+  - **スパイク S2**（スクリーンリーダーで `aria-activedescendant` が読まれるか）は、手作業の確認として `docs/manual-checks.md` の 11w に足した（未確認）。
 
 ### 22.3 `jimble-tree` / `jimble-tree-item`
 

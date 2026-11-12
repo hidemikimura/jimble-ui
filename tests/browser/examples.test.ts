@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import '../../src/index.js'
 // 全部入りに含めない部品(別の入口)
 import '../../src/components/code-editor/index.js'
+import '../../src/components/command-palette/index.js'
 import { expectNoA11yViolations } from '../../src/test/a11y.js'
 import { installScopedThemes } from '../../site/src/themes.js'
 
