@@ -1,5 +1,5 @@
 // 読み取りのコマンド（component・search・docs・themes）。結果は { type, data } で返し、表示は format.ts が行う。
-import { FORM, firstSentence, pageName, pageUrl } from './catalog.ts'
+import { FORM, firstSentence, pageName, pageUrl, type ReleasePhase } from './catalog.ts'
 import { PACKAGE_NAME, type Component, type PackageData } from './data.ts'
 import { CliError, similar } from './errors.ts'
 import { cdnRange } from './template.ts'
@@ -20,6 +20,7 @@ const shortName = (tag: string): string => tag.replace(/^jimble-/, '')
 export interface ComponentSummary {
   tag: string
   summary: string
+  status: ReleasePhase
   page: string
 }
 
@@ -27,6 +28,7 @@ export function listComponents(pkg: PackageData): Result {
   const components: ComponentSummary[] = pkg.components.map((c) => ({
     tag: c.tag,
     summary: firstSentence(c.description),
+    status: c.status,
     page: pageUrl(shortName(c.tag)),
   }))
   return { type: 'component.list', data: { components } }

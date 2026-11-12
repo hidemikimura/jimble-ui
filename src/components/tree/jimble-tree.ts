@@ -40,6 +40,7 @@ const valueOf = (i: JimbleTreeItem): string =>
  *   （子が無いと分かったら `lazy` を外す）。
  *
  * @tag jimble-tree
+ * @status experimental
  *
  * @slot - jimble-tree-item
  *

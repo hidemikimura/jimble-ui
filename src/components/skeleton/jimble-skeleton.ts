@@ -19,6 +19,7 @@ const SHAPE =
  * - 「視差効果を減らす」設定では、点滅しない。
  *
  * @tag jimble-skeleton
+ * @status experimental
  *
  * @csspart base - ルート要素
  * @csspart shape - 仮の面（`text` では行ごと）

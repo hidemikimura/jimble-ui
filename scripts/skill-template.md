@@ -50,7 +50,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## コンポーネント早見
 
-各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。
+各要素の詳しい説明と例は `https://hidemikimura.github.io/jimble-ui/components/<名前>/`（`jimble-` を除いた名前。子の要素は「説明」に書いたページ）、または `npx @hidemikimura/jimble-ui component <名前>`。**（試験的）**の部品は、マイナーバージョンで属性・イベントが変わることがある。使ってよいが、更新したら変更点（CHANGELOG）を確かめる。**（非推奨）**の部品は、新しく書かない。
 
 {{components}}
 
@@ -90,7 +90,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 **使う部品の参照ファイルを、書き始める前に読む**（`SKILL.md` と同じフォルダの `references/`）。注意書きと、そのまま使える例がある。
 
-- **ダイアログ・ドロワー・ポップオーバー・コマンドパレット・ツールチップ・メニュー・通知** → `references/overlays.md`。コマンドパレットは全部入りに含まれず、別に import する。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
+- **ダイアログ・ドロワー・ポップオーバー・コマンドパレット・ツールチップ・メニュー・通知** → `references/overlays.md`（結果・警告・エラー・空の状態を、どの部品で知らせるかもここ）。コマンドパレットは全部入りに含まれず、別に import する。ダイアログ・ドロワーは `heading` が必須。通知は要素を自分で置かず `JimbleUI.toast()`。
 - **セレクト・コンボボックス・左右分割の選択・木・日付・色・ファイル添付・コードエディタ** → `references/inputs.md`。コードエディタは全部入りに含まれず、別に import する。セレクトは最初の選択肢が自動で選ばれない。コンボボックスは自由入力が値にならず、`jimble-search` が出る。日付の値は文字列で、`jimble-input` に `type="date"` はない。
 - **表（並べ替え）・アイコン・スピナー・カンバン** → `references/display.md`。**アイコンの `name` は、そこにある一覧のものだけ**（推測しない）。
 - **独自の検証（`jimble-field` の `validate`）** → `references/form-validation.md`。属性ではなく JS のプロパティ。

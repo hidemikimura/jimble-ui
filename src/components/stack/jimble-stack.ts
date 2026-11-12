@@ -35,6 +35,7 @@ const JUSTIFY: Record<StackJustify, string> = {
  * - 中の文字の書体と色は、置いた場所のものを引き継ぐ（部品の既定の書体にしない）。
  *
  * @tag jimble-stack
+ * @status experimental
  *
  * @slot - 並べる要素
  *

@@ -57,6 +57,7 @@ interface Row {
  *   （CDN は `dist/cdn/command-palette.js`）。
  *
  * @tag jimble-command-palette
+ * @status experimental
  *
  * @slot - jimble-command
  *

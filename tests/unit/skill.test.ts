@@ -93,4 +93,9 @@ describe('skill(AI 向けの使い方)', () => {
     for (const page of notes.values()) expect(pages.has(page), `${page} のページ`).toBe(true)
     expect(skill).toContain('https://hidemikimura.github.io/jimble-ui/components/<名前>/')
   })
+
+  it('早見で、試験的な部品に印が付く（安定には付けない）', () => {
+    expect(main).toContain('- **`jimble-popover`**（試験的）')
+    expect(main).toContain('- **`jimble-button`** —')
+  })
 })

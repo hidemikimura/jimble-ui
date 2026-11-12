@@ -43,6 +43,7 @@ const GROUP_GUIDES =
  * - `disabled`: 選べない（開閉と移動はできる）。
  *
  * @tag jimble-tree-item
+ * @status experimental
  *
  * @slot - 子の項目（jimble-tree-item）
  * @slot icon - 名前の前のアイコン（jimble-icon など）

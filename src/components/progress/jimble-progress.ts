@@ -28,6 +28,7 @@ const TRACK: Record<ProgressSize, string> = { sm: 'h-1', md: 'h-2' }
  * host が `role="progressbar"` と `aria-valuenow` などを持つ（試験の道具から見えるよう、属性にも書く）。
  *
  * @tag jimble-progress
+ * @status experimental
  *
  * @csspart base - ルート要素
  * @csspart header - 名前と割合の行

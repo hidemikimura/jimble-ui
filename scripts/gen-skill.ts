@@ -9,7 +9,7 @@
 // 実行: node scripts/gen-skill.ts [--check]   （事前に custom-elements.json が必要: npm run gen:manifest）
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { FORM, firstSentence, pageName } from '../cli/catalog.ts'
+import { FORM, PHASES, firstSentence, pageName, releasePhase } from '../cli/catalog.ts'
 import { dosNames, readDos, DOS_DIR } from './lib/dos.ts'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
@@ -136,7 +136,9 @@ function components(): string {
         .map((s) => `\`:state(${s.name})\``)
       // ページの URL は早見の冒頭に形だけ書く（行数を抑える）。子の要素だけ、説明のあるページ（親）を書く
       const page = pageName(name)
-      out.push(`- **\`jimble-${name}\`** — ${firstSentence(e.description)}`)
+      const phase = releasePhase(e)
+      const mark = phase === 'stable' ? '' : `（${PHASES[phase].label}）`
+      out.push(`- **\`jimble-${name}\`**${mark} — ${firstSentence(e.description)}`)
       if (attrs.length) out.push(`  - 属性: ${attrs.join(', ')}`)
       if (slots.length) out.push(`  - スロット: ${slots.join(', ')}`)
       if (events.length) out.push(`  - イベント: ${events.join(', ')}`)
