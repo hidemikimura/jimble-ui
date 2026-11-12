@@ -192,7 +192,7 @@ npm では `import '@hidemikimura/jimble-ui/themes/ocean.css'`。テーマの上
 
 ### 余白の段階（密度）
 
-`density.css`（npm は `@hidemikimura/jimble-ui/density.css`、CDN は `dist/density.css`）を読み込み、`<html>` か要素に `data-jimble-density` を付ける: `compact`（余白 3px・高さ 28/32/36）・`default`（既定。4px・32/36/40）・`comfortable`（5px・36/40/44）・`spacious`（6px・40/44/48）。要素に付ければその中だけ、入れ子は内側が優先。変わるのは `--jimble-spacing` と `--jimble-control-height-*` だけ（文字の大きさは変わらない）。利用者が書いた CSS 変数が優先する。
+`density.css`（npm は `@hidemikimura/jimble-ui/density.css`、CDN は `dist/density.css`）を読み込み、`<html>` か要素に `data-jimble-density` を付ける: `compact`（余白 3px・高さ 28/32/36）・`default`（既定。4px・32/36/40）・`comfortable`（5px・36/40/44）・`spacious`（6px・40/44/48）。要素に付ければその中だけ、入れ子は内側が優先。変わるのは `--jimble-spacing` と `--jimble-control-height-*` だけ（チェックボックス・アイコンなどの小さな印も一緒に大きさが変わる。文字の大きさは変わらない）。利用者が書いた CSS 変数が優先する。
 
 ### 角丸・文字・余白を、倍率でまとめて変える
 

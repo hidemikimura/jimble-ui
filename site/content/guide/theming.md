@@ -131,7 +131,7 @@ import '@hidemikimura/jimble-ui/density.css'
   document.documentElement.dataset.jimbleDensity = 'compact'
   ```
 
-- 変わるのは、余白の基準（`--jimble-spacing`）と、ボタン・入力欄の高さ（`--jimble-control-height-*`）です。文字の大きさは変わりません（`--jimble-font-size-scale` で変えます）。
+- 変わるのは、余白の基準（`--jimble-spacing`）と、ボタン・入力欄の高さ（`--jimble-control-height-*`）です。チェックボックスやアイコンなどの小さな印も、余白と一緒に大きさが変わります（`spacious` では大きく、タッチしやすくなります）。文字の大きさは変わりません（`--jimble-font-size-scale` で変えます）。
 - `:root` などに書いた CSS 変数は、段階より優先します。段階を出発点に、一部だけ変えられます。
 
 ## 全体の倍率
