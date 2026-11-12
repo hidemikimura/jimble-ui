@@ -119,6 +119,7 @@ const ja = {
   'avatarGroup.more': 'ほか {count} 人',
   'avatarGroup.moreNames': 'ほか {count} 人（{names}）',
   'pagination.label': 'ページネーション',
+  'tag.remove': '{label} を外す',
   'pagination.previous': '前のページ',
   'pagination.next': '次のページ',
   'pagination.page': '{page} ページ目',

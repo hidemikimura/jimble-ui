@@ -1,0 +1,21 @@
+<!-- title: 絞り込みの条件を外す -->
+<jimble-stack gap="2">
+  <jimble-tag-group id="filters" label="絞り込みの条件">
+    <jimble-tag removable value="status:open">状態: 受付中</jimble-tag>
+    <jimble-tag removable value="area:tokyo">地域: 東京</jimble-tag>
+    <jimble-tag removable value="rank:vip">ランク: VIP</jimble-tag>
+  </jimble-tag-group>
+  <p id="filters-log" role="status" style="margin: 0; font-size: 0.875rem"></p>
+</jimble-stack>
+<script type="module">
+  const group = document.getElementById('filters')
+  const log = document.getElementById('filters-log')
+  // jimble-remove はバブルしないので、群に捕捉で付ける
+  group.addEventListener(
+    'jimble-remove',
+    (e) => {
+      log.textContent = `条件「${e.detail.value}」を外しました`
+    },
+    { capture: true },
+  )
+</script>

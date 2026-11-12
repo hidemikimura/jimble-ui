@@ -37,6 +37,7 @@
 @import '../components/switch/switch.host.css';
 @import '../components/table/table.host.css';
 @import '../components/tabs/tabs.host.css';
+@import '../components/tag/tag.host.css';
 @import '../components/textarea/textarea.host.css';
 @import '../components/toast/toast.host.css';
 @import '../components/tooltip/tooltip.host.css';
