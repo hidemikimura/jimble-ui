@@ -1875,6 +1875,28 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **確かめたこと**: すべての関数を、Chromium・Firefox・WebKit で試験する（`tests/e2e/testing-helpers.spec.ts`）。
 - **CI が見つけた不具合**: Linux の WebKit で、コードエディタの空の欄に `keyboard.type` で日本語を 1 文字ずつ送ると、まれに 1 文字目のあとでカーソルが進まず、「こんにちは」が「んにちはこ」になった（手元の macOS では起きない。CI と同じコンテナで 24 回中 3 回再現）。描画を待っても直らず、`keyboard.insertText`（まとめて挿入）では起きない（12 回中 0 回）。`codeEditor().type()` を `insertText` にし、`references/testing.md` の勧め方も「日本語は `insertText`」に直した（コンテナで 90 回とも通る）。pack-smoke で、Playwright を入れていない環境でも、入口を読み込めること（型だけを使っていること）を確かめる。
 
+## 17. AI エージェント向けの CLI（2026-11-12）
+
+Astryx（Meta のデザインシステム）は、CLI を「人と機械の両方の主な入口」にしている。部品の説明・検索・テンプレート・テーマを、同じコマンドで引け、`--json` で決まった形の JSON と、変わらないエラーコードを返す。`init` は、エージェント向けの AGENTS.md / CLAUDE.md を書く。jimble-ui も、skill（§0 の skill、`skills/jimble-ui`）を手でコピーする手間をなくし、Claude Code 以外のエージェントにも案内が届くようにする。
+
+> **決定** パッケージに bin（`jimble-ui`、`dist/cli/jimble-ui.js`）を足し、`npx @hidemikimura/jimble-ui <コマンド>` で使う。コマンドは `component [名前]`・`search <ことば…>`・`docs [名前]`・`themes`・`init`。資料は、すでに配布物に入っているもの（`custom-elements.json`、`dist/vscode.html-data.json`、`skills/jimble-ui/`、`dist/themes/*.css`）だけを読み、新しい生成物は作らない。
+> **理由**
+> - 情報源を増やさない。属性の候補値は、型の別名を解決済みの VS Code 用データから、説明は skill から読むので、skill・補完・CLI の内容が食い違わない。
+> - エージェントは、skill 全体（約 2 万文字）を読まなくても、必要な要素の API だけを引ける。`search` は、要素・説明の見出し・テーマをまとめて探し、次に実行するコマンドを添える。
+> - `init` は、Claude Code 用の skill（`.claude/skills/jimble-ui/`）と、Codex・Cursor などが読む `AGENTS.md` の両方を置く。AGENTS.md は印（`<!-- jimble-ui:start -->` 〜 `end`）の間だけを書き換え、利用者の内容を残す。何度実行しても同じ結果で、対話しない（CI・エージェントから実行できる）。
+>
+> **比較した案**
+> 1. MCP サーバーを配る — 利用者ごとにエージェントの設定が要る。CLI なら、シェルを使えるエージェントすべてが、設定なしで使える。
+> 2. TypeScript のまま配り、Node の型の除去で実行する — Node 22 の前半の版では既定で動かない。Vite で 1 ファイルの JS にする（依存は Node の組み込みだけ、約 21 KB）。
+> 3. 依存（commander など）を使う — 引数の解析は `node:util` の `parseArgs` で足りる。依存を増やすと、`npx` の初回が遅くなる。
+
+- **出力の形**: 成功は `{ apiVersion: 1, type, data, meta: { version } }`、失敗は `{ apiVersion: 1, error, code, suggestions? }`（終了コード 1）。`type` は `component.list`・`component.detail`・`search`・`docs.list`・`docs.topic`・`theme.list`・`init`・`version`。互換性を壊すときだけ `apiVersion` を上げる。
+- **エラーコード**（`cli/errors.ts`）: `ERR_UNKNOWN`・`ERR_UNKNOWN_COMMAND`・`ERR_INVALID_OPTION`・`ERR_MISSING_ARGUMENT`・`ERR_UNKNOWN_COMPONENT`・`ERR_UNKNOWN_TOPIC`・`ERR_DATA_NOT_FOUND`。**足すだけで、意味を変えず、消さない**。打ち間違いには、編集距離で近い名前を `suggestions` に出す。ガイド（AI から使う）の表と一致することを試験で確かめる。
+- **`npx jimble-ui` と略させない**: 略すと、インストール前は同じ名前の別のパッケージが実行されるおそれがある（Astryx も同じ注意を書いている）。案内・skill・AGENTS.md では、すべて `npx @hidemikimura/jimble-ui` と書く。bin が 1 つなので、npx はそれを実行する。
+- **`init --link`**: プロジェクトの `node_modules` の中の skill へのリンクにする（`npm update` で最新になる）。npx の一時的な置き場へのリンクはすぐ切れるので、パッケージがプロジェクトの `node_modules` に無ければ断る（`ERR_INVALID_OPTION`）。
+- **共有**: 要素とページの対応・フォーム部品の一覧・最初の一文の取り出し（`cli/catalog.ts`）は、skill の生成（`scripts/gen-skill.ts`）と共有する。VS Code 用データの生成は `scripts/lib/manifest.ts` の `vscodeData()` にまとめ、postbuild と CLI の試験が使う。
+- **試験**: `tests/unit/cli.test.ts` が、配布物と同じ並びの仮のパッケージを一時ディレクトリに作り、全コマンドの出力・JSON の形・エラーコード・`init` の書き込み（2 回目は変更なし、AGENTS.md の既存の内容を残す、`--link`、`--no-agents-md`）を確かめる。`pack-smoke` が、tarball を入れたプロジェクトで `npx --no-install @hidemikimura/jimble-ui` の `component`・`themes`・`init --link` を実行する。`check-dist` が `dist/cli/jimble-ui.js` の有無を確かめる。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

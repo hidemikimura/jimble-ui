@@ -5,7 +5,7 @@
 //   dist/vscode.html-data.json … VS Code の HTML 補完用データ（custom-elements.json から生成）
 import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { enumValues, loadElements } from './lib/manifest.ts'
+import { loadElements, vscodeData } from './lib/manifest.ts'
 import { themes } from './lib/tokens.ts'
 
 const root = resolve(import.meta.dirname, '..')
@@ -30,22 +30,10 @@ writeFileSync(
 )
 
 // 3. VS Code の HTML カスタムデータ
-const values = (type?: string): { name: string }[] | undefined =>
-  enumValues(type)?.map((name) => ({ name }))
-const data = {
-  version: 1.1,
-  tags: elements.map((d) => ({
-    name: d.tagName,
-    description: d.description ?? '',
-    attributes: (d.attributes ?? []).map((a) => ({
-      name: a.name,
-      description: a.description ?? '',
-      ...(a.type?.text === 'boolean' ? { valueSet: 'v' } : { values: values(a.type?.text) }),
-    })),
-  })),
-  valueSets: [{ name: 'v', values: [] }],
-}
-writeFileSync(resolve(dist, 'vscode.html-data.json'), JSON.stringify(data, null, 2) + '\n')
+writeFileSync(
+  resolve(dist, 'vscode.html-data.json'),
+  JSON.stringify(vscodeData(elements), null, 2) + '\n',
+)
 
 console.log(
   `postbuild: ${elements.length} 要素の tokens.css / cloak.css / vscode.html-data.json と、${themes.length} 個のテーマを出力`,

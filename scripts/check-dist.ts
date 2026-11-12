@@ -180,6 +180,7 @@ for (const f of [
   'cdn/locales/en.js',
   'i18n.js',
   'locales/en.js',
+  'cli/jimble-ui.js',
 ]) {
   if (!existsSync(join(dist, f))) fail(`dist/${f} がありません`)
 }

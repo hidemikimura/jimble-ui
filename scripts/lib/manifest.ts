@@ -1,4 +1,4 @@
-// custom-elements.json の読み取りと、属性の候補値の解決。postbuild(VS Code 補完)と gen-skill が共有する。
+// custom-elements.json の読み取りと、属性の候補値の解決。postbuild(VS Code 補完)・gen-skill・CLI の試験が共有する。
 import { globSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -40,4 +40,38 @@ for (const file of globSync('src/**/*.ts', { cwd: root })) {
 /** 属性の型（`'a' | 'b'` または型別名）から候補値を返す。列挙でなければ undefined */
 export function enumValues(type?: string): string[] | undefined {
   return type?.match(/'([^']+)'/g)?.map((l) => l.slice(1, -1)) ?? aliases.get(type ?? '')
+}
+
+/** VS Code の HTML カスタムデータ（dist/vscode.html-data.json）。CLI も、属性の候補値をここから読む */
+export interface HtmlData {
+  version: number
+  tags: {
+    name: string
+    description: string
+    attributes: {
+      name: string
+      description: string
+      values?: { name: string }[]
+      valueSet?: string
+    }[]
+  }[]
+  valueSets: { name: string; values: { name: string }[] }[]
+}
+
+export function vscodeData(elements: ElementDecl[] = loadElements()): HtmlData {
+  const values = (type?: string): { name: string }[] | undefined =>
+    enumValues(type)?.map((name) => ({ name }))
+  return {
+    version: 1.1,
+    tags: elements.map((d) => ({
+      name: d.tagName,
+      description: d.description ?? '',
+      attributes: (d.attributes ?? []).map((a) => ({
+        name: a.name,
+        description: a.description ?? '',
+        ...(a.type?.text === 'boolean' ? { valueSet: 'v' } : { values: values(a.type?.text) }),
+      })),
+    })),
+    valueSets: [{ name: 'v', values: [] }],
+  }
 }

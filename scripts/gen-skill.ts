@@ -9,10 +9,10 @@
 // 実行: node scripts/gen-skill.ts [--check]   （事前に custom-elements.json が必要: npm run gen:manifest）
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { FORM, firstSentence, pageUrl } from '../cli/catalog.ts'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
 const root = resolve(import.meta.dirname, '..')
-const SITE = 'https://hidemikimura.github.io/jimble-ui'
 const OUTPUT_DIRS = ['skills/jimble-ui', '.claude/skills/jimble-ui']
 
 const GROUPS: [string, string[]][] = [
@@ -92,51 +92,6 @@ const GROUPS: [string, string[]][] = [
   ],
 ]
 // 子要素は、親のコンポーネントのページで説明している
-const PAGE: Record<string, string> = {
-  'nav-item': 'sidebar-nav',
-  'nav-group': 'sidebar-nav',
-  'breadcrumb-item': 'breadcrumb',
-  tab: 'tabs',
-  'tab-panel': 'tabs',
-  'table-header': 'table',
-  'table-body': 'table',
-  'table-row': 'table',
-  'table-head-cell': 'table',
-  'table-cell': 'table',
-  'description-item': 'description-list',
-  option: 'select',
-  radio: 'radio-group',
-  'menu-item': 'dropdown-menu',
-  'menu-separator': 'dropdown-menu',
-  'toast-region': 'toast',
-  'kanban-column': 'kanban',
-  'kanban-card': 'kanban',
-}
-// input / change をネイティブと同じく出すフォーム部品
-const FORM = new Set([
-  'input',
-  'textarea',
-  'select',
-  'combobox',
-  'dual-listbox',
-  'date-input',
-  'color-input',
-  'file-input',
-  'checkbox',
-  'radio-group',
-  'switch',
-])
-
-/** 説明の最初の一文(最初の「。」まで) */
-const firstSentence = (text = '') => {
-  const para = text
-    .trim()
-    .split(/\n\s*\n|\n- /)[0]!
-    .replace(/\s*\n\s*/g, '')
-  const i = para.indexOf('。')
-  return i >= 0 ? para.slice(0, i + 1) : para
-}
-
 function attrLabel(a: NonNullable<ElementDecl['attributes']>[number]): string {
   const type = a.type?.text
   const values = enumValues(type)
@@ -168,7 +123,7 @@ function components(): string {
       const states = (e.cssStates ?? [])
         .filter((s) => s.inheritedFrom?.name !== 'JimbleFormElement')
         .map((s) => `\`:state(${s.name})\``)
-      const page = `${SITE}/components/${PAGE[name] ?? name}/`
+      const page = pageUrl(name)
       out.push(`- **\`jimble-${name}\`** — ${firstSentence(e.description)}`)
       if (attrs.length) out.push(`  - 属性: ${attrs.join(', ')}`)
       if (slots.length) out.push(`  - スロット: ${slots.join(', ')}`)

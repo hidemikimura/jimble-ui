@@ -55,14 +55,20 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ## AI（Claude Code など）から使う
 
-AI が jimble-ui を正しく使うための **skill** を同梱しています。プロジェクトの `.claude/skills/` に置くと、Claude Code が自動で使います。
+AI が jimble-ui を正しく使うための **skill** と **CLI** を同梱しています。プロジェクトの直下で `init` を実行すると、Claude Code 用の skill（`.claude/skills/jimble-ui/`）と、Codex・Cursor などが読む `AGENTS.md` の案内を置きます。
 
 ```sh
-mkdir -p .claude/skills
-cp -r node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/
+npx @hidemikimura/jimble-ui init
 ```
 
-全要素の属性・イベント、間違えやすい点、そのまま使える断片が入っています。詳しくは、ドキュメントの「AI から使う」を参照してください。
+部品の属性・イベント、説明、テーマは、CLI で引けます（`--json` で機械が読む形）。
+
+```sh
+npx @hidemikimura/jimble-ui component button
+npx @hidemikimura/jimble-ui search 日付
+```
+
+skill には、全要素の属性・イベント、間違えやすい点、そのまま使える断片が入っています。詳しくは、ドキュメントの「AI から使う」を参照してください。
 
 ## カスタマイズ
 
