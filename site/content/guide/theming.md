@@ -100,6 +100,40 @@ jimble-button:state(loading) {
 </jimble-alert>
 ```
 
+## 余白の段階（密度）
+
+ボタン・入力欄の高さと、すべての余白を、4 つの段階から選べます。既定（`default`）は、管理画面向けに詰めた表示です。`density.css` を読み込み、`<html>` か、変えたい範囲の要素に `data-jimble-density` を付けます。
+
+```html
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@hidemikimura/jimble-ui@0/dist/density.css"
+/>
+<html data-jimble-density="comfortable"></html>
+```
+
+```ts
+// npm
+import '@hidemikimura/jimble-ui/density.css'
+```
+
+- `compact`: 余白の単位 3px、ボタン・入力欄の高さ 28 / 32 / 36px（sm / md / lg）。1 画面に多く並べる一覧・表に。
+- `default`: 4px、32 / 36 / 40px。既定（付けないときと同じ）。
+- `comfortable`: 5px、36 / 40 / 44px。入力の多いフォーム・ときどき使う画面に。
+- `spacious`: 6px、40 / 44 / 48px。タッチ操作・大きな画面・読みやすさを優先する画面に。
+
+::example density/levels
+
+- **ページの一部だけ変える**: 要素に付けると、その中だけが変わります。入れ子にした段階が優先するので、ゆとりのあるページの中に、詰めた表を置けます。
+- **JS で切り替える**: `<html>` の `data-jimble-density` を書き換えます。利用者に選ばせるなら、[区切った見た目のラジオ](../../components/radio-group/)が向いています。
+
+  ```js
+  document.documentElement.dataset.jimbleDensity = 'compact'
+  ```
+
+- 変わるのは、余白の基準（`--jimble-spacing`）と、ボタン・入力欄の高さ（`--jimble-control-height-*`）です。文字の大きさは変わりません（`--jimble-font-size-scale` で変えます）。
+- `:root` などに書いた CSS 変数は、段階より優先します。段階を出発点に、一部だけ変えられます。
+
 ## 全体の倍率
 
 角丸と文字の大きさは、倍率 1 つでまとめて変えられます。余白の `--jimble-spacing`（既定 `0.25rem`）と合わせると、3 つの数で、全体の印象を大きく変えられます。
