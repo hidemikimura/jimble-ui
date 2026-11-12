@@ -932,7 +932,9 @@ test.describe('app-shell(実際のビューポート)', () => {
 
     await toggle.click()
     await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-    await expect.poll(async () => Math.round((await box('sidebar')).width)).toBe(64)
+    // 幅の切り替えは transition で動くので、丸めた値ではなく、動き終わった値(ちょうど 64px)を待ってから本文の位置を測る
+    // (丸めると、WebKit で 64.1px の途中の位置を測ってしまい、あとの比較が 0.1px ずれた)
+    await expect.poll(async () => (await box('sidebar')).width).toBe(64)
     const mainLeft = (await box('main')).left
     const nav = shell.locator('jimble-sidebar-nav')
     // 細い間は、項目名が画面に出ない(幅が 1px の読み上げ用)
