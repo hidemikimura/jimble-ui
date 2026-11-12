@@ -108,6 +108,18 @@ export function formatText(result: Result): string {
       return (result.data as Topic).body.trimEnd()
     case 'theme.list':
       return formatThemes(d.themes as Parameters<typeof formatThemes>[0])
+    case 'template.list':
+      return [
+        'ページのテンプレート:',
+        ...(d.templates as { name: string; title: string }[]).map(
+          (t) => `  ${t.name.padEnd(10)} ${t.title}`,
+        ),
+        '',
+        `HTML（CDN で読み込む文書）: ${command('template <名前> > page.html')}`,
+        `本文だけ: --fragment、テーマつき: --theme <名前>`,
+      ].join('\n')
+    case 'template.detail':
+      return (d.html as string).trimEnd()
     case 'init':
       return (d.files as InitFile[]).map((f) => `${ACTION[f.action]}: ${f.path}`).join('\n')
     default:

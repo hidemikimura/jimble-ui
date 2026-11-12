@@ -34,13 +34,14 @@ cp -r node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/
 
 ## CLI で調べる
 
-部品の属性・スロット・イベント・part・CSS 変数、説明、テーマを、ターミナルから引けます。人も AI エージェントも、同じコマンドを使えます。インストールする前でも、`npx` で実行できます。
+部品の属性・スロット・イベント・part・CSS 変数、説明、テーマ、[ページのテンプレート](../templates/)を、ターミナルから引けます。人も AI エージェントも、同じコマンドを使えます。インストールする前でも、`npx` で実行できます。
 
 ```bash
 npx @hidemikimura/jimble-ui component button   # 1 つの部品の API（名前なしで一覧）
 npx @hidemikimura/jimble-ui search 日付          # 部品・説明・テーマをまとめて探す
 npx @hidemikimura/jimble-ui docs overlays       # 説明の本文（名前なしで一覧）
 npx @hidemikimura/jimble-ui themes              # 既製のテーマと読み込み方
+npx @hidemikimura/jimble-ui template list      # ページのテンプレート（そのまま開ける HTML。名前なしで一覧）
 ```
 
 **`npx jimble-ui` と書かず、必ず `@hidemikimura/` を付けてください。** 付けないと、プロジェクトに入れる前は、同じ名前の別のパッケージが実行されるおそれがあります。
@@ -80,6 +81,8 @@ npx @hidemikimura/jimble-ui themes              # 既製のテーマと読み込
 | `ERR_UNKNOWN_COMPONENT` | その名前の部品がない                                       |
 | `ERR_UNKNOWN_TOPIC`     | その名前の説明がない                                       |
 | `ERR_DATA_NOT_FOUND`    | パッケージの資料が見つからない（インストールが壊れている） |
+| `ERR_UNKNOWN_TEMPLATE`  | その名前のテンプレートがない                               |
+| `ERR_UNKNOWN_THEME`     | その名前のテーマがない                                     |
 
 ## skill の内容
 

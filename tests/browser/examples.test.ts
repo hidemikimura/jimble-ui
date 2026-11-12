@@ -26,8 +26,9 @@ describe('ドキュメントの例', () => {
   for (const [path, raw] of Object.entries(examples)) {
     const name = path.replace('../../site/examples/', '').replace('.html', '')
     it(`${name}: 描画でき、axe 違反なし`, async () => {
-      // app-shell の例は自分で main ランドマークを持つので、外側は main にしない
-      container = document.createElement(raw.includes('<jimble-app-shell') ? 'div' : 'main')
+      // app-shell の例と、ページ全体のテンプレート（ログインなど）は、自分で main ランドマークを持つので、外側は main にしない
+      const ownMain = raw.includes('<jimble-app-shell') || raw.includes('<main')
+      container = document.createElement(ownMain ? 'div' : 'main')
       container.innerHTML = raw.replace(/^<!--.*?-->\s*/, '')
       document.body.append(container)
       const jimble = [...container.querySelectorAll('*')].filter((e) =>

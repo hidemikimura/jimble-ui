@@ -5,6 +5,7 @@ const PAGES = [
   '/',
   '/guide/getting-started/',
   '/guide/theming/',
+  '/guide/templates/',
   '/guide/i18n/',
   '/guide/forms/',
   '/guide/overlays/',
@@ -49,6 +50,9 @@ const PAGES = [
   '/frames/app-shell/admin-page/',
   '/frames/app-shell/collapsible/',
   '/frames/app-shell/theme/',
+  ...['list', 'detail', 'form', 'settings', 'login', 'dashboard'].map(
+    (name) => `/frames/templates/${name}/`,
+  ),
 ]
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
 

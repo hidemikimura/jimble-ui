@@ -3,6 +3,7 @@
 //   dist/vscode.html-data.json       … 属性の候補値（型の別名を解決済み）
 //   skills/jimble-ui/                … 使い方の説明（SKILL.md と references/*.md）
 //   dist/themes/<名前>.css            … 既製のテーマ（先頭のコメントに説明がある）
+//   dist/templates/<名前>.html        … ページのテンプレート（site/examples/templates の写し。先頭のコメントに題名）
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { CliError } from './errors.ts'
@@ -41,12 +42,19 @@ export interface ThemeInfo {
   name: string
   description: string
 }
+export interface TemplateInfo {
+  name: string
+  title: string
+  /** <body> の中身（app-shell、または main から始まる） */
+  fragment: string
+}
 export interface PackageData {
   root: string
   version: string
   components: Component[]
   topics: Topic[]
   themes: ThemeInfo[]
+  templates: TemplateInfo[]
 }
 
 /** dir から上に向かって、このパッケージの package.json がある場所を探す */
@@ -154,6 +162,24 @@ function loadThemes(root: string): ThemeInfo[] {
     })
 }
 
+const TITLE_COMMENT = /^<!--\s*title:\s*(.+?)\s*-->\s*\n/
+const FRAME_COMMENT = /^<!--\s*frame:.*?-->\s*\n/
+
+function loadTemplates(root: string): TemplateInfo[] {
+  const dir = join(root, 'dist/templates')
+  if (!existsSync(dir)) return []
+  return readdirSync(dir)
+    .filter((f) => f.endsWith('.html'))
+    .sort()
+    .map((f) => {
+      const raw = readFileSync(join(dir, f), 'utf8')
+      const name = f.replace(/\.html$/, '')
+      const title = TITLE_COMMENT.exec(raw)?.[1] ?? name
+      const fragment = raw.replace(TITLE_COMMENT, '').replace(FRAME_COMMENT, '').trim()
+      return { name, title, fragment }
+    })
+}
+
 export function loadPackageData(root: string): PackageData {
   return {
     root,
@@ -161,5 +187,6 @@ export function loadPackageData(root: string): PackageData {
     components: loadComponents(root),
     topics: loadTopics(root),
     themes: loadThemes(root),
+    templates: loadTemplates(root),
   }
 }

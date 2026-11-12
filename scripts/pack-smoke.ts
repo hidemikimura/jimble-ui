@@ -252,6 +252,40 @@ ce.insertVariable('customer_name')
     cdn.close()
     if (r2.global !== 'function' || !r2.tags)
       throw new Error('CDN バンドルが期待どおり動きません: ' + JSON.stringify(r2))
+
+    // CLI の template が出す HTML 文書が、そのまま動く（CDN の URL を、入れたパッケージの dist に向ける）
+    const tplDir = join(work, 'tpl')
+    mkdirSync(tplDir)
+    cpSync(join(work, 'node_modules/@hidemikimura/jimble-ui/dist'), join(tplDir, 'dist'), {
+      recursive: true,
+    })
+    const doc = run('npx', [
+      '--no-install',
+      '@hidemikimura/jimble-ui',
+      'template',
+      'list',
+      '--theme',
+      'ocean',
+    ])
+    writeFileSync(
+      join(tplDir, 'index.html'),
+      doc.replace(
+        /https:\/\/cdn\.jsdelivr\.net\/npm\/@hidemikimura\/jimble-ui@[\d.]+\/dist/g,
+        './dist',
+      ),
+    )
+    const tpl = await serve(tplDir)
+    const p3 = await check(tpl.url)
+    const r3 = await p3.evaluate(() => ({
+      shell: !!customElements.get('jimble-app-shell'),
+      table: !!document.querySelector('jimble-table')?.shadowRoot,
+      theme: getComputedStyle(document.documentElement)
+        .getPropertyValue('--jimble-color-primary-600')
+        .trim(),
+    }))
+    tpl.close()
+    if (!r3.shell || !r3.table || !r3.theme)
+      throw new Error('template の HTML が期待どおり動きません: ' + JSON.stringify(r3))
     if (errors.length) throw new Error('ブラウザのコンソールエラー:\n' + errors.join('\n'))
   } finally {
     await browser.close()

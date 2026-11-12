@@ -1,0 +1,94 @@
+<!-- title: 編集フォーム（必須・検証・保存の通知） -->
+<!-- frame: 900 -->
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar" label="メイン">
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文</jimble-nav-item
+    >
+    <jimble-nav-item href="#" current
+      ><jimble-icon slot="icon" name="users"></jimble-icon>顧客</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>設定</jimble-nav-item
+    >
+  </jimble-sidebar-nav>
+
+  <jimble-page-header
+    heading="顧客を登録"
+    description="「必須」の付いた項目を入力して、保存してください。"
+  >
+    <jimble-breadcrumb slot="breadcrumb">
+      <jimble-breadcrumb-item href="#">ホーム</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item href="#">顧客</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item>顧客を登録</jimble-breadcrumb-item>
+    </jimble-breadcrumb>
+  </jimble-page-header>
+
+  <form
+    style="display: grid; gap: 1rem; margin-top: 1rem; max-width: 48rem"
+    onsubmit="
+      event.preventDefault()
+      JimbleUI.toast.success('保存しました')
+    "
+  >
+    <jimble-card>
+      <strong slot="header">基本の情報</strong>
+      <div style="display: grid; gap: 1rem">
+        <jimble-field label="氏名" required>
+          <jimble-input name="name" autocomplete="name"></jimble-input>
+        </jimble-field>
+        <jimble-field label="フリガナ" hint="全角カタカナで入力してください">
+          <jimble-input name="kana" pattern="[ァ-ヶー　 ]*"></jimble-input>
+        </jimble-field>
+        <jimble-field label="種別" required>
+          <jimble-radio-group name="type" value="person" orientation="horizontal">
+            <jimble-radio value="person">個人</jimble-radio>
+            <jimble-radio value="company">法人</jimble-radio>
+          </jimble-radio-group>
+        </jimble-field>
+        <jimble-field label="担当者">
+          <jimble-select name="owner" placeholder="選択してください">
+            <jimble-option value="sato">佐藤</jimble-option>
+            <jimble-option value="suzuki">鈴木</jimble-option>
+            <jimble-option value="tanaka">田中</jimble-option>
+          </jimble-select>
+        </jimble-field>
+      </div>
+    </jimble-card>
+
+    <jimble-card>
+      <strong slot="header">連絡先</strong>
+      <div style="display: grid; gap: 1rem">
+        <jimble-field label="メールアドレス" required>
+          <jimble-input name="email" type="email" autocomplete="email"></jimble-input>
+        </jimble-field>
+        <jimble-field label="電話番号" hint="ハイフンなしで入力してください">
+          <jimble-input name="tel" type="tel" autocomplete="tel" inputmode="tel"></jimble-input>
+        </jimble-field>
+        <jimble-switch name="newsletter" checked>お知らせのメールを送る</jimble-switch>
+      </div>
+    </jimble-card>
+
+    <jimble-card sticky-footer>
+      <strong slot="header">そのほか</strong>
+      <div style="display: grid; gap: 1rem">
+        <jimble-field label="初回の取引日">
+          <jimble-date-input name="since"></jimble-date-input>
+        </jimble-field>
+        <jimble-field label="メモ">
+          <jimble-textarea name="memo" rows="4"></jimble-textarea>
+        </jimble-field>
+        <jimble-checkbox name="agree" required>個人情報の取り扱いに同意を得ている</jimble-checkbox>
+      </div>
+      <div slot="footer" style="display: flex; gap: 0.75rem; justify-content: flex-end">
+        <jimble-button type="reset">取り消す</jimble-button>
+        <jimble-button type="submit" variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </form>
+</jimble-app-shell>

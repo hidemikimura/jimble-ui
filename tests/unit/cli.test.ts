@@ -5,6 +5,7 @@ import {
   lstatSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -15,6 +16,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { findPackageRoot, PACKAGE_NAME } from '../../cli/data.ts'
 import { CliError, ERROR_CODES, similar } from '../../cli/errors.ts'
 import { AGENTS_BLOCK, AGENTS_END, AGENTS_START, mergeAgentsMd } from '../../cli/init.ts'
+import { cdnRange } from '../../cli/template.ts'
 import { run } from '../../cli/main.ts'
 import { loadElements, vscodeData } from '../../scripts/lib/manifest.ts'
 import { themes } from '../../scripts/lib/tokens.ts'
@@ -38,6 +40,7 @@ function makePackage(dir: string): void {
       join(repo, `tokens/themes/${t.name}.generated.css`),
       join(dir, `dist/themes/${t.name}.css`),
     )
+  cpSync(join(repo, 'site/examples/templates'), join(dir, 'dist/templates'), { recursive: true })
 }
 
 beforeAll(() => {
@@ -231,9 +234,69 @@ describe('docs と themes', () => {
     expect(json.data.themes.map((t) => t.name)).toEqual(themes.map((t) => t.name))
     expect(json.data.themes[0]).toMatchObject({
       import: `${PACKAGE_NAME}/themes/forest.css`,
-      cdn: expect.stringContaining('@9.9.9/dist/themes/forest.css'),
+      cdn: expect.stringContaining('@9/dist/themes/forest.css'),
       description: expect.stringContaining('緑'),
     })
+  })
+})
+
+describe('template', () => {
+  const NAMES = readdirSync(join(repo, 'site/examples/templates'))
+    .map((f) => f.replace(/\.html$/, ''))
+    .sort()
+
+  it('一覧は、site/examples/templates のすべてを、題名つきで出す', () => {
+    const { json } = cliJson<Envelope<{ templates: { name: string; title: string }[] }>>('template')
+    expect(json.type).toBe('template.list')
+    expect(json.data.templates.map((t) => t.name)).toEqual(NAMES)
+    expect(json.data.templates.find((t) => t.name === 'list')!.title).toMatch(/^一覧/)
+  })
+
+  it('既定では、CDN で読み込む、そのまま開ける HTML 文書を出す（版の範囲を固定）', () => {
+    const { out } = cli('template', 'list')
+    expect(out).toMatch(/^<!doctype html>\n<html lang="ja">/)
+    expect(out).toContain('<title>一覧</title>')
+    expect(out).toContain(
+      `<script type="module" src="https://cdn.jsdelivr.net/npm/${PACKAGE_NAME}@9/dist/cdn/jimble-ui.js"></script>`,
+    )
+    expect(out).toContain('/dist/cloak.css')
+    expect(out).toContain('<jimble-app-shell')
+    expect(out).not.toContain('<!-- title:')
+    expect(out).not.toContain('<!-- frame:')
+    expect(out).not.toContain('/themes/')
+  })
+
+  it('--theme でテーマの <link> を足し、--fragment で本文だけを出す', () => {
+    expect(cli('template', 'login', '--theme', 'ocean').out).toContain(
+      `@9/dist/themes/ocean.css" />`,
+    )
+    const frag = cli('template', 'login', '--fragment').out
+    expect(frag.startsWith('<main')).toBe(true)
+    expect(frag).not.toContain('<!doctype')
+  })
+
+  it('無いテンプレート・テーマは、決まったコードと候補', () => {
+    const t = cliJson<ErrorEnvelope>('template', 'logn')
+    expect(t.json).toMatchObject({ code: 'ERR_UNKNOWN_TEMPLATE', suggestions: [{ name: 'login' }] })
+    const th = cliJson<ErrorEnvelope>('template', 'list', '--theme', 'oceam')
+    expect(th.json).toMatchObject({ code: 'ERR_UNKNOWN_THEME', suggestions: [{ name: 'ocean' }] })
+  })
+
+  it('search でテンプレートも見つかる', () => {
+    const { json } = cliJson<Envelope<{ results: { kind: string; name: string; next: string }[] }>>(
+      'search',
+      'ログイン',
+    )
+    expect(json.data.results[0]).toMatchObject({
+      kind: 'template',
+      name: 'login',
+      next: `npx ${PACKAGE_NAME} template login`,
+    })
+  })
+
+  it('CDN の版の範囲は、0.x ならマイナーまで、1 以上ならメジャーだけ', () => {
+    expect(cdnRange('0.18.2')).toBe('0.18')
+    expect(cdnRange('1.4.0')).toBe('1')
   })
 })
 

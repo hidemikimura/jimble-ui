@@ -9,6 +9,8 @@ export const ERROR_CODES = {
   ERR_UNKNOWN_COMPONENT: 'その名前の要素がない',
   ERR_UNKNOWN_TOPIC: 'その名前の説明（docs のトピック）がない',
   ERR_DATA_NOT_FOUND: 'パッケージの資料が見つからない（インストールが壊れている）',
+  ERR_UNKNOWN_TEMPLATE: 'その名前のテンプレートがない',
+  ERR_UNKNOWN_THEME: 'その名前のテーマがない',
 } as const
 
 export type ErrorCode = keyof typeof ERROR_CODES

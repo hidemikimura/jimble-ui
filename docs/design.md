@@ -1890,12 +1890,33 @@ Astryx（Meta のデザインシステム）は、CLI を「人と機械の両�
 > 2. TypeScript のまま配り、Node の型の除去で実行する — Node 22 の前半の版では既定で動かない。Vite で 1 ファイルの JS にする（依存は Node の組み込みだけ、約 21 KB）。
 > 3. 依存（commander など）を使う — 引数の解析は `node:util` の `parseArgs` で足りる。依存を増やすと、`npx` の初回が遅くなる。
 
-- **出力の形**: 成功は `{ apiVersion: 1, type, data, meta: { version } }`、失敗は `{ apiVersion: 1, error, code, suggestions? }`（終了コード 1）。`type` は `component.list`・`component.detail`・`search`・`docs.list`・`docs.topic`・`theme.list`・`init`・`version`。互換性を壊すときだけ `apiVersion` を上げる。
-- **エラーコード**（`cli/errors.ts`）: `ERR_UNKNOWN`・`ERR_UNKNOWN_COMMAND`・`ERR_INVALID_OPTION`・`ERR_MISSING_ARGUMENT`・`ERR_UNKNOWN_COMPONENT`・`ERR_UNKNOWN_TOPIC`・`ERR_DATA_NOT_FOUND`。**足すだけで、意味を変えず、消さない**。打ち間違いには、編集距離で近い名前を `suggestions` に出す。ガイド（AI から使う）の表と一致することを試験で確かめる。
+- **出力の形**: 成功は `{ apiVersion: 1, type, data, meta: { version } }`、失敗は `{ apiVersion: 1, error, code, suggestions? }`（終了コード 1）。`type` は `component.list`・`component.detail`・`search`・`docs.list`・`docs.topic`・`theme.list`・`template.list`・`template.detail`（§18）・`init`・`version`。互換性を壊すときだけ `apiVersion` を上げる。
+- **エラーコード**（`cli/errors.ts`）: `ERR_UNKNOWN`・`ERR_UNKNOWN_COMMAND`・`ERR_INVALID_OPTION`・`ERR_MISSING_ARGUMENT`・`ERR_UNKNOWN_COMPONENT`・`ERR_UNKNOWN_TOPIC`・`ERR_DATA_NOT_FOUND`・`ERR_UNKNOWN_TEMPLATE`・`ERR_UNKNOWN_THEME`（§18 で追加）。**足すだけで、意味を変えず、消さない**。打ち間違いには、編集距離で近い名前を `suggestions` に出す。ガイド（AI から使う）の表と一致することを試験で確かめる。
 - **`npx jimble-ui` と略させない**: 略すと、インストール前は同じ名前の別のパッケージが実行されるおそれがある（Astryx も同じ注意を書いている）。案内・skill・AGENTS.md では、すべて `npx @hidemikimura/jimble-ui` と書く。bin が 1 つなので、npx はそれを実行する。
 - **`init --link`**: プロジェクトの `node_modules` の中の skill へのリンクにする（`npm update` で最新になる）。npx の一時的な置き場へのリンクはすぐ切れるので、パッケージがプロジェクトの `node_modules` に無ければ断る（`ERR_INVALID_OPTION`）。
 - **共有**: 要素とページの対応・フォーム部品の一覧・最初の一文の取り出し（`cli/catalog.ts`）は、skill の生成（`scripts/gen-skill.ts`）と共有する。VS Code 用データの生成は `scripts/lib/manifest.ts` の `vscodeData()` にまとめ、postbuild と CLI の試験が使う。
 - **試験**: `tests/unit/cli.test.ts` が、配布物と同じ並びの仮のパッケージを一時ディレクトリに作り、全コマンドの出力・JSON の形・エラーコード・`init` の書き込み（2 回目は変更なし、AGENTS.md の既存の内容を残す、`--link`、`--no-agents-md`）を確かめる。`pack-smoke` が、tarball を入れたプロジェクトで `npx --no-install @hidemikimura/jimble-ui` の `component`・`themes`・`init --link` を実行する。`check-dist` が `dist/cli/jimble-ui.js` の有無を確かめる。
+
+## 18. ページのテンプレート（2026-11-12）
+
+Astryx は、ダッシュボード・表・フォーム・設定・ログインなどのページのテンプレートを配り、CLI で取り出せるようにしている。jimble-ui は管理画面向けなので、同じ種類のページを、部品だけで組んだ見本として配る。
+
+> **決定** テンプレートは `site/examples/templates/<名前>.html` に、ほかの例と同じ形（先頭に `title` と `frame` のコメント、本文の HTML）で書く。`list`（一覧）・`detail`（詳細）・`form`（編集フォーム）・`settings`（設定）・`login`（ログイン）・`dashboard`（ダッシュボード）の 6 つ。`postbuild` が `dist/templates/` に写し、CLI の `template <名前>` が、CDN で読み込む HTML 文書に包んで出す（`--fragment` で本文だけ、`--theme <名前>` でテーマの `<link>` を足す）。
+> **理由**
+> - 例と同じ置き場なので、既存の仕組みがそのまま効く: 例の試験（`tests/browser/examples.test.ts`）が 3 つのブラウザで axe にかけ、ドキュメントサイトが iframe のページ（`frames/templates/<名前>/`）を作り、E2E がライトとダークで axe にかける。テンプレートだけの検査の仕組みを作らずに済む。
+> - 情報源は 1 つ。サイトの「ソース」、CLI の出力、配布物の中身が同じファイルから来る。
+> - 並べ方は `style` 属性（`display: grid` など）だけで書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。
+>
+> **比較した案**
+> 1. 完全な HTML 文書をファイルとして持つ — サイトの iframe・例の試験と形が合わず、`<head>` の CDN の版を、リリースのたびに書き換えることになる。CLI が、入っているパッケージの版から `<head>` を作る。
+> 2. skill の references にテンプレートの全文を入れる — skill が大きくなる（6 ページで約 25 KB）。skill には「`template` で取り出す」とだけ書き、本文は CLI で必要なときに読む。
+> 3. Web Components のページ部品（`<jimble-list-page>` など）にする — 列・項目・操作の組み合わせが多く、属性で表しきれない。テンプレートは、書き換えて使う出発点に留める。
+
+- **CDN の版**: CLI は、入っているパッケージの版から範囲を決める。0.x はマイナーまで（`@0.18`。マイナーで互換性が壊れることがあるため）、1 以上はメジャーだけ。`themes` の CDN の URL も同じ範囲にした。
+- **文書の `<head>`**: `cloak.css`（登録前のちらつきを防ぐ）、テーマ（指定したとき）、CDN バンドル、`color-scheme: light dark`（OS の設定に従う。部品とブラウザの背景がそろう）、`body` の余白と書体。
+- **main ランドマーク**: app-shell を使うテンプレートは、app-shell が `main` を持つ。ログインは app-shell を使わないので、テンプレート自身が `<main>` から始まる。例の試験は、`<main` を含む例を `main` で包まない（入れ子の `main` を避ける）。
+- **送信の処理**: `onsubmit` は `JimbleUI.toast` で通知を出すだけの見本。必須の項目は `jimble-field` の `required` で、未入力のまま送信すると、エラーを出して最初の項目にフォーカスする（ブラウザで確認した）。
+- **試験**: 例の試験と E2E に加えて、`tests/unit/cli.test.ts` が `template` の一覧・文書・`--fragment`・`--theme`・エラーコード・`search` での発見を確かめる。`pack-smoke` は、tarball を入れたプロジェクトで `template list --theme ocean` の出力を、CDN の URL を入れたパッケージの `dist` に向けて Chromium で開き、部品が登録され、テーマが効き、コンソールエラーがないことを確かめる。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

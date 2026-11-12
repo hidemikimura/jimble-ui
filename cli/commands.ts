@@ -2,6 +2,7 @@
 import { FORM, firstSentence, pageUrl } from './catalog.ts'
 import { PACKAGE_NAME, type Component, type PackageData } from './data.ts'
 import { CliError, similar } from './errors.ts'
+import { cdnRange } from './template.ts'
 
 export interface Result {
   /** JSON の `type`（`component.list` など）。出力の形を表す */
@@ -97,7 +98,7 @@ export function listThemes(pkg: PackageData): Result {
       themes: pkg.themes.map((t) => ({
         ...t,
         import: `${PACKAGE_NAME}/themes/${t.name}.css`,
-        cdn: `https://cdn.jsdelivr.net/npm/${PACKAGE_NAME}@${pkg.version}/dist/themes/${t.name}.css`,
+        cdn: `https://cdn.jsdelivr.net/npm/${PACKAGE_NAME}@${cdnRange(pkg.version)}/dist/themes/${t.name}.css`,
       })),
     },
   }
@@ -105,8 +106,8 @@ export function listThemes(pkg: PackageData): Result {
 
 // ---- search ----
 
-export type SearchKind = 'component' | 'doc' | 'theme'
-export const SEARCH_KINDS: readonly SearchKind[] = ['component', 'doc', 'theme']
+export type SearchKind = 'component' | 'doc' | 'theme' | 'template'
+export const SEARCH_KINDS: readonly SearchKind[] = ['component', 'doc', 'theme', 'template']
 
 export interface SearchHit {
   kind: SearchKind
@@ -175,7 +176,17 @@ function candidates(pkg: PackageData): Candidate[] {
       [t.description, 15],
     ],
   }))
-  return [...pkg.components.map(componentCandidates), ...docs, ...themes]
+  const templates = pkg.templates.map((t): Candidate => ({
+    kind: 'template',
+    name: t.name,
+    summary: t.title,
+    next: command(`template ${t.name}`),
+    fields: [
+      [`${t.name} テンプレート template ページ`, 50],
+      [t.title, 45],
+    ],
+  }))
+  return [...pkg.components.map(componentCandidates), ...docs, ...themes, ...templates]
 }
 
 /** 語ごとに、最も点の高い欄の点を足す。どれかの語がどの欄にも無ければ対象外（AND 検索） */

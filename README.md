@@ -61,11 +61,12 @@ AI が jimble-ui を正しく使うための **skill** と **CLI** を同梱し�
 npx @hidemikimura/jimble-ui init
 ```
 
-部品の属性・イベント、説明、テーマは、CLI で引けます（`--json` で機械が読む形）。
+部品の属性・イベント、説明、テーマ、ページのテンプレート（一覧・詳細・編集フォーム・設定・ログイン・ダッシュボード）は、CLI で引けます（`--json` で機械が読む形）。
 
 ```sh
 npx @hidemikimura/jimble-ui component button
 npx @hidemikimura/jimble-ui search 日付
+npx @hidemikimura/jimble-ui template list > orders.html  # 一覧ページのテンプレート
 ```
 
 skill には、全要素の属性・イベント、間違えやすい点、そのまま使える断片が入っています。詳しくは、ドキュメントの「AI から使う」を参照してください。

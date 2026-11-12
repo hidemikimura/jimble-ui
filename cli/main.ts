@@ -19,6 +19,7 @@ import { loadPackageData, PACKAGE_NAME, type PackageData } from './data.ts'
 import { CliError } from './errors.ts'
 import { formatText } from './format.ts'
 import { init } from './init.ts'
+import { listTemplates, showTemplate } from './template.ts'
 
 /** JSON の形の版。互換性を壊す変更をしたときだけ上げる */
 export const API_VERSION = 1
@@ -28,9 +29,10 @@ export const HELP = `使い方: npx ${PACKAGE_NAME} <コマンド> [引数] [--j
 
 コマンド:
   component [名前]       要素の一覧。名前を渡すと、属性・スロット・イベント・part・CSS 変数
-  search <ことば…>        要素・説明・テーマをまとめて探す（--kind component|doc|theme、--limit 件数）
+  search <ことば…>        要素・説明・テーマ・テンプレートをまとめて探す（--kind component|doc|theme|template、--limit 件数）
   docs [名前]            説明（skill）の一覧。名前を渡すと本文
   themes                 既製のテーマの一覧と読み込み方
+  template [名前]        ページのテンプレート。名前を渡すと、そのまま開ける HTML（--fragment で本文だけ、--theme <名前>）
   init                   .claude/skills/jimble-ui と AGENTS.md を置く（--link、--no-agents-md）
 
 共通のオプション:
@@ -55,6 +57,8 @@ interface Options {
   kind?: string
   link: boolean
   'no-agents-md': boolean
+  fragment: boolean
+  theme?: string
 }
 
 function parse(argv: string[]): { positionals: string[]; values: Options } {
@@ -70,6 +74,8 @@ function parse(argv: string[]): { positionals: string[]; values: Options } {
         kind: { type: 'string' },
         link: { type: 'boolean', default: false },
         'no-agents-md': { type: 'boolean', default: false },
+        fragment: { type: 'boolean', default: false },
+        theme: { type: 'string' },
       },
     })
     return { positionals, values }
@@ -119,6 +125,10 @@ function dispatch(
       return args[0] ? showTopic(data(), args[0]) : listTopics(data())
     case 'themes':
       return listThemes(data())
+    case 'template':
+      return args[0]
+        ? showTemplate(data(), args[0], { fragment: opts.fragment, theme: opts.theme })
+        : listTemplates(data())
     case 'init':
       return init(env.root, env.cwd, { link: opts.link, agentsMd: !opts['no-agents-md'] })
     default:
