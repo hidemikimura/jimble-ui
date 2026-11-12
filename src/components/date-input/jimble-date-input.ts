@@ -34,18 +34,18 @@ import { AFFIX, TEXT_INNER, textWrapClasses } from '../../base/text-control.js'
 
 const ICON_BUTTON =
   'inline-flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
-  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5) outline outline-1 ' +
   'outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const POPUP =
-  'border-0 bg-surface-overlay p-3 text-fg shadow-lg ring-1 ring-inset ring-line ' +
+  'border-0 bg-surface-overlay p-3 text-fg shadow-overlay ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-date-input-popup-radius,var(--radius-overlay))]'
 const DAY =
   'inline-flex size-9 items-center justify-center text-sm cursor-pointer outline outline-1 ' +
   'outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus ' +
-  'disabled:cursor-not-allowed disabled:opacity-40'
+  'disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5)'
 const TEXT_BTN =
   'inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-fg-accent cursor-pointer ' +
-  'hover:bg-surface-accent disabled:cursor-not-allowed disabled:opacity-50 outline outline-1 outline-transparent ' +
+  'hover:bg-surface-accent disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5) outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const TITLE_CONTROL =
   'h-8 rounded-md bg-surface px-1.5 text-sm font-semibold text-fg ring-1 ring-inset ring-line-control ' +
@@ -54,7 +54,7 @@ const TITLE_CONTROL =
 const TIME_INPUT =
   'h-8 w-14 rounded-md bg-surface px-2 text-center text-sm text-fg ring-1 ring-inset ring-line-control ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-1 ' +
-  'focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50'
+  'focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5)'
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
 type Time = { h: number; m: number }

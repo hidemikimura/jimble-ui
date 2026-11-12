@@ -52,7 +52,7 @@ const ZONE =
   '[border-radius:var(--jimble-file-input-radius,var(--radius-control))]'
 const BROWSE =
   'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-medium bg-surface text-fg ' +
-  'ring-1 ring-inset ring-line-control hover:[background-color:var(--jimble-file-input-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-file-input-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-50 ' +
+  'ring-1 ring-inset ring-line-control hover:[background-color:var(--jimble-file-input-button-hover-bg,var(--color-surface-sunken))] hover:[color:var(--jimble-file-input-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5) ' +
   'outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus'
 const ICON_BTN =
   'inline-flex size-7 shrink-0 items-center justify-center rounded-md cursor-pointer text-fg-muted ' +
@@ -594,7 +594,7 @@ export class JimbleFileInput extends JimbleFormElement {
         part="dropzone"
         role="group"
         aria-label=${ifDefined(name)}
-        class="${ZONE} ${zoneState} ${disabled ? 'cursor-not-allowed opacity-50' : ''}"
+        class="${ZONE} ${zoneState} ${disabled ? 'cursor-not-allowed opacity-(--jimble-opacity-disabled,0.5)' : ''}"
         @dragenter=${this.#onDragEnter}
         @dragover=${this.#onDragOver}
         @dragleave=${this.#onDragLeave}

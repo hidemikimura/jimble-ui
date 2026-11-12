@@ -122,7 +122,11 @@ export const CATALOG: Group[] = [
       c('--jimble-color-surface-muted', 'ページの背景'),
       c('--jimble-color-surface-sunken', '沈んだ背景'),
       c('--jimble-color-item-hover', 'メニュー・セレクトなどの項目にマウスを重ねた背景'),
-      c('--jimble-color-surface-overlay', 'ダイアログ・メニューの背景'),
+      c(
+        '--jimble-color-surface-raised',
+        '持ち上がった面（カンバンのカード。影 raised と組みで使う）',
+      ),
+      c('--jimble-color-surface-overlay', 'ダイアログ・メニューの背景（影 overlay と組みで使う）'),
       {
         ...c('--jimble-color-backdrop', 'ダイアログの背後の暗幕（色を選んでも、濃さは保つ）'),
         withOpacity: '--jimble-backdrop-opacity',
@@ -214,6 +218,8 @@ export const CATALOG: Group[] = [
       shadow('--jimble-shadow-sm', '影 sm'),
       shadow('--jimble-shadow-md', '影 md'),
       shadow('--jimble-shadow-lg', '影 lg'),
+      shadow('--jimble-shadow-raised', '持ち上がった面の影（カンバンのカード。既定は sm）'),
+      shadow('--jimble-shadow-overlay', '重なる面の影（ダイアログ・メニュー・通知。既定は lg）'),
     ],
   },
   {
@@ -248,6 +254,14 @@ export const CATALOG: Group[] = [
       { name: '--jimble-ease-standard', label: 'イージング', kind: 'text' },
       num('--jimble-z-sticky', '固定ヘッダーの z-index'),
       num('--jimble-z-drawer', 'ドロワー・広がったサイドバーの z-index'),
+    ],
+  },
+  {
+    title: '不透明度',
+    note: '無効な部品と、読み込み中の表の薄さ（0〜1）',
+    entries: [
+      num('--jimble-opacity-disabled', '無効なボタン・入力欄・項目', '例: 0.5'),
+      num('--jimble-opacity-loading', '読み込み中の表の中身', '例: 0.6'),
     ],
   },
   // ---- 部品ごと ----

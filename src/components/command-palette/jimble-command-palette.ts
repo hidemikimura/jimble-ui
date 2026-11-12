@@ -25,7 +25,7 @@ const DIALOG =
   'mx-auto mb-auto mt-[12dvh] max-h-[76dvh] max-w-none overflow-visible border-0 bg-transparent p-0 text-fg ' +
   'backdrop:bg-backdrop [width:min(var(--jimble-command-palette-width,40rem),calc(100vw_-_2rem))]'
 const PANEL =
-  'flex max-h-[76dvh] flex-col overflow-hidden bg-surface-overlay shadow-lg ring-1 ring-inset ring-line ' +
+  'flex max-h-[76dvh] flex-col overflow-hidden bg-surface-overlay shadow-overlay ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-command-palette-radius,var(--radius-overlay))]'
 const INPUT =
   'min-w-0 flex-1 border-0 bg-transparent py-3 text-base text-fg outline-none placeholder:text-fg-placeholder'
@@ -450,7 +450,7 @@ export class JimbleCommandPalette extends JimbleElement {
       aria-selected=${active ? 'true' : 'false'}
       aria-disabled=${item.disabled ? 'true' : nothing}
       class="${OPTION} ${active ? 'bg-(--color-item-hover)' : ''} ${
-        item.disabled ? 'opacity-50' : ''
+        item.disabled ? 'opacity-(--jimble-opacity-disabled,0.5)' : ''
       }"
       @pointermove=${() => {
         if (item.disabled) return

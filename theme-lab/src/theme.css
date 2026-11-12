@@ -106,7 +106,7 @@
   --jimble-color-info-950: oklch(29.3% 0.066 243.157);
 
   /* ---- 面・文字・枠(意味を持つ色。上の段階への参照) ----
-     surface = カード・入力欄の背景 / surface-muted = ページの背景 / surface-sunken = hover などの沈んだ背景 / surface-overlay = ダイアログ・メニューの背景
+     surface = カード・入力欄の背景 / surface-muted = ページの背景 / surface-sunken = hover などの沈んだ背景 / surface-raised = 持ち上がった面(カンバンのカード) / surface-overlay = ダイアログ・メニューの背景
      text = 本文 / text-muted = 補助の文字 / text-placeholder = 入力欄のプレースホルダー / text-on-primary = 主ボタンの文字
      ring = 区切り線 / ring-control = 入力欄の枠 / ring-focus = フォーカスリング / ring-invalid = エラーの枠
      light-dark(ライト, ダーク) の 2 つの値を持ちます(上の段階は、両方のモードで同じ)
@@ -123,6 +123,10 @@
   --jimble-color-item-hover: light-dark(
     var(--jimble-color-surface-sunken),
     var(--jimble-color-neutral-700)
+  );
+  --jimble-color-surface-raised: light-dark(
+    #ffffff,
+    color-mix(in oklab, var(--jimble-color-neutral-900), var(--jimble-color-neutral-800))
   );
   --jimble-color-surface-overlay: light-dark(#ffffff, var(--jimble-color-neutral-800));
   --jimble-color-backdrop: light-dark(
@@ -377,6 +381,9 @@
   --jimble-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --jimble-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --jimble-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* 面の高さの組み: raised = 持ち上がった面(surface-raised)の影 / overlay = 重なる面(surface-overlay)の影 */
+  --jimble-shadow-raised: var(--jimble-shadow-sm);
+  --jimble-shadow-overlay: var(--jimble-shadow-lg);
 
   /* ---- フォント・余白 ----
      font-sans = 本文のフォント / font-mono = コードのフォント / spacing = 余白の基準(4px)
@@ -471,6 +478,8 @@
   --jimble-app-shell-sidebar-collapsed-width: 4rem;
   --jimble-z-sticky: 10;
   --jimble-z-drawer: 20;
+  --jimble-opacity-disabled: 0.5;
+  --jimble-opacity-loading: 0.6;
 
   /* ---- 上級（コメントアウトしてあります。使うときは、コメントを外して値を書く） ----
      大きさ（sm / md / lg）や、ボタンの種類（primary・secondary・danger・ghost）ごとに、

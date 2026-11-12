@@ -21,7 +21,8 @@ const SHADOW =
   '[--_shadow:var(--jimble-pagination-shadow,var(--jimble-button-shadow,var(--shadow-sm)))]'
 const NORMAL = `${SHADOW} bg-surface text-fg ring-line-button hover:bg-surface-muted cursor-pointer`
 const CURRENT = `${SHADOW} bg-primary-600 text-fg-on-primary ring-primary-600`
-const DISABLED = 'bg-surface text-fg-disabled ring-line-button opacity-60 cursor-not-allowed'
+const DISABLED =
+  'bg-surface text-fg-disabled ring-line-button opacity-(--jimble-opacity-disabled,0.5) cursor-not-allowed'
 
 /** 表示するページ番号の並び。省略は 'ellipsis'。先頭・末尾・現在の前後を残す */
 export function pageRange(page: number, total: number, siblings: number): (number | 'ellipsis')[] {

@@ -214,7 +214,7 @@ export class JimbleTab extends JimbleElement {
     const on = this.vertical ? TAB_ON_V : TAB_ON_H
     return html`<span
       part="base"
-      class="${TAB} ${this.selected ? on : TAB_OFF} ${this.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${TAB} ${this.selected ? on : TAB_OFF} ${this.disabled ? 'opacity-(--jimble-opacity-disabled,0.5) cursor-not-allowed' : ''}"
       ><slot></slot
     ></span>`
   }

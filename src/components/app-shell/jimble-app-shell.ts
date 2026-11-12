@@ -360,7 +360,7 @@ export class JimbleAppShell extends JimbleElement {
           part="sidebar-panel"
           class=${
             rail
-              ? `${PANEL_RAIL}${this.peek ? 'w-(--jimble-app-shell-sidebar-width,16rem) shadow-lg' : 'w-full'}`
+              ? `${PANEL_RAIL}${this.peek ? 'w-(--jimble-app-shell-sidebar-width,16rem) shadow-overlay' : 'w-full'}`
               : ''
           }
         ></div>
@@ -376,7 +376,7 @@ export class JimbleAppShell extends JimbleElement {
       <dialog
         part="drawer"
         aria-label=${label}
-        class="m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-3rem))] max-w-none overflow-auto border-0 p-0 text-fg shadow-lg backdrop:bg-backdrop [background-color:var(--jimble-app-shell-sidebar-bg,var(--color-surface))]"
+        class="m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-3rem))] max-w-none overflow-auto border-0 p-0 text-fg shadow-overlay backdrop:bg-backdrop [background-color:var(--jimble-app-shell-sidebar-bg,var(--color-surface))]"
         @cancel=${this.#onCancel}
         @close=${this.#onDrawerClose}
         @click=${this.#onDrawerClick}

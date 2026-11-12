@@ -12,7 +12,7 @@ export type PopoverPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'to
 export type PopoverCloseReason = 'escape' | 'outside' | 'tab' | 'close-button' | 'api'
 
 const PANEL =
-  'border-0 bg-surface-overlay text-sm text-fg shadow-lg ring-1 ring-inset ring-line ' +
+  'border-0 bg-surface-overlay text-sm text-fg shadow-overlay ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent max-h-[min(32rem,80dvh)] overflow-auto ' +
   '[width:var(--jimble-popover-width,20rem)] max-w-[calc(100vw_-_1rem)] ' +
   '[border-radius:var(--jimble-popover-radius,var(--radius-overlay))] ' +

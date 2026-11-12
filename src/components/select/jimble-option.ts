@@ -73,7 +73,7 @@ export class JimbleOption extends JimbleElement {
   protected override render() {
     return html`<span
       part="base"
-      class="${BASE} ${this.disabled ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${BASE} ${this.disabled ? 'opacity-(--jimble-opacity-disabled,0.5) cursor-not-allowed' : ''}"
       ><span class="min-w-0 flex-1"><slot></slot></span
       >${this.selected ? renderIcon(check, 'size-4 shrink-0 text-icon-accent') : nothing}</span
     >`

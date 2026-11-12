@@ -18,7 +18,7 @@ const WIDTH: Record<DialogSize, string> = {
   lg: 'w-[min(100%,40rem)]',
 }
 const PANEL_BASE =
-  'flex flex-col bg-surface-overlay shadow-lg ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
+  'flex flex-col bg-surface-overlay shadow-overlay ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[--_r:var(--jimble-drawer-radius,var(--radius-overlay))]'
 const PANEL: Record<DrawerPlacement, string> = {
   end: `${PANEL_BASE} h-full [border-radius:var(--_r)_0_0_var(--_r)]`,
