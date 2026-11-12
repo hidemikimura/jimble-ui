@@ -8,7 +8,7 @@ const $ = (id: string) => document.getElementById(id) as El
 // 目次(ページの中の移動。ルーターに渡さないよう、リンクではなくボタンでスクロールする)
 const SECTIONS: [id: string, title: string][] = [
   ['sec-button', 'ボタン'],
-  ['sec-badge', 'バッジ'],
+  ['sec-badge', 'バッジ・アバター・タグ・バナー'],
   ['sec-icon', 'アイコン・ツールチップ'],
   ['sec-alert', 'アラート'],
   ['sec-overlay', 'ダイアログ・メニュー・通知'],
@@ -69,7 +69,7 @@ export function components() {
 
     <div class="grid-2 section">
       <jimble-card id="sec-badge">
-        <h3 slot="header">バッジ</h3>
+        <h3 slot="header">バッジ・アバター・タグ・バナー</h3>
         <div class="row">
           ${(['neutral', 'primary', 'success', 'warning', 'danger', 'info'] as const).map(
             (v) => html`<jimble-badge variant=${v}>${v}</jimble-badge>`,
@@ -80,32 +80,28 @@ export function components() {
             (v) => html`<jimble-badge variant=${v} size="sm">${v}</jimble-badge>`,
           )}
         </div>
-        <!-- アバターは jimble-ui 0.19 から。公開版に入ったら、この template を外す -->
-        <template>
-          <div class="row" style="margin-top: 0.75rem">
-            <jimble-avatar name="佐藤 花子"></jimble-avatar>
-            <jimble-avatar name="開発部" shape="square"></jimble-avatar>
-            <jimble-avatar-group label="担当者" max="2">
-              <jimble-avatar name="鈴木 一郎" size="sm"></jimble-avatar>
-              <jimble-avatar name="高橋 次郎" size="sm"></jimble-avatar>
-              <jimble-avatar name="田中 三郎" size="sm"></jimble-avatar>
-            </jimble-avatar-group>
-          </div>
-        </template>
-        <!-- タグは公開版にまだ無い。公開版に入ったら、この template を外す -->
-        <template>
-          <jimble-tag-group label="絞り込みの条件" style="margin-top: 0.75rem">
-            <jimble-tag removable>状態: 受付中</jimble-tag>
-            <jimble-tag removable>地域: 東京</jimble-tag>
-            <jimble-tag>固定のラベル</jimble-tag>
-          </jimble-tag-group>
-        </template>
-        <!-- バナーは公開版にまだ無い。公開版に入ったら、この template を外す -->
-        <template>
-          <jimble-banner variant="warning" style="margin-top: 0.75rem"
-            >今夜 22 時から、保守のため止まります。</jimble-banner
-          >
-        </template>
+        <div class="row" style="margin-top: 0.75rem">
+          <jimble-avatar name="佐藤 花子"></jimble-avatar>
+          <jimble-avatar name="開発部" shape="square"></jimble-avatar>
+          <jimble-avatar-group label="担当者" max="2">
+            <jimble-avatar name="鈴木 一郎" size="sm"></jimble-avatar>
+            <jimble-avatar name="高橋 次郎" size="sm"></jimble-avatar>
+            <jimble-avatar name="田中 三郎" size="sm"></jimble-avatar>
+          </jimble-avatar-group>
+        </div>
+        <!-- 色を試すページなので、×を押してもタグを外さない（jimble-remove はバブルしないので、捕捉で受ける） -->
+        <jimble-tag-group
+          label="絞り込みの条件"
+          style="margin-top: 0.75rem"
+          @jimble-remove=${{ handleEvent: (e: Event) => e.preventDefault(), capture: true }}
+        >
+          <jimble-tag removable>状態: 受付中</jimble-tag>
+          <jimble-tag removable>地域: 東京</jimble-tag>
+          <jimble-tag>固定のラベル</jimble-tag>
+        </jimble-tag-group>
+        <jimble-banner variant="warning" style="margin-top: 0.75rem"
+          >今夜 22 時から、保守のため止まります。</jimble-banner
+        >
       </jimble-card>
       <jimble-card id="sec-icon">
         <h3 slot="header">スピナー・アイコン・ツールチップ</h3>
