@@ -2018,6 +2018,86 @@ Astryx にあって jimble-ui に無かった部品のうち、管理画面で�
 
 - **予算**: 部品を 5 つ（§19 の 2 つと、ここの 3 つ）足し、CDN バンドルが 105.3 KB（予算 104 KB）、共有チャンク（共有シートの CSS を含む）が 17.1 KB（予算 17 KB）になった。どちらも部品の数に比例して増える分なので、予算を CDN 110 KB・共有チャンク 18 KB に上げた（§4.8 と同じ判断。部品 1 つあたり、CDN で約 0.5 KB）。部品ごとのチャンク（9 KB）は変えていない。
 
+## 22. ポップオーバー・コマンドパレット・ツリー（設計案。2026-11-12、承認待ち）
+
+Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA の設計が重い 3 つ。§21 で後回しにしたもの。**ここは案で、実装の前に、末尾の「決めてほしいこと」で確定する**（事前スパイク S1・S3 は済み）。
+
+| 部品 | 一言で | 似た部品との違い |
+| --- | --- | --- |
+| `jimble-popover` | ボタンの近くに開く、操作できる小さなパネル（非モーダル） | メニュー（操作の一覧）・ツールチップ（文字だけ）・ダイアログ（モーダル）の間 |
+| `jimble-command-palette` | 名前で探して、コマンド・ページへ飛ぶ検索窓（モーダル） | コンボボックス（値を選ぶ入力欄）と違い、選ぶと実行して閉じる |
+| `jimble-tree` / `jimble-tree-item` | 開閉できる階層の一覧（カテゴリ・組織・フォルダ） | サイドバーの `jimble-nav-group`（ページの移動）と違い、データの階層を選ぶ |
+
+### 22.1 `jimble-popover`
+
+**使う場面**: 絞り込みの条件、削除の確認（その場で）、表示の設定、ショートカットの一覧など、1 つの作業で完結する、操作できる中身。
+
+> **決定（案）** Popover API の `popover="auto"`（トップレイヤー、外側クリック・Esc で閉じる）と、CSS Anchor Positioning（`dropdown-menu` と同じく、Shadow 内の `<span part="anchor">` でトリガーのスロットを包み、それを基準にする）で作る。パネルは**非モーダルのダイアログ**（`role="dialog"`、`aria-modal` なし）で、名前は `heading`（パネルの中に見出しとして描き、同じ Shadow 内で `aria-labelledby`）か `label`（`aria-label`）。トリガーには `aria-haspopup="dialog"` と `aria-expanded` を付ける（`applyPopupAria()` を再利用）。
+> **理由** メニュー・セレクトと同じ土台なので、位置・反転・閉じ方・トップレイヤーの重なりが、既存の部品とそろう。非モーダルのダイアログは、WAI-ARIA の「操作できる中身を持つ、ボタンから開くパネル」の役割に合う。
+> **比較した案**
+> 1. `<dialog>` の `show()`（非モーダル）— トップレイヤーに入らず、表やカードの `overflow` で切れる。外側クリック・Esc を自前で書くことになる。
+> 2. `popover="manual"` と、外側クリック・Esc の自前の処理 — 下の「入れ子のポップアップ」が `auto` で動かないときの代わり（スパイクで決める）。
+> 3. ホバーで開く（Astryx の HoverCard）— キーボードとタッチで使いにくく、ツールチップと役割が重なる。今回は作らない。
+
+- **開いたときのフォーカス**: `autofocus` の付いた要素 → なければ中の最初のフォーカスできる要素（スロットの中身も、合成ツリーでたどる）→ なければパネル自身（`tabindex="-1"`）。
+- **閉じ方**: Esc（トリガーへ戻す）・外側クリック（戻さない。押した先が優先）・`data-popover-close` を付けた要素（ダイアログの `data-dialog-close` と同じ考え方。トリガーへ戻す）・`hide()`。**Tab でパネルの外へ出たら閉じる**（非モーダルなので閉じ込めない。パネルは DOM ではトリガーの直後にあるので、Tab の順は自然）。
+- **属性**: `open`・`placement`（`bottom-start` 既定。メニューと同じ 4 つに `top`/`bottom` の中央を足すかは要相談）・`heading`・`label`。イベントは `jimble-open` / `jimble-close`（`reason`: `escape` / `outside` / `tab` / `close-button` / `api`）。CSS 変数は `--jimble-popover-width`（既定 `20rem`、最大は画面の幅）・`--jimble-popover-radius`・`--jimble-popover-padding`。
+- **入れ子のポップアップ**: パネルの中の `jimble-select`・`jimble-combobox`・`jimble-date-input` は、それぞれ自分の Shadow 内で `popover="auto"` を開く。HTML の仕様では、`auto` のポップオーバーを開くと、**祖先でない** `auto` のポップオーバーは閉じる。祖先かどうかを Shadow DOM の境界（スロット）をまたいで判定するかが、エンジンごとに違う可能性があった。
+  - **スパイク S1 の結果（2026-11-12、3 エンジンとも同じ）**: Shadow 内の `popover="auto"` のパネルに、スロットで入れた `jimble-select` / `jimble-combobox` の候補を開いても、パネルは閉じない（候補はパネルの子として扱われる）。実際のクリックで候補を開いて選んでも開いたまま。候補を開いたままパネルの外をクリックすると、両方閉じる。→ **`popover="auto"` で作る**（案 2 の `manual` は要らない）。
+- **やらないこと**: ホバーで開く・矢印（吹き出しの三角）・タッチでボトムシートに変える・ポップオーバーの中にポップオーバー（Do / Don't に書く）。
+
+### 22.2 `jimble-command-palette`
+
+**使う場面**: 管理画面のどこからでも、ページ（「注文の一覧」）や操作（「顧客を登録」）へ、名前で飛ぶ。Ctrl+K / ⌘K で開くのが一般的。
+
+> **決定（案）** モーダルの `<dialog>`（`showModal()`。`jimble-dialog` と同じく `modal-stack`・`scroll-lock`・フォーカスの戻し先を使う）の中に、WAI-ARIA の **combobox（list autocomplete）** を置く。入力欄（`role="combobox"`、`aria-expanded="true"`、`aria-controls`）と、候補の一覧（`role="listbox"`、グループは `role="group"` + 見出し）を**同じ Shadow 内**に描き、選んでいる候補は `aria-activedescendant` で伝える（フォーカスは入力欄のまま）。候補の件数の変化は、見えない `role="status"` で伝える（`combobox.results` と同じ）。
+> **理由** `jimble-combobox` と同じ作り（候補を Shadow 内に描き、ID 参照を同じツリーに収める）で、絞り込み（`text-match`。全角・半角、ひらがな・カタカナを区別しない）・`load`（非同期の検索、`signal` で中止）・IME の除外を流用できる。モーダルにするのは、開いている間の操作が「探して選ぶ」だけになり、背面の誤操作がないため（Astryx も同じ）。
+> **比較した案**
+> 1. `jimble-combobox` を `jimble-dialog` に入れる使い方を、ドキュメントで示すだけ — combobox は「値を選ぶ入力欄」で、選ぶと閉じて実行する・候補を常に開いておく・ショートカットの表示が合わない。
+> 2. メニュー（`role="menu"`）にする — 文字の入力で絞り込むと、メニューのキー操作（先頭文字の検索）とぶつかる。
+> 3. 非モーダルのポップオーバーにする — 開いている間に背面を操作する場面がない。
+
+- **コマンドの書き方**: 子の `jimble-command`（`value`・`keywords`（読み）・`group`・`icon`（`jimble-icon` の名前）・`shortcut`（表示だけ。例 `⌘N`）・`href`（選ぶとそのページへ移動）・`disabled`、既定スロットが名前）。多い・動的なら `commands` プロパティ（配列）。サーバーで探すなら `load`（`(query, signal) => 項目[] | Promise`、`load-delay`・`load-min-length`。combobox と同じ）。
+- **キー操作**: ↑↓（候補の移動。端で一周）・Home / End は入力欄のカーソル（候補ではない。Astryx の注意と同じ）・Enter（実行）・Esc（閉じる。IME の変換中は除く）・Tab は入力欄にとどまる（モーダルの中で、ほかに操作するものがない）。
+- **実行**: 選ぶと、パレット自身から `jimble-select`（`detail.value`・`item`）。`preventDefault()` しなければ閉じる。`href` があれば、閉じたあと `location.assign()` で移動する（`jimble-router` があれば、Navigation API の遷移としてルーターが受け、SPA の中の移動になる。パレットはルーターを探さない）。閉じたあとのフォーカスは、開く前の要素へ戻す（ページを移動したときは、移動先に任せる）。
+- **開き方**: `open` / `show()` / `hide()`。`hotkey` 属性（例 `mod+k`。`mod` は macOS で ⌘、ほかで Ctrl）を付けたときだけ、文書全体のキーで開く（**既定では付けない**。ブラウザ・支援技術のキーとぶつかるため、使う側が選ぶ）。入力欄や `contenteditable` の中では反応しない。
+- **表示**: 上から 15% あたりに出る、幅 `--jimble-command-palette-width`（既定 40rem、狭い画面では画面いっぱい）。候補が無い・読み込み中・失敗の表示（`jimble-empty-state` と同じ見た目の文）。下に、キーの案内（↑↓ 移動・Enter 実行・Esc 閉じる。言語の辞書に入れる）。最近使ったものの記録はしない（アプリが `commands` の並びで出す）。
+- **事前スパイク S2**: VoiceOver（macOS）と NVDA（Firefox）で、モーダルの中の combobox の `aria-activedescendant` が読まれるか（`docs/manual-checks.md` に足す）。
+- **配布**: 下の「決めてほしいこと 3」。
+
+### 22.3 `jimble-tree` / `jimble-tree-item`
+
+**使う場面**: 商品カテゴリ・部署・フォルダなど、データの階層を見て選ぶ。ページの移動には使わない（サイドバーの `jimble-nav-group`）。
+
+> **決定（案）** WAI-ARIA の **Tree View** パターン。`jimble-tree` の host が `role="tree"`、`jimble-tree-item` の host が `role="treeitem"`（`aria-expanded`・`aria-selected`）。子の項目は、項目の Shadow 内の `role="group"` の中のスロットに入る（`<jimble-tree-item>` をそのまま入れ子に書ける）。役割は `ElementInternals` に書き、試験の道具のため、タブ・ラジオと同じく `reflectAria()` で属性にも書く（CLAUDE.md の約束 5 の例外に足す）。**`aria-level`・`aria-posinset`・`aria-setsize` は、木が計算して明示する**（Shadow をまたいだ入れ子で、ブラウザの自動計算に頼らない）。
+> **理由** 入れ子の HTML で書けるので、サーバーで描いた階層をそのまま置ける。項目の数だけ host が意味を持つ作りは、タブ・ラジオと同じで、試験の道具からも見つけられる。
+> **比較した案**
+> 1. `items` プロパティ（データ）だけで描く — HTML で書けず、項目の中身（アイコン・バッジ）を自由に置けない。大きな木のために、のちに足す余地は残す。
+> 2. 項目を `<details>` / `<summary>` で作る — 開閉はできるが、木のキー操作（←→ で開閉、↑↓ で表示中の項目を移動）と選択の状態を伝えられない。
+
+- **フォーカス**: 木の中で 1 つだけ `tabindex="0"`（選択中、なければ最初の項目）のロービングフォーカス。
+- **キー操作**（APG どおり）: ↓↑（表示中の次・前の項目）・→（閉じていれば開く、開いていれば最初の子へ）・←（開いていれば閉じる、閉じていれば親へ）・Home / End・Enter / Space（選ぶ）・文字（先頭文字で探す。`Typeahead` を流用、IME の変換中は除く）・`*`（同じ階層をすべて開く）。
+- **選択**: `selection` 属性 `none`（既定。開閉だけ）・`single`。選ぶと木から `jimble-selection-change`（`detail.values`。表の `selectable` と同じ名前）。`multiple`（チェックボックスつき・親子の連動）は「決めてほしいこと 1」。
+- **遅延読み込み**: 子がまだ無い項目に `lazy` を付けると、開くための印を出し、開いたときに木から `jimble-expand`（`detail.item`）が出る。アプリが子を足すまで `loading`（項目に読み込み中を出す）。開閉は木から `jimble-expand` / `jimble-collapse`（`jimble-*` はバブルしないので、木が項目の分をまとめて出す）。
+- **見た目**: 開閉の印・字下げ（`--jimble-tree-indent`、既定 1.25rem）・`guides` 属性で階層の線。項目の中身は既定スロット（アイコンは `slot="icon"`、右の補足は `slot="end"`）。
+- **スパイク S3 の結果（2026-11-12、Chromium の CDP `Accessibility.getFullAXTree`）**: host の treeitem → Shadow の `role="group"` → スロットの treeitem は、木としてそのまま読まれ、`aria-level` もブラウザが入れ子から計算した（1・2）。→ 入れ子のスロットの作りで作る。`aria-level`・`aria-posinset`・`aria-setsize` は、Firefox・WebKit の差に備えて、木が計算して明示する（案のまま）。**子の無い項目には `aria-expanded` を付けず、空の group も描かない**（付けると「展開済み」で中身が無いと読まれる。スパイクで確認）。
+- **やらないこと（今回）**: 並べ替え（ドラッグ）・名前の編集・仮想スクロール・`href`（項目をリンクにする。ページの移動はナビゲーションの部品で）。
+
+### 22.4 作る順と、事前スパイク
+
+1. **スパイク**: S1（ポップオーバーの中のセレクト）と S3（木の役割が Shadow をまたぐか）は済み（上の結果）。S2 は手作業の確認なので、実装後に `docs/manual-checks.md` で行う。
+2. **ポップオーバー**（いちばん小さく、S1 の結果で作りが決まる）。
+3. **ツリー**。
+4. **コマンドパレット**（いちばん大きい）。
+
+それぞれ、部品・試験（3 エンジン・axe）・例・ページ・Do / Don't・skill・theme-lab・CLI の検索に載せる。PR は部品ごとに分ける。
+
+### 22.5 決めてほしいこと
+
+1. **ツリーの複数選択**: 今回は `single` までにするか、`multiple`（チェックボックス・親子の連動・一部だけ選ばれた状態）まで作るか。管理画面では「カテゴリを複数選ぶ」でよく使うが、キー操作と状態の伝え方が倍ほど重い。
+2. **コマンドパレットのショートカット**: `hotkey` を既定なし（使う側が `hotkey="mod+k"` を書く）にする案でよいか。
+3. **配布の大きさ**: いまの CDN バンドルは 105.3 KB（予算 110 KB）。3 つで約 8〜9 KB 増える見込みで、予算を超える。(a) 予算を 116 KB に上げて全部入りに入れる、(b) コマンドパレットだけ `code-editor` と同じく別の入口にする（全部入りに入れない。使うアプリは 1 画面に 1 つなので、個別に読み込んでも手間が少ない）。案は (b)。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。
