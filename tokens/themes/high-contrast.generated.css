@@ -1,0 +1,59 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/themes/high-contrast.json から作る。直接編集しない。 */
+/* jimble-ui テーマ「high-contrast」: 文字と枠を濃くした高コントラストのテーマ。文字は 7:1、枠・アイコン・フォーカスの輪は 4.5:1 以上（WCAG AAA の 1.4.6）。弱視の利用者や、明るい場所で使う画面に
+   ページ全体に: <link rel="stylesheet" href="…/themes/high-contrast.css"> を読み込む。
+   ページの一部だけ: 読み込んだうえで、要素に data-jimble-theme="high-contrast" を付ける。 */
+:where(:root),
+[data-jimble-theme='high-contrast'] {
+  --jimble-color-primary-500: oklch(35.9% 0.144 278.697);
+  --jimble-color-primary-600: oklch(39.8% 0.195 277.366);
+  --jimble-color-primary-700: oklch(35.9% 0.144 278.697);
+  --jimble-color-neutral-50: oklch(98.5% 0 none);
+  --jimble-color-neutral-100: oklch(97% 0 none);
+  --jimble-color-neutral-200: oklch(92.2% 0 none);
+  --jimble-color-neutral-300: oklch(87% 0 none);
+  --jimble-color-neutral-400: oklch(70.8% 0 none);
+  --jimble-color-neutral-500: oklch(55.6% 0 none);
+  --jimble-color-neutral-600: oklch(43.9% 0 none);
+  --jimble-color-neutral-700: oklch(37.1% 0 none);
+  --jimble-color-neutral-800: oklch(26.9% 0 none);
+  --jimble-color-neutral-900: oklch(20.5% 0 none);
+  --jimble-color-neutral-950: oklch(14.5% 0 none);
+  --jimble-color-danger-600: oklch(44.4% 0.177 26.899);
+  --jimble-color-danger-700: oklch(39.6% 0.141 25.723);
+  --jimble-color-surface: light-dark(#ffffff, #000000);
+  --jimble-color-surface-muted: light-dark(#ffffff, #000000);
+  --jimble-color-surface-sunken: light-dark(var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)), var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)));
+  --jimble-color-item-hover: light-dark(var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)));
+  --jimble-color-surface-raised: light-dark(#ffffff, var(--jimble-color-neutral-950, oklch(13% 0.028 261.692)));
+  --jimble-color-surface-overlay: light-dark(#ffffff, var(--jimble-color-neutral-950, oklch(13% 0.028 261.692)));
+  --jimble-color-text: light-dark(#000000, #ffffff);
+  --jimble-color-text-muted: light-dark(var(--jimble-color-neutral-700, oklch(37.3% 0.034 259.733)), var(--jimble-color-neutral-300, oklch(87.2% 0.01 258.338)));
+  --jimble-color-text-placeholder: light-dark(var(--jimble-color-neutral-600, oklch(44.6% 0.03 256.802)), var(--jimble-color-neutral-400, oklch(70.7% 0.022 261.325)));
+  --jimble-color-text-disabled: light-dark(var(--jimble-color-neutral-500, oklch(55.1% 0.027 264.364)), var(--jimble-color-neutral-500, oklch(55.1% 0.027 264.364)));
+  --jimble-color-text-link: light-dark(oklch(39.8% 0.195 277.366), oklch(78.5% 0.115 274.713));
+  --jimble-color-ring: light-dark(var(--jimble-color-neutral-600, oklch(44.6% 0.03 256.802)), var(--jimble-color-neutral-400, oklch(70.7% 0.022 261.325)));
+  --jimble-color-ring-control: light-dark(var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)), var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)));
+  --jimble-color-ring-focus: light-dark(oklch(39.8% 0.195 277.366), oklch(78.5% 0.115 274.713));
+  --jimble-color-ring-invalid: light-dark(oklch(44.4% 0.177 26.899), oklch(80.8% 0.114 19.571));
+  --jimble-color-surface-accent: light-dark(var(--jimble-color-primary-50, oklch(96.2% 0.018 272.314)), var(--jimble-color-primary-950, oklch(25.7% 0.09 281.288)));
+  --jimble-color-surface-accent-strong: light-dark(var(--jimble-color-primary-100, oklch(93% 0.034 272.788)), var(--jimble-color-primary-900, oklch(35.9% 0.144 278.697)));
+  --jimble-color-surface-accent-stronger: light-dark(var(--jimble-color-primary-200, oklch(87% 0.065 274.039)), var(--jimble-color-primary-800, oklch(39.8% 0.195 277.366)));
+  --jimble-color-surface-inverse: light-dark(var(--jimble-color-neutral-950, oklch(13% 0.028 261.692)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)));
+  --jimble-color-surface-track: light-dark(var(--jimble-color-neutral-200, oklch(92.8% 0.006 264.531)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)));
+  --jimble-color-text-secondary: light-dark(var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)), var(--jimble-color-neutral-200, oklch(92.8% 0.006 264.531)));
+  --jimble-color-text-accent: light-dark(oklch(39.8% 0.195 277.366), oklch(87% 0.065 274.039));
+  --jimble-color-icon-accent: light-dark(oklch(45.7% 0.24 277.023), oklch(78.5% 0.115 274.713));
+  --jimble-color-text-success: light-dark(var(--jimble-color-success-900, oklch(39.3% 0.095 152.535)), var(--jimble-color-success-200, oklch(92.5% 0.084 155.995)));
+  --jimble-color-text-success-strong: light-dark(var(--jimble-color-success-950, oklch(26.6% 0.065 152.934)), var(--jimble-color-success-100, oklch(96.2% 0.044 156.743)));
+  --jimble-color-icon-success: light-dark(var(--jimble-color-success-700, oklch(52.7% 0.154 150.069)), var(--jimble-color-success-300, oklch(87.1% 0.15 154.449)));
+  --jimble-color-text-warning: light-dark(var(--jimble-color-warning-900, oklch(41.4% 0.112 45.904)), var(--jimble-color-warning-200, oklch(92.4% 0.12 95.746)));
+  --jimble-color-text-warning-strong: light-dark(var(--jimble-color-warning-950, oklch(27.9% 0.077 45.635)), var(--jimble-color-warning-100, oklch(96.2% 0.059 95.617)));
+  --jimble-color-icon-warning: light-dark(var(--jimble-color-warning-700, oklch(55.5% 0.163 48.998)), var(--jimble-color-warning-300, oklch(87.9% 0.169 91.605)));
+  --jimble-color-text-danger: light-dark(oklch(44.4% 0.177 26.899), oklch(88.5% 0.062 18.334));
+  --jimble-color-text-danger-strong: light-dark(oklch(39.6% 0.141 25.723), oklch(93.6% 0.032 17.717));
+  --jimble-color-icon-danger: light-dark(oklch(50.5% 0.213 27.518), oklch(80.8% 0.114 19.571));
+  --jimble-color-text-info: light-dark(var(--jimble-color-info-900, oklch(39.1% 0.09 240.876)), var(--jimble-color-info-200, oklch(90.1% 0.058 230.902)));
+  --jimble-color-text-info-strong: light-dark(var(--jimble-color-info-950, oklch(29.3% 0.066 243.157)), var(--jimble-color-info-100, oklch(95.1% 0.026 236.824)));
+  --jimble-color-icon-info: light-dark(var(--jimble-color-info-700, oklch(50% 0.134 242.749)), var(--jimble-color-info-300, oklch(82.8% 0.111 230.318)));
+  --jimble-focus-ring-width: 3px;
+}

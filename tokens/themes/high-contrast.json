@@ -1,0 +1,56 @@
+{
+  "$comment": "高コントラスト（設計書 §29）。文字 7:1・枠とアイコン 4.5:1 を、ライト・ダークの両方で満たす（tests/unit/contrast.test.ts）",
+  "description": "文字と枠を濃くした高コントラストのテーマ。文字は 7:1、枠・アイコン・フォーカスの輪は 4.5:1 以上（WCAG AAA の 1.4.6）。弱視の利用者や、明るい場所で使う画面に",
+  "scales": {
+    "neutral": "neutral"
+  },
+  "tokens": {
+    "color-primary-500": "@tw(--color-indigo-900)",
+    "color-primary-600": "@tw(--color-indigo-800)",
+    "color-primary-700": "@tw(--color-indigo-900)",
+    "color-danger-600": "@tw(--color-red-800)",
+    "color-danger-700": "@tw(--color-red-900)",
+    "color-surface": { "value": "#ffffff", "dark": "#000000" },
+    "color-surface-muted": { "value": "#ffffff", "dark": "#000000" },
+    "color-surface-sunken": { "value": "{color-neutral-100}", "dark": "{color-neutral-900}" },
+    "color-item-hover": { "value": "{color-neutral-100}", "dark": "{color-neutral-800}" },
+    "color-surface-raised": { "value": "#ffffff", "dark": "{color-neutral-950}" },
+    "color-surface-overlay": { "value": "#ffffff", "dark": "{color-neutral-950}" },
+    "color-text": { "value": "#000000", "dark": "#ffffff" },
+    "color-text-muted": { "value": "{color-neutral-700}", "dark": "{color-neutral-300}" },
+    "color-text-placeholder": { "value": "{color-neutral-600}", "dark": "{color-neutral-400}" },
+    "color-text-disabled": { "value": "{color-neutral-500}", "dark": "{color-neutral-500}" },
+    "color-text-secondary": { "value": "{color-neutral-800}", "dark": "{color-neutral-200}" },
+    "color-text-link": { "value": "@tw(--color-indigo-800)", "dark": "@tw(--color-indigo-300)" },
+    "color-text-accent": { "value": "@tw(--color-indigo-800)", "dark": "@tw(--color-indigo-200)" },
+    "color-icon-accent": { "value": "@tw(--color-indigo-700)", "dark": "@tw(--color-indigo-300)" },
+    "color-ring": { "value": "{color-neutral-600}", "dark": "{color-neutral-400}" },
+    "color-ring-control": { "value": "{color-neutral-900}", "dark": "{color-neutral-100}" },
+    "color-ring-focus": { "value": "@tw(--color-indigo-800)", "dark": "@tw(--color-indigo-300)" },
+    "color-ring-invalid": { "value": "@tw(--color-red-800)", "dark": "@tw(--color-red-300)" },
+    "color-surface-accent": { "value": "{color-primary-50}", "dark": "{color-primary-950}" },
+    "color-surface-accent-strong": {
+      "value": "{color-primary-100}",
+      "dark": "{color-primary-900}"
+    },
+    "color-surface-accent-stronger": {
+      "value": "{color-primary-200}",
+      "dark": "{color-primary-800}"
+    },
+    "color-surface-inverse": { "value": "{color-neutral-950}", "dark": "{color-neutral-800}" },
+    "color-surface-track": { "value": "{color-neutral-200}", "dark": "{color-neutral-800}" },
+    "color-text-success": { "value": "{color-success-900}", "dark": "{color-success-200}" },
+    "color-text-success-strong": { "value": "{color-success-950}", "dark": "{color-success-100}" },
+    "color-icon-success": { "value": "{color-success-700}", "dark": "{color-success-300}" },
+    "color-text-warning": { "value": "{color-warning-900}", "dark": "{color-warning-200}" },
+    "color-text-warning-strong": { "value": "{color-warning-950}", "dark": "{color-warning-100}" },
+    "color-icon-warning": { "value": "{color-warning-700}", "dark": "{color-warning-300}" },
+    "color-text-danger": { "value": "@tw(--color-red-800)", "dark": "@tw(--color-red-200)" },
+    "color-text-danger-strong": { "value": "@tw(--color-red-900)", "dark": "@tw(--color-red-100)" },
+    "color-icon-danger": { "value": "@tw(--color-red-700)", "dark": "@tw(--color-red-300)" },
+    "color-text-info": { "value": "{color-info-900}", "dark": "{color-info-200}" },
+    "color-text-info-strong": { "value": "{color-info-950}", "dark": "{color-info-100}" },
+    "color-icon-info": { "value": "{color-info-700}", "dark": "{color-info-300}" },
+    "focus-ring-width": "3px"
+  }
+}

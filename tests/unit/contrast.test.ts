@@ -135,6 +135,17 @@ describe.each(
   })
 })
 
+// 高コントラストのテーマ（設計書 §29）は、契約を一段上げる: 文字 7:1（1.4.6 AAA）、枠・アイコン 4.5:1
+const HIGH_CONTRAST: Readonly<Record<number, number>> = { 4.5: 7, 3: 4.5 }
+const highContrast = themes.find((t) => t.name === 'high-contrast')
+describe.each(['light', 'dark'] as const)('高コントラストのテーマの契約（%s）', (scheme) => {
+  it('テーマがある', () => expect(highContrast).toBeDefined())
+  it.each(PAIRS)('%s / %s は一段上の比を満たす（%d:1 の組。%s）', (fg, bg, min) => {
+    const ratio = contrast(c(fg, scheme, highContrast), c(bg, scheme, highContrast))
+    expect(ratio).toBeGreaterThanOrEqual(HIGH_CONTRAST[min] ?? min)
+  })
+})
+
 describe('トークンのコントラスト契約', () => {
   it('danger-500 は白文字で 4.5:1 に届かない（だから danger の hover は 700 を使う）', () => {
     expect(contrast(c('text-on-primary'), c('danger-500'))).toBeLessThan(4.5)
