@@ -4,6 +4,10 @@ import '../../src/index.js'
 // 全部入りに含めない部品(別の入口)
 import '../../src/components/code-editor/index.js'
 import { expectNoA11yViolations } from '../../src/test/a11y.js'
+import { installScopedThemes } from '../../site/src/themes.js'
+
+// 既製のテーマの例（data-jimble-theme）も、テーマの色で axe にかける
+installScopedThemes()
 
 const examples = import.meta.glob<string>('../../site/examples/**/*.html', {
   query: '?raw',

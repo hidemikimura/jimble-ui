@@ -1,6 +1,6 @@
-// トークンのコントラスト契約（設計書 §4.6）。既定トークンの組み合わせが WCAG AA を満たすことを保証する。
+// トークンのコントラスト契約（設計書 §4.6）。既定トークンと、既製のテーマ（§4.9）の組み合わせが WCAG AA を満たすことを保証する。
 import { describe, expect, it } from 'vitest'
-import { defaultValue, type Scheme } from '../../scripts/lib/tokens.ts'
+import { defaultValue, themes, type Scheme, type Theme } from '../../scripts/lib/tokens.ts'
 
 type RGB = [number, number, number]
 
@@ -20,8 +20,9 @@ function oklchToSrgb(l: number, c: number, hDeg: number): RGB {
 }
 
 function parse(color: string): RGB {
-  const oklch = /^oklch\(([\d.]+)%\s+([\d.]+)\s+([\d.]+)\)$/.exec(color)
-  if (oklch) return oklchToSrgb(+oklch[1]! / 100, +oklch[2]!, +oklch[3]!)
+  // 無彩色の色相は none（Tailwind の zinc など）。色相は彩度 0 なら結果に効かない
+  const oklch = /^oklch\(([\d.]+)%\s+([\d.]+)\s+([\d.]+|none)\)$/.exec(color)
+  if (oklch) return oklchToSrgb(+oklch[1]! / 100, +oklch[2]!, oklch[3] === 'none' ? 0 : +oklch[3]!)
   const hex = /^#([0-9a-f]{6})$/i.exec(color)
   if (hex) {
     const n = parseInt(hex[1]!, 16)
@@ -37,7 +38,8 @@ export function contrast(fg: string, bg: string): number {
   const [a, b] = [luminance(parse(fg)), luminance(parse(bg))]
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 }
-const c = (token: string, scheme: Scheme = 'light') => defaultValue(`color-${token}`, scheme)
+const c = (token: string, scheme: Scheme = 'light', theme?: Theme) =>
+  defaultValue(`color-${token}`, scheme, theme)
 
 // [前景, 背景, 必要な比, 用途]。ライトとダークの両方で確かめる（設計書 §4.8）
 const PAIRS: [string, string, number, string][] = [
@@ -94,6 +96,15 @@ const PAIRS: [string, string, number, string][] = [
 describe.each(['light', 'dark'] as const)('トークンのコントラスト契約（%s）', (scheme) => {
   it.each(PAIRS)('%s / %s は %d:1 以上（%s）', (fg, bg, min) => {
     expect(contrast(c(fg, scheme), c(bg, scheme))).toBeGreaterThanOrEqual(min)
+  })
+})
+
+// 既製のテーマも、同じ組み合わせを両方のモードで満たす
+describe.each(
+  themes.flatMap((t) => (['light', 'dark'] as const).map((s) => [t.name, s, t] as const)),
+)('テーマ %s のコントラスト契約（%s）', (_, scheme, theme) => {
+  it.each(PAIRS)('%s / %s は %d:1 以上（%s）', (fg, bg, min) => {
+    expect(contrast(c(fg, scheme, theme), c(bg, scheme, theme))).toBeGreaterThanOrEqual(min)
   })
 })
 

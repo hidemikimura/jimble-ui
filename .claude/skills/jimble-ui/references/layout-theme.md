@@ -100,6 +100,96 @@
 </jimble-app-shell>
 ```
 
+### 既製のテーマを使う
+
+`ocean`（青・角丸小）・`forest`（緑）・`plum`（紫・角丸大）・`sand`（橙）がある。CSS を 1 つ読み込むと、主色・灰色・角丸が、ライトとダークの両方で変わる（コントラストは自動テストで保証済み）。
+
+```html
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@hidemikimura/jimble-ui@0/dist/themes/ocean.css"
+/>
+```
+
+npm では `import '@hidemikimura/jimble-ui/themes/ocean.css'`。テーマの上に `:root { --jimble-…: … }` を書けば、読み込む順によらず、そちらが勝つ（テーマを出発点に一部だけ変えられる）。ページの一部だけ別のテーマにするには、テーマの CSS を読み込んだうえで、要素に `data-jimble-theme="forest"` を付ける。JS で切り替えるなら、使うテーマを全部読み込み、`document.documentElement.dataset.jimbleTheme` を書き換える。**`tokens.css` と一緒に読み込まない**（`tokens.css` が勝ち、テーマが効かない）。存在しないテーマ名を書かない（上の 4 つだけ）。
+
+```html
+<div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr))">
+  <section data-jimble-theme="ocean" aria-label="ocean">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>ocean</strong>
+        <jimble-badge variant="primary">青</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="forest" aria-label="forest">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>forest</strong>
+        <jimble-badge variant="primary">緑</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="plum" aria-label="plum">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>plum</strong>
+        <jimble-badge variant="primary">紫</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="sand" aria-label="sand">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>sand</strong>
+        <jimble-badge variant="primary">橙</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+</div>
+```
+
 ### 色・太さ・影・角丸を、テーマで変える
 
 `:root` に CSS 変数を書く。**枠の色は、用途別に分けられる**: `--jimble-color-ring-card`（カードの枠）・`--jimble-color-ring-divider`（区切り線）・`--jimble-color-ring-button`（ボタンの枠）。ほかに、文字の太さ `--jimble-font-weight-medium` / `-semibold`、影 `--jimble-card-shadow` / `--jimble-input-shadow` / `--jimble-button-shadow`、`--jimble-badge-radius`、ツールチップ `--jimble-tooltip-bg` / `-text`、スイッチの丸 `--jimble-switch-thumb-bg` / `-ring`、表の見出し `--jimble-table-header-bg` / `-text`、`--jimble-breadcrumb-justify`（`center` で中央）、`--jimble-page-header-heading-weight`。ボタンの背景と hover の色は、種類ごと（`--jimble-button-primary-bg` / `-bg-hover` / `-fg-hover`。`secondary`・`danger`・`ghost` も同じ。種類ごとの変数は、共通の `--jimble-button-bg` より優先）。色の付いた面（アラートなど）で白ボタンを馴染ませるなら `--jimble-button-secondary-bg: transparent`。**文字の色だけ変えるとき**は、`-bg-hover` に元の背景色（ghost なら `transparent`）を書く。メニュー・セレクト・コンボボックス・左右分割の選択の項目の hover は `--jimble-color-item-hover`、ページネーションの影は `--jimble-pagination-shadow`（`none` で影なし。既定はボタンの影と同じ）。小さなアイコンボタン（コンボボックスの × と開閉、日付のカレンダー、ファイルの削除、ダイアログ・通知の閉じる）の hover は `--jimble-icon-button-hover-bg`（`transparent` で背景なし）と `--jimble-icon-button-hover-fg`、「ファイルを選択」は `--jimble-file-input-button-hover-bg` / `-fg`。カンバンの列の「+」は `jimble-button variant="ghost"` なので、`jimble-kanban-column { --jimble-button-ghost-bg-hover: transparent; --jimble-button-ghost-fg-hover: 色; }` のように、列に限って指定できる。表の行の hover は `--jimble-table-row-hover-bg`、暗幕の濃さだけは `--jimble-backdrop-opacity`（色ごと変えるなら `--jimble-color-backdrop`）。一覧は <https://hidemikimura.github.io/jimble-ui/guide/theming/> の「テーマで変えられる項目」を参照。

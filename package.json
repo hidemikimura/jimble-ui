@@ -132,6 +132,7 @@
     },
     "./tokens.css": "./dist/tokens.css",
     "./cloak.css": "./dist/cloak.css",
+    "./themes/*.css": "./dist/themes/*.css",
     "./custom-elements.json": "./custom-elements.json",
     "./vscode.html-data.json": "./dist/vscode.html-data.json",
     "./package.json": "./package.json",

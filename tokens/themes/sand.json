@@ -1,0 +1,8 @@
+{
+  "description": "橙（orange）と、砂のような灰色（taupe）。暖かみのある見た目",
+  "scales": { "primary": "orange", "neutral": "taupe" },
+  "tokens": {
+    "color-primary-600": "@tw(--color-orange-700)",
+    "color-primary-500": "@tw(--color-orange-800)"
+  }
+}

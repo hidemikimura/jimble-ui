@@ -1,0 +1,32 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/themes/plum.json から作る。直接編集しない。 */
+/* jimble-ui テーマ「plum」: 紫（violet）と、紫みのある灰色（mauve）。角丸を大きくした、柔らかい見た目
+   ページ全体に: <link rel="stylesheet" href="…/themes/plum.css"> を読み込む。
+   ページの一部だけ: 読み込んだうえで、要素に data-jimble-theme="plum" を付ける。 */
+:where(:root),
+[data-jimble-theme='plum'] {
+  --jimble-color-primary-50: oklch(96.9% 0.016 293.756);
+  --jimble-color-primary-100: oklch(94.3% 0.029 294.588);
+  --jimble-color-primary-200: oklch(89.4% 0.057 293.283);
+  --jimble-color-primary-300: oklch(81.1% 0.111 293.571);
+  --jimble-color-primary-400: oklch(70.2% 0.183 293.541);
+  --jimble-color-primary-500: oklch(49.1% 0.27 292.581);
+  --jimble-color-primary-600: oklch(54.1% 0.281 293.009);
+  --jimble-color-primary-700: oklch(49.1% 0.27 292.581);
+  --jimble-color-primary-800: oklch(43.2% 0.232 292.759);
+  --jimble-color-primary-900: oklch(38% 0.189 293.745);
+  --jimble-color-primary-950: oklch(28.3% 0.141 291.089);
+  --jimble-color-neutral-50: oklch(98.5% 0 none);
+  --jimble-color-neutral-100: oklch(96% 0.003 325.6);
+  --jimble-color-neutral-200: oklch(92.2% 0.005 325.62);
+  --jimble-color-neutral-300: oklch(86.5% 0.012 325.68);
+  --jimble-color-neutral-400: oklch(71.1% 0.019 323.02);
+  --jimble-color-neutral-500: oklch(54.2% 0.034 322.5);
+  --jimble-color-neutral-600: oklch(43.5% 0.029 321.78);
+  --jimble-color-neutral-700: oklch(36.4% 0.029 323.89);
+  --jimble-color-neutral-800: oklch(26.3% 0.024 320.12);
+  --jimble-color-neutral-900: oklch(21.2% 0.019 322.12);
+  --jimble-color-neutral-950: oklch(14.5% 0.008 326);
+  --jimble-radius-control: var(--jimble-radius-xl, 0.75rem);
+  --jimble-radius-card: 1rem;
+  --jimble-radius-overlay: 1rem;
+}

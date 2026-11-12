@@ -1,0 +1,32 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/themes/ocean.json から作る。直接編集しない。 */
+/* jimble-ui テーマ「ocean」: 青と、青みのある灰色（slate）。角丸を小さくした、業務システム向けの落ち着いた見た目
+   ページ全体に: <link rel="stylesheet" href="…/themes/ocean.css"> を読み込む。
+   ページの一部だけ: 読み込んだうえで、要素に data-jimble-theme="ocean" を付ける。 */
+:where(:root),
+[data-jimble-theme='ocean'] {
+  --jimble-color-primary-50: oklch(97% 0.014 254.604);
+  --jimble-color-primary-100: oklch(93.2% 0.032 255.585);
+  --jimble-color-primary-200: oklch(88.2% 0.059 254.128);
+  --jimble-color-primary-300: oklch(80.9% 0.105 251.813);
+  --jimble-color-primary-400: oklch(70.7% 0.165 254.624);
+  --jimble-color-primary-500: oklch(48.8% 0.243 264.376);
+  --jimble-color-primary-600: oklch(54.6% 0.245 262.881);
+  --jimble-color-primary-700: oklch(48.8% 0.243 264.376);
+  --jimble-color-primary-800: oklch(42.4% 0.199 265.638);
+  --jimble-color-primary-900: oklch(37.9% 0.146 265.522);
+  --jimble-color-primary-950: oklch(28.2% 0.091 267.935);
+  --jimble-color-neutral-50: oklch(98.4% 0.003 247.858);
+  --jimble-color-neutral-100: oklch(96.8% 0.007 247.896);
+  --jimble-color-neutral-200: oklch(92.9% 0.013 255.508);
+  --jimble-color-neutral-300: oklch(86.9% 0.022 252.894);
+  --jimble-color-neutral-400: oklch(70.4% 0.04 256.788);
+  --jimble-color-neutral-500: oklch(55.4% 0.046 257.417);
+  --jimble-color-neutral-600: oklch(44.6% 0.043 257.281);
+  --jimble-color-neutral-700: oklch(37.2% 0.044 257.287);
+  --jimble-color-neutral-800: oklch(27.9% 0.041 260.031);
+  --jimble-color-neutral-900: oklch(20.8% 0.042 265.755);
+  --jimble-color-neutral-950: oklch(12.9% 0.042 264.695);
+  --jimble-radius-control: var(--jimble-radius-md, 0.375rem);
+  --jimble-radius-card: var(--jimble-radius-md, 0.375rem);
+  --jimble-radius-overlay: var(--jimble-radius-lg, 0.5rem);
+}

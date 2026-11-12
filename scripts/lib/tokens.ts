@@ -1,5 +1,5 @@
 // tokens/tokens.json の読み込みと参照解決。gen-tokens とテスト(コントラスト契約)が共有する。
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 
@@ -93,12 +93,81 @@ export const resolveRef = (raw: string): string => expand(raw, (ref) => `var(--j
 /** tokens.css 用のトークンの値 */
 export const tokenRef = (t: Token): string => withScheme(t, resolveRef)
 
-/** 参照を全て既定値のリテラルに解決した値（テスト用）。scheme でライト・ダークを選ぶ */
-export const defaultValue = (name: string, scheme: Scheme = 'light'): string => {
+/**
+ * 参照を全て既定値のリテラルに解決した値（テスト用）。scheme でライト・ダークを選ぶ。
+ * theme を渡すと、そのテーマが上書きするトークンはテーマの値を使う（設計書 §4.9）
+ */
+export const defaultValue = (name: string, scheme: Scheme = 'light', theme?: Theme): string => {
+  const lookup = (n: string): Token => theme?.overrides.get(n) ?? byName.get(n)!
   const pick = (t: Token) => (scheme === 'dark' && t.dark ? t.dark : t.value)
-  const t = byName.get(name)
-  if (!t) throw new Error(`未定義のトークン: ${name}`)
+  if (!byName.has(name)) throw new Error(`未定義のトークン: ${name}`)
   const walk = (raw: string, seen: string[]): string =>
-    expand(raw, (ref, s) => walk(pick(byName.get(ref)!), s), seen)
-  return walk(pick(t), [name])
+    expand(raw, (ref, s) => walk(pick(lookup(ref)), s), seen)
+  return walk(pick(lookup(name)), [name])
+}
+
+// ---- 既製のテーマ（設計書 §4.9）: tokens/themes/<名前>.json ----
+
+type ThemeSource = {
+  $comment?: string
+  /** テーマの説明（ドキュメントに載せる） */
+  description: string
+  /** スケールの差し替え。値は Tailwind のパレット名（例: "slate"） */
+  scales?: Record<string, string>
+  /** 個別のトークンの上書き。値の書き方は tokens.json と同じ（{name} の参照、@tw()、dark） */
+  tokens?: Record<string, string | { value: string; dark?: string }>
+}
+export type Theme = {
+  name: string
+  description: string
+  /** テーマが上書きするトークン（tokens.json の順） */
+  overrides: ReadonlyMap<string, Token>
+}
+
+const loadTheme = (name: string, theme: ThemeSource): Theme => {
+  const found = new Map<string, Token>()
+  for (const [scale, from] of Object.entries(theme.scales ?? {})) {
+    const def = src.scales[scale]
+    if (!def) throw new Error(`テーマ ${name}: 未定義のスケール: ${scale}`)
+    for (const step of def.steps) {
+      const n = `color-${scale}-${step}`
+      found.set(n, { name: n, value: `@tw(--color-${from}-${step})` })
+    }
+  }
+  for (const [n, v] of Object.entries(theme.tokens ?? {})) {
+    if (!byName.has(n)) throw new Error(`テーマ ${name}: 未定義のトークン: ${n}`)
+    found.set(n, typeof v === 'string' ? { name: n, value: v } : { name: n, ...v })
+  }
+  // 値の参照と @tw() が解決できることを、ここで確かめる
+  for (const t of found.values()) {
+    expand(t.value, () => '')
+    if (t.dark) expand(t.dark, () => '')
+  }
+  const overrides = new Map(
+    all.filter((t) => found.has(t.name)).map((t) => [t.name, found.get(t.name)!]),
+  )
+  return { name, description: theme.description, overrides }
+}
+
+const themesDir = resolve(root, 'tokens/themes')
+export const themes: Theme[] = readdirSync(themesDir)
+  .filter((f) => f.endsWith('.json'))
+  .sort()
+  .map((f) =>
+    loadTheme(
+      f.replace(/\.json$/, ''),
+      JSON.parse(readFileSync(resolve(themesDir, f), 'utf8')) as ThemeSource,
+    ),
+  )
+
+/**
+ * テーマの CSS。`:where(:root)`（詳細度 0。利用者の :root の上書きが、読み込む順によらず勝つ）と、
+ * `[data-jimble-theme="名前"]`（ページの一部だけ、または切り替え）の両方に効く。
+ * 参照はフォールバックまで展開する（テーマが上書きしないトークンを参照しても、既定値で解決される）
+ */
+export const themeCss = (theme: Theme): string => {
+  let css = `:where(:root),\n[data-jimble-theme='${theme.name}'] {\n`
+  for (const t of theme.overrides.values())
+    css += `  --jimble-${t.name}: ${withScheme(t, (r) => resolveFull(r))};\n`
+  return css + '}\n'
 }

@@ -106,13 +106,14 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 ### 6. 見た目のカスタマイズ（この順で）
 
+0. **既製のテーマ**: `ocean`・`forest`・`plum`・`sand`。`@hidemikimura/jimble-ui/themes/<名前>.css`（CDN は `dist/themes/<名前>.css`）を読み込むだけで、色と角丸がライト・ダークともに変わる。要素に `data-jimble-theme="名前"` を付けると、その中だけ。`tokens.css` とは併用しない。詳しくは `references/layout-theme.md`。
 1. **CSS 変数**: 色・角丸・高さなど。`:root { --jimble-color-primary-600: #0f766e; }` はページのどこにでも書け、全部品に届く。部品固有の変数（`--jimble-button-radius` など）は、その部品のページの「CSS 変数」の表にある。
 2. **`::part()`**: `jimble-button::part(label) { … }`。part の名前は各ページの表にある。状態は `:state()`（`jimble-button:state(loading)`）。各部品の状態は「コンポーネント早見」にあり、フォーム部品はすべて `:state(invalid)`（誤りを表示中）・`:state(touched)`・`:state(disabled)` を持つ。
 3. **スロット**: アイコンや操作を自分の HTML に置き換える。
 
 内部の Tailwind クラス名は非公開で、ページの CSS から狙えない・狙ってはいけない。**色を変えるときは、コントラストを確かめる**（主ボタンの背景は白い文字が乗るので 4.5:1 以上、入力欄の枠は 3:1 以上）。
 
-**ダークモード**は CSS の `color-scheme` で切り替える（`:root { color-scheme: light dark }` で OS に従う、`dark` で常にダーク。要素に書けば、その中だけ）。何も書かなければライト。部品はページの `body` を塗らないので、ページの背景・文字の色は自分で指定する。色の変数を 1 つの値で上書きすると両方のモードで同じ色になるので、モードで変えるなら `light-dark(明, 暗)` で書く。`data-theme` などの属性はない。
+**ダークモード**は CSS の `color-scheme` で切り替える（`:root { color-scheme: light dark }` で OS に従う、`dark` で常にダーク。要素に書けば、その中だけ）。何も書かなければライト。部品はページの `body` を塗らないので、ページの背景・文字の色は自分で指定する。色の変数を 1 つの値で上書きすると両方のモードで同じ色になるので、モードで変えるなら `light-dark(明, 暗)` で書く。ダークモードを切り替える属性はない（`data-jimble-theme` は既製のテーマの選択で、モードは変えない）。
 
 ### 7. 言語
 

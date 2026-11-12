@@ -533,6 +533,37 @@ LitElement
 - **サイズ**: `@theme inline` なので、ロールの色を使うクラスごとに、ライトとダークの既定値が書かれる。共有チャンクが 14.9 → 15.3 KB、CDN バンドルが 92.0 → 92.4 KB（gz）になったので、予算を共有チャンク 16 KB、CDN 94 KB に上げた。さらに減らすなら、`@theme inline` をやめて、色の既定値を 1 か所にまとめる案がある（§4.4 の仕組みを変えるので、見送った）。
 - **試験**: コントラストの契約（§4.6）は、同じ組み合わせを、ライトとダークの両方で測る。ドキュメントサイトも `color-scheme: light dark` にし、E2E で、全ページを、ダークでも axe にかける。`src/styles/dark-mode.test.ts` が、既定のライト、`color-scheme: dark`、ページの一部だけ、利用者の上書き、トップレイヤーのダイアログを、3 つのブラウザで確かめる。
 
+### 4.9 既製のテーマ（2026-11-12）
+
+Astryx（Meta のデザインシステム）が、neutral・stone などのテーマを配り、1 つ読み込むだけで見た目を変えられるようにしているのを参考にした。jimble-ui でも、色を 1 つずつ決めなくても、最初から整った見た目を選べるようにする。
+
+> **決定** テーマは、トークンを上書きする **CSS ファイル**として配る（`@hidemikimura/jimble-ui/themes/<名前>.css`、CDN は `dist/themes/<名前>.css`）。情報源は `tokens/themes/<名前>.json` で、`gen-tokens` が `tokens/themes/<名前>.generated.css` を作り、`postbuild` が `dist/themes/` に写す。JSON には、スケールの差し替え（Tailwind のパレット名）と、個別のトークンの上書き（書き方は `tokens.json` と同じ）を書く。セレクターは `:where(:root), [data-jimble-theme="名前"]`。
+> **理由**
+> - ロールはスケールを参照している（§4.1）ので、`primary` と `neutral` のスケールを差し替えるだけで、面・文字・枠・選択中の色が、ライトとダークの両方でそろって変わる。部品にも JS にも手を入れずに済み、CDN でも `<link>` 1 つで使える。
+> - `:where(:root)` は詳細度が 0 なので、利用者が `:root` に書いた上書きが、読み込む順によらず勝つ（テーマを「出発点」として、一部だけ変えられる）。
+> - `[data-jimble-theme]` で、ページの一部（プレビュー、管理者だけの画面など）だけを別のテーマにできる。変数は継承するので、Shadow DOM の中とトップレイヤーにも届く（§4.8 の `color-scheme` と同じ）。
+> - コントラストの契約（§4.6）を、テーマごとに、ライトとダークの両方で測れる（`defaultValue` にテーマを渡す）。テーマを足しても、AA を満たすことが CI で保証される。
+>
+> **比較した案**
+> 1. JS の関数（`setTheme('ocean')`）でトークンを書き込む — 描画の前に実行しないとちらつき、CDN の利用者にも JS が要る。CSS だけで足りる。
+> 2. `:root`（詳細度 0,1,0）に書く — 利用者の上書きを、テーマより後に書く必要がある。`tokens.css` と同じ詳細度になり、順序の事故が起きやすい。
+> 3. Astryx のように、フォント（Web フォント）も変える — 外部への通信が増え、日本語のフォントは大きい。今回は色と角丸だけにした。
+> 4. テーマごとに部品の固有の変数（`--jimble-button-primary-bg-hover` など）も変える — 公開トークン（`tokens.json`）の範囲で表せるものに限った（JSON の検査が、未定義のトークンを拒む）。
+
+**用意したテーマ**
+
+| 名前     | 主色（primary） | 灰色（neutral） | そのほか                    |
+| -------- | --------------- | --------------- | --------------------------- |
+| `ocean`  | blue            | slate           | 角丸を小さく（control・card は md、overlay は lg） |
+| `forest` | emerald         | stone           |                             |
+| `plum`   | violet          | mauve           | 角丸を大きく（control は xl、card・overlay は 1rem） |
+| `sand`   | orange          | taupe           |                             |
+
+- **白い文字が乗る塗りつぶし**: 既定（indigo）は、`primary-600` も hover の `primary-500` も、白い文字で 4.5:1 を満たす。ほかの色相では、600 または 500 が届かない（blue-500 は 3.76:1、emerald-600 は 3.67:1）。そこで、テーマで `primary-600` / `primary-500` に、より濃い段階を割り当てる（例: forest は 600 に emerald-700、500 に emerald-800）。`primary-500` を使うのは主ボタンの hover だけなので、hover が濃くなるだけで、ほかへの影響はない。
+- **`tokens.css` と一緒に読み込まない**: `tokens.css` は `:root`（0,1,0）に全トークンを並べるので、テーマ（`:where(:root)`）に勝つ。どちらも「編集の出発点」で、片方を選ぶ。
+- **生成物の掃除**: `gen-tokens` は、JSON を消したテーマの `.generated.css` を消す（`--check` では古い扱い）。
+- **試験**: `tests/unit/contrast.test.ts` が全テーマ × ライト・ダークで契約を測る。`src/styles/themes.test.ts` が、読み込むと変わること、`data-jimble-theme` の範囲だけ変わること、利用者の `:root` が先に書かれていても勝つこと、ダークの面がテーマの灰色になることを、3 つのブラウザで確かめる。`check-dist` が `dist/themes/*.css` の有無を確かめる。
+
 ---
 
 ## 5. フォーム連携の基底

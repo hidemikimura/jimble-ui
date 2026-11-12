@@ -2,6 +2,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { themes } from './lib/tokens.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const dist = join(root, 'dist')
@@ -182,6 +183,9 @@ for (const f of [
 ]) {
   if (!existsSync(join(dist, f))) fail(`dist/${f} がありません`)
 }
+for (const t of themes)
+  if (!existsSync(join(dist, `themes/${t.name}.css`)))
+    fail(`dist/themes/${t.name}.css がありません`)
 if (!existsSync(join(root, 'custom-elements.json'))) fail('custom-elements.json がありません')
 if (!existsSync(join(root, 'skills/jimble-ui/SKILL.md')))
   fail('skills/jimble-ui/SKILL.md がありません(npm run gen:skill)')

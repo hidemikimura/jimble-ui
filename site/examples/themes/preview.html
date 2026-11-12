@@ -1,0 +1,75 @@
+<!-- title: 既製のテーマを並べて比べる（data-jimble-theme で、この中だけに効かせている） -->
+<div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr))">
+  <section data-jimble-theme="ocean" aria-label="ocean">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>ocean</strong>
+        <jimble-badge variant="primary">青</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="forest" aria-label="forest">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>forest</strong>
+        <jimble-badge variant="primary">緑</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="plum" aria-label="plum">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>plum</strong>
+        <jimble-badge variant="primary">紫</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+  <section data-jimble-theme="sand" aria-label="sand">
+    <jimble-card>
+      <div slot="header" class="row" style="justify-content: space-between">
+        <strong>sand</strong>
+        <jimble-badge variant="primary">橙</jimble-badge>
+      </div>
+      <div class="stack">
+        <jimble-field label="名前">
+          <jimble-input value="山田 太郎"></jimble-input>
+        </jimble-field>
+        <jimble-switch checked>通知を受け取る</jimble-switch>
+      </div>
+      <div slot="footer" class="row" style="justify-content: flex-end">
+        <jimble-button>キャンセル</jimble-button>
+        <jimble-button variant="primary">保存</jimble-button>
+      </div>
+    </jimble-card>
+  </section>
+</div>
