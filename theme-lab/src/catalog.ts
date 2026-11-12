@@ -333,7 +333,7 @@ export const CATALOG: Group[] = [
     ],
   },
   {
-    title: 'バッジ・アバター・アラート',
+    title: 'バッジ・アバター・タグ・アラート',
     note: '',
     entries: [
       radius('--jimble-badge-radius', 'バッジの角丸'),
@@ -348,6 +348,11 @@ export const CATALOG: Group[] = [
       radius('--jimble-avatar-radius', 'アバター（square）の角丸'),
       len('--jimble-avatar-size', 'アバターの大きさ（size ごとに違う）', '例: 2rem', true),
       c('--jimble-avatar-ring', 'アバターの外側の輪（群の中では面の色）', true),
+      c('--jimble-tag-bg', 'タグの背景'),
+      c('--jimble-tag-text', 'タグの文字'),
+      c('--jimble-tag-border', 'タグの枠'),
+      radius('--jimble-tag-radius', 'タグの角丸'),
+      len('--jimble-tag-group-gap', 'タグの間隔', '例: calc(var(--jimble-spacing) * 1.5)'),
       radius('--jimble-alert-radius', 'アラートの角丸'),
       len('--jimble-alert-padding', 'アラートの内側の余白', '例: calc(var(--jimble-spacing) * 4)'),
     ],

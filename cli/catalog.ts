@@ -25,6 +25,7 @@ const PAGE: Readonly<Record<string, string>> = {
   'tree-item': 'tree',
   command: 'command-palette',
   'avatar-group': 'avatar',
+  'tag-group': 'tag',
 }
 
 /** input / change をネイティブと同じく出すフォーム部品（`jimble-` を除いた名前） */

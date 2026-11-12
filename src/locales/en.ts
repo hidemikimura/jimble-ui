@@ -119,6 +119,7 @@ const en: Locale = {
   'avatarGroup.more': '{count} more',
   'avatarGroup.moreNames': '{count} more: {names}',
   'pagination.label': 'Pagination',
+  'tag.remove': 'Remove {label}',
   'pagination.previous': 'Previous page',
   'pagination.next': 'Next page',
   'pagination.page': 'Page {page}',

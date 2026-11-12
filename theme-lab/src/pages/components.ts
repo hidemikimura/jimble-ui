@@ -92,6 +92,14 @@ export function components() {
             </jimble-avatar-group>
           </div>
         </template>
+        <!-- タグは公開版にまだ無い。公開版に入ったら、この template を外す -->
+        <template>
+          <jimble-tag-group label="絞り込みの条件" style="margin-top: 0.75rem">
+            <jimble-tag removable>状態: 受付中</jimble-tag>
+            <jimble-tag removable>地域: 東京</jimble-tag>
+            <jimble-tag>固定のラベル</jimble-tag>
+          </jimble-tag-group>
+        </template>
         <!-- バナーは公開版にまだ無い。公開版に入ったら、この template を外す -->
         <template>
           <jimble-banner variant="warning" style="margin-top: 0.75rem"
