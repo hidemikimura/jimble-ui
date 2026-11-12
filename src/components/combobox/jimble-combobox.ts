@@ -28,14 +28,14 @@ const CHIP_REMOVE =
 // 前へ / 後ろへボタンは、チップにフォーカスがあるとき(タップした直後など)だけ出す
 const CHIP_MOVE =
   'hidden group-focus-within:inline-flex size-5 shrink-0 items-center justify-center rounded cursor-pointer text-fg-muted ' +
-  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-overlay))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-40 outline outline-1 outline-transparent ' +
+  'hover:[background-color:var(--jimble-icon-button-hover-bg,var(--color-surface-overlay))] hover:[color:var(--jimble-icon-button-hover-fg,var(--color-fg))] disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5) outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-focus'
 const INPUT =
   'min-w-0 flex-1 bg-transparent p-0 outline-none placeholder:text-(--_ph) disabled:cursor-not-allowed'
 const INPUT_MULTI =
   'min-w-24 flex-1 bg-transparent p-0 outline-none placeholder:text-(--_ph) disabled:cursor-not-allowed'
 const POPUP =
-  'max-h-[min(20rem,50dvh)] overflow-auto border-0 bg-surface-overlay p-1 text-fg shadow-lg ' +
+  'max-h-[min(20rem,50dvh)] overflow-auto border-0 bg-surface-overlay p-1 text-fg shadow-overlay ' +
   'ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-combobox-radius,var(--radius-overlay))]'
 const OPTION =
@@ -844,7 +844,7 @@ export class JimbleCombobox extends JimbleFormElement {
       part="option"
       id=${this.#optionId(r.key)}
       role="option"
-      class="${OPTION} ${r.key === this.#active ? 'bg-item-hover' : ''} ${this.#rowDisabled(r) ? 'opacity-50 cursor-not-allowed' : ''}"
+      class="${OPTION} ${r.key === this.#active ? 'bg-item-hover' : ''} ${this.#rowDisabled(r) ? 'opacity-(--jimble-opacity-disabled,0.5) cursor-not-allowed' : ''}"
       aria-selected=${selected ? 'true' : 'false'}
       aria-disabled=${this.#rowDisabled(r) ? 'true' : nothing}
       data-active=${r.key === this.#active ? '' : nothing}

@@ -489,7 +489,10 @@ export class JimbleTable extends JimbleElement {
       @scroll=${this.#onScroll}
       class="relative overflow-auto [max-height:var(--jimble-table-max-height,none)] outline outline-1 outline-transparent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
     >
-      <div part="grid" class="grid w-full ${this.loading ? 'opacity-60' : ''}">
+      <div
+        part="grid"
+        class="grid w-full ${this.loading ? 'opacity-(--jimble-opacity-loading,0.6)' : ''}"
+      >
         <slot></slot>${
           this.#showEmpty
             ? html`<div role="row" class="[grid-column:1/-1]">

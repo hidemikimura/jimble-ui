@@ -2147,6 +2147,30 @@ Astryx にあって jimble-ui に無い部品のうち、キー操作と ARIA �
 - **試験**: `tests/unit/density.test.ts`（4 段階の順・同じトークンを上書きする・`default` が既定値と同じ・段階が上がるほど大きい・24px 以上・`:where()`）と、`src/styles/density.test.ts`（段階ごとのボタン・入力欄の高さとカードの余白、入れ子、利用者の変数が勝つことを、3 つのブラウザで）。ドキュメントサイトでは、4 段階を並べた例を、ライト・ダークで axe にかける。
 - **theme-lab**: 0.18.0 の公開後に、テーマ調整のパネルに「出発点」を足した。既製のテーマと余白の段階を選ぶと、配布する CSS（`dist/themes/*.css`・`dist/density.css`）の値を、試しの値として当てる（`theme.css をコピー` に入る）。選び直すと、前に当てた分を外してから当てる。段階の属性（`data-jimble-density`）を使わないのは、theme-lab の `theme.css` が `:root` にすべての変数を書くので、詳細度 0 の段階より強く、属性では変わらないため。
 
+## 25. 面の高さと、不透明度のトークン（2026-11-12）
+
+Atlassian Design System の Elevation（面と影を組みで決める）と Opacity のトークンを参考にした。今までは、重なる面（ダイアログ・メニューなど）の背景は `surface-overlay` だったが、影は部品ごとに `shadow-lg` を直に書いていて、「重なる面の影」だけを変える手段がなかった。無効の薄さも、部品ごとに `opacity-50`・`40`・`60` とばらばらだった。
+
+> **決定** 面の高さを 4 段（sunken・surface・raised・overlay）とし、上の 2 段は、背景と影の組みのトークンを持つ。
+> - `color-surface-raised`（ライトは白、ダークは neutral-900 と 800 の中間（`color-mix(in oklab, …)`））と `shadow-raised`（既定は `shadow-sm`）
+> - 既存の `color-surface-overlay` と、新しい `shadow-overlay`（既定は `shadow-lg`）
+>
+> 不透明度は `opacity-disabled`（0.5）と `opacity-loading`（0.6）。どちらも Tailwind のテーマにせず、`opacity-(--jimble-opacity-disabled,0.5)` のように、フォールバックつきの変数で書く（`z-sticky` と同じ）。
+> **理由**
+> - 背景と影を組みにすると、ダークモードで「高い面ほど明るい」を保ったまま、影の深さだけをテーマで変えられる。影は、`shadow-overlay` 1 つで、重なる面のすべてが一緒に変わる。
+> - raised のダークの値を中間色にしたのは、surface（900）と overlay（800）の間に置き、段の順を保つため。新しい段を灰色の段階に足すと、既製のテーマすべてに値が要る。`color-mix` なら、テーマの灰色に自動で合う。
+> - 無効の薄さを 1 つにそろえると、部品をまたいで同じに見え、テーマで 1 か所で変えられる。
+>
+> **比較した案**
+> 1. 影の段（xs〜lg）だけを残し、組みは文書で決める — 利用者が影を変えるとき、どの段がどの面か分からない。
+> 2. overlay のダークを 700 に上げて段の差を広げる — 重なる面の文字のコントラストが変わり、既存の見た目も変わる。
+
+- **当てた部品**: 重なる面（dialog・drawer・popover・dropdown-menu（サブメニューも）・select・combobox・date-input・color-input・toast・command-palette・コードエディタの補完・app-shell の広がったサイドバーとモバイルのドロワー）は `shadow-overlay`。カンバンのカードは raised（背景と影）、ドラッグ中とキーボードで動かしている間は `shadow-overlay`（Atlassian の「ドラッグ中は overlay」）。
+- **当てなかったもの**: カード（`jimble-card`）は既定の面のまま（枠と、`--jimble-card-shadow` の細い影）。ツールチップは反転した面（`surface-inverse`）で、影も今のまま。スキップリンクの影も今のまま。app-shell のサイドバーは、背景を `--jimble-app-shell-sidebar-bg`（既定は surface）のまま、影だけ overlay にした（広い画面のサイドバーと同じ色に見せるため）。
+- **ダークモードの sunken（残した食い違い）**: jimble-ui の `surface-sunken` は、ダークで neutral-800 と、既定の面（900）より明るい（hover の背景を兼ねるため）。そのため、カンバンの列（sunken）の上のカード（raised、900 と 800 の中間）は、ダークでは列より少し暗く見える。枠（`ring-line-card`）で区別でき、コントラストの試験も通る。sunken の値を変えるのは、hover など多くの部品の見た目が変わるので、この変更には含めない。
+- **不透明度の値が変わったもの**: 日付の前後のボタン（0.4 → 0.5）、コンボボックスの × と開閉（0.4 → 0.5）、ページネーションの無効なボタン（0.6 → 0.5）。表の読み込み中は 0.6 のまま（`opacity-loading`）。
+- **試験**: `tests/unit/contrast.test.ts` に raised の面の組み（本文・補助の文字・フォーカスリング）を足した（`color-mix(in oklab, A, B)` を計算できるようにした）。theme-lab のカタログと `theme.css` に 5 つの変数を足した。
+
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
 いずれも P1 の範囲外。P1 は**自前で足りる**ため依存を増やさない。以下は採用が必要になった時点の候補で、採用時は改めて承認を得る。数値は 2026-09-29 に npm レジストリ / bundlephobia で取得（サイズは min+gz）。

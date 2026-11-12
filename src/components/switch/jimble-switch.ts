@@ -42,7 +42,7 @@ export class JimbleSwitch extends JimbleToggleControl {
     const name = hasLabel ? undefined : this.accessibleName()
     return html`<label
         part="base"
-        class="flex min-h-6 items-center gap-3 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}"
+        class="flex min-h-6 items-center gap-3 ${disabled ? 'cursor-not-allowed opacity-(--jimble-opacity-disabled,0.5)' : 'cursor-pointer'}"
       >
         <span class="relative inline-flex shrink-0 ${TRACK[size]}">
           <input

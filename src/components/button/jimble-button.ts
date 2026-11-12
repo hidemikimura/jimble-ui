@@ -57,8 +57,8 @@ const BASE =
   '[font-weight:var(--jimble-button-font-weight,600)] gap-(--_gap) ' +
   'outline outline-1 outline-transparent ' +
   'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus ' +
-  'disabled:cursor-not-allowed disabled:opacity-50 ' +
-  'aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-busy:cursor-progress'
+  'disabled:cursor-not-allowed disabled:opacity-(--jimble-opacity-disabled,0.5) ' +
+  'aria-disabled:cursor-not-allowed aria-disabled:opacity-(--jimble-opacity-disabled,0.5) aria-busy:cursor-progress'
 const PADDING = 'px-(--_px)'
 const ICON_ONLY = 'w-(--_h) p-0'
 

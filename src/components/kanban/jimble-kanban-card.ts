@@ -10,7 +10,7 @@ export const MOVE_TARGET =
   'font-medium text-fg-accent cursor-pointer hover:bg-surface-accent outline outline-1 outline-transparent ' +
   'focus-visible:outline-2 focus-visible:outline-focus'
 const CARD =
-  'flex items-start gap-2 rounded-md bg-surface p-3 text-sm text-fg outline outline-1 outline-transparent ' +
+  'flex items-start gap-2 rounded-md bg-surface-raised p-3 text-sm text-fg outline outline-1 outline-transparent ' +
   'outline-offset-2 [:host(:focus-visible)_&]:outline-2 [:host(:focus-visible)_&]:outline-focus'
 const MOVE_BUTTON =
   'inline-flex size-6 shrink-0 items-center justify-center rounded-md text-fg-muted cursor-pointer ' +
@@ -119,10 +119,10 @@ export class JimbleKanbanCard extends JimbleElement {
 
   protected override render() {
     const face = this.moving
-      ? 'ring-2 ring-inset ring-focus shadow-sm'
+      ? 'ring-2 ring-inset ring-focus shadow-overlay'
       : this.dragging
-        ? 'ring-1 ring-inset ring-line-card shadow-lg'
-        : 'ring-1 ring-inset ring-line-card shadow-xs'
+        ? 'ring-1 ring-inset ring-line-card shadow-overlay'
+        : 'ring-1 ring-inset ring-line-card shadow-raised'
     return html`<div part="base" class="relative flex flex-col gap-2">
       ${
         this.dropBefore

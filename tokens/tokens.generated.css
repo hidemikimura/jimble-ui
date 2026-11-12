@@ -70,6 +70,7 @@
   --jimble-color-surface-muted: light-dark(var(--jimble-color-neutral-50), var(--jimble-color-neutral-950));
   --jimble-color-surface-sunken: light-dark(var(--jimble-color-neutral-100), var(--jimble-color-neutral-800));
   --jimble-color-item-hover: light-dark(var(--jimble-color-surface-sunken), var(--jimble-color-neutral-700));
+  --jimble-color-surface-raised: light-dark(#ffffff, color-mix(in oklab, var(--jimble-color-neutral-900), var(--jimble-color-neutral-800)));
   --jimble-color-surface-overlay: light-dark(#ffffff, var(--jimble-color-neutral-800));
   --jimble-color-backdrop: light-dark(color-mix(in oklab, var(--jimble-color-neutral-900) var(--jimble-backdrop-opacity, 50%), transparent), color-mix(in oklab, var(--jimble-color-neutral-950) var(--jimble-backdrop-opacity, 70%), transparent));
   --jimble-color-text: light-dark(var(--jimble-color-neutral-900), var(--jimble-color-neutral-100));
@@ -127,6 +128,8 @@
   --jimble-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --jimble-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --jimble-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --jimble-shadow-raised: var(--jimble-shadow-sm);
+  --jimble-shadow-overlay: var(--jimble-shadow-lg);
   --jimble-focus-ring-width: 2px;
   --jimble-font-sans: system-ui, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
   --jimble-font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -146,4 +149,6 @@
   --jimble-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --jimble-z-sticky: 10;
   --jimble-z-drawer: 20;
+  --jimble-opacity-disabled: 0.5;
+  --jimble-opacity-loading: 0.6;
 }

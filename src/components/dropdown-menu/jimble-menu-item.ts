@@ -9,7 +9,7 @@ export type MenuItemVariant = 'default' | 'danger'
 /** メニューの面(ドロップダウンメニューと、サブメニューで共通) */
 export const MENU =
   'max-h-[min(24rem,50dvh)] min-w-40 overflow-auto border-0 bg-surface-overlay p-1 text-fg ' +
-  'shadow-lg ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
+  'shadow-overlay ring-1 ring-inset ring-line outline outline-1 outline-transparent ' +
   '[border-radius:var(--jimble-menu-radius,var(--radius-overlay))]'
 
 const BASE =
@@ -128,7 +128,7 @@ export class JimbleMenuItem extends JimbleElement {
 
   protected override render() {
     const sub = this.hasSubmenu
-    const classes = `${BASE} ${VARIANT[this.variant] ?? VARIANT.default} ${this.disabled ? 'opacity-50 cursor-not-allowed' : ''}`
+    const classes = `${BASE} ${VARIANT[this.variant] ?? VARIANT.default} ${this.disabled ? 'opacity-(--jimble-opacity-disabled,0.5) cursor-not-allowed' : ''}`
     const content = html`<slot name="prefix"></slot><slot></slot>${
         sub ? renderIcon(chevronRight, 'ms-auto size-4 shrink-0 text-fg-muted') : nothing
       }`

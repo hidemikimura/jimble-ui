@@ -4,10 +4,14 @@ import { defaultValue, themes, type Scheme, type Theme } from '../../scripts/lib
 
 type RGB = [number, number, number]
 
-function oklchToSrgb(l: number, c: number, hDeg: number): RGB {
+type Oklab = [number, number, number]
+
+const oklchToOklab = (l: number, c: number, hDeg: number): Oklab => {
   const h = (hDeg * Math.PI) / 180
-  const a = c * Math.cos(h)
-  const b = c * Math.sin(h)
+  return [l, c * Math.cos(h), c * Math.sin(h)]
+}
+
+function oklabToSrgb([l, a, b]: Oklab): RGB {
   const l_ = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3
   const m_ = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3
   const s_ = (l - 0.0894841775 * a - 1.291485548 * b) ** 3
@@ -19,10 +23,20 @@ function oklchToSrgb(l: number, c: number, hDeg: number): RGB {
   return lin.map((v) => Math.min(1, Math.max(0, v))) as RGB // 線形 sRGB(0..1)
 }
 
+const OKLCH = /^oklch\(([\d.]+)%\s+([\d.]+)\s+([\d.]+|none)\)$/
+const toOklab = (m: RegExpExecArray): Oklab =>
+  oklchToOklab(+m[1]! / 100, +m[2]!, m[3] === 'none' ? 0 : +m[3]!)
+
 function parse(color: string): RGB {
   // 無彩色の色相は none（Tailwind の zinc など）。色相は彩度 0 なら結果に効かない
-  const oklch = /^oklch\(([\d.]+)%\s+([\d.]+)\s+([\d.]+|none)\)$/.exec(color)
-  if (oklch) return oklchToSrgb(+oklch[1]! / 100, +oklch[2]!, oklch[3] === 'none' ? 0 : +oklch[3]!)
+  const oklch = OKLCH.exec(color)
+  if (oklch) return oklabToSrgb(toOklab(oklch))
+  // 2 色を同じ割合で混ぜる color-mix(in oklab, A, B)（面の高さの raised）
+  const mix = /^color-mix\(in oklab, (oklch\([^)]*\)), (oklch\([^)]*\))\)$/.exec(color)
+  if (mix) {
+    const [x, y] = [toOklab(OKLCH.exec(mix[1]!)!), toOklab(OKLCH.exec(mix[2]!)!)]
+    return oklabToSrgb(x.map((v, i) => (v + y[i]!) / 2) as Oklab)
+  }
   const hex = /^#([0-9a-f]{6})$/i.exec(color)
   if (hex) {
     const n = parseInt(hex[1]!, 16)
@@ -50,6 +64,9 @@ const PAIRS: [string, string, number, string][] = [
   ['text-muted', 'surface-muted', 4.5, '補助文字(背景)'],
   ['text-muted', 'surface-overlay', 4.5, 'メニュー・ダイアログの補助文字'],
   ['text', 'surface-sunken', 4.5, 'カンバンの列の見出し・件数・空の表示'],
+  ['text', 'surface-raised', 4.5, 'カンバンのカードの本文'],
+  ['text-muted', 'surface-raised', 4.5, 'カンバンのカードの補助文字'],
+  ['ring-focus', 'surface-raised', 3, 'フォーカスリング(カンバンのカード)'],
   ['text', 'item-hover', 4.5, 'メニュー・セレクトなどの項目の hover'],
   ['text-danger', 'item-hover', 4.5, 'メニューの危険な項目の hover'],
   ['text-danger', 'surface-overlay', 4.5, 'メニューの危険な項目'],

@@ -71,6 +71,7 @@
   --color-surface-muted: var(--jimble-color-surface-muted, light-dark(var(--jimble-color-neutral-50, oklch(98.5% 0.002 247.839)), var(--jimble-color-neutral-950, oklch(13% 0.028 261.692))));
   --color-surface-sunken: var(--jimble-color-surface-sunken, light-dark(var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848))));
   --color-item-hover: var(--jimble-color-item-hover, light-dark(var(--jimble-color-surface-sunken, light-dark(var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)))), var(--jimble-color-neutral-700, oklch(37.3% 0.034 259.733))));
+  --color-surface-raised: var(--jimble-color-surface-raised, light-dark(#ffffff, color-mix(in oklab, var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)), var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848)))));
   --color-surface-overlay: var(--jimble-color-surface-overlay, light-dark(#ffffff, var(--jimble-color-neutral-800, oklch(27.8% 0.033 256.848))));
   --color-backdrop: var(--jimble-color-backdrop, light-dark(color-mix(in oklab, var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)) var(--jimble-backdrop-opacity, 50%), transparent), color-mix(in oklab, var(--jimble-color-neutral-950, oklch(13% 0.028 261.692)) var(--jimble-backdrop-opacity, 70%), transparent)));
   --color-fg: var(--jimble-color-text, light-dark(var(--jimble-color-neutral-900, oklch(21% 0.034 264.665)), var(--jimble-color-neutral-100, oklch(96.7% 0.003 264.542))));
@@ -124,6 +125,8 @@
   --shadow-sm: var(--jimble-shadow-sm, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1));
   --shadow-md: var(--jimble-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1));
   --shadow-lg: var(--jimble-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1));
+  --shadow-raised: var(--jimble-shadow-raised, var(--jimble-shadow-sm, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)));
+  --shadow-overlay: var(--jimble-shadow-overlay, var(--jimble-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)));
   --font-sans: var(--jimble-font-sans, system-ui, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif);
   --font-mono: var(--jimble-font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   --font-weight-normal: var(--jimble-font-weight-normal, 400);

@@ -31,7 +31,7 @@ const DEFAULT_PRESETS = [
 ]
 
 const POPUP =
-  'border-0 bg-surface-overlay p-3 text-fg shadow-lg ring-1 ring-inset ring-line ' +
+  'border-0 bg-surface-overlay p-3 text-fg shadow-overlay ring-1 ring-inset ring-line ' +
   'outline outline-1 outline-transparent [border-radius:var(--jimble-color-input-popup-radius,var(--radius-overlay))]'
 const PRESET =
   'size-7 rounded-md cursor-pointer ring-1 ring-inset ring-line-control aria-pressed:ring-2 aria-pressed:ring-focus outline outline-1 outline-transparent ' +

@@ -94,7 +94,7 @@ export class JimbleRadio extends JimbleElement {
     return html`<span
       part="base"
       class="${SEGMENT_BASE} ${SEGMENT[size]} ${this.checked ? SEGMENT_ON : SEGMENT_OFF} ${
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+        disabled ? 'cursor-not-allowed opacity-(--jimble-opacity-disabled,0.5)' : 'cursor-pointer'
       }"
       ><span part="label"><slot></slot></span
     ></span>`
@@ -106,7 +106,7 @@ export class JimbleRadio extends JimbleElement {
     if (this.segmented) return this.#renderSegment(size, disabled)
     return html`<span
       part="base"
-      class="flex min-h-6 items-start gap-2 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}"
+      class="flex min-h-6 items-start gap-2 ${disabled ? 'cursor-not-allowed opacity-(--jimble-opacity-disabled,0.5)' : 'cursor-pointer'}"
     >
       <span
         part="indicator"

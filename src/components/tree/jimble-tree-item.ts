@@ -224,7 +224,7 @@ export class JimbleTreeItem extends JimbleElement {
     return html`<div
         part="row"
         class="${ROW} ${selected ? ROW_SELECTED : `text-fg ${disabled ? '' : ROW_HOVER}`} ${
-          disabled ? 'opacity-50' : ''
+          disabled ? 'opacity-(--jimble-opacity-disabled,0.5)' : ''
         }"
       >
         ${this.#renderToggle()} ${this.#renderCheckbox()}

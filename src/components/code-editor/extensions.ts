@@ -87,7 +87,7 @@ export const theme: Extension = EditorView.theme({
     color: 'var(--color-fg)',
     border: 'none',
     borderRadius: 'var(--radius-overlay)',
-    boxShadow: 'var(--shadow-lg), inset 0 0 0 1px var(--color-line)',
+    boxShadow: 'var(--shadow-overlay), inset 0 0 0 1px var(--color-line)',
     outline: '1px solid transparent',
     overflow: 'hidden',
   },
