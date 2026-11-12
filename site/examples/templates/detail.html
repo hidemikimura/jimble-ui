@@ -1,0 +1,99 @@
+<!-- title: 詳細（見出しの操作・項目の一覧・タブ・履歴） -->
+<!-- frame: 760 -->
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar" label="メイン">
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード</jimble-nav-item
+    >
+    <jimble-nav-item href="#" current
+      ><jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="users"></jimble-icon>顧客</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>設定</jimble-nav-item
+    >
+  </jimble-sidebar-nav>
+
+  <jimble-page-header heading="注文 #1024" description="2026-09-29 10:24 に受け付けた注文です。">
+    <jimble-breadcrumb slot="breadcrumb">
+      <jimble-breadcrumb-item href="#">ホーム</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item href="#">注文</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item>注文 #1024</jimble-breadcrumb-item>
+    </jimble-breadcrumb>
+    <jimble-button slot="actions"
+      ><jimble-icon slot="prefix" name="printer"></jimble-icon>印刷</jimble-button
+    >
+    <jimble-button slot="actions" variant="primary"
+      ><jimble-icon slot="prefix" name="pencil-square"></jimble-icon>編集</jimble-button
+    >
+  </jimble-page-header>
+
+  <div style="display: grid; gap: 1rem; margin-top: 1rem">
+    <jimble-alert variant="warning">
+      <span slot="title">入金を待っています</span>
+      支払い期限は 2026-10-06 です。期限を過ぎると、注文は自動で取り消されます。
+    </jimble-alert>
+
+    <jimble-card>
+      <strong slot="header">注文の情報</strong>
+      <jimble-description-list>
+        <jimble-description-item label="顧客"><a href="#">山田 太郎</a></jimble-description-item>
+        <jimble-description-item label="状態"
+          ><jimble-badge variant="info">新規</jimble-badge></jimble-description-item
+        >
+        <jimble-description-item label="支払い方法">銀行振込</jimble-description-item>
+        <jimble-description-item label="合計">¥12,800（税込）</jimble-description-item>
+        <jimble-description-item label="お届け先"
+          >東京都千代田区丸の内 1-1-1</jimble-description-item
+        >
+        <jimble-description-item label="備考">午前中の配達を希望</jimble-description-item>
+      </jimble-description-list>
+    </jimble-card>
+
+    <jimble-tabs label="注文の内訳">
+      <jimble-tab value="items">商品（2）</jimble-tab>
+      <jimble-tab value="history">履歴</jimble-tab>
+      <jimble-tab-panel value="items">
+        <jimble-card>
+          <jimble-table label="商品">
+            <jimble-table-header>
+              <jimble-table-row>
+                <jimble-table-head-cell>商品</jimble-table-head-cell>
+                <jimble-table-head-cell align="end">数量</jimble-table-head-cell>
+                <jimble-table-head-cell align="end">小計</jimble-table-head-cell>
+              </jimble-table-row>
+            </jimble-table-header>
+            <jimble-table-body>
+              <jimble-table-row>
+                <jimble-table-cell header>ステンレスボトル 500ml</jimble-table-cell>
+                <jimble-table-cell align="end">2</jimble-table-cell>
+                <jimble-table-cell align="end">¥6,400</jimble-table-cell>
+              </jimble-table-row>
+              <jimble-table-row>
+                <jimble-table-cell header>帆布のトートバッグ</jimble-table-cell>
+                <jimble-table-cell align="end">1</jimble-table-cell>
+                <jimble-table-cell align="end">¥6,400</jimble-table-cell>
+              </jimble-table-row>
+            </jimble-table-body>
+          </jimble-table>
+        </jimble-card>
+      </jimble-tab-panel>
+      <jimble-tab-panel value="history">
+        <jimble-card>
+          <jimble-stepper label="注文の進み具合" value="paid">
+            <jimble-step value="ordered"
+              >受付<span slot="description">9/29 10:24</span></jimble-step
+            >
+            <jimble-step value="paid">入金</jimble-step>
+            <jimble-step value="shipped">発送</jimble-step>
+            <jimble-step value="done">完了</jimble-step>
+          </jimble-stepper>
+        </jimble-card>
+      </jimble-tab-panel>
+    </jimble-tabs>
+  </div>
+</jimble-app-shell>

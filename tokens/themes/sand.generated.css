@@ -1,0 +1,29 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/themes/sand.json から作る。直接編集しない。 */
+/* jimble-ui テーマ「sand」: 橙（orange）と、砂のような灰色（taupe）。暖かみのある見た目
+   ページ全体に: <link rel="stylesheet" href="…/themes/sand.css"> を読み込む。
+   ページの一部だけ: 読み込んだうえで、要素に data-jimble-theme="sand" を付ける。 */
+:where(:root),
+[data-jimble-theme='sand'] {
+  --jimble-color-primary-50: oklch(98% 0.016 73.684);
+  --jimble-color-primary-100: oklch(95.4% 0.038 75.164);
+  --jimble-color-primary-200: oklch(90.1% 0.076 70.697);
+  --jimble-color-primary-300: oklch(83.7% 0.128 66.29);
+  --jimble-color-primary-400: oklch(75% 0.183 55.934);
+  --jimble-color-primary-500: oklch(47% 0.157 37.304);
+  --jimble-color-primary-600: oklch(55.3% 0.195 38.402);
+  --jimble-color-primary-700: oklch(55.3% 0.195 38.402);
+  --jimble-color-primary-800: oklch(47% 0.157 37.304);
+  --jimble-color-primary-900: oklch(40.8% 0.123 38.172);
+  --jimble-color-primary-950: oklch(26.6% 0.079 36.259);
+  --jimble-color-neutral-50: oklch(98.6% 0.002 67.8);
+  --jimble-color-neutral-100: oklch(96% 0.002 17.2);
+  --jimble-color-neutral-200: oklch(92.2% 0.005 34.3);
+  --jimble-color-neutral-300: oklch(86.8% 0.007 39.5);
+  --jimble-color-neutral-400: oklch(71.4% 0.014 41.2);
+  --jimble-color-neutral-500: oklch(54.7% 0.021 43.1);
+  --jimble-color-neutral-600: oklch(43.8% 0.017 39.3);
+  --jimble-color-neutral-700: oklch(36.7% 0.016 35.7);
+  --jimble-color-neutral-800: oklch(26.8% 0.011 36.5);
+  --jimble-color-neutral-900: oklch(21.4% 0.009 43.1);
+  --jimble-color-neutral-950: oklch(14.7% 0.004 49.3);
+}

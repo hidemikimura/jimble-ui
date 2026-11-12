@@ -12,6 +12,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
@@ -76,6 +77,7 @@ import en from '@hidemikimura/jimble-ui/locales/en'
 import { toast } from '@hidemikimura/jimble-ui/toast'
 import * as all from '@hidemikimura/jimble-ui'
 import '@hidemikimura/jimble-ui/tokens.css'
+import '@hidemikimura/jimble-ui/themes/ocean.css'
 // 全部入りに含まれない部品(CodeMirror を利用者の側で解決する)
 import '@hidemikimura/jimble-ui/code-editor'
 document.getElementById('ce').variables = [{ name: 'x', label: '変数' }]
@@ -250,6 +252,40 @@ ce.insertVariable('customer_name')
     cdn.close()
     if (r2.global !== 'function' || !r2.tags)
       throw new Error('CDN バンドルが期待どおり動きません: ' + JSON.stringify(r2))
+
+    // CLI の template が出す HTML 文書が、そのまま動く（CDN の URL を、入れたパッケージの dist に向ける）
+    const tplDir = join(work, 'tpl')
+    mkdirSync(tplDir)
+    cpSync(join(work, 'node_modules/@hidemikimura/jimble-ui/dist'), join(tplDir, 'dist'), {
+      recursive: true,
+    })
+    const doc = run('npx', [
+      '--no-install',
+      '@hidemikimura/jimble-ui',
+      'template',
+      'list',
+      '--theme',
+      'ocean',
+    ])
+    writeFileSync(
+      join(tplDir, 'index.html'),
+      doc.replace(
+        /https:\/\/cdn\.jsdelivr\.net\/npm\/@hidemikimura\/jimble-ui@[\d.]+\/dist/g,
+        './dist',
+      ),
+    )
+    const tpl = await serve(tplDir)
+    const p3 = await check(tpl.url)
+    const r3 = await p3.evaluate(() => ({
+      shell: !!customElements.get('jimble-app-shell'),
+      table: !!document.querySelector('jimble-table')?.shadowRoot,
+      theme: getComputedStyle(document.documentElement)
+        .getPropertyValue('--jimble-color-primary-600')
+        .trim(),
+    }))
+    tpl.close()
+    if (!r3.shell || !r3.table || !r3.theme)
+      throw new Error('template の HTML が期待どおり動きません: ' + JSON.stringify(r3))
     if (errors.length) throw new Error('ブラウザのコンソールエラー:\n' + errors.join('\n'))
   } finally {
     await browser.close()
@@ -261,6 +297,25 @@ ce.insertVariable('customer_name')
   const refsPath = join(work, 'node_modules/@hidemikimura/jimble-ui/skills/jimble-ui/references')
   if (!existsSync(refsPath) || readdirSync(refsPath).length === 0)
     throw new Error('skills/jimble-ui/references/ が配布物に入っていません')
+
+  // ---- CLI: インストールしたパッケージの bin を、npx で実行できる（設計書 §17） ----
+  step('CLI（npx @hidemikimura/jimble-ui）が動く')
+  const detail = JSON.parse(
+    run('npx', ['--no-install', '@hidemikimura/jimble-ui', 'component', 'button', '--json']),
+  ) as { type: string; data: { attributes: { name: string; values?: string[] }[] } }
+  const variant = detail.data.attributes.find((a) => a.name === 'variant')
+  if (detail.type !== 'component.detail' || !variant?.values?.includes('primary'))
+    throw new Error('CLI の component button の結果が想定と違います')
+  const found = JSON.parse(
+    run('npx', ['--no-install', '@hidemikimura/jimble-ui', 'themes', '--json']),
+  ) as { data: { themes: unknown[] } }
+  if (found.data.themes.length === 0) throw new Error('CLI がテーマを見つけられません')
+  run('npx', ['--no-install', '@hidemikimura/jimble-ui', 'init', '--link'])
+  if (!existsSync(join(work, '.claude/skills/jimble-ui/SKILL.md')))
+    throw new Error('CLI の init で skill が置かれていません')
+  if (!readFileSync(join(work, 'AGENTS.md'), 'utf8').includes('jimble-ui:start'))
+    throw new Error('CLI の init で AGENTS.md が書かれていません')
+
   const files = readdirSync(join(work, 'node_modules/@hidemikimura/jimble-ui'))
   console.log('pack-smoke OK（配布物の直下:', files.join(', '), '）')
 }

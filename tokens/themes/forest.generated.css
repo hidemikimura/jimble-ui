@@ -1,0 +1,29 @@
+/* 生成物: scripts/gen-tokens.ts が tokens/themes/forest.json から作る。直接編集しない。 */
+/* jimble-ui テーマ「forest」: 深い緑（emerald）と、暖かい灰色（stone）。目に優しい、自然な見た目
+   ページ全体に: <link rel="stylesheet" href="…/themes/forest.css"> を読み込む。
+   ページの一部だけ: 読み込んだうえで、要素に data-jimble-theme="forest" を付ける。 */
+:where(:root),
+[data-jimble-theme='forest'] {
+  --jimble-color-primary-50: oklch(97.9% 0.021 166.113);
+  --jimble-color-primary-100: oklch(95% 0.052 163.051);
+  --jimble-color-primary-200: oklch(90.5% 0.093 164.15);
+  --jimble-color-primary-300: oklch(84.5% 0.143 164.978);
+  --jimble-color-primary-400: oklch(76.5% 0.177 163.223);
+  --jimble-color-primary-500: oklch(43.2% 0.095 166.913);
+  --jimble-color-primary-600: oklch(50.8% 0.118 165.612);
+  --jimble-color-primary-700: oklch(50.8% 0.118 165.612);
+  --jimble-color-primary-800: oklch(43.2% 0.095 166.913);
+  --jimble-color-primary-900: oklch(37.8% 0.077 168.94);
+  --jimble-color-primary-950: oklch(26.2% 0.051 172.552);
+  --jimble-color-neutral-50: oklch(98.5% 0.001 106.423);
+  --jimble-color-neutral-100: oklch(97% 0.001 106.424);
+  --jimble-color-neutral-200: oklch(92.3% 0.003 48.717);
+  --jimble-color-neutral-300: oklch(86.9% 0.005 56.366);
+  --jimble-color-neutral-400: oklch(70.9% 0.01 56.259);
+  --jimble-color-neutral-500: oklch(55.3% 0.013 58.071);
+  --jimble-color-neutral-600: oklch(44.4% 0.011 73.639);
+  --jimble-color-neutral-700: oklch(37.4% 0.01 67.558);
+  --jimble-color-neutral-800: oklch(26.8% 0.007 34.298);
+  --jimble-color-neutral-900: oklch(21.6% 0.006 56.043);
+  --jimble-color-neutral-950: oklch(14.7% 0.004 49.25);
+}

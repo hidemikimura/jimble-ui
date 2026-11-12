@@ -14,5 +14,14 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "build", "scripts", "tests", "vite.config.ts", "vite.cdn.config.ts"]
+  "include": [
+    "src",
+    "build",
+    "scripts",
+    "tests",
+    "cli",
+    "vite.config.ts",
+    "vite.cdn.config.ts",
+    "vite.cli.config.ts"
+  ]
 }

@@ -4,13 +4,14 @@
 
 ## 最初に読むもの
 
-| ファイル                            | 内容                                                                                                                                                   |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `docs/design.md`                    | **設計と判断の記録**（採用案・理由・比較した案）。§16 に各マイルストーンの結果と「テストが見つけた不具合」がある。設計を変えるときは同じ形式で追記する |
-| `CONTRIBUTING.md`                   | 日々の流れ、コミット規約、部品を足すときの約束                                                                                                         |
-| `docs/manual-checks.md`             | 自動テストで確かめられない項目（スクリーンリーダー・IME の実機・強制色モード）                                                                         |
-| `docs/release.md`                   | リリース手順（release-please・Trusted Publishing）                                                                                                     |
-| `.claude/skills/jimble-ui/SKILL.md` | jimble-ui の**使い方**（利用者向けの skill。生成物）                                                                                                   |
+| ファイル                            | 内容                                                                                                                                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/design.md`                    | **設計と判断の記録**（採用案・理由・比較した案）。§16 に各マイルストーンの結果と「テストが見つけた不具合」がある。設計を変えるときは同じ形式で追記する                                                                     |
+| `CONTRIBUTING.md`                   | 日々の流れ、コミット規約、部品を足すときの約束                                                                                                                                                                             |
+| `docs/manual-checks.md`             | 自動テストで確かめられない項目（スクリーンリーダー・IME の実機・強制色モード）                                                                                                                                             |
+| `docs/release.md`                   | リリース手順（release-please・Trusted Publishing）                                                                                                                                                                         |
+| `.claude/skills/jimble-ui/SKILL.md` | jimble-ui の**使い方**（利用者向けの skill。生成物）                                                                                                                                                                       |
+| `cli/`                              | `npx @hidemikimura/jimble-ui` の CLI（`component`・`search`・`docs`・`themes`・`template`・`init`）。`vite.cli.config.ts` で `dist/cli/jimble-ui.js` にする。設計は `docs/design.md` §17。エラーコードは足すだけで消さない |
 
 ## theme-lab
 
@@ -53,7 +54,7 @@ CI は `gen:*:check` で最新かどうかを検査する。**API（属性・ス
 7. **オーバーレイはネイティブ機能に任せる**（`<dialog>` の `showModal()`、Popover API）。popover 要素に `display` を変えるクラスを付けない（UA の非表示が壊れる）。メニュー/セレクトを Tab で閉じるときは、**描画を待たず同期的に `hidePopover()`**（Firefox で tabindex=0 の項目にフォーカスが移る）。toast の領域は、開いているモーダルの `<dialog>` の中へ移動する（モーダルの外は inert）。
 8. **IME**: Enter・Esc・先頭文字検索は `ImeController` で変換中を除外する。
 9. **アクセシビリティは自動テストで守る**: すべての部品と例に axe（違反ゼロ）。色の組み合わせを足したら `tests/unit/contrast.test.ts` に追加（文字 4.5:1、枠・アイコン 3:1）。入力欄の枠は `ring-line-control`（他より濃い）。強制色モード用に、ring/shadow の要素には透明な `outline` を併用する。
-10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。
+10. **部品には必ずテストと例を付ける**（`src/components/<名前>/*.test.ts`、`site/examples/<名前>/*.html`）。例は自動で axe にかかる。API の表は JSDoc（`@slot` `@csspart` `@cssprop` `@fires`、クラスに `@tag`）から作る。ページのテンプレート（`site/examples/templates/`、§18）も例と同じ扱いで、並べ方は `style` 属性で書く（サイトの CSS に頼らない。CLI の `template` がそのまま配る）。
 
 ## テストの落とし穴（過去に踏んだもの）
 

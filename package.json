@@ -26,7 +26,7 @@
     "gen:skill": "node scripts/gen-skill.ts",
     "gen:skill:check": "node scripts/gen-skill.ts --check",
     "prebuild": "npm run gen:tokens && npm run gen:icons && npm run gen:manifest && npm run gen:skill",
-    "build": "vite build && vite build --config vite.cdn.config.ts && vite build --config vite.cdn-code-editor.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
+    "build": "vite build && vite build --config vite.cdn.config.ts && vite build --config vite.cdn-code-editor.config.ts && vite build --config vite.cli.config.ts && tsc -p tsconfig.build.json && node scripts/postbuild.ts",
     "check-dist": "node scripts/check-dist.ts",
     "check-package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./tokens.css ./cloak.css",
     "pack-smoke": "node scripts/pack-smoke.ts",
@@ -132,6 +132,7 @@
     },
     "./tokens.css": "./dist/tokens.css",
     "./cloak.css": "./dist/cloak.css",
+    "./themes/*.css": "./dist/themes/*.css",
     "./custom-elements.json": "./custom-elements.json",
     "./vscode.html-data.json": "./dist/vscode.html-data.json",
     "./package.json": "./package.json",
@@ -143,6 +144,9 @@
       "types": "./dist/types/components/*/index.d.ts",
       "default": "./dist/components/*.js"
     }
+  },
+  "bin": {
+    "jimble-ui": "./dist/cli/jimble-ui.js"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",

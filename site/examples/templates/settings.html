@@ -1,0 +1,95 @@
+<!-- title: 設定（タブで分けた設定の項目と、まとめて保存） -->
+<!-- frame: 760 -->
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar" label="メイン">
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="users"></jimble-icon>顧客</jimble-nav-item
+    >
+    <jimble-nav-item href="#" current
+      ><jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>設定</jimble-nav-item
+    >
+  </jimble-sidebar-nav>
+
+  <jimble-page-header heading="設定" description="このワークスペースの設定です。">
+    <jimble-breadcrumb slot="breadcrumb">
+      <jimble-breadcrumb-item href="#">ホーム</jimble-breadcrumb-item>
+      <jimble-breadcrumb-item>設定</jimble-breadcrumb-item>
+    </jimble-breadcrumb>
+  </jimble-page-header>
+
+  <form
+    style="margin-top: 1rem; max-width: 48rem"
+    onsubmit="
+      event.preventDefault()
+      JimbleUI.toast.success('設定を保存しました')
+    "
+  >
+    <jimble-tabs label="設定の種類">
+      <jimble-tab value="general">一般</jimble-tab>
+      <jimble-tab value="notify">通知</jimble-tab>
+      <jimble-tab value="security">セキュリティ</jimble-tab>
+
+      <jimble-tab-panel value="general">
+        <jimble-card>
+          <div style="display: grid; gap: 1rem">
+            <jimble-field label="ワークスペースの名前" required>
+              <jimble-input name="workspace" value="jimble 商店"></jimble-input>
+            </jimble-field>
+            <jimble-field label="言語">
+              <jimble-select name="lang" value="ja">
+                <jimble-option value="ja">日本語</jimble-option>
+                <jimble-option value="en">English</jimble-option>
+              </jimble-select>
+            </jimble-field>
+            <jimble-field label="タイムゾーン">
+              <jimble-combobox name="tz" value="Asia/Tokyo">
+                <jimble-option value="Asia/Tokyo">Asia/Tokyo</jimble-option>
+                <jimble-option value="Asia/Seoul">Asia/Seoul</jimble-option>
+                <jimble-option value="UTC">UTC</jimble-option>
+                <jimble-option value="America/Los_Angeles">America/Los_Angeles</jimble-option>
+              </jimble-combobox>
+            </jimble-field>
+          </div>
+        </jimble-card>
+      </jimble-tab-panel>
+
+      <jimble-tab-panel value="notify">
+        <jimble-card>
+          <div style="display: grid; gap: 1rem">
+            <jimble-switch name="notify-order" checked>新しい注文を受け付けたとき</jimble-switch>
+            <jimble-switch name="notify-stock" checked>在庫が少なくなったとき</jimble-switch>
+            <jimble-switch name="notify-weekly">毎週の集計</jimble-switch>
+          </div>
+        </jimble-card>
+      </jimble-tab-panel>
+
+      <jimble-tab-panel value="security">
+        <jimble-card>
+          <div style="display: grid; gap: 1rem">
+            <jimble-switch name="mfa" checked>ログインに 2 段階認証を求める</jimble-switch>
+            <jimble-field label="自動でログアウトするまでの時間">
+              <jimble-select name="timeout" value="60">
+                <jimble-option value="15">15 分</jimble-option>
+                <jimble-option value="60">1 時間</jimble-option>
+                <jimble-option value="480">8 時間</jimble-option>
+              </jimble-select>
+            </jimble-field>
+          </div>
+        </jimble-card>
+      </jimble-tab-panel>
+    </jimble-tabs>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem">
+      <jimble-button type="reset">元に戻す</jimble-button>
+      <jimble-button type="submit" variant="primary">保存</jimble-button>
+    </div>
+  </form>
+</jimble-app-shell>

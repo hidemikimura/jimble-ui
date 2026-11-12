@@ -1,28 +1,88 @@
 ---
 title: AI から使う
 order: 8
-description: Claude Code などの AI に jimble-ui を正しく使わせるための skill と資料
+description: Claude Code などの AI に jimble-ui を正しく使わせるための skill・CLI・資料
 ---
 
 jimble-ui には、AI（Claude Code など）が jimble-ui を正しく使うための **skill** が同梱されています。属性の名前を推測して間違える、ラベルを付け忘れる、`<table>` を書いてしまう、といった間違えやすい点を、あらかじめ伝えられます。
 
-## Claude Code の skill を入れる
+## 案内を置く（`init`）
 
-パッケージの `skills/jimble-ui/` を、プロジェクトの `.claude/skills/` に置きます。
+プロジェクトの直下で、次を実行します。
+
+```bash
+npx @hidemikimura/jimble-ui init
+```
+
+次の 2 つを置きます。何度実行しても同じ結果になるので、jimble-ui を更新したら、もう一度実行してください。
+
+| 置くもの                    | 読むエージェント                         | 内容                                                                                                       |
+| --------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `.claude/skills/jimble-ui/` | Claude Code                              | パッケージの skill の写し。`jimble-` の部品で画面を書く・直すときに、自動で使われます                      |
+| `AGENTS.md` の一部          | Codex・Cursor など、AGENTS.md を読むもの | skill の場所と、下の CLI の使い方。印（`jimble-ui:start` / `end`）の間だけを書き換え、ほかの内容は残します |
+
+- `--link` を付けると、写さずに、`node_modules` の中へのシンボリックリンクにします。`npm update` で自動で最新になります（`node_modules` が無い環境では切れます）。プロジェクトに jimble-ui を入れてから使ってください。
+- `--no-agents-md` を付けると、`AGENTS.md` に触れません。
+- 写しはチームで共有できます（`.claude/skills/` と `AGENTS.md` をコミットする）。
+
+手で置く場合は、パッケージの `skills/jimble-ui/` を `.claude/skills/` にコピーします。
 
 ```bash
 mkdir -p .claude/skills
 cp -r node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/
 ```
 
-置くと、`jimble-` の Web Components で画面を書く・直すときに、Claude Code が自動でこの skill を使います。
+## CLI で調べる
 
-- **コピー**は、チームで共有できます（`.claude/skills/` をコミットする）。jimble-ui を更新したら、もう一度コピーしてください。
-- **シンボリックリンク**なら、`npm update` で自動で最新になります（`node_modules` が無い環境では切れます）。
+部品の属性・スロット・イベント・part・CSS 変数、説明、テーマ、[ページのテンプレート](../templates/)を、ターミナルから引けます。人も AI エージェントも、同じコマンドを使えます。インストールする前でも、`npx` で実行できます。
 
-  ```bash
-  ln -s ../../node_modules/@hidemikimura/jimble-ui/skills/jimble-ui .claude/skills/jimble-ui
-  ```
+```bash
+npx @hidemikimura/jimble-ui component button   # 1 つの部品の API（名前なしで一覧）
+npx @hidemikimura/jimble-ui search 日付          # 部品・説明・テーマをまとめて探す
+npx @hidemikimura/jimble-ui docs overlays       # 説明の本文（名前なしで一覧）
+npx @hidemikimura/jimble-ui themes              # 既製のテーマと読み込み方
+npx @hidemikimura/jimble-ui template list      # ページのテンプレート（そのまま開ける HTML。名前なしで一覧）
+```
+
+**`npx jimble-ui` と書かず、必ず `@hidemikimura/` を付けてください。** 付けないと、プロジェクトに入れる前は、同じ名前の別のパッケージが実行されるおそれがあります。
+
+### 機械が読む形（`--json`）
+
+`--json` を付けると、どのコマンドも決まった形の JSON を出します。エージェントやスクリプトから使うときは、こちらを読みます。
+
+```json
+{
+  "apiVersion": 1,
+  "type": "component.detail",
+  "data": { "tag": "jimble-button", "...": "..." },
+  "meta": { "version": "0.18.0" }
+}
+```
+
+失敗したときは、終了コードが 1 になり、`code` と、打ち間違いなら近い名前の候補を出します。
+
+```json
+{
+  "apiVersion": 1,
+  "error": "jimble-buton という要素はありません",
+  "code": "ERR_UNKNOWN_COMPONENT",
+  "suggestions": [{ "name": "jimble-button", "reason": "似た名前" }]
+}
+```
+
+**分岐には `code` を使ってください**（`error` の文言は、改善のために変わります）。`code` は、一度出したら意味を変えず、消しません。
+
+| code                    | 意味                                                       |
+| ----------------------- | ---------------------------------------------------------- |
+| `ERR_UNKNOWN`           | 分類されないエラー                                         |
+| `ERR_UNKNOWN_COMMAND`   | コマンドの名前が分からない                                 |
+| `ERR_INVALID_OPTION`    | 知らないオプション、または値の誤り                         |
+| `ERR_MISSING_ARGUMENT`  | 必要な引数がない                                           |
+| `ERR_UNKNOWN_COMPONENT` | その名前の部品がない                                       |
+| `ERR_UNKNOWN_TOPIC`     | その名前の説明がない                                       |
+| `ERR_DATA_NOT_FOUND`    | パッケージの資料が見つからない（インストールが壊れている） |
+| `ERR_UNKNOWN_TEMPLATE`  | その名前のテンプレートがない                               |
+| `ERR_UNKNOWN_THEME`     | その名前のテーマがない                                     |
 
 ## skill の内容
 

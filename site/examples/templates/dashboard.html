@@ -1,0 +1,99 @@
+<!-- title: ダッシュボード（数字のカード・お知らせ・最近の注文） -->
+<!-- frame: 820 -->
+<jimble-app-shell sidebar-collapsible>
+  <strong slot="header">jimble 管理画面</strong>
+
+  <jimble-sidebar-nav slot="sidebar" label="メイン">
+    <jimble-nav-item href="#" current
+      ><jimble-icon slot="icon" name="home"></jimble-icon>ダッシュボード</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="shopping-cart"></jimble-icon>注文</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="users"></jimble-icon>顧客</jimble-nav-item
+    >
+    <jimble-nav-item href="#"
+      ><jimble-icon slot="icon" name="cog-6-tooth"></jimble-icon>設定</jimble-nav-item
+    >
+  </jimble-sidebar-nav>
+
+  <jimble-page-header heading="ダッシュボード" description="2026 年 11 月の状況です。">
+    <jimble-button slot="actions"
+      ><jimble-icon slot="prefix" name="arrow-path"></jimble-icon>最新にする</jimble-button
+    >
+  </jimble-page-header>
+
+  <div style="display: grid; gap: 1rem; margin-top: 1rem">
+    <section
+      aria-label="今月の数字"
+      style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr))"
+    >
+      <jimble-card>
+        <p style="margin: 0; font-size: 0.875rem">売上</p>
+        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">¥1,284,000</p>
+        <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +12%</jimble-badge>
+      </jimble-card>
+      <jimble-card>
+        <p style="margin: 0; font-size: 0.875rem">注文</p>
+        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">243 件</p>
+        <jimble-badge variant="success" style="margin-top: 0.5rem">前月比 +8%</jimble-badge>
+      </jimble-card>
+      <jimble-card>
+        <p style="margin: 0; font-size: 0.875rem">新しい顧客</p>
+        <p style="margin: 0.25rem 0 0; font-size: 1.75rem; font-weight: 600">38 人</p>
+        <jimble-badge variant="danger" style="margin-top: 0.5rem">前月比 −5%</jimble-badge>
+      </jimble-card>
+    </section>
+
+    <jimble-alert variant="info">
+      <span slot="title">在庫が少ない商品が 2 つあります</span>
+      ステンレスボトル 500ml と、帆布のトートバッグです。
+      <jimble-button slot="actions" size="sm">在庫を見る</jimble-button>
+    </jimble-alert>
+
+    <jimble-card>
+      <div
+        slot="header"
+        style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem"
+      >
+        <h2 style="margin: 0; font-size: 1rem">最近の注文</h2>
+        <a href="#">すべて見る</a>
+      </div>
+      <jimble-table label="最近の注文">
+        <jimble-table-header>
+          <jimble-table-row>
+            <jimble-table-head-cell>注文番号</jimble-table-head-cell>
+            <jimble-table-head-cell>顧客</jimble-table-head-cell>
+            <jimble-table-head-cell>状態</jimble-table-head-cell>
+            <jimble-table-head-cell align="end">金額</jimble-table-head-cell>
+          </jimble-table-row>
+        </jimble-table-header>
+        <jimble-table-body>
+          <jimble-table-row>
+            <jimble-table-cell header><a href="#">#1024</a></jimble-table-cell>
+            <jimble-table-cell>山田 太郎</jimble-table-cell>
+            <jimble-table-cell><jimble-badge variant="info">新規</jimble-badge></jimble-table-cell>
+            <jimble-table-cell align="end">¥12,800</jimble-table-cell>
+          </jimble-table-row>
+          <jimble-table-row>
+            <jimble-table-cell header><a href="#">#1023</a></jimble-table-cell>
+            <jimble-table-cell>佐藤 花子</jimble-table-cell>
+            <jimble-table-cell
+              ><jimble-badge variant="success">発送済み</jimble-badge></jimble-table-cell
+            >
+            <jimble-table-cell align="end">¥3,400</jimble-table-cell>
+          </jimble-table-row>
+          <jimble-table-row>
+            <jimble-table-cell header><a href="#">#1022</a></jimble-table-cell>
+            <jimble-table-cell>鈴木 一郎</jimble-table-cell>
+            <jimble-table-cell
+              ><jimble-badge variant="neutral">取消</jimble-badge></jimble-table-cell
+            >
+            <jimble-table-cell align="end">¥58,000</jimble-table-cell>
+          </jimble-table-row>
+        </jimble-table-body>
+      </jimble-table>
+    </jimble-card>
+  </div>
+</jimble-app-shell>

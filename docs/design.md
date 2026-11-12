@@ -533,6 +533,37 @@ LitElement
 - **サイズ**: `@theme inline` なので、ロールの色を使うクラスごとに、ライトとダークの既定値が書かれる。共有チャンクが 14.9 → 15.3 KB、CDN バンドルが 92.0 → 92.4 KB（gz）になったので、予算を共有チャンク 16 KB、CDN 94 KB に上げた。さらに減らすなら、`@theme inline` をやめて、色の既定値を 1 か所にまとめる案がある（§4.4 の仕組みを変えるので、見送った）。
 - **試験**: コントラストの契約（§4.6）は、同じ組み合わせを、ライトとダークの両方で測る。ドキュメントサイトも `color-scheme: light dark` にし、E2E で、全ページを、ダークでも axe にかける。`src/styles/dark-mode.test.ts` が、既定のライト、`color-scheme: dark`、ページの一部だけ、利用者の上書き、トップレイヤーのダイアログを、3 つのブラウザで確かめる。
 
+### 4.9 既製のテーマ（2026-11-12）
+
+Astryx（Meta のデザインシステム）が、neutral・stone などのテーマを配り、1 つ読み込むだけで見た目を変えられるようにしているのを参考にした。jimble-ui でも、色を 1 つずつ決めなくても、最初から整った見た目を選べるようにする。
+
+> **決定** テーマは、トークンを上書きする **CSS ファイル**として配る（`@hidemikimura/jimble-ui/themes/<名前>.css`、CDN は `dist/themes/<名前>.css`）。情報源は `tokens/themes/<名前>.json` で、`gen-tokens` が `tokens/themes/<名前>.generated.css` を作り、`postbuild` が `dist/themes/` に写す。JSON には、スケールの差し替え（Tailwind のパレット名）と、個別のトークンの上書き（書き方は `tokens.json` と同じ）を書く。セレクターは `:where(:root), [data-jimble-theme="名前"]`。
+> **理由**
+> - ロールはスケールを参照している（§4.1）ので、`primary` と `neutral` のスケールを差し替えるだけで、面・文字・枠・選択中の色が、ライトとダークの両方でそろって変わる。部品にも JS にも手を入れずに済み、CDN でも `<link>` 1 つで使える。
+> - `:where(:root)` は詳細度が 0 なので、利用者が `:root` に書いた上書きが、読み込む順によらず勝つ（テーマを「出発点」として、一部だけ変えられる）。
+> - `[data-jimble-theme]` で、ページの一部（プレビュー、管理者だけの画面など）だけを別のテーマにできる。変数は継承するので、Shadow DOM の中とトップレイヤーにも届く（§4.8 の `color-scheme` と同じ）。
+> - コントラストの契約（§4.6）を、テーマごとに、ライトとダークの両方で測れる（`defaultValue` にテーマを渡す）。テーマを足しても、AA を満たすことが CI で保証される。
+>
+> **比較した案**
+> 1. JS の関数（`setTheme('ocean')`）でトークンを書き込む — 描画の前に実行しないとちらつき、CDN の利用者にも JS が要る。CSS だけで足りる。
+> 2. `:root`（詳細度 0,1,0）に書く — 利用者の上書きを、テーマより後に書く必要がある。`tokens.css` と同じ詳細度になり、順序の事故が起きやすい。
+> 3. Astryx のように、フォント（Web フォント）も変える — 外部への通信が増え、日本語のフォントは大きい。今回は色と角丸だけにした。
+> 4. テーマごとに部品の固有の変数（`--jimble-button-primary-bg-hover` など）も変える — 公開トークン（`tokens.json`）の範囲で表せるものに限った（JSON の検査が、未定義のトークンを拒む）。
+
+**用意したテーマ**
+
+| 名前     | 主色（primary） | 灰色（neutral） | そのほか                    |
+| -------- | --------------- | --------------- | --------------------------- |
+| `ocean`  | blue            | slate           | 角丸を小さく（control・card は md、overlay は lg） |
+| `forest` | emerald         | stone           |                             |
+| `plum`   | violet          | mauve           | 角丸を大きく（control は xl、card・overlay は 1rem） |
+| `sand`   | orange          | taupe           |                             |
+
+- **白い文字が乗る塗りつぶし**: 既定（indigo）は、`primary-600` も hover の `primary-500` も、白い文字で 4.5:1 を満たす。ほかの色相では、600 または 500 が届かない（blue-500 は 3.76:1、emerald-600 は 3.67:1）。そこで、テーマで `primary-600` / `primary-500` に、より濃い段階を割り当てる（例: forest は 600 に emerald-700、500 に emerald-800）。`primary-500` を使うのは主ボタンの hover だけなので、hover が濃くなるだけで、ほかへの影響はない。
+- **`tokens.css` と一緒に読み込まない**: `tokens.css` は `:root`（0,1,0）に全トークンを並べるので、テーマ（`:where(:root)`）に勝つ。どちらも「編集の出発点」で、片方を選ぶ。
+- **生成物の掃除**: `gen-tokens` は、JSON を消したテーマの `.generated.css` を消す（`--check` では古い扱い）。
+- **試験**: `tests/unit/contrast.test.ts` が全テーマ × ライト・ダークで契約を測る。`src/styles/themes.test.ts` が、読み込むと変わること、`data-jimble-theme` の範囲だけ変わること、利用者の `:root` が先に書かれていても勝つこと、ダークの面がテーマの灰色になることを、3 つのブラウザで確かめる。`check-dist` が `dist/themes/*.css` の有無を確かめる。
+
 ---
 
 ## 5. フォーム連携の基底
@@ -1843,6 +1874,49 @@ jimble-input:state(invalid)::part(base) { background: var(--jimble-color-danger-
 - **関数にしなかったもの**: 入力欄・ボタン・チェックボックス・ラジオ・タブは、`getByRole` で直接書ける（役割を属性にも書いたため）。関数を増やすと、覚えることが増える（YAGNI）。
 - **確かめたこと**: すべての関数を、Chromium・Firefox・WebKit で試験する（`tests/e2e/testing-helpers.spec.ts`）。
 - **CI が見つけた不具合**: Linux の WebKit で、コードエディタの空の欄に `keyboard.type` で日本語を 1 文字ずつ送ると、まれに 1 文字目のあとでカーソルが進まず、「こんにちは」が「んにちはこ」になった（手元の macOS では起きない。CI と同じコンテナで 24 回中 3 回再現）。描画を待っても直らず、`keyboard.insertText`（まとめて挿入）では起きない（12 回中 0 回）。`codeEditor().type()` を `insertText` にし、`references/testing.md` の勧め方も「日本語は `insertText`」に直した（コンテナで 90 回とも通る）。pack-smoke で、Playwright を入れていない環境でも、入口を読み込めること（型だけを使っていること）を確かめる。
+
+## 17. AI エージェント向けの CLI（2026-11-12）
+
+Astryx（Meta のデザインシステム）は、CLI を「人と機械の両方の主な入口」にしている。部品の説明・検索・テンプレート・テーマを、同じコマンドで引け、`--json` で決まった形の JSON と、変わらないエラーコードを返す。`init` は、エージェント向けの AGENTS.md / CLAUDE.md を書く。jimble-ui も、skill（§0 の skill、`skills/jimble-ui`）を手でコピーする手間をなくし、Claude Code 以外のエージェントにも案内が届くようにする。
+
+> **決定** パッケージに bin（`jimble-ui`、`dist/cli/jimble-ui.js`）を足し、`npx @hidemikimura/jimble-ui <コマンド>` で使う。コマンドは `component [名前]`・`search <ことば…>`・`docs [名前]`・`themes`・`init`。資料は、すでに配布物に入っているもの（`custom-elements.json`、`dist/vscode.html-data.json`、`skills/jimble-ui/`、`dist/themes/*.css`）だけを読み、新しい生成物は作らない。
+> **理由**
+> - 情報源を増やさない。属性の候補値は、型の別名を解決済みの VS Code 用データから、説明は skill から読むので、skill・補完・CLI の内容が食い違わない。
+> - エージェントは、skill 全体（約 2 万文字）を読まなくても、必要な要素の API だけを引ける。`search` は、要素・説明の見出し・テーマをまとめて探し、次に実行するコマンドを添える。
+> - `init` は、Claude Code 用の skill（`.claude/skills/jimble-ui/`）と、Codex・Cursor などが読む `AGENTS.md` の両方を置く。AGENTS.md は印（`<!-- jimble-ui:start -->` 〜 `end`）の間だけを書き換え、利用者の内容を残す。何度実行しても同じ結果で、対話しない（CI・エージェントから実行できる）。
+>
+> **比較した案**
+> 1. MCP サーバーを配る — 利用者ごとにエージェントの設定が要る。CLI なら、シェルを使えるエージェントすべてが、設定なしで使える。
+> 2. TypeScript のまま配り、Node の型の除去で実行する — Node 22 の前半の版では既定で動かない。Vite で 1 ファイルの JS にする（依存は Node の組み込みだけ、約 21 KB）。
+> 3. 依存（commander など）を使う — 引数の解析は `node:util` の `parseArgs` で足りる。依存を増やすと、`npx` の初回が遅くなる。
+
+- **出力の形**: 成功は `{ apiVersion: 1, type, data, meta: { version } }`、失敗は `{ apiVersion: 1, error, code, suggestions? }`（終了コード 1）。`type` は `component.list`・`component.detail`・`search`・`docs.list`・`docs.topic`・`theme.list`・`template.list`・`template.detail`（§18）・`init`・`version`。互換性を壊すときだけ `apiVersion` を上げる。
+- **エラーコード**（`cli/errors.ts`）: `ERR_UNKNOWN`・`ERR_UNKNOWN_COMMAND`・`ERR_INVALID_OPTION`・`ERR_MISSING_ARGUMENT`・`ERR_UNKNOWN_COMPONENT`・`ERR_UNKNOWN_TOPIC`・`ERR_DATA_NOT_FOUND`・`ERR_UNKNOWN_TEMPLATE`・`ERR_UNKNOWN_THEME`（§18 で追加）。**足すだけで、意味を変えず、消さない**。打ち間違いには、編集距離で近い名前を `suggestions` に出す。ガイド（AI から使う）の表と一致することを試験で確かめる。
+- **`npx jimble-ui` と略させない**: 略すと、インストール前は同じ名前の別のパッケージが実行されるおそれがある（Astryx も同じ注意を書いている）。案内・skill・AGENTS.md では、すべて `npx @hidemikimura/jimble-ui` と書く。bin が 1 つなので、npx はそれを実行する。
+- **`init --link`**: プロジェクトの `node_modules` の中の skill へのリンクにする（`npm update` で最新になる）。npx の一時的な置き場へのリンクはすぐ切れるので、パッケージがプロジェクトの `node_modules` に無ければ断る（`ERR_INVALID_OPTION`）。
+- **共有**: 要素とページの対応・フォーム部品の一覧・最初の一文の取り出し（`cli/catalog.ts`）は、skill の生成（`scripts/gen-skill.ts`）と共有する。VS Code 用データの生成は `scripts/lib/manifest.ts` の `vscodeData()` にまとめ、postbuild と CLI の試験が使う。
+- **試験**: `tests/unit/cli.test.ts` が、配布物と同じ並びの仮のパッケージを一時ディレクトリに作り、全コマンドの出力・JSON の形・エラーコード・`init` の書き込み（2 回目は変更なし、AGENTS.md の既存の内容を残す、`--link`、`--no-agents-md`）を確かめる。`pack-smoke` が、tarball を入れたプロジェクトで `npx --no-install @hidemikimura/jimble-ui` の `component`・`themes`・`init --link` を実行する。`check-dist` が `dist/cli/jimble-ui.js` の有無を確かめる。
+
+## 18. ページのテンプレート（2026-11-12）
+
+Astryx は、ダッシュボード・表・フォーム・設定・ログインなどのページのテンプレートを配り、CLI で取り出せるようにしている。jimble-ui は管理画面向けなので、同じ種類のページを、部品だけで組んだ見本として配る。
+
+> **決定** テンプレートは `site/examples/templates/<名前>.html` に、ほかの例と同じ形（先頭に `title` と `frame` のコメント、本文の HTML）で書く。`list`（一覧）・`detail`（詳細）・`form`（編集フォーム）・`settings`（設定）・`login`（ログイン）・`dashboard`（ダッシュボード）の 6 つ。`postbuild` が `dist/templates/` に写し、CLI の `template <名前>` が、CDN で読み込む HTML 文書に包んで出す（`--fragment` で本文だけ、`--theme <名前>` でテーマの `<link>` を足す）。
+> **理由**
+> - 例と同じ置き場なので、既存の仕組みがそのまま効く: 例の試験（`tests/browser/examples.test.ts`）が 3 つのブラウザで axe にかけ、ドキュメントサイトが iframe のページ（`frames/templates/<名前>/`）を作り、E2E がライトとダークで axe にかける。テンプレートだけの検査の仕組みを作らずに済む。
+> - 情報源は 1 つ。サイトの「ソース」、CLI の出力、配布物の中身が同じファイルから来る。
+> - 並べ方は `style` 属性（`display: grid` など）だけで書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。
+>
+> **比較した案**
+> 1. 完全な HTML 文書をファイルとして持つ — サイトの iframe・例の試験と形が合わず、`<head>` の CDN の版を、リリースのたびに書き換えることになる。CLI が、入っているパッケージの版から `<head>` を作る。
+> 2. skill の references にテンプレートの全文を入れる — skill が大きくなる（6 ページで約 25 KB）。skill には「`template` で取り出す」とだけ書き、本文は CLI で必要なときに読む。
+> 3. Web Components のページ部品（`<jimble-list-page>` など）にする — 列・項目・操作の組み合わせが多く、属性で表しきれない。テンプレートは、書き換えて使う出発点に留める。
+
+- **CDN の版**: CLI は、入っているパッケージの版から範囲を決める。0.x はマイナーまで（`@0.18`。マイナーで互換性が壊れることがあるため）、1 以上はメジャーだけ。`themes` の CDN の URL も同じ範囲にした。
+- **文書の `<head>`**: `cloak.css`（登録前のちらつきを防ぐ）、テーマ（指定したとき）、CDN バンドル、`color-scheme: light dark`（OS の設定に従う。部品とブラウザの背景がそろう）、`body` の余白と書体。
+- **main ランドマーク**: app-shell を使うテンプレートは、app-shell が `main` を持つ。ログインは app-shell を使わないので、テンプレート自身が `<main>` から始まる。例の試験は、`<main` を含む例を `main` で包まない（入れ子の `main` を避ける）。
+- **送信の処理**: `onsubmit` は `JimbleUI.toast` で通知を出すだけの見本。必須の項目は `jimble-field` の `required` で、未入力のまま送信すると、エラーを出して最初の項目にフォーカスする（ブラウザで確認した）。
+- **試験**: 例の試験と E2E に加えて、`tests/unit/cli.test.ts` が `template` の一覧・文書・`--fragment`・`--theme`・エラーコード・`search` での発見を確かめる。`pack-smoke` は、tarball を入れたプロジェクトで `template list --theme ocean` の出力を、CDN の URL を入れたパッケージの `dist` に向けて Chromium で開き、部品が登録され、テーマが効き、コンソールエラーがないことを確かめる。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
