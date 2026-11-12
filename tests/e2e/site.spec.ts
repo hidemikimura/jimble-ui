@@ -46,6 +46,8 @@ const PAGES = [
   '/components/pagination/',
   '/components/table/',
   '/components/description-list/',
+  '/components/stack/',
+  '/components/grid/',
   '/frames/app-shell/basic/',
   '/frames/app-shell/admin-page/',
   '/frames/app-shell/collapsible/',

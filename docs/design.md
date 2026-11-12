@@ -1923,7 +1923,7 @@ Astryx は、ダッシュボード・表・フォーム・設定・ログイン�
 > **理由**
 > - 例と同じ置き場なので、既存の仕組みがそのまま効く: 例の試験（`tests/browser/examples.test.ts`）が 3 つのブラウザで axe にかけ、ドキュメントサイトが iframe のページ（`frames/templates/<名前>/`）を作り、E2E がライトとダークで axe にかける。テンプレートだけの検査の仕組みを作らずに済む。
 > - 情報源は 1 つ。サイトの「ソース」、CLI の出力、配布物の中身が同じファイルから来る。
-> - 並べ方は `style` 属性（`display: grid` など）だけで書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。
+> - 並べ方は、部品（§19 の `jimble-stack` / `jimble-grid`）と、それで書けない所だけの `style` 属性で書き、ドキュメントサイトの CSS（`.row` / `.stack`）に頼らない。取り出したまま動き、利用者は自分の CSS に置き換えられる。色は書かない（部品とテーマに任せる）。（最初は `style` 属性の `display: grid` で書き、§19 で Stack・Grid に置き換えた）
 >
 > **比較した案**
 > 1. 完全な HTML 文書をファイルとして持つ — サイトの iframe・例の試験と形が合わず、`<head>` の CDN の版を、リリースのたびに書き換えることになる。CLI が、入っているパッケージの版から `<head>` を作る。
@@ -1935,6 +1935,28 @@ Astryx は、ダッシュボード・表・フォーム・設定・ログイン�
 - **main ランドマーク**: app-shell を使うテンプレートは、app-shell が `main` を持つ。ログインは app-shell を使わないので、テンプレート自身が `<main>` から始まる。例の試験は、`<main` を含む例を `main` で包まない（入れ子の `main` を避ける）。
 - **送信の処理**: `onsubmit` は `JimbleUI.toast` で通知を出すだけの見本。必須の項目は `jimble-field` の `required` で、未入力のまま送信すると、エラーを出して最初の項目にフォーカスする（ブラウザで確認した）。
 - **試験**: 例の試験と E2E に加えて、`tests/unit/cli.test.ts` が `template` の一覧・文書・`--fragment`・`--theme`・エラーコード・`search` での発見を確かめる。`pack-smoke` は、tarball を入れたプロジェクトで `template list --theme ocean` の出力を、CDN の URL を入れたパッケージの `dist` に向けて Chromium で開き、部品が登録され、テーマが効き、コンソールエラーがないことを確かめる。
+
+## 19. 配置の部品 Stack・Grid（2026-11-12）
+
+Astryx は Stack（VStack / HStack）・Grid などの配置の部品を持ち、余白を間隔の段階で指定させる。jimble-ui では、例とテンプレートが `style` 属性の `display: grid; gap: 1rem` などで並べていて、間隔の値が場所ごとにばらつきやすく、AI が画面を組むときにも、余白の決め方の手がかりがなかった。
+
+> **決定** `jimble-stack`（縦・横に並べる。`direction`・`gap`・`align`・`justify`・`wrap`）と、`jimble-grid`（格子に並べる。`columns`・`min-column-width`・`gap`）を足す。`gap` は、余白の基準 `--jimble-spacing`（既定 4px）の何倍か（既定 4 = 16px）。Shadow DOM の中の `<div part="base">` を flex / grid にし、既定のスロットの子を並べる。host には何も書かない。
+> **理由**
+> - 間隔を「基準の何倍か」で書かせると、値が 2・3・4・6 などの段階にそろい、ページ全体の密度（`--jimble-spacing`）を変えると一緒に変わる。Tailwind の `gap-4` と同じ数え方なので、覚えやすい。
+> - スロットは `display: contents` なので、light DOM の子が、そのまま内側の flex / grid の項目になる。子に手を入れずに並べられる。
+> - `min-column-width` で、メディアクエリなしに、幅に合わせて列の数が変わる（`repeat(auto-fit, minmax(min(幅, 100%), 1fr))`。`min(…, 100%)` で、狭い画面でもはみ出さない）。
+>
+> **比較した案**
+> 1. host 自身を flex / grid にする（`:host { display: flex }` と、属性ごとの `:host([gap="4"])`） — `gap` の値の数だけ規則が要り、小数や任意の値を扱えない。値を host の style に書くのは、host に書き込まない約束（CLAUDE.md の 5）に反する。
+> 2. ユーティリティのクラス（`.jimble-stack-4`）を配る — Shadow DOM の外の CSS になり、読み込みの手間が増える。部品なら、CDN の 1 行で使える。
+> 3. 間隔を長さ（`gap="1rem"`）で受ける — 段階がばらつき、密度の変更に追従しない。
+
+- **書体と色を引き継ぐ**: 共通の `:host` は部品の書体と文字色を決めるが、Stack・Grid は並べるだけの箱なので、host で `font-family: inherit; color: inherit` に戻す（利用者の文章の見た目を変えない）。試験で確かめる。
+- **CSP**: 間隔と列の指定は、`style` 属性ではなく `styleMap`（CSSOM）で渡す（§16 の色選択と同じく、`style-src` を絞ったページでも動く）。
+- **値の検査**: `gap` は 0 以上の数（小数も可）で、それ以外は既定の 4。`columns` は 1 以上の整数で、それ以外は 1。`min-column-width` は `16rem`・`240px`・`20ch`・`50%` のような長さだけを受け付け、式や `var()` は無視して `columns` を使う。
+- **意味**: どちらも役割（role）を持たない。リストなら `<ul>`、まとまりに名前を付けるなら `<section aria-label>` を、外側に置く。
+- **テンプレート**: §18 のテンプレートの `display: grid` / `flex` を、Stack・Grid に置き換えた（一覧の検索欄は、入力欄の伸び方を `flex` で決めているので、`style` のまま）。
+- **theme-lab**: 部品一覧のページに「配置」の欄を足した（公開版に入るまでは、間隔なしで表示される）。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 
