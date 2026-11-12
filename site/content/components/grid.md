@@ -16,6 +16,10 @@ description: 子の要素を、同じ間隔の格子に並べる
 
 ::example grid/columns
 
+## Do / Don't
+
+::dos grid
+
 ## API
 
 ::api jimble-grid

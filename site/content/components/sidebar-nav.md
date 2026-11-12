@@ -37,6 +37,10 @@ description: サイドバーのナビゲーション
 
 すべてのリンクとグループのボタンが、Tab で順に移動できます（矢印キーでの移動は使いません）。グループのボタンは Enter / Space で開閉します。
 
+## Do / Don't
+
+::dos sidebar-nav
+
 ## API
 
 ::api jimble-sidebar-nav

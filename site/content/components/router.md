@@ -168,3 +168,7 @@ class PagePlanEdit extends LitElement {
 ## キーボード・API
 
 ::api jimble-router
+
+## Do / Don't
+
+::dos router

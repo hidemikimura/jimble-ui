@@ -37,6 +37,16 @@ function formatComponent(c: ComponentDetail): string {
     ...namedList('part（::part()）', c.parts),
     ...namedList('CSS 変数', c.cssProperties),
     ...namedList('状態（:state()）', c.states),
+    ...(c.dos
+      ? [
+          '',
+          'Do（こうする）:',
+          ...c.dos.do.map((d) => `  - ${d}`),
+          '',
+          "Don't（避ける）:",
+          ...c.dos.dont.map((d) => `  - ${d}`),
+        ]
+      : []),
     '',
     `詳細と例: ${c.page}`,
   ].join('\n')

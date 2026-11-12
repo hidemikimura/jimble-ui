@@ -111,6 +111,19 @@ describe('component', () => {
     expect(variant.values).toEqual(['primary', 'secondary', 'danger', 'ghost'])
   })
 
+  it("ページの Do / Don't が付く（子の要素は、親のページのもの）", () => {
+    type D = Envelope<{ dos: { do: string[]; dont: string[] } | null }>
+    const button = cliJson<D>('component', 'button').json.data.dos!
+    expect(button.do.length).toBeGreaterThan(0)
+    expect(button.dont.length).toBeGreaterThan(0)
+    expect(button.do.join()).toContain('primary')
+    const option = cliJson<D>('component', 'option').json.data.dos!
+    expect(option).toEqual(cliJson<D>('component', 'select').json.data.dos)
+    const text = cli('component', 'button').out
+    expect(text).toContain('Do（こうする）:')
+    expect(text).toContain("Don't（避ける）:")
+  })
+
   it('jimble- を付けた名前でも引ける', () => {
     expect(cliJson('component', 'jimble-card').code).toBe(0)
   })
@@ -204,6 +217,7 @@ describe('docs と themes', () => {
     const { json } = cliJson<Envelope<{ topics: { id: string }[] }>>('docs')
     const refs = [
       'display',
+      'dos',
       'form-validation',
       'inputs',
       'layout-theme',

@@ -40,6 +40,10 @@ description: 色選択（16進数の入力とスライダー、候補の色）
 | Enter / Space        | （候補の色で）その色を選ぶ                 |
 | Esc                  | 閉じて、入力欄に戻る                       |
 
+## Do / Don't
+
+::dos color-input
+
 ## API
 
 ::api jimble-color-input

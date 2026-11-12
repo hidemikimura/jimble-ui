@@ -27,6 +27,10 @@ WAI-ARIA の radio group パターンに従います。
 
 ::example field/group
 
+## Do / Don't
+
+::dos radio-group
+
 ## API
 
 ::api jimble-radio-group

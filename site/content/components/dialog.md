@@ -35,6 +35,10 @@ description: モーダルダイアログ
 | Tab / Shift + Tab | ダイアログの中を移動（背面には出ません）                          |
 | Esc               | 閉じる（`jimble-close-request` → 閉じる）。IME の変換中は閉じない |
 
+## Do / Don't
+
+::dos dialog
+
 ## API
 
 ::api jimble-dialog

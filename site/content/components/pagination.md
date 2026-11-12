@@ -27,6 +27,10 @@ description: ページネーション
 - 最初/最後のページでは、「前へ」/「次へ」は無効になります。
 - ボタンの名前は「N ページ目」「前のページ」「次のページ」で、辞書で切り替えられます。
 
+## Do / Don't
+
+::dos pagination
+
 ## API
 
 ::api jimble-pagination

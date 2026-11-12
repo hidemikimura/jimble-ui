@@ -32,6 +32,10 @@ description: 1 行のテキスト入力
 
 ::example input/customize
 
+## Do / Don't
+
+::dos input
+
 ## API
 
 ::api jimble-input

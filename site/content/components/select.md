@@ -32,6 +32,10 @@ description: セレクト（選択肢から 1 つ選ぶ）
 | Esc                | 選択を変えずに閉じる                                                                     |
 | Tab                | 選択を変えずに閉じて、次の要素へ進む                                                     |
 
+## Do / Don't
+
+::dos select
+
 ## API
 
 ::api jimble-select

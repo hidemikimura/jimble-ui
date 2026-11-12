@@ -36,6 +36,10 @@ description: 段階を踏む入力の、今の位置と進み具合
 
 済・現在・未の色と、つなぎ線の色は、CSS 変数で変えられます（`--jimble-stepper-complete-color`・`-current-color`・`-upcoming-color`・`-connector-color`）。丸・名前・補足・つなぎ線は、`::part()` でも指定できます。
 
+## Do / Don't
+
+::dos stepper
+
 ## API
 
 ::api jimble-stepper

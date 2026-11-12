@@ -96,6 +96,10 @@ description: 絞り込みできるセレクト（取得・複数選択・追加�
 | Esc   | 選択を変えずに閉じて、入力欄を選択中の表示に戻す                                         |
 | Tab   | 選択を変えずに閉じて、次の要素へ進む                                                     |
 
+## Do / Don't
+
+::dos combobox
+
 ## API
 
 ::api jimble-combobox
