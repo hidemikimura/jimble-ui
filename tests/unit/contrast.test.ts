@@ -85,6 +85,7 @@ const PAIRS: [string, string, number, string][] = [
   ['text-on-primary', 'primary-500', 4.5, 'primary ボタン hover'],
   ['text-on-primary', 'danger-600', 4.5, 'danger ボタン'],
   ['text-on-primary', 'danger-700', 4.5, 'danger ボタン hover'],
+  ['neutral-900', 'warning-300', 4.5, '警告のバナー（塗りつぶし）'],
   ['ring-control', 'surface', 3, '入力欄の枠 (1.4.11)'],
   ['ring-focus', 'surface', 3, 'フォーカスリング (2.4.13)'],
   ['ring-focus', 'surface-muted', 3, 'フォーカスリング(背景)'],

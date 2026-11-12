@@ -13,7 +13,7 @@ description: 結果・警告・エラー・空の状態を、どの部品で伝�
 | 操作の結果（保存した・送信した・削除した）     | 通知（`JimbleUI.toast()`）                                                                                           | 自動で消える（失敗は残る）           |
 | 入力の誤り（項目ごと）                         | [Field](../../components/field/) の `error`                                                                          | 直すと消える                         |
 | 入力の誤りの要約・画面の一部への注意           | [Alert](../../components/alert/)（その部分の上に置く）                                                               | 状況が変わるまで残る                 |
-| 画面全体・アプリ全体に関わること（保守・期限） | [Alert](../../components/alert/)（本文の先頭に置く）                                                                 | 状況が変わるまで、または閉じるまで   |
+| 画面全体・アプリ全体に関わること（保守・期限） | [Banner](../../components/banner/)（画面のいちばん上）                                                               | 状況が変わるまで、または閉じるまで   |
 | 先へ進む前に答えが要ること（削除の確認など）   | [Dialog](../../components/dialog/) の `alert`                                                                        | 答えると閉じる                       |
 | 表示するデータがない（0 件・検索の結果なし）   | [Empty State](../../components/empty-state/)                                                                         | データが入ると消える                 |
 | 読み込み中・処理中                             | [Skeleton](../../components/skeleton/)・[Spinner](../../components/spinner/)・[Progress](../../components/progress/) | 終わると消える                       |
@@ -34,7 +34,7 @@ description: 結果・警告・エラー・空の状態を、どの部品で伝�
 
 ### 警告
 
-まだ起きていないが、放っておくと困ること（期限が近い・保存していない変更がある・上限に近い）です。関わる部分の上に `jimble-alert variant="warning"` を置きます。取り返しのつかない操作の直前に止めるときは、ダイアログの `alert` で確認します。
+まだ起きていないが、放っておくと困ること（期限が近い・保存していない変更がある・上限に近い）です。関わる部分の上に `jimble-alert variant="warning"` を置きます。契約の期限など、アプリ全体に関わる警告は、画面のいちばん上の `jimble-banner variant="warning"` にします。取り返しのつかない操作の直前に止めるときは、ダイアログの `alert` で確認します。
 
 ### 情報
 

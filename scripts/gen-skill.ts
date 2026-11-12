@@ -45,6 +45,7 @@ const GROUPS: [string, string[]][] = [
       'tag',
       'tag-group',
       'alert',
+      'banner',
       'spinner',
       'progress',
       'skeleton',

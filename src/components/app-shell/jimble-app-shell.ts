@@ -22,7 +22,7 @@ function deepActiveElement(): Element | null {
 
 // グリッドの列など。Tailwind が拾えるよう、完全な文字列で書く
 const BASE =
-  'grid min-h-dvh grid-cols-1 grid-rows-[auto_1fr] bg-surface-muted text-fg md:transition-[grid-template-columns] md:duration-150 motion-reduce:transition-none [--_hh:var(--jimble-app-shell-header-height,3.5rem)] ' +
+  'grid min-h-dvh grid-cols-1 grid-rows-[auto_auto_1fr] bg-surface-muted text-fg md:transition-[grid-template-columns] md:duration-150 motion-reduce:transition-none [--_hh:var(--jimble-app-shell-header-height,3.5rem)] ' +
   '[--_ring-header:var(--jimble-app-shell-header-ring,var(--color-line))] [--_ring-sidebar:var(--jimble-app-shell-sidebar-ring,var(--color-line))] '
 const COLS_WIDE = 'md:grid-cols-[var(--jimble-app-shell-sidebar-width,16rem)_minmax(0,1fr)]'
 const COLS_RAIL =
@@ -54,12 +54,14 @@ const ICON_BUTTON =
  *
  * @tag jimble-app-shell
  *
+ * @slot banner - ヘッダーの上に、幅いっぱいで出す知らせ（`jimble-banner`）。スクロールすると流れて消える
  * @slot header - ヘッダーの内容（ロゴ、検索、ユーザーメニューなど）
  * @slot sidebar - サイドバーの内容（jimble-sidebar-nav など）
  * @slot - 本文
  *
  * @csspart base - ルート要素
  * @csspart skip-link - スキップリンク
+ * @csspart banner - 画面上部の知らせ（banner スロット）を包む要素
  * @csspart header - ヘッダー（banner）
  * @csspart menu-button - ドロワーを開くボタン（狭い画面のみ）
  * @csspart toggle-button - サイドバーの幅を切り替えるボタン（`sidebar-collapsible`、広い画面のみ）
@@ -314,6 +316,7 @@ export class JimbleAppShell extends JimbleElement {
       >
         ${this.t('shell.skipToContent')}
       </button>
+      <div part="banner" class="col-span-full"><slot name="banner"></slot></div>
       <header
         part="header"
         class="sticky top-0 z-(--jimble-z-sticky,10) col-span-full flex h-(--_hh) items-center gap-3 px-4 shadow-sm ring-1 ring-inset ring-(--_ring-header) [background-color:var(--jimble-app-shell-header-bg,var(--color-surface))] [color:var(--jimble-app-shell-header-text,var(--color-fg))]"

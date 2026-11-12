@@ -1,0 +1,8 @@
+@layer components {
+  :host(jimble-banner) {
+    display: block;
+  }
+  :host(jimble-banner[hidden]) {
+    display: none;
+  }
+}

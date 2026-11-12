@@ -436,6 +436,10 @@
   --jimble-badge-border: var(--jimble-color-ring-control);
   --jimble-badge-dot-color: currentColor;
   */
+  /* 画面上部の知らせ（バナー）の色（種類ごとの既定があるので、必要なときだけ）
+  --jimble-banner-bg: var(--jimble-color-surface-inverse);
+  --jimble-banner-text: var(--jimble-color-text-on-primary);
+  */
   /* アバターの大きさと輪（大きさは size ごと、輪は群の中で面の色になるので、必要なときだけ）
   --jimble-avatar-size: 2rem;
   --jimble-avatar-ring: transparent;

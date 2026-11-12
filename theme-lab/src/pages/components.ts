@@ -100,6 +100,12 @@ export function components() {
             <jimble-tag>固定のラベル</jimble-tag>
           </jimble-tag-group>
         </template>
+        <!-- バナーは公開版にまだ無い。公開版に入ったら、この template を外す -->
+        <template>
+          <jimble-banner variant="warning" style="margin-top: 0.75rem"
+            >今夜 22 時から、保守のため止まります。</jimble-banner
+          >
+        </template>
       </jimble-card>
       <jimble-card id="sec-icon">
         <h3 slot="header">スピナー・アイコン・ツールチップ</h3>

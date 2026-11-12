@@ -58,7 +58,7 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 
 - **`jimble-app-shell`** — 管理画面の枠組み: 上部のヘッダー、左のサイドバー、本文。
   - 属性: `sidebar-open`, `sidebar-collapsible`, `sidebar-collapsed`
-  - スロット: `header`, `sidebar`, (既定)
+  - スロット: `banner`, `header`, `sidebar`, (既定)
   - イベント: `jimble-open`, `jimble-close`, `jimble-sidebar-toggle`
 - **`jimble-sidebar-nav`** — サイドバーのナビゲーション。
   - 属性: `label=値`, `compact`
@@ -134,6 +134,10 @@ import { toast } from '@hidemikimura/jimble-ui/toast'
 - **`jimble-alert`** — ページ内の通知。
   - 属性: `variant=info|success|warning|danger`, `dismissible`
   - スロット: (既定), `title`, `icon`, `actions`
+  - イベント: `jimble-dismiss`
+- **`jimble-banner`**（試験的） — 画面のいちばん上に、幅いっぱいで出す知らせ（保守の予定・契約の期限切れ・障害など、アプリ全体に関わること）。
+  - 属性: `variant=info|warning|danger`, `dismissible`
+  - スロット: (既定), `icon`, `actions`
   - イベント: `jimble-dismiss`
 - **`jimble-spinner`** — 読み込み中を示すスピナー。
   - 属性: `size=sm|md|lg`, `variant=current|primary`, `label=値`, `decorative`
