@@ -136,14 +136,26 @@ export function components() {
           </jimble-tree-item>
           <jimble-tree-item label="家電" value="appliance"></jimble-tree-item>
         </jimble-tree>
-        <!-- コマンドパレットは、全部入りとは別の入口（@hidemikimura/jimble-ui/command-palette）。
-             公開版に入ったら main.ts で import し、この template を外す -->
-        <template>
-          <jimble-command-palette hotkey="mod+k">
-            <jimble-command value="orders" group="ページ">注文の一覧</jimble-command>
-            <jimble-command value="new" group="操作">注文を登録</jimble-command>
-          </jimble-command-palette>
-        </template>
+        <jimble-button
+          @click=${(e: Event) =>
+            (
+              (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement & {
+                show(): void
+              }
+            ).show()}
+          >コマンドパレットを開く（Ctrl+K / ⌘K）</jimble-button
+        >
+        <jimble-command-palette hotkey="mod+k">
+          <jimble-command value="orders" group="ページ" icon="table-cells"
+            >注文の一覧</jimble-command
+          >
+          <jimble-command value="forms" group="ページ" icon="pencil-square"
+            >入力フォーム</jimble-command
+          >
+          <jimble-command value="new" group="操作" icon="plus" shortcut="⌘N"
+            >注文を登録</jimble-command
+          >
+        </jimble-command-palette>
         <jimble-progress label="取り込み" value="45" show-value></jimble-progress>
         <jimble-progress label="準備中" variant="success"></jimble-progress>
         <jimble-radio-group appearance="segmented" aria-label="表示の切り替え" value="list">

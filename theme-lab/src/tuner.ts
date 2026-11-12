@@ -8,6 +8,8 @@ import { applyOverrides, findDuplicates, scanDecls, setForScheme, splitLightDark
 import { SCHEME_EVENT, activeScheme, setScheme } from './scheme.ts'
 import themeRaw from './theme.css?raw'
 import tokensRaw from '@hidemikimura/jimble-ui/tokens.css?raw'
+import densityRaw from '@hidemikimura/jimble-ui/density.css?raw'
+import { parseDensityCss, parseThemeCss, type Preset } from './presets.ts'
 
 /** 段階の割合(基準色 600 を、白・黒と混ぜて作る)。あくまで出発点で、あとで一つずつ直してよい */
 const MIX: Record<number, [number, 'white' | 'black']> = {
@@ -24,6 +26,18 @@ const MIX: Record<number, [number, 'white' | 'black']> = {
 }
 
 export const THEME_EVENT = 'lab-theme-change'
+
+/** 入っている jimble-ui の既製のテーマ（dist/themes/*.css）と、余白の段階（dist/density.css） */
+const THEMES: Preset[] = Object.values(
+  import.meta.glob<string>('/node_modules/@hidemikimura/jimble-ui/dist/themes/*.css', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }),
+)
+  .map(parseThemeCss)
+  .sort((a, b) => a.name.localeCompare(b.name))
+const DENSITIES: Preset[] = parseDensityCss(densityRaw)
 
 /** いまの theme.css の中身（保存すると、画面を読み込み直さずに入れ替わる） */
 let themeSource: string = themeRaw
@@ -56,16 +70,26 @@ export class LabTuner extends LitElement {
     open: { state: true },
     tick: { state: true },
     query: { state: true },
+    themeChoice: { state: true },
+    densityChoice: { state: true },
   }
   declare open: boolean
+  /** 出発点に選んだ既製のテーマ（空なら既定） */
+  declare themeChoice: string
+  /** 出発点に選んだ余白の段階（空なら theme.css のまま） */
+  declare densityChoice: string
   declare tick: number
   declare query: string
   #overrides = new Map<string, string>()
+  /** 出発点（既製のテーマ・余白の段階）が当てた変数。選び直したら、前の分を外してから当てる */
+  #fromPreset = { theme: new Set<string>(), density: new Set<string>() }
   /** 「ライトからダークを作る」で作ったダークの値（もう一度押したとき、手で直した色と区別して、作り直す） */
   #generatedDark = new Map<string, string>()
 
   constructor() {
     super()
+    this.themeChoice = ''
+    this.densityChoice = ''
     const dup = duplicatesNow()
     if (dup.length)
       console.warn(
@@ -192,6 +216,11 @@ export class LabTuner extends LitElement {
     .actions .note {
       margin: 0;
     }
+    .start {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
     label {
       font-size: 12px;
     }
@@ -303,6 +332,28 @@ export class LabTuner extends LitElement {
     return { fixed: fixedNames.size, failed }
   }
 
+  /**
+   * 出発点を当てる。前に当てた分を外してから、選んだものの値を、試しの値として入れる
+   * （「theme.css をコピー」に入る。あとから一つずつ直してよい）
+   */
+  #applyPreset(kind: 'theme' | 'density', name: string) {
+    const applied = this.#fromPreset[kind]
+    for (const n of applied) {
+      this.#overrides.delete(n)
+      root().style.removeProperty(n)
+    }
+    applied.clear()
+    const preset = (kind === 'theme' ? THEMES : DENSITIES).find((p) => p.name === name)
+    for (const d of preset?.decls ?? []) {
+      this.#overrides.set(d.name, d.value)
+      root().style.setProperty(d.name, d.value)
+      applied.add(d.name)
+    }
+    if (kind === 'theme') this.themeChoice = preset ? name : ''
+    else this.densityChoice = preset ? name : ''
+    this.#changed()
+  }
+
   #changed() {
     this.tick++
     window.dispatchEvent(new Event(THEME_EVENT))
@@ -311,6 +362,10 @@ export class LabTuner extends LitElement {
   #reset(notify = true) {
     for (const name of this.#overrides.keys()) root().style.removeProperty(name)
     this.#overrides.clear()
+    this.#fromPreset.theme.clear()
+    this.#fromPreset.density.clear()
+    this.themeChoice = ''
+    this.densityChoice = ''
     this.#generatedDark.clear()
     if (notify) this.#changed()
   }
@@ -531,6 +586,42 @@ export class LabTuner extends LitElement {
                   <span class="note"
                     >ライトで変えた分を、既定のダークに引き継ぎます（手で直したダークの色は残す）</span
                   >
+                </div>
+                <div class="start" role="group" aria-label="出発点">
+                  <jimble-field
+                    label="既製のテーマから始める"
+                    hint=${
+                      THEMES.find((t) => t.name === this.themeChoice)?.description ??
+                      '主色・灰色・角丸を、そのテーマの値にする'
+                    }
+                  >
+                    <jimble-select
+                      size="sm"
+                      .value=${this.themeChoice}
+                      @change=${(e: Event) =>
+                        this.#applyPreset('theme', (e.target as HTMLInputElement).value)}
+                    >
+                      <jimble-option value="">使わない（いまの theme.css）</jimble-option>
+                      ${THEMES.map((t) => html`<jimble-option value=${t.name}>${t.name}</jimble-option>`)}
+                    </jimble-select>
+                  </jimble-field>
+                  <jimble-field
+                    label="余白の段階"
+                    hint=${
+                      DENSITIES.find((d) => d.name === this.densityChoice)?.description ??
+                      '余白の基準と、ボタン・入力欄の高さを、その段階の値にする'
+                    }
+                  >
+                    <jimble-select
+                      size="sm"
+                      .value=${this.densityChoice}
+                      @change=${(e: Event) =>
+                        this.#applyPreset('density', (e.target as HTMLInputElement).value)}
+                    >
+                      <jimble-option value="">使わない（いまの theme.css）</jimble-option>
+                      ${DENSITIES.map((d) => html`<jimble-option value=${d.name}>${d.name}</jimble-option>`)}
+                    </jimble-select>
+                  </jimble-field>
                 </div>
                 <p class="warn">
                   ここで変えた値は、<strong>このブラウザの中だけ</strong>で、theme.css
