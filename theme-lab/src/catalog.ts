@@ -421,9 +421,12 @@ export const CATALOG: Group[] = [
     ],
   },
   {
-    title: '進み具合・仮の表示・空の状態',
+    title: 'ポップオーバー・進み具合・仮の表示・空の状態',
     note: '進み具合の棒の色は、溝との対比 3:1 以上にする',
     entries: [
+      len('--jimble-popover-width', 'ポップオーバーの幅', '例: 20rem'),
+      radius('--jimble-popover-radius', 'ポップオーバーの角丸'),
+      len('--jimble-popover-padding', 'ポップオーバーの内側の余白', '例: 1rem'),
       c('--jimble-progress-fill', '進み具合の棒の色（variant に応じる）', true),
       c('--jimble-progress-track', '進み具合の棒の溝'),
       len('--jimble-skeleton-width', '仮の表示の幅（形に応じる）', undefined, true),

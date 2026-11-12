@@ -1,0 +1,37 @@
+@layer components {
+  :host(jimble-popover) {
+    display: inline-block;
+  }
+
+  /* 位置は CSS Anchor Positioning。anchor は同じ Shadow ツリー内のラッパー(part=anchor)。メニューと同じ */
+  :host(jimble-popover) [part='anchor'] {
+    anchor-name: --jimble-anchor;
+    display: inline-flex;
+  }
+  :host(jimble-popover) [part='panel'] {
+    position: fixed;
+    inset: auto;
+    margin: 0.375rem 0;
+    position-anchor: --jimble-anchor;
+    position-area: bottom span-right;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+  :host(jimble-popover[placement='bottom-end']) [part='panel'] {
+    position-area: bottom span-left;
+  }
+  :host(jimble-popover[placement='top-start']) [part='panel'] {
+    position-area: top span-right;
+  }
+  :host(jimble-popover[placement='top-end']) [part='panel'] {
+    position-area: top span-left;
+  }
+
+  @media (forced-colors: active) {
+    :host(jimble-popover) [part='panel'] {
+      outline: 1px solid CanvasText;
+    }
+  }
+}

@@ -23,6 +23,7 @@
 @import '../components/kanban/kanban.host.css';
 @import '../components/page-header/page-header.host.css';
 @import '../components/pagination/pagination.host.css';
+@import '../components/popover/popover.host.css';
 @import '../components/progress/progress.host.css';
 @import '../components/radio-group/radio-group.host.css';
 @import '../components/router/router.host.css';

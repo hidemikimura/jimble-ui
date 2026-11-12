@@ -1,0 +1,16 @@
+<!-- title: その場で確認する（data-popover-close で閉じる） -->
+<jimble-popover heading="この下書きを削除しますか？" placement="bottom-end">
+  <jimble-button slot="trigger" variant="danger">削除</jimble-button>
+  <jimble-stack gap="4">
+    <p style="margin: 0">削除した下書きは、元に戻せません。</p>
+    <jimble-stack direction="horizontal" gap="2" justify="end">
+      <jimble-button data-popover-close autofocus>キャンセル</jimble-button>
+      <jimble-button
+        variant="danger"
+        data-popover-close
+        onclick="JimbleUI.toast.success('下書きを削除しました')"
+        >削除する</jimble-button
+      >
+    </jimble-stack>
+  </jimble-stack>
+</jimble-popover>

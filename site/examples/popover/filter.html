@@ -1,0 +1,28 @@
+<!-- title: 絞り込みの条件（中にセレクトやチェックボックスを置ける） -->
+<jimble-popover id="filter-popover" heading="絞り込み">
+  <jimble-button slot="trigger">
+    <jimble-icon slot="prefix" name="funnel"></jimble-icon>絞り込み
+  </jimble-button>
+  <form
+    onsubmit="
+      event.preventDefault()
+      JimbleUI.toast('条件を適用しました')
+      document.getElementById('filter-popover').hide()
+    "
+  >
+    <jimble-stack gap="4">
+      <jimble-field label="状態">
+        <jimble-select name="status" value="all">
+          <jimble-option value="all">すべて</jimble-option>
+          <jimble-option value="new">新規</jimble-option>
+          <jimble-option value="shipped">発送済み</jimble-option>
+        </jimble-select>
+      </jimble-field>
+      <jimble-checkbox name="mine">自分の担当だけ</jimble-checkbox>
+      <jimble-stack direction="horizontal" gap="2" justify="end">
+        <jimble-button type="reset">リセット</jimble-button>
+        <jimble-button type="submit" variant="primary">適用</jimble-button>
+      </jimble-stack>
+    </jimble-stack>
+  </form>
+</jimble-popover>

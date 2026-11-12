@@ -9,7 +9,7 @@
 // 実行: node scripts/gen-skill.ts [--check]   （事前に custom-elements.json が必要: npm run gen:manifest）
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { FORM, firstSentence, pageUrl } from '../cli/catalog.ts'
+import { FORM, firstSentence, pageName } from '../cli/catalog.ts'
 import { dosNames, readDos, DOS_DIR } from './lib/dos.ts'
 import { enumValues, loadElements, type ElementDecl } from './lib/manifest.ts'
 
@@ -91,6 +91,7 @@ const GROUPS: [string, string[]][] = [
       'dropdown-menu',
       'menu-item',
       'menu-separator',
+      'popover',
       'toast',
       'toast-region',
       'tooltip',
@@ -129,13 +130,14 @@ function components(): string {
       const states = (e.cssStates ?? [])
         .filter((s) => s.inheritedFrom?.name !== 'JimbleFormElement')
         .map((s) => `\`:state(${s.name})\``)
-      const page = pageUrl(name)
+      // ページの URL は早見の冒頭に形だけ書く（行数を抑える）。子の要素だけ、説明のあるページ（親）を書く
+      const page = pageName(name)
       out.push(`- **\`jimble-${name}\`** — ${firstSentence(e.description)}`)
       if (attrs.length) out.push(`  - 属性: ${attrs.join(', ')}`)
       if (slots.length) out.push(`  - スロット: ${slots.join(', ')}`)
       if (events.length) out.push(`  - イベント: ${events.join(', ')}`)
       if (states.length) out.push(`  - 状態: ${states.join(', ')}`)
-      out.push(`  - 詳細: ${page}`)
+      if (page !== name) out.push(`  - 説明: \`${page}\` のページ`)
     }
     out.push('')
   }
