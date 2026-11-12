@@ -1,0 +1,20 @@
+<!-- title: 進み具合を、処理に合わせて更新する -->
+<jimble-stack gap="3">
+  <jimble-progress id="progress-run" label="一括の更新" value="0" show-value></jimble-progress>
+  <jimble-stack direction="horizontal" gap="2">
+    <jimble-button id="progress-start" variant="primary">始める</jimble-button>
+  </jimble-stack>
+</jimble-stack>
+<script>
+  document.getElementById('progress-start').addEventListener('click', () => {
+    const bar = document.getElementById('progress-run')
+    bar.value = 0
+    const timer = setInterval(() => {
+      bar.value = Math.min(100, bar.value + 10)
+      if (bar.value >= 100) {
+        clearInterval(timer)
+        JimbleUI.toast.success('更新が終わりました')
+      }
+    }, 300)
+  })
+</script>

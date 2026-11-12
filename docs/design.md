@@ -303,6 +303,8 @@ export const sharedSheet: CSSStyleSheet = (globalThis as any)[KEY] ??= create()
 | それ以外の JS（コンポーネント 1 つぶんなど） | 8 KB 以下（当初は 4 KB） | 最大 6.5 KB（`combobox`） |
 | CDN バンドル全体（22 部品 + Lit + `@lit/context`） | 56 KB 以下 | 39.2 KB |
 
+部品を足すたびに見直している（最新の値は `scripts/check-dist.ts` の `BUDGET`。2026-11-12 に、共有チャンク 18 KB・CDN 110 KB。§21）。
+
 `check-dist.ts` は他に、(a) 出力 CSS に Tailwind 既定パレットの色が残っていないこと、(b) `@property` が残っていないこと、(c) `exports` の各パスが実在すること、(d) 配布用ファイル（`tokens.css` / `cloak.css` / `vscode.html-data.json` / `custom-elements.json` / `locales/en.js`）が揃っていること、を検査する。配布物そのものは、`publint --strict`、`are-the-types-wrong`、`scripts/pack-smoke.ts`（`npm pack` したものを空のプロジェクトに入れ、Vite でのバンドル・`tsc`・実ブラウザで確認）で検査する。
 
 ---
@@ -1977,6 +1979,44 @@ Astryx のドキュメントは、部品ごとに「Do / Don't」を並べ、選
 - **見た目**: 2 つの欄を、見出しの文字（「Do（こうする）」「Don't（避ける）」）と、上の縁の色で区別する（色だけに頼らない）。見出しの色は、ライト・ダークの背景で 4.5:1 以上。
 - **試験**: `tests/unit/dos.test.ts` が、全部品のページにファイルと `::dos` があること、項目の数、読み取りの規則を確かめる。`tests/unit/cli.test.ts` が、`component` の `dos` と、子の要素が親のページの分を出すことを確かめる。E2E が、全部品のページを axe にかける。
 - **部品を足したら**: `site/dos/<名前>.md` も書き、ページに `::dos <名前>` を置く（試験が落ちる）。
+
+## 21. 進み具合・仮の表示・空の状態・区切った見た目のラジオ（2026-11-12）
+
+Astryx にあって jimble-ui に無かった部品のうち、管理画面でよく使い、設計の軽いものを足した。ポップオーバー・コマンドパレット・ツリーは、キー操作と ARIA の設計が重いので、別に検討する。
+
+### 21.1 `jimble-progress`
+
+> **決定** host が `role="progressbar"`・`aria-valuemin`・`aria-valuemax`・`aria-valuenow`（`ElementInternals` と、試験の道具のための属性の両方。§3.3 の例外と同じ扱い）を持つ。`value` が無いと不確定（`aria-valuenow` を出さず、`:state(indeterminate)`）。名前は `label`（表示し、`ariaLabel` にも渡す。表示の文字は `aria-hidden`）か `aria-label`。
+> **理由** ネイティブの `<progress>` は、色・太さ・不確定の動きを、ブラウザごとの疑似要素でしか変えられない。部品にすると、トークンの色とダークモード・強制色モードを揃えられる。
+> **比較した案** 中の `<progress>` に役割を任せる — 見た目を揃えるために、`::-webkit-progress-value` / `::-moz-progress-bar` を別々に書くことになり、不確定の動きも揃わない。
+
+- **色**: 満たした部分は、溝（`surface-track`）との対比 3:1 を、ライト・ダークの両方で満たす必要がある（1.4.11）。`icon-success` / `icon-warning`（600）は溝に対して 3:1 に届かないので、文字の色（`text-*`。700 / ダークは 300）を使う。`contrast.test.ts` に 4 色を足した。
+- **動き**: 不確定は、棒の一部が流れる。「視差効果を減らす」設定では、流さずに溝いっぱいを点滅させる。値の変化は幅の transition（同じ設定では止める）。
+- **強制色モード**: 溝は枠、満たした部分は `Highlight`。
+
+### 21.2 `jimble-skeleton`
+
+> **決定** 読み上げに出さない（`ElementInternals.ariaHidden`）。読み込み中であることは、包む要素の `aria-busy` と、`jimble-spinner` などで伝える（ドキュメントと Do / Don't に書く）。
+> **理由** 仮の面を 1 つずつ「読み込み中」と読ませると、同じことが何度も読まれる。
+> **比較した案** 各面に `role="status"` — 上と同じく、読み上げが重なる。
+
+- 形は `text`（`lines`、最後の行は 60%）・`rect`・`circle`。大きさは `--jimble-skeleton-width` / `-height` / `-radius`。点滅は `motion-safe` のときだけ。強制色モードでは点線の枠。
+
+### 21.3 `jimble-empty-state`
+
+- 見出しは `role="heading"`（`level`、既定 2。`jimble-page-header` と同じ作り）。アイコンは `aria-hidden`。件数の変化の読み上げは、アプリの役目（ドキュメントに書く）。
+- 表が空のときは、`jimble-table` の `empty` スロットに置く（表の空の例を置き換えた）。
+
+### 21.4 区切った見た目のラジオ（segmented control）
+
+> **決定** 新しい部品にせず、`jimble-radio-group` に `appearance="segmented"` を足す。グループが子の `jimble-radio` に `segmented` を伝え、ラジオは丸い表示部の代わりに、ボタン状の面を描く。
+> **理由** 意味・キー操作（矢印キーで選ぶ）・フォームへの参加・検証は、ラジオのグループと同じ。別の部品にすると、これらを二重に持つことになる。
+> **比較した案** `jimble-segmented-control` を作る — 上の理由で重複する。トグルボタンの並び（`aria-pressed`）— 1 つだけを選ぶ意味を、読み上げで伝えられない。
+
+- **選ばれたものの示し方**: 面（`surface`）・枠（`ring-control`。沈んだ面に対して 3:1）・影・太字（色だけに頼らない）。選ばれていない文字は `text-secondary`（沈んだ面で 4.5:1。`text-muted` では足りない）。強制色モードでは `Highlight` の枠。
+- `orientation` は効かず、常に横。並びは折り返さない（少ない選択肢に使う）。
+
+- **予算**: 部品を 5 つ（§19 の 2 つと、ここの 3 つ）足し、CDN バンドルが 105.3 KB（予算 104 KB）、共有チャンク（共有シートの CSS を含む）が 17.1 KB（予算 17 KB）になった。どちらも部品の数に比例して増える分なので、予算を CDN 110 KB・共有チャンク 18 KB に上げた（§4.8 と同じ判断。部品 1 つあたり、CDN で約 0.5 KB）。部品ごとのチャンク（9 KB）は変えていない。
 
 ## 付録 A. 将来の外部ライブラリ候補（今回は採用しない・了承後に採用）
 

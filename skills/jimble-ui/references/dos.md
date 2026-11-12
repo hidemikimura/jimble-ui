@@ -125,12 +125,13 @@
 
 - 2〜6 個ほどの中から 1 つを選ばせる。選択肢は `jimble-radio`。
 - グループに名前を付ける（`jimble-field` の `label`、または `aria-label`）。
-- 短い選択肢を横に並べるときは `orientation="horizontal"`。
+- 短い選択肢を横に並べるときは `orientation="horizontal"`。表示の切り替えなど 2〜5 個の短い選択肢は `appearance="segmented"`。
 
 **Don't**
 
 - 選択肢が多いときに使う。それは `jimble-select` か `jimble-combobox`。
 - 複数を選ばせる。それは `jimble-checkbox`。
+- `appearance="segmented"` を、その場の操作（保存・削除）のボタンの並びに使う。それは `jimble-button`。
 - 既定の選択がないまま、必須にもしない（送られない値ができる）。
 
 ## Field（`jimble-field`）
@@ -527,3 +528,47 @@
 - 行と列に意味のあるデータ（一覧）に使う。それは `jimble-table`。
 - `style` の `display: grid; gap: 12px` を場所ごとに書いて、間隔をばらばらにする。
 - 並べるだけの `jimble-grid` に、リストや見出しの意味を期待する（必要なら外側に `<ul>` や `<section>`）。
+
+## Progress（`jimble-progress`）
+
+**Do**
+
+- 取り込み・一括の処理など、数秒以上かかり、進み具合が分かる処理に使う。
+- `label` か `aria-label` で、何の進み具合かを伝える。
+- 終わりが分からないときは `value` を付けない（不確定）。分かるようになったら `value` を渡す。
+- 失敗したら `variant="danger"` にし、理由を `jimble-alert` などで画面に出す。
+
+**Don't**
+
+- 数秒で終わる処理に使う。それは `jimble-spinner`（ボタンなら `loading`）。
+- 進み具合と関係のない値（使用量・評価）を、棒で見せるために使う。
+- 色だけで成功・失敗を伝える。
+
+## Skeleton（`jimble-skeleton`）
+
+**Do**
+
+- 一覧・カード・文章など、形の決まった内容の読み込み中に、同じ形で置く。
+- 包む要素に `aria-busy="true"` を付け、読み込み中であることは `jimble-spinner` や文字で伝える。
+- あとから出る内容と、大きさ（行の数・高さ）をそろえる。
+
+**Don't**
+
+- 読み込み中であることを、仮の表示だけで伝えようとする（読み上げには出ない）。
+- 長く終わらない処理や、失敗したあとも出し続ける。
+- 形の分からない内容に、適当な形で置く。それは `jimble-spinner`。
+
+## Empty State（`jimble-empty-state`）
+
+**Do**
+
+- 空の一覧・検索の結果なしで、何がないか（`heading`）と、次にすること（`description`）を書く。
+- 最初の 1 件を作る、条件を外すなど、次の一歩を `slot="actions"` に置く。
+- 見出しのレベル（`level`）を、置いた場所の見出しの構造に合わせる。
+- 表が空のときは、`jimble-table` の `slot="empty"` に置く（見出しの行は残る）。
+
+**Don't**
+
+- 「データがありません」とだけ書き、理由や次にすることを書かない。
+- 読み込み中や、エラーのときに使う。それは `jimble-skeleton` / `jimble-spinner`、`jimble-alert`。
+- 表が空のとき、空の行を自分で作って「0 件」と書く（表の `empty` スロットを使う）。

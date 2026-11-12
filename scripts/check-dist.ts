@@ -62,11 +62,11 @@ const kb = (n: number) => (n / 1024).toFixed(1)
 const gz = (f: string) => gzipSync(readFileSync(f)).length
 const BUDGET = {
   /** 共有シート(CSS) + 基底クラス + i18n を含むチャンク */
-  shared: 17 * 1024,
+  shared: 18 * 1024,
   /** それ以外の JS(部品 1 つぶんなど) */
   each: 9 * 1024,
   /** CDN バンドル(全部品 + Lit + @lit/context) */
-  cdn: 104 * 1024,
+  cdn: 110 * 1024,
   /** CDN のコードエディタを、言語なしで開くまでに読み込む分(本体 + CodeMirror + Lit。2026-11-06 の実測 153 KB) */
   codeEditor: 165 * 1024,
   /** CLI(npx で初回に取ってくる。2026-11-12 の実測 8.8 KB) */
